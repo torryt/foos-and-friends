@@ -19,7 +19,7 @@ const MatchHistory = ({ matches, onRecordMatch }: MatchHistoryProps) => {
           <button
             type="button"
             onClick={onRecordMatch}
-            className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-2 rounded-lg hover:from-orange-600 hover:to-red-700 transition-all"
+            className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-2 rounded-lg hover:from-orange-600 hover:to-red-700"
           >
             <Plus size={16} />
           </button>

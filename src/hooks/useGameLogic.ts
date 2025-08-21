@@ -99,9 +99,9 @@ export const useGameLogic = () => {
     return Math.max(800, Math.min(2400, Math.round(newRanking)))
   }
 
-  const addPlayer = (name: string) => {
+  const addPlayer = (name: string, avatar?: string) => {
     const newId = Math.max(...players.map((p) => p.id), 0) + 1
-    const avatars = ['👨‍💻', '👩‍🎨', '🧔', '👩‍💼', '👨‍🔬', '👩‍🚀', '👨‍🎓', '👩‍⚕️']
+    const defaultAvatars = ['👨‍💻', '👩‍🎨', '🧔', '👩‍💼', '👨‍🔬', '👩‍🚀', '👨‍🎓', '👩‍⚕️']
     setPlayers([
       ...players,
       {
@@ -111,7 +111,7 @@ export const useGameLogic = () => {
         matchesPlayed: 0,
         wins: 0,
         losses: 0,
-        avatar: avatars[Math.floor(Math.random() * avatars.length)],
+        avatar: avatar || defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)],
         department: 'Office',
       },
     ])

@@ -38,7 +38,7 @@ function App() {
         <AddPlayerModal
           isOpen={showAddPlayer}
           onClose={() => setShowAddPlayer(false)}
-          onAddPlayer={addPlayer}
+          onAddPlayer={(name, avatar) => addPlayer(name, avatar)}
         />
 
         {showRecordMatch && (

@@ -56,7 +56,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
           <button
             type="button"
             onClick={() => setShowRecordMatch(false)}
-            className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-full hover:bg-white/50"
+            className="text-slate-400 hover:text-slate-600  p-1 rounded-full hover:bg-white/50"
           >
             <X size={20} />
           </button>
@@ -72,7 +72,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
               <select
                 value={team1Player1Id}
                 onChange={(e) => setTeam1Player1Id(e.target.value)}
-                className="w-full p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all text-sm"
+                className="w-full p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
               >
                 <option value="">Select Player 1</option>
                 {getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id]).map((p) => (
@@ -84,7 +84,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
               <select
                 value={team1Player2Id}
                 onChange={(e) => setTeam1Player2Id(e.target.value)}
-                className="w-full p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all text-sm"
+                className="w-full p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
               >
                 <option value="">Select Player 2</option>
                 {getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id]).map((p) => (
@@ -105,7 +105,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
               <select
                 value={team2Player1Id}
                 onChange={(e) => setTeam2Player1Id(e.target.value)}
-                className="w-full p-2 border border-purple-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all text-sm"
+                className="w-full p-2 border border-purple-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-purple-300 focus:border-transparent text-sm"
               >
                 <option value="">Select Player 1</option>
                 {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id]).map((p) => (
@@ -117,7 +117,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
               <select
                 value={team2Player2Id}
                 onChange={(e) => setTeam2Player2Id(e.target.value)}
-                className="w-full p-2 border border-purple-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all text-sm"
+                className="w-full p-2 border border-purple-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-purple-300 focus:border-transparent text-sm"
               >
                 <option value="">Select Player 2</option>
                 {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id]).map((p) => (
@@ -169,7 +169,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
               score2 === '' ||
               new Set([team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id]).size !== 4
             }
-            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700 transition-all duration-200 font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Record Game
           </button>
