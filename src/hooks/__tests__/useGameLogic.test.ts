@@ -1,5 +1,4 @@
-import { act, renderHook } from '@testing-library/react'
-import type { Player } from '@/types'
+import { act, renderHook } from '@/test/test-utils'
 import { useGameLogic } from '../useGameLogic'
 
 describe('useGameLogic', () => {
@@ -14,8 +13,8 @@ describe('useGameLogic', () => {
       })
 
       // Manually set different ratings for testing
-      const highRatedPlayer = result.current.players.find((p) => p.name === 'High Rated Player')!
-      const lowRatedPlayer = result.current.players.find((p) => p.name === 'Low Rated Player')!
+      const _highRatedPlayer = result.current.players.find((p) => p.name === 'High Rated Player')!
+      const _lowRatedPlayer = result.current.players.find((p) => p.name === 'Low Rated Player')!
 
       // Simulate high rated player (1600) losing to low rated player (800)
       const team1HighRating = 1600
@@ -72,11 +71,11 @@ describe('useGameLogic', () => {
 
       const newPlayer = result.current.players.find((p) => p.name === 'New Player')
       expect(newPlayer).toBeDefined()
-      expect(newPlayer!.ranking).toBe(1200)
-      expect(newPlayer!.matchesPlayed).toBe(0)
-      expect(newPlayer!.wins).toBe(0)
-      expect(newPlayer!.losses).toBe(0)
-      expect(newPlayer!.department).toBe('Office')
+      expect(newPlayer?.ranking).toBe(1200)
+      expect(newPlayer?.matchesPlayed).toBe(0)
+      expect(newPlayer?.wins).toBe(0)
+      expect(newPlayer?.losses).toBe(0)
+      expect(newPlayer?.department).toBe('Office')
     })
 
     test('assigns unique IDs to players', () => {

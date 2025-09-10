@@ -26,3 +26,4 @@ dist-ssr
 # User added
 settings.local.json
 .vite
+.env.local

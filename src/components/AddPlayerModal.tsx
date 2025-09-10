@@ -1,15 +1,17 @@
-import { Users, X } from 'lucide-react'
+import { Loader, Users, X } from 'lucide-react'
 import { useState } from 'react'
 
 interface AddPlayerModalProps {
   isOpen: boolean
   onClose: () => void
-  onAddPlayer: (name: string, avatar: string) => void
+  onAddPlayer: (name: string, avatar: string) => Promise<{ success: boolean; error?: string }>
 }
 
 const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) => {
   const [newPlayer, setNewPlayer] = useState('')
   const [selectedAvatar, setSelectedAvatar] = useState('👤')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const availableAvatars = [
     '👨‍💻',
@@ -32,11 +34,37 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
 
   if (!isOpen) return null
 
-  const handleSubmit = () => {
-    if (newPlayer.trim()) {
-      onAddPlayer(newPlayer.trim(), selectedAvatar)
+  const handleSubmit = async () => {
+    if (!newPlayer.trim()) {
+      setError('Please enter a player name')
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const result = await onAddPlayer(newPlayer.trim(), selectedAvatar)
+
+      if (result.success) {
+        setNewPlayer('')
+        setSelectedAvatar('👤')
+        onClose()
+      } else {
+        setError(result.error || 'Failed to add player')
+      }
+    } catch (_err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleClose = () => {
+    if (!isLoading) {
       setNewPlayer('')
       setSelectedAvatar('👤')
+      setError(null)
       onClose()
     }
   }
@@ -57,8 +85,9 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
           </h3>
           <button
             type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-white/50"
+            onClick={handleClose}
+            disabled={isLoading}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-white/50 disabled:opacity-50"
           >
             <X size={20} />
           </button>
@@ -69,9 +98,13 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
               type="text"
               placeholder="Enter friend's name..."
               value={newPlayer}
-              onChange={(e) => setNewPlayer(e.target.value)}
+              onChange={(e) => {
+                setNewPlayer(e.target.value)
+                if (error) setError(null) // Clear error when typing
+              }}
               onKeyPress={handleKeyPress}
-              className="w-full p-3 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+              disabled={isLoading}
+              className="w-full p-3 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent disabled:opacity-50"
             />
           </div>
 
@@ -98,13 +131,26 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
             </div>
           </div>
 
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-800 text-sm">{error}</p>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!newPlayer.trim()}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-purple-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!newPlayer.trim() || isLoading}
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-purple-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Add Friend
+            {isLoading ? (
+              <>
+                <Loader size={16} className="animate-spin" />
+                Adding...
+              </>
+            ) : (
+              'Add Friend'
+            )}
           </button>
         </div>
       </div>
