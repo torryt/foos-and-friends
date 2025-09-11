@@ -56,10 +56,10 @@ export const GroupSelector = ({ onCreateGroup, onJoinGroup }: GroupSelectorProps
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div
+          <button
+            type="button"
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
-            role="button"
             tabIndex={-1}
             aria-label="Close dropdown"
             onKeyDown={(e) => e.key === 'Escape' && setIsOpen(false)}

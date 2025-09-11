@@ -70,7 +70,7 @@ describe('GroupSelectionScreen', () => {
     const user = userEvent.setup()
     render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
-    const groupCard = screen.getByText('Test Group 1').closest('[role="button"]')
+    const groupCard = screen.getByText('Test Group 1').closest('button')
     expect(groupCard).toBeInTheDocument()
 
     if (groupCard) {
@@ -118,7 +118,7 @@ describe('GroupSelectionScreen', () => {
     const user = userEvent.setup()
     render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
-    const groupCard = screen.getByText('Test Group 1').closest('[role="button"]')
+    const groupCard = screen.getByText('Test Group 1').closest('button')
     expect(groupCard).toBeInTheDocument()
 
     if (groupCard) {

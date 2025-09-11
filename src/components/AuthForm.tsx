@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 
 interface AuthFormProps {
@@ -10,6 +10,7 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const emailId = useId()
 
   const { signInWithMagicLink, isMockMode } = useAuth()
 
@@ -88,12 +89,12 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor={emailId} className="block text-sm font-medium text-gray-700 mb-1">
               Email address
             </label>
             <input
               type="email"
-              id="email"
+              id={emailId}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your.email@company.com"

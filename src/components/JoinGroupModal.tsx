@@ -1,5 +1,5 @@
 import { Loader, UserPlus, X } from 'lucide-react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 
 interface JoinGroupModalProps {
@@ -11,6 +11,7 @@ export const JoinGroupModal = ({ isOpen, onClose }: JoinGroupModalProps) => {
   const [inviteCode, setInviteCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const inviteCodeId = useId()
 
   const { joinGroup } = useGroupContext()
 
@@ -90,12 +91,12 @@ export const JoinGroupModal = ({ isOpen, onClose }: JoinGroupModalProps) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label htmlFor="inviteCode" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor={inviteCodeId} className="block text-sm font-medium text-gray-700 mb-1">
               Invite Code *
             </label>
             <input
               type="text"
-              id="inviteCode"
+              id={inviteCodeId}
               value={inviteCode}
               onChange={handleCodeChange}
               placeholder="e.g., ABC123, DEMO123"

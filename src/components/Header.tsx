@@ -30,10 +30,10 @@ const Header = ({ playerCount, user, onSignOut, isMockMode }: HeaderProps) => {
                 <p className="text-xs md:text-sm text-slate-600">Play. Compete. Connect.</p>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="text-center bg-white/80 px-3 py-2 rounded-lg border border-white/50">
+              <div className="flex items-center gap-1 md:gap-3">
+                <div className="text-center bg-white/80 px-2 md:px-3 py-2 rounded-lg border border-white/50">
                   <div className="text-sm font-bold text-orange-600">{playerCount}</div>
-                  <div className="text-xs text-slate-600">Friends</div>
+                  <div className="text-xs text-slate-600 hidden sm:block">Friends</div>
                 </div>
 
                 {user && (
@@ -43,17 +43,17 @@ const Header = ({ playerCount, user, onSignOut, isMockMode }: HeaderProps) => {
                       onJoinGroup={() => setShowJoinGroup(true)}
                     />
 
-                    <div className="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-lg border border-white/50">
+                    <div className="flex items-center gap-1 md:gap-2 bg-white/80 px-2 md:px-3 py-2 rounded-lg border border-white/50">
                       {isMockMode && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        <span className="text-xs bg-blue-100 text-blue-800 px-1 md:px-2 py-1 rounded-full">
                           Demo
                         </span>
                       )}
 
-                      <div className="flex items-center gap-2">
-                        <User size={16} className="text-gray-600" />
-                        <div className="text-sm font-medium text-gray-700 max-w-32 truncate">
-                          {isMockMode ? 'Demo User' : user.email}
+                      <div className="flex items-center gap-1 md:gap-2">
+                        <User size={14} className="text-gray-600" />
+                        <div className="text-xs md:text-sm font-medium text-gray-700 max-w-16 md:max-w-32 truncate">
+                          {isMockMode ? 'Demo' : user.email.split('@')[0]}
                         </div>
                       </div>
 
@@ -61,10 +61,10 @@ const Header = ({ playerCount, user, onSignOut, isMockMode }: HeaderProps) => {
                         <button
                           type="button"
                           onClick={onSignOut}
-                          className="ml-2 p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                          className="ml-1 p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                           title="Sign out"
                         >
-                          <LogOut size={14} />
+                          <LogOut size={12} className="md:w-[14px] md:h-[14px]" />
                         </button>
                       )}
                     </div>

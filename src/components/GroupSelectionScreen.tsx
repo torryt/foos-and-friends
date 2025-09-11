@@ -25,12 +25,11 @@ const GroupCard = ({ group, onSelect }: GroupCardProps) => {
   }
 
   return (
-    <div
-      className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/90 hover:shadow-md transition-all cursor-pointer"
+    <button
+      type="button"
+      className="w-full text-left bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/90 hover:shadow-md transition-all cursor-pointer"
       onClick={onSelect}
       onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
       aria-label={`Select ${group.name} group`}
     >
       <div className="flex items-center justify-between">
@@ -51,7 +50,7 @@ const GroupCard = ({ group, onSelect }: GroupCardProps) => {
           <Users size={24} />
         </div>
       </div>
-    </div>
+    </button>
   )
 }
 

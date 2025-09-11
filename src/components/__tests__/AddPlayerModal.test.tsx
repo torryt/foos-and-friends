@@ -4,11 +4,11 @@ import AddPlayerModal from '../AddPlayerModal'
 
 describe('AddPlayerModal', () => {
   const mockOnClose = vi.fn()
-  const mockOnAddPlayer = vi.fn()
+  const mockOnAddPlayer = vi.fn().mockResolvedValue({ success: true })
 
   beforeEach(() => {
     mockOnClose.mockClear()
-    mockOnAddPlayer.mockClear()
+    mockOnAddPlayer.mockClear().mockResolvedValue({ success: true })
   })
 
   test('does not render when isOpen is false', () => {
@@ -44,8 +44,10 @@ describe('AddPlayerModal', () => {
     await user.type(input, 'John Doe')
     await user.click(submitButton)
 
-    expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', '👤')
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', '👤')
+      expect(mockOnClose).toHaveBeenCalledTimes(1)
+    })
   })
 
   test('adds player when Enter key is pressed', async () => {
@@ -57,8 +59,10 @@ describe('AddPlayerModal', () => {
     await user.type(input, 'Jane Smith')
     await user.keyboard('{Enter}')
 
-    expect(mockOnAddPlayer).toHaveBeenCalledWith('Jane Smith', '👤')
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('Jane Smith', '👤')
+      expect(mockOnClose).toHaveBeenCalledTimes(1)
+    })
   })
 
   test('trims whitespace from player name', async () => {
@@ -71,7 +75,9 @@ describe('AddPlayerModal', () => {
     await user.type(input, '  John Doe  ')
     await user.click(submitButton)
 
-    expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', '👤')
+    await waitFor(() => {
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', '👤')
+    })
   })
 
   test('does not submit when name is empty', async () => {
@@ -153,7 +159,9 @@ describe('AddPlayerModal', () => {
     await user.type(input, 'Engineer Bob')
     await user.click(submitButton)
 
-    expect(mockOnAddPlayer).toHaveBeenCalledWith('Engineer Bob', '👨‍💻')
+    await waitFor(() => {
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('Engineer Bob', '👨‍💻')
+    })
   })
 
   test('resets avatar selection after successful submission', async () => {
@@ -170,7 +178,9 @@ describe('AddPlayerModal', () => {
     await user.type(input, 'Designer Alice')
     await user.click(submitButton)
 
-    expect(mockOnAddPlayer).toHaveBeenCalledWith('Designer Alice', '👩‍🎨')
-    expect(mockOnClose).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('Designer Alice', '👩‍🎨')
+      expect(mockOnClose).toHaveBeenCalledTimes(1)
+    })
   })
 })

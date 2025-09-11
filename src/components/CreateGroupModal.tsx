@@ -1,5 +1,5 @@
 import { Loader, Users, X } from 'lucide-react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 
 interface CreateGroupModalProps {
@@ -12,6 +12,8 @@ export const CreateGroupModal = ({ isOpen, onClose }: CreateGroupModalProps) => 
   const [description, setDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const nameId = useId()
+  const descriptionId = useId()
 
   const { createGroup } = useGroupContext()
 
@@ -85,12 +87,12 @@ export const CreateGroupModal = ({ isOpen, onClose }: CreateGroupModalProps) => 
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label htmlFor="groupName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor={nameId} className="block text-sm font-medium text-gray-700 mb-1">
               Group Name *
             </label>
             <input
               type="text"
-              id="groupName"
+              id={nameId}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Office Champions, Friday League"
@@ -103,14 +105,11 @@ export const CreateGroupModal = ({ isOpen, onClose }: CreateGroupModalProps) => 
           </div>
 
           <div>
-            <label
-              htmlFor="groupDescription"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor={descriptionId} className="block text-sm font-medium text-gray-700 mb-1">
               Description (optional)
             </label>
             <textarea
-              id="groupDescription"
+              id={descriptionId}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Tell your group members what this group is about..."

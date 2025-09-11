@@ -136,7 +136,7 @@ describe('useGameLogic', () => {
         updatedPlayers.find((p) => p.id === initialPlayers[2].id),
         updatedPlayers.find((p) => p.id === initialPlayers[3].id),
       ].filter(Boolean)
-      
+
       expect(team1PlayersUpdated).toHaveLength(2)
       expect(team2PlayersUpdated).toHaveLength(2)
 
