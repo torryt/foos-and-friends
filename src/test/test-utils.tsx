@@ -13,9 +13,8 @@ vi.mock('@/hooks/useAuth', () => ({
     isAuthenticated: true,
     loading: false,
     error: null,
-    signIn: vi.fn(),
+    signInWithMagicLink: vi.fn(),
     signOut: vi.fn(),
-    isMockMode: true,
   }),
 }))
 

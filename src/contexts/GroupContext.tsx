@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { isMockMode } from '@/lib/supabase'
 import { groupService } from '@/services/groupService'
 import type { FriendGroup } from '@/types'
 
@@ -58,9 +57,6 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         // Set first group as current if none selected and no current group exists
         setCurrentGroup((current) => {
           if (!current && result.data.length > 0) {
-            if (isMockMode) {
-              groupService.setCurrentMockGroup(result.data[0].id)
-            }
             return result.data[0]
           }
           return current
@@ -80,9 +76,6 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     const group = userGroups.find((g) => g.id === groupId)
     if (group) {
       setCurrentGroup(group)
-      if (isMockMode) {
-        groupService.setCurrentMockGroup(groupId)
-      }
     }
   }
 
@@ -106,9 +99,6 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           const newGroup = userGroups.find((g) => g.id === result.groupId)
           if (newGroup) {
             setCurrentGroup(newGroup)
-            if (isMockMode) {
-              groupService.setCurrentMockGroup(result.groupId)
-            }
           }
         }
 
@@ -144,9 +134,6 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           const joinedGroup = userGroups.find((g) => g.id === result.groupId)
           if (joinedGroup) {
             setCurrentGroup(joinedGroup)
-            if (isMockMode) {
-              groupService.setCurrentMockGroup(result.groupId)
-            }
           }
         }
 
@@ -165,16 +152,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   // Load groups when user authenticates
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (isMockMode) {
-        // For mock mode, set up the default group directly
-        const mockGroup = groupService.getCurrentMockGroup()
-        setCurrentGroup(mockGroup)
-        setUserGroups([mockGroup])
-        setError(null)
-        setLoading(false)
-      } else {
-        refreshGroups()
-      }
+      refreshGroups()
     } else {
       setUserGroups([])
       setCurrentGroup(null)

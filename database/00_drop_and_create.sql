@@ -11,6 +11,7 @@ DROP TRIGGER IF EXISTS update_group_visibility_trigger ON group_memberships;
 DROP FUNCTION IF EXISTS create_friend_group(text, text);
 DROP FUNCTION IF EXISTS join_group_by_invite_code(text, uuid);
 DROP FUNCTION IF EXISTS update_group_visibility();
+DROP FUNCTION IF EXISTS generate_invite_code();
 
 -- Drop all policies by disabling RLS and dropping tables
 DROP TABLE IF EXISTS matches CASCADE;
@@ -20,6 +21,21 @@ DROP TABLE IF EXISTS friend_groups CASCADE;
 
 -- ===== RECREATE EVERYTHING =====
 
+-- Create function to generate 8-character lowercase alphanumeric invite codes
+CREATE OR REPLACE FUNCTION generate_invite_code()
+RETURNS text AS $$
+DECLARE
+  chars text := 'abcdefghijklmnopqrstuvwxyz0123456789';
+  result text := '';
+  i integer;
+BEGIN
+  FOR i IN 1..8 LOOP
+    result := result || substr(chars, floor(random() * length(chars) + 1)::integer, 1);
+  END LOOP;
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. Create Friend Groups Table
 CREATE TABLE friend_groups (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -27,7 +43,7 @@ CREATE TABLE friend_groups (
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   name text NOT NULL,
   description text,
-  invite_code text UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(6), 'base64'),
+  invite_code text UNIQUE NOT NULL DEFAULT generate_invite_code(),
   owner_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   created_by uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   is_active boolean DEFAULT true NOT NULL,

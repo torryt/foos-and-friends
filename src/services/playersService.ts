@@ -1,79 +1,5 @@
-import { isMockMode, isSupabaseAvailable, supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import type { DbPlayer, Player } from '@/types'
-
-// Mock data - this gets used when in mock mode
-let mockPlayers: Player[] = [
-  {
-    id: '1',
-    name: 'Alex Chen',
-    ranking: 1450,
-    matchesPlayed: 18,
-    wins: 12,
-    losses: 6,
-    avatar: '👨‍💻',
-    department: 'Engineering',
-    groupId: 'mock-group-1',
-    createdBy: 'mock-user-id',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Maria Garcia',
-    ranking: 1320,
-    matchesPlayed: 15,
-    wins: 9,
-    losses: 6,
-    avatar: '👩‍🎨',
-    department: 'Design',
-    groupId: 'mock-group-1',
-    createdBy: 'mock-user-id',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Jake Wilson',
-    ranking: 1680,
-    matchesPlayed: 22,
-    wins: 17,
-    losses: 5,
-    avatar: '🧔',
-    department: 'Sales',
-    groupId: 'mock-group-1',
-    createdBy: 'mock-user-id',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    name: 'Sarah Kim',
-    ranking: 1180,
-    matchesPlayed: 12,
-    wins: 5,
-    losses: 7,
-    avatar: '👩‍💼',
-    department: 'Marketing',
-    groupId: 'mock-group-1',
-    createdBy: 'mock-user-id',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    name: 'Tom Rodriguez',
-    ranking: 1250,
-    matchesPlayed: 10,
-    wins: 6,
-    losses: 4,
-    avatar: '👨‍🔬',
-    department: 'Product',
-    groupId: 'mock-group-1',
-    createdBy: 'mock-user-id',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-]
 
 // Transform database player to app player
 const dbPlayerToPlayer = (dbPlayer: DbPlayer): Player => ({
@@ -109,15 +35,6 @@ const playerToDbInsert = (
 export const playersService = {
   // Get all players in a group
   async getPlayersByGroup(groupId: string): Promise<{ data: Player[]; error?: string }> {
-    if (isMockMode) {
-      const groupPlayers = mockPlayers.filter((p) => p.groupId === groupId)
-      return { data: groupPlayers }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: [], error: 'Supabase not available' }
-    }
-
     try {
       const { data, error } = await supabase
         .from('players')
@@ -144,41 +61,6 @@ export const playersService = {
     department: string,
     createdBy: string,
   ): Promise<{ data: Player | null; error?: string }> {
-    if (isMockMode) {
-      // Check for duplicate name in group
-      const existingPlayer = mockPlayers.find((p) => p.groupId === groupId && p.name === name)
-      if (existingPlayer) {
-        return { data: null, error: 'A player with this name already exists in the group' }
-      }
-
-      const numericIds = mockPlayers
-        .map((p) => parseInt(p.id, 10))
-        .filter((id) => !Number.isNaN(id))
-      const newId = (Math.max(...numericIds, 0) + 1).toString()
-
-      const newPlayer: Player = {
-        id: newId,
-        name,
-        ranking: 1200,
-        matchesPlayed: 0,
-        wins: 0,
-        losses: 0,
-        avatar,
-        department,
-        groupId,
-        createdBy,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-
-      mockPlayers.push(newPlayer)
-      return { data: newPlayer }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: null, error: 'Supabase not available' }
-    }
-
     try {
       const playerData = playerToDbInsert({
         name,
@@ -219,26 +101,6 @@ export const playersService = {
       losses?: number
     },
   ): Promise<{ data: Player | null; error?: string }> {
-    if (isMockMode) {
-      const playerIndex = mockPlayers.findIndex((p) => p.id === playerId)
-      if (playerIndex === -1) {
-        return { data: null, error: 'Player not found' }
-      }
-
-      const updatedPlayer = {
-        ...mockPlayers[playerIndex],
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      }
-
-      mockPlayers[playerIndex] = updatedPlayer
-      return { data: updatedPlayer }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: null, error: 'Supabase not available' }
-    }
-
     try {
       const dbUpdates: Partial<DbPlayer> = {}
       if (updates.ranking !== undefined) dbUpdates.ranking = updates.ranking
@@ -275,29 +137,6 @@ export const playersService = {
       losses?: number
     }>,
   ): Promise<{ data: Player[]; error?: string }> {
-    if (isMockMode) {
-      const updatedPlayers: Player[] = []
-
-      for (const update of updates) {
-        const playerIndex = mockPlayers.findIndex((p) => p.id === update.id)
-        if (playerIndex !== -1) {
-          const updatedPlayer = {
-            ...mockPlayers[playerIndex],
-            ...update,
-            updatedAt: new Date().toISOString(),
-          }
-          mockPlayers[playerIndex] = updatedPlayer
-          updatedPlayers.push(updatedPlayer)
-        }
-      }
-
-      return { data: updatedPlayers }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: [], error: 'Supabase not available' }
-    }
-
     try {
       const updatedPlayers: Player[] = []
 
@@ -327,15 +166,6 @@ export const playersService = {
 
   // Get player by ID
   async getPlayerById(playerId: string): Promise<{ data: Player | null; error?: string }> {
-    if (isMockMode) {
-      const player = mockPlayers.find((p) => p.id === playerId)
-      return { data: player || null }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: null, error: 'Supabase not available' }
-    }
-
     try {
       const { data, error } = await supabase.from('players').select('*').eq('id', playerId).single()
 
@@ -352,20 +182,6 @@ export const playersService = {
 
   // Delete player (optional - might not be needed)
   async deletePlayer(playerId: string): Promise<{ success: boolean; error?: string }> {
-    if (isMockMode) {
-      const playerIndex = mockPlayers.findIndex((p) => p.id === playerId)
-      if (playerIndex === -1) {
-        return { success: false, error: 'Player not found' }
-      }
-
-      mockPlayers.splice(playerIndex, 1)
-      return { success: true }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { success: false, error: 'Supabase not available' }
-    }
-
     try {
       const { error } = await supabase.from('players').delete().eq('id', playerId)
 
@@ -380,15 +196,5 @@ export const playersService = {
         error: err instanceof Error ? err.message : 'Failed to delete player',
       }
     }
-  },
-
-  // Get mock players (for mock mode utilities)
-  getMockPlayers(): Player[] {
-    return [...mockPlayers]
-  },
-
-  // Set mock players (for mock mode utilities)
-  setMockPlayers(players: Player[]): void {
-    mockPlayers = [...players]
   },
 }

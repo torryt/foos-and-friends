@@ -1,28 +1,20 @@
 /// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js'
 
-// Environment variable validation with mock mode fallback
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Check if we're in mock mode (missing environment variables)
-export const isMockMode = !supabaseUrl || !supabaseAnonKey
-
-// Create Supabase client only if we have valid credentials
-export const supabase = isMockMode
-  ? null
-  : createClient(supabaseUrl as string, supabaseAnonKey as string, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-      },
-    })
-
-// Helper to check if Supabase is available
-export const isSupabaseAvailable = () => {
-  return !isMockMode && supabase !== null
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
 }
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+})
 
 // Database type definitions
 export interface Database {

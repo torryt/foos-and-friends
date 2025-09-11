@@ -1,44 +1,6 @@
-import { isMockMode, isSupabaseAvailable, supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import type { DbMatch, Match, Player } from '@/types'
 import { playersService } from './playersService'
-
-// Mock data - this gets used when in mock mode
-let mockMatches: Match[] = []
-
-// Initialize mock matches with sample data
-const initializeMockMatches = async () => {
-  if (mockMatches.length > 0) return // Already initialized
-
-  const mockPlayers = playersService.getMockPlayers()
-  if (mockPlayers.length < 4) return // Need at least 4 players for matches
-
-  mockMatches = [
-    {
-      id: '1',
-      team1: [mockPlayers[0], mockPlayers[1]],
-      team2: [mockPlayers[2], mockPlayers[3]],
-      score1: 10,
-      score2: 7,
-      date: '2024-08-21',
-      time: '14:30',
-      groupId: 'mock-group-1',
-      recordedBy: 'mock-user-id',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      team1: [mockPlayers[1], mockPlayers[4]],
-      team2: [mockPlayers[0], mockPlayers[2]],
-      score1: 8,
-      score2: 10,
-      date: '2024-08-21',
-      time: '13:15',
-      groupId: 'mock-group-1',
-      recordedBy: 'mock-user-id',
-      createdAt: new Date().toISOString(),
-    },
-  ]
-}
 
 // Transform database match to app match
 const dbMatchToMatch = async (dbMatch: DbMatch): Promise<Match | null> => {
@@ -96,16 +58,6 @@ const matchToDbInsert = (
 export const matchesService = {
   // Get all matches in a group
   async getMatchesByGroup(groupId: string): Promise<{ data: Match[]; error?: string }> {
-    if (isMockMode) {
-      await initializeMockMatches()
-      const groupMatches = mockMatches.filter((m) => m.groupId === groupId)
-      return { data: groupMatches }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: [], error: 'Supabase not available' }
-    }
-
     try {
       const { data, error } = await supabase
         .from('matches')
@@ -220,59 +172,6 @@ export const matchesService = {
       },
     ]
 
-    if (isMockMode) {
-      await initializeMockMatches()
-
-      // Update player stats in mock mode
-      const updateResult = await playersService.updateMultiplePlayers(playerUpdates)
-      if (updateResult.error) {
-        return { data: null, error: updateResult.error }
-      }
-
-      // Get updated players for the match object
-      const updatedPlayersResults = await Promise.all([
-        playersService.getPlayerById(team1Player1Id),
-        playersService.getPlayerById(team1Player2Id),
-        playersService.getPlayerById(team2Player1Id),
-        playersService.getPlayerById(team2Player2Id),
-      ])
-
-      const updatedPlayers = updatedPlayersResults.map((r) => r.data).filter(Boolean) as Player[]
-      if (updatedPlayers.length !== 4) {
-        return { data: null, error: 'Failed to get updated player data' }
-      }
-
-      // Create new match
-      const numericIds = mockMatches
-        .map((m) => parseInt(m.id, 10))
-        .filter((id) => !Number.isNaN(id))
-      const newMatchId = (Math.max(...numericIds, 0) + 1).toString()
-
-      const newMatch: Match = {
-        id: newMatchId,
-        team1: [updatedPlayers[0], updatedPlayers[1]],
-        team2: [updatedPlayers[2], updatedPlayers[3]],
-        score1,
-        score2,
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        }),
-        groupId,
-        recordedBy,
-        createdAt: new Date().toISOString(),
-      }
-
-      mockMatches.unshift(newMatch) // Add to beginning for latest-first order
-      return { data: newMatch }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: null, error: 'Supabase not available' }
-    }
-
     try {
       // Start a transaction to update players and create match
       const { data: matchData, error: matchError } = await supabase
@@ -324,16 +223,6 @@ export const matchesService = {
 
   // Get match by ID
   async getMatchById(matchId: string): Promise<{ data: Match | null; error?: string }> {
-    if (isMockMode) {
-      await initializeMockMatches()
-      const match = mockMatches.find((m) => m.id === matchId)
-      return { data: match || null }
-    }
-
-    if (!isSupabaseAvailable() || !supabase) {
-      return { data: null, error: 'Supabase not available' }
-    }
-
     try {
       const { data, error } = await supabase.from('matches').select('*').eq('id', matchId).single()
 
@@ -346,15 +235,5 @@ export const matchesService = {
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch match' }
     }
-  },
-
-  // Get mock matches (for mock mode utilities)
-  getMockMatches(): Match[] {
-    return [...mockMatches]
-  },
-
-  // Set mock matches (for mock mode utilities)
-  setMockMatches(matches: Match[]): void {
-    mockMatches = [...matches]
   },
 }

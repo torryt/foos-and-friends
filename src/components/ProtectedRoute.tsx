@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, fallback }: ProtectedRouteProps) => {
-  const { isAuthenticated, loading, isMockMode } = useAuth()
+  const { isAuthenticated, loading } = useAuth()
 
-  // Show loading state only when not in mock mode
-  if (loading && !isMockMode) {
+  // Show loading state
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

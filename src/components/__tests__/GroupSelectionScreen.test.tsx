@@ -8,7 +8,7 @@ const mockGroups: FriendGroup[] = [
     id: 'group-1',
     name: 'Test Group 1',
     description: 'A test group',
-    inviteCode: 'TEST123',
+    inviteCode: 'test1234',
     ownerId: 'user-1',
     createdBy: 'user-1',
     isActive: true,
@@ -20,7 +20,7 @@ const mockGroups: FriendGroup[] = [
     id: 'group-2',
     name: 'Test Group 2',
     description: 'Another test group',
-    inviteCode: 'TEST456',
+    inviteCode: 'test5678',
     ownerId: 'user-2',
     createdBy: 'user-2',
     isActive: true,
@@ -110,8 +110,8 @@ describe('GroupSelectionScreen', () => {
   test('displays group invite codes', () => {
     render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
-    expect(screen.getByText('TEST123')).toBeInTheDocument()
-    expect(screen.getByText('TEST456')).toBeInTheDocument()
+    expect(screen.getByText('test1234')).toBeInTheDocument()
+    expect(screen.getByText('test5678')).toBeInTheDocument()
   })
 
   test('supports keyboard navigation for group cards', async () => {

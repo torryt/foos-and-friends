@@ -9,6 +9,7 @@ import PlayerRankings from '@/components/PlayerRankings'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import QuickActions from '@/components/QuickActions'
 import TabNavigation from '@/components/TabNavigation'
+import { ToastContainer } from '@/components/Toast'
 import { GroupProvider, useGroupContext } from '@/contexts/GroupContext'
 import { useAuth } from '@/hooks/useAuth'
 import { useGameLogic } from '@/hooks/useGameLogic'
@@ -18,10 +19,9 @@ import type { AuthUser } from '@/types'
 interface AppContentProps {
   user: AuthUser | null
   onSignOut: () => void
-  isMockMode: boolean
 }
 
-const AppContent = ({ user, onSignOut, isMockMode }: AppContentProps) => {
+const AppContent = ({ user, onSignOut }: AppContentProps) => {
   const [activeTab, setActiveTab] = useState('rankings')
   const [showAddPlayer, setShowAddPlayer] = useState(false)
   const [showRecordMatch, setShowRecordMatch] = useState(false)
@@ -84,12 +84,7 @@ const AppContent = ({ user, onSignOut, isMockMode }: AppContentProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-100">
-      <Header
-        playerCount={players.length}
-        user={user}
-        onSignOut={onSignOut}
-        isMockMode={isMockMode}
-      />
+      <Header playerCount={players.length} user={user} onSignOut={onSignOut} />
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="container mx-auto max-w-6xl p-4">
@@ -126,7 +121,7 @@ const AppContent = ({ user, onSignOut, isMockMode }: AppContentProps) => {
 }
 
 function App() {
-  const { user, signOut, isMockMode } = useAuth()
+  const { user, signOut } = useAuth()
 
   const handleSignOut = async () => {
     await signOut()
@@ -135,7 +130,8 @@ function App() {
   return (
     <ProtectedRoute>
       <GroupProvider>
-        <AppContent user={user} onSignOut={handleSignOut} isMockMode={isMockMode} />
+        <AppContent user={user} onSignOut={handleSignOut} />
+        <ToastContainer />
       </GroupProvider>
     </ProtectedRoute>
   )

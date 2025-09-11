@@ -1,5 +1,6 @@
-import { LogOut, User, Zap } from 'lucide-react'
+import { LogOut, User, Users, Zap } from 'lucide-react'
 import { useState } from 'react'
+import { useGroupContext } from '@/contexts/GroupContext'
 import type { AuthUser } from '@/types'
 import { CreateGroupModal } from './CreateGroupModal'
 import { GroupSelector } from './GroupSelector'
@@ -9,12 +10,13 @@ interface HeaderProps {
   playerCount: number
   user?: AuthUser | null
   onSignOut?: () => void
-  isMockMode?: boolean
 }
 
-const Header = ({ playerCount, user, onSignOut, isMockMode }: HeaderProps) => {
+const Header = ({ playerCount, user, onSignOut }: HeaderProps) => {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const { currentGroup } = useGroupContext()
 
   return (
     <>
@@ -38,34 +40,86 @@ const Header = ({ playerCount, user, onSignOut, isMockMode }: HeaderProps) => {
 
                 {user && (
                   <>
-                    <GroupSelector
-                      onCreateGroup={() => setShowCreateGroup(true)}
-                      onJoinGroup={() => setShowJoinGroup(true)}
-                    />
+                    {/* Desktop Group Selector */}
+                    <div className="hidden sm:block">
+                      <GroupSelector
+                        onCreateGroup={() => setShowCreateGroup(true)}
+                        onJoinGroup={() => setShowJoinGroup(true)}
+                      />
+                    </div>
 
-                    <div className="flex items-center gap-1 md:gap-2 bg-white/80 px-2 md:px-3 py-2 rounded-lg border border-white/50">
-                      {isMockMode && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-1 md:px-2 py-1 rounded-full">
-                          Demo
-                        </span>
-                      )}
-
-                      <div className="flex items-center gap-1 md:gap-2">
-                        <User size={14} className="text-gray-600" />
-                        <div className="text-xs md:text-sm font-medium text-gray-700 max-w-16 md:max-w-32 truncate">
-                          {isMockMode ? 'Demo' : user.email.split('@')[0]}
+                    {/* Mobile Group Icon */}
+                    <div className="sm:hidden">
+                      {currentGroup ? (
+                        <GroupSelector
+                          onCreateGroup={() => setShowCreateGroup(true)}
+                          onJoinGroup={() => setShowJoinGroup(true)}
+                        />
+                      ) : (
+                        <div className="bg-white/80 px-2 py-2 rounded-lg border border-white/50">
+                          <Users size={16} className="text-gray-600" />
                         </div>
-                      </div>
+                      )}
+                    </div>
 
-                      {onSignOut && (
-                        <button
-                          type="button"
-                          onClick={onSignOut}
-                          className="ml-1 p-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                          title="Sign out"
-                        >
-                          <LogOut size={12} className="md:w-[14px] md:h-[14px]" />
-                        </button>
+                    {/* Profile Dropdown for all screen sizes */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                        className="bg-white/80 px-2 py-2 rounded-lg border border-white/50 hover:bg-white transition-colors flex items-center gap-2"
+                        title={user.email.split('@')[0]}
+                      >
+                        <User size={16} className="text-gray-600" />
+                        {/* Desktop: Show username */}
+                        <div className="hidden sm:flex items-center gap-1">
+                          <span className="text-xs md:text-sm font-medium text-gray-700 max-w-16 md:max-w-32 truncate">
+                            {user.email.split('@')[0]}
+                          </span>
+                        </div>
+                      </button>
+
+                      {showProfileDropdown && (
+                        <>
+                          {/* Backdrop */}
+                          <button
+                            type="button"
+                            className="fixed inset-0 z-10"
+                            onClick={() => setShowProfileDropdown(false)}
+                            tabIndex={-1}
+                            aria-label="Close profile dropdown"
+                          />
+
+                          {/* Profile Dropdown */}
+                          <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 min-w-48 z-20">
+                            <div className="p-2">
+                              {/* User info section */}
+                              <div className="px-3 py-2 border-b border-gray-100">
+                                <div className="text-sm font-medium text-gray-900 truncate">
+                                  {user.email.split('@')[0]}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                              </div>
+
+                              {/* Actions section */}
+                              <div className="pt-2">
+                                {onSignOut && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      onSignOut()
+                                      setShowProfileDropdown(false)
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2 text-sm font-medium text-red-700"
+                                  >
+                                    <LogOut size={16} className="text-red-500" />
+                                    Sign Out
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </>
                       )}
                     </div>
                   </>

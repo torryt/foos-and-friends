@@ -23,10 +23,10 @@ export const JoinGroupModal = ({ isOpen, onClose }: JoinGroupModalProps) => {
       return
     }
 
-    const cleanCode = inviteCode.trim().toUpperCase()
+    const cleanCode = inviteCode.trim().toLowerCase()
 
-    if (cleanCode.length < 6) {
-      setError('Invite code must be at least 6 characters')
+    if (cleanCode.length !== 8) {
+      setError('Invite code must be exactly 8 characters')
       return
     }
 
@@ -59,8 +59,8 @@ export const JoinGroupModal = ({ isOpen, onClose }: JoinGroupModalProps) => {
   }
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Auto-uppercase and clean the input
-    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')
+    // Only allow lowercase letters and numbers
+    const value = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '')
     setInviteCode(value)
 
     // Clear error when user starts typing
@@ -99,10 +99,10 @@ export const JoinGroupModal = ({ isOpen, onClose }: JoinGroupModalProps) => {
               id={inviteCodeId}
               value={inviteCode}
               onChange={handleCodeChange}
-              placeholder="e.g., ABC123, DEMO123"
+              placeholder="e.g., abc12345, demo1234"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-center text-lg tracking-wider"
               disabled={isLoading}
-              maxLength={10}
+              maxLength={8}
               required
             />
             <div className="text-xs text-gray-500 mt-1 text-center">
@@ -121,7 +121,7 @@ export const JoinGroupModal = ({ isOpen, onClose }: JoinGroupModalProps) => {
             <ul className="text-sm text-green-800 space-y-1">
               <li>• Ask a current group member for the code</li>
               <li>• Group owners can find it in group settings</li>
-              <li>• Codes are case-insensitive and usually 6-8 characters</li>
+              <li>• Codes are exactly 8 characters (lowercase letters and numbers)</li>
             </ul>
           </div>
 
