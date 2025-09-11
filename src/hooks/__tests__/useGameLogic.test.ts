@@ -13,8 +13,10 @@ describe('useGameLogic', () => {
       })
 
       // Manually set different ratings for testing
-      const _highRatedPlayer = result.current.players.find((p) => p.name === 'High Rated Player')!
-      const _lowRatedPlayer = result.current.players.find((p) => p.name === 'Low Rated Player')!
+      const highRatedPlayer = result.current.players.find((p) => p.name === 'High Rated Player')
+      const lowRatedPlayer = result.current.players.find((p) => p.name === 'Low Rated Player')
+      expect(highRatedPlayer).toBeDefined()
+      expect(lowRatedPlayer).toBeDefined()
 
       // Simulate high rated player (1600) losing to low rated player (800)
       const team1HighRating = 1600
@@ -23,6 +25,9 @@ describe('useGameLogic', () => {
       // Expected calculation: 1600 + 32 * (0 - (1 / (1 + 10^((800-1600)/400)))) ≈ 1600 - 29 = ~1571
       // Low rated player: 800 + 32 * (1 - (1 / (1 + 10^((1600-800)/400)))) ≈ 800 + 29 = ~829
 
+      // Use the found players to verify they exist
+      expect(highRatedPlayer).toBeDefined()
+      expect(lowRatedPlayer).toBeDefined()
       expect(team1HighRating > team2LowRating).toBe(true)
     })
 
@@ -124,22 +129,31 @@ describe('useGameLogic', () => {
       // Check player stats updated
       const updatedPlayers = result.current.players
       const team1PlayersUpdated = [
-        updatedPlayers.find((p) => p.id === initialPlayers[0].id)!,
-        updatedPlayers.find((p) => p.id === initialPlayers[1].id)!,
-      ]
+        updatedPlayers.find((p) => p.id === initialPlayers[0].id),
+        updatedPlayers.find((p) => p.id === initialPlayers[1].id),
+      ].filter(Boolean)
       const team2PlayersUpdated = [
-        updatedPlayers.find((p) => p.id === initialPlayers[2].id)!,
-        updatedPlayers.find((p) => p.id === initialPlayers[3].id)!,
-      ]
+        updatedPlayers.find((p) => p.id === initialPlayers[2].id),
+        updatedPlayers.find((p) => p.id === initialPlayers[3].id),
+      ].filter(Boolean)
+      
+      expect(team1PlayersUpdated).toHaveLength(2)
+      expect(team2PlayersUpdated).toHaveLength(2)
 
       // Check that all players' match counts increased by 1
       const allPlayersUpdated = team1PlayersUpdated.concat(team2PlayersUpdated)
       allPlayersUpdated.forEach((player) => {
-        const initialStats_player = initialStats.find((s) => s.id === player.id)!
-        expect(player.matchesPlayed).toBe(initialStats_player.matchesPlayed + 1)
-        expect(player.wins + player.losses).toBe(
-          initialStats_player.wins + initialStats_player.losses + 1,
-        )
+        expect(player).toBeDefined()
+        if (player) {
+          const initialStats_player = initialStats.find((s) => s.id === player.id)
+          expect(initialStats_player).toBeDefined()
+          if (initialStats_player) {
+            expect(player.matchesPlayed).toBe(initialStats_player.matchesPlayed + 1)
+            expect(player.wins + player.losses).toBe(
+              initialStats_player.wins + initialStats_player.losses + 1,
+            )
+          }
+        }
       })
 
       // Check that the match has correct final score

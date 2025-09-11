@@ -4,7 +4,7 @@ import PlayerRankings from '../PlayerRankings'
 
 const mockPlayers: Player[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Alice Johnson',
     ranking: 1500,
     matchesPlayed: 10,
@@ -14,7 +14,7 @@ const mockPlayers: Player[] = [
     department: 'Engineering',
   },
   {
-    id: 2,
+    id: '2',
     name: 'Bob Smith',
     ranking: 1200,
     matchesPlayed: 8,
@@ -24,7 +24,7 @@ const mockPlayers: Player[] = [
     department: 'Design',
   },
   {
-    id: 3,
+    id: '3',
     name: 'Charlie Brown',
     ranking: 1800,
     matchesPlayed: 15,

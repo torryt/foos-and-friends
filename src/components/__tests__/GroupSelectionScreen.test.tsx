@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { GroupSelectionScreen } from '../GroupSelectionScreen'
 import type { FriendGroup } from '@/types'
+import { GroupSelectionScreen } from '../GroupSelectionScreen'
 
 const mockGroups: FriendGroup[] = [
   {
@@ -43,17 +43,13 @@ describe('GroupSelectionScreen', () => {
   })
 
   test('shows loading state when loading is true', () => {
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={[]} loading={true} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={[]} loading={true} />)
 
     expect(screen.getByText('Loading your groups...')).toBeInTheDocument()
   })
 
   test('shows first-time user section when no groups exist', () => {
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={[]} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={[]} />)
 
     expect(screen.getByText('Get Started')).toBeInTheDocument()
     expect(screen.getByText('Create Your First Group')).toBeInTheDocument()
@@ -62,9 +58,7 @@ describe('GroupSelectionScreen', () => {
   })
 
   test('shows group selection section when groups exist', () => {
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={mockGroups} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
     expect(screen.getByText('Select a Group to Continue')).toBeInTheDocument()
     expect(screen.getByText('Test Group 1')).toBeInTheDocument()
@@ -74,9 +68,7 @@ describe('GroupSelectionScreen', () => {
 
   test('calls onSelectGroup when a group card is clicked', async () => {
     const user = userEvent.setup()
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={mockGroups} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
     const groupCard = screen.getByText('Test Group 1').closest('[role="button"]')
     expect(groupCard).toBeInTheDocument()
@@ -89,9 +81,7 @@ describe('GroupSelectionScreen', () => {
 
   test('calls onCreateGroup when Create Your First Group is clicked', async () => {
     const user = userEvent.setup()
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={[]} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={[]} />)
 
     const createButton = screen.getByText('Create Your First Group')
     await user.click(createButton)
@@ -101,9 +91,7 @@ describe('GroupSelectionScreen', () => {
 
   test('calls onJoinGroup when Join Existing Group is clicked', async () => {
     const user = userEvent.setup()
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={[]} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={[]} />)
 
     const joinButton = screen.getByText('Join Existing Group')
     await user.click(joinButton)
@@ -112,9 +100,7 @@ describe('GroupSelectionScreen', () => {
   })
 
   test('shows action buttons for users with existing groups', () => {
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={mockGroups} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
     expect(screen.getByText("Don't see the group you're looking for?")).toBeInTheDocument()
     expect(screen.getByText('Create New Group')).toBeInTheDocument()
@@ -122,9 +108,7 @@ describe('GroupSelectionScreen', () => {
   })
 
   test('displays group invite codes', () => {
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={mockGroups} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
     expect(screen.getByText('TEST123')).toBeInTheDocument()
     expect(screen.getByText('TEST456')).toBeInTheDocument()
@@ -132,17 +116,15 @@ describe('GroupSelectionScreen', () => {
 
   test('supports keyboard navigation for group cards', async () => {
     const user = userEvent.setup()
-    render(
-      <GroupSelectionScreen {...mockProps} userGroups={mockGroups} />
-    )
+    render(<GroupSelectionScreen {...mockProps} userGroups={mockGroups} />)
 
     const groupCard = screen.getByText('Test Group 1').closest('[role="button"]')
     expect(groupCard).toBeInTheDocument()
 
     if (groupCard) {
       // Focus on the group card
-      groupCard.focus()
-      
+      ;(groupCard as HTMLElement).focus()
+
       // Press Enter
       await user.keyboard('{Enter}')
       expect(mockProps.onSelectGroup).toHaveBeenCalledWith('group-1')

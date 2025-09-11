@@ -85,7 +85,8 @@ export const useGameLogic = () => {
 
       if (result.data) {
         // Update local state
-        setPlayers((prev) => [...prev, result.data!])
+        const newPlayer = result.data
+        setPlayers((prev) => [...prev, newPlayer])
       }
 
       return { success: true }
@@ -124,7 +125,8 @@ export const useGameLogic = () => {
 
       if (result.data) {
         // Update local state - add new match and refresh players
-        setMatches((prev) => [result.data!, ...prev])
+        const newMatch = result.data
+        setMatches((prev) => [newMatch, ...prev])
 
         // Refresh players to get updated stats
         const playersResult = await playersService.getPlayersByGroup(currentGroup.id)

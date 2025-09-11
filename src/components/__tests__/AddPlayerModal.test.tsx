@@ -14,15 +14,15 @@ describe('AddPlayerModal', () => {
   test('does not render when isOpen is false', () => {
     render(<AddPlayerModal isOpen={false} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    expect(screen.queryByText('Add Friend')).not.toBeInTheDocument()
+    expect(screen.queryByText('Add Player')).not.toBeInTheDocument()
   })
 
   test('renders when isOpen is true', () => {
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    expect(screen.getByRole('heading', { name: /add friend/i })).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("Enter friend's name...")).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Add Friend' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /add player/i })).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("Enter player's name...")).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add Player' })).toBeInTheDocument()
   })
 
   test('calls onClose when close button is clicked', async () => {
@@ -38,8 +38,8 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const input = screen.getByPlaceholderText("Enter friend's name...")
-    const submitButton = screen.getByRole('button', { name: 'Add Friend' })
+    const input = screen.getByPlaceholderText("Enter player's name...")
+    const submitButton = screen.getByRole('button', { name: 'Add Player' })
 
     await user.type(input, 'John Doe')
     await user.click(submitButton)
@@ -52,7 +52,7 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const input = screen.getByPlaceholderText("Enter friend's name...")
+    const input = screen.getByPlaceholderText("Enter player's name...")
 
     await user.type(input, 'Jane Smith')
     await user.keyboard('{Enter}')
@@ -65,8 +65,8 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const input = screen.getByPlaceholderText("Enter friend's name...")
-    const submitButton = screen.getByRole('button', { name: 'Add Friend' })
+    const input = screen.getByPlaceholderText("Enter player's name...")
+    const submitButton = screen.getByRole('button', { name: 'Add Player' })
 
     await user.type(input, '  John Doe  ')
     await user.click(submitButton)
@@ -78,7 +78,7 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const submitButton = screen.getByRole('button', { name: 'Add Friend' })
+    const submitButton = screen.getByRole('button', { name: 'Add Player' })
 
     expect(submitButton).toBeDisabled()
 
@@ -93,8 +93,8 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const input = screen.getByPlaceholderText("Enter friend's name...")
-    const submitButton = screen.getByRole('button', { name: 'Add Friend' })
+    const input = screen.getByPlaceholderText("Enter player's name...")
+    const submitButton = screen.getByRole('button', { name: 'Add Player' })
 
     await user.type(input, '   ')
     expect(submitButton).toBeDisabled()
@@ -109,8 +109,8 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const input = screen.getByPlaceholderText("Enter friend's name...") as HTMLInputElement
-    const submitButton = screen.getByRole('button', { name: 'Add Friend' })
+    const input = screen.getByPlaceholderText("Enter player's name...") as HTMLInputElement
+    const submitButton = screen.getByRole('button', { name: 'Add Player' })
 
     await user.type(input, 'Test User')
     expect(input.value).toBe('Test User')
@@ -143,8 +143,8 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const input = screen.getByPlaceholderText("Enter friend's name...")
-    const submitButton = screen.getByRole('button', { name: 'Add Friend' })
+    const input = screen.getByPlaceholderText("Enter player's name...")
+    const submitButton = screen.getByRole('button', { name: 'Add Player' })
 
     // Click on a different emoji
     const engineerEmoji = screen.getByRole('button', { name: '👨‍💻' })
@@ -160,8 +160,8 @@ describe('AddPlayerModal', () => {
     const user = userEvent.setup()
     render(<AddPlayerModal isOpen={true} onClose={mockOnClose} onAddPlayer={mockOnAddPlayer} />)
 
-    const input = screen.getByPlaceholderText("Enter friend's name...")
-    const submitButton = screen.getByRole('button', { name: 'Add Friend' })
+    const input = screen.getByPlaceholderText("Enter player's name...")
+    const submitButton = screen.getByRole('button', { name: 'Add Player' })
 
     // Select a different emoji
     const designerEmoji = screen.getByRole('button', { name: '👩‍🎨' })

@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js'
 
 // Environment variable validation with mock mode fallback
@@ -10,7 +11,7 @@ export const isMockMode = !supabaseUrl || !supabaseAnonKey
 // Create Supabase client only if we have valid credentials
 export const supabase = isMockMode
   ? null
-  : createClient(supabaseUrl, supabaseAnonKey, {
+  : createClient(supabaseUrl as string, supabaseAnonKey as string, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,

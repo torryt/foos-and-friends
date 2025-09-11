@@ -77,9 +77,16 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 ### Getting Started
 
 1. **Environment Setup**: Create `.env.local` with Supabase credentials or run in mock mode
-2. **Database Setup**: Execute SQL scripts in `/database/` folder if using Supabase
+2. **Database Setup**: Execute `/database/00_complete_reset.sql` in Supabase SQL Editor if using Supabase
 3. **Development**: Run `npm run dev` to start the development server
 4. **Testing**: Run `npm run test:run` and `npm run lint` before committing
+
+### Database Management
+
+- **Single Reset Script**: Use `/database/00_complete_reset.sql` for all database setup
+- **Complete Recreation**: This script drops and recreates the entire database schema
+- **No Migrations**: Run the reset script whenever database changes are needed
+- **RLS Policies**: Designed to work with public JS client without circular dependencies
 
 ### Mock vs Supabase Mode
 
@@ -100,3 +107,25 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - Group-based data scoping ensures privacy and security
 - ELO ranking system with K-factor 32, ratings clamped between 800-2400
 - Complete offline functionality with mock data for development
+
+## Production Deployment
+
+### Hosting Strategy
+
+**Phase 1 (Current)**: Static deployment with free tier
+- **Frontend**: Cloudflare Pages (free, excellent EU coverage)
+- **Backend**: Supabase (existing setup)
+- **Email**: Brevo SMTP (free tier, EU-focused, GDPR compliant)
+- **Cost**: €0/month
+
+**Phase 2 (Future Service Layer)**: Add backend services when needed
+- **API Services**: Railway ($5/month) for best DX, or Render ($7/month) for EU regions
+- **Deployment**: Seamless transition from static to full-stack
+- **Cost**: €5-7/month
+
+### SMTP Configuration
+
+- **Provider**: Brevo (300 emails/day free, EU-based)
+- **Use Case**: Supabase magic link authentication emails
+- **Setup**: Configure SMTP credentials in Supabase Auth settings
+- **Alternative**: Mailtrap (3,500 emails/month free) for higher volume

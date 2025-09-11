@@ -93,7 +93,7 @@ const dbPlayerToPlayer = (dbPlayer: DbPlayer): Player => ({
 
 // Transform app player to database format for insert/update
 const playerToDbInsert = (
-  player: Omit<Player, 'id' | 'createdAt' | 'updatedAt'>,
+  player: Omit<Player, 'id' | 'createdAt' | 'updatedAt'> & { groupId: string; createdBy: string },
 ): Omit<DbPlayer, 'id' | 'created_at' | 'updated_at'> => ({
   name: player.name,
   ranking: player.ranking,
@@ -102,8 +102,8 @@ const playerToDbInsert = (
   losses: player.losses,
   avatar: player.avatar,
   department: player.department,
-  group_id: player.groupId!,
-  created_by: player.createdBy!,
+  group_id: player.groupId,
+  created_by: player.createdBy,
 })
 
 export const playersService = {

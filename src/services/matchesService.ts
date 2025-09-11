@@ -78,10 +78,10 @@ const dbMatchToMatch = async (dbMatch: DbMatch): Promise<Match | null> => {
 
 // Transform app match to database format for insert
 const matchToDbInsert = (
-  match: Omit<Match, 'id' | 'createdAt'>,
+  match: Omit<Match, 'id' | 'createdAt'> & { groupId: string },
   recordedBy: string,
 ): Omit<DbMatch, 'id' | 'created_at'> => ({
-  group_id: match.groupId!,
+  group_id: match.groupId,
   team1_player1_id: match.team1[0].id,
   team1_player2_id: match.team1[1].id,
   team2_player1_id: match.team2[0].id,

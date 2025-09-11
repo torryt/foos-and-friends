@@ -55,13 +55,16 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
       } else {
         setUserGroups(result.data)
 
-        // Set first group as current if none selected
-        if (!currentGroup && result.data.length > 0) {
-          setCurrentGroup(result.data[0])
-          if (isMockMode) {
-            groupService.setCurrentMockGroup(result.data[0].id)
+        // Set first group as current if none selected and no current group exists
+        setCurrentGroup((current) => {
+          if (!current && result.data.length > 0) {
+            if (isMockMode) {
+              groupService.setCurrentMockGroup(result.data[0].id)
+            }
+            return result.data[0]
           }
-        }
+          return current
+        })
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load groups')
@@ -70,7 +73,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     } finally {
       setLoading(false)
     }
-  }, [isAuthenticated, user, currentGroup])
+  }, [isAuthenticated, user])
 
   // Switch to a different group
   const switchGroup = (groupId: string) => {
@@ -162,22 +165,22 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   // Load groups when user authenticates
   useEffect(() => {
     if (isAuthenticated && user) {
-      refreshGroups()
+      if (isMockMode) {
+        // For mock mode, set up the default group directly
+        const mockGroup = groupService.getCurrentMockGroup()
+        setCurrentGroup(mockGroup)
+        setUserGroups([mockGroup])
+        setError(null)
+        setLoading(false)
+      } else {
+        refreshGroups()
+      }
     } else {
       setUserGroups([])
       setCurrentGroup(null)
       setError(null)
     }
   }, [isAuthenticated, user, refreshGroups])
-
-  // For mock mode, set up the default group
-  useEffect(() => {
-    if (isMockMode && isAuthenticated && !currentGroup) {
-      const mockGroup = groupService.getCurrentMockGroup()
-      setCurrentGroup(mockGroup)
-      setUserGroups([mockGroup])
-    }
-  }, [isAuthenticated, currentGroup])
 
   return (
     <GroupContext.Provider

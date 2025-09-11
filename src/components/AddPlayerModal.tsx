@@ -81,7 +81,7 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <Users className="text-blue-500" size={20} />
-            Add Friend
+            Add Player
           </h3>
           <button
             type="button"
@@ -96,7 +96,7 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-xl border border-blue-200/50">
             <input
               type="text"
-              placeholder="Enter friend's name..."
+              placeholder="Enter player's name..."
               value={newPlayer}
               onChange={(e) => {
                 setNewPlayer(e.target.value)
@@ -149,7 +149,7 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
                 Adding...
               </>
             ) : (
-              'Add Friend'
+              'Add Player'
             )}
           </button>
         </div>
