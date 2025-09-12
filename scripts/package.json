@@ -1,0 +1,17 @@
+{
+  "name": "foosball-test-data-generator",
+  "version": "1.0.0",
+  "description": "Generate realistic test data for foosball groups",
+  "type": "module",
+  "main": "generate-test-data.js",
+  "scripts": {
+    "generate": "node generate-test-data.js",
+    "help": "node generate-test-data.js --help"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.4.0"
+  },
+  "keywords": ["foosball", "test-data", "sql", "faker"],
+  "author": "Foosball Test Data Generator",
+  "license": "MIT"
+}
