@@ -31,6 +31,33 @@ interface GroupProviderProps {
   children: ReactNode
 }
 
+// Helper functions for localStorage group persistence
+const getStorageKey = (userId: string) => `selectedGroupId_${userId}`
+
+const getStoredGroupId = (userId: string): string | null => {
+  try {
+    return localStorage.getItem(getStorageKey(userId))
+  } catch {
+    return null
+  }
+}
+
+const setStoredGroupId = (userId: string, groupId: string) => {
+  try {
+    localStorage.setItem(getStorageKey(userId), groupId)
+  } catch {
+    // Ignore localStorage errors (e.g., private browsing)
+  }
+}
+
+const removeStoredGroupId = (userId: string) => {
+  try {
+    localStorage.removeItem(getStorageKey(userId))
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
 export const GroupProvider = ({ children }: GroupProviderProps) => {
   const { user, isAuthenticated } = useAuth()
   const [currentGroup, setCurrentGroup] = useState<FriendGroup | null>(null)
@@ -56,9 +83,21 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
       } else {
         setUserGroups(result.data)
 
-        // Set first group as current if none selected and no current group exists
+        // Try to restore saved group, otherwise set first group as current
         setCurrentGroup((current) => {
           if (!current && result.data.length > 0) {
+            // Try to restore the previously selected group
+            const storedGroupId = getStoredGroupId(user.id)
+            if (storedGroupId) {
+              const storedGroup = result.data.find((g) => g.id === storedGroupId)
+              if (storedGroup) {
+                return storedGroup
+              } else {
+                // Stored group no longer exists, clean up localStorage
+                removeStoredGroupId(user.id)
+              }
+            }
+            // Fall back to first group
             return result.data[0]
           }
           return current
@@ -77,11 +116,13 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   const switchGroup = useCallback(
     (groupId: string) => {
       const group = userGroups.find((g) => g.id === groupId)
-      if (group) {
+      if (group && user) {
         setCurrentGroup(group)
+        // Save the selected group to localStorage
+        setStoredGroupId(user.id, groupId)
       }
     },
-    [userGroups],
+    [userGroups, user],
   )
 
   // Check for pending invites and auto-join
@@ -142,10 +183,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
 
         // Switch to the new group if we have the ID
         if (result.groupId) {
-          const newGroup = userGroups.find((g) => g.id === result.groupId)
-          if (newGroup) {
-            setCurrentGroup(newGroup)
-          }
+          switchGroup(result.groupId)
         }
 
         return { success: true }
@@ -177,10 +215,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
 
         // Switch to the joined group if we have the ID
         if (result.groupId) {
-          const joinedGroup = userGroups.find((g) => g.id === result.groupId)
-          if (joinedGroup) {
-            setCurrentGroup(joinedGroup)
-          }
+          switchGroup(result.groupId)
         }
 
         return { success: true }
@@ -200,6 +235,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     if (isAuthenticated && user) {
       refreshGroups()
     } else {
+      // Clear state when user signs out (but keep localStorage for next sign-in)
       setUserGroups([])
       setCurrentGroup(null)
       setError(null)
