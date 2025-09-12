@@ -40,8 +40,19 @@ function InvitePageComponent() {
     const fetchGroupInfo = async () => {
       if (!inviteCode) return
 
-      // We'll need to add a method to get group info by invite code
-      // For now, we'll handle this in the join attempt
+      try {
+        const result = await groupService.getGroupByInviteCode(inviteCode)
+        if (result.data) {
+          setGroupInfo({
+            name: result.data.name,
+            description: result.data.description || undefined,
+          })
+        } else if (result.error) {
+          setError(result.error)
+        }
+      } catch (err) {
+        console.error('Failed to fetch group info:', err)
+      }
     }
 
     fetchGroupInfo()

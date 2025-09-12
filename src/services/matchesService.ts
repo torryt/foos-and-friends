@@ -1,150 +1,46 @@
-import { supabase } from '@/lib/supabase'
-import type { DbMatch, Match, Player, PlayerMatchStats } from '@/types'
-import { playersService } from './playersService'
+import type { Database } from '@/lib/database'
+import { database } from '@/lib/supabase-database'
+import type { Match, Player } from '@/types'
 
-// Transform database match to app match
-const dbMatchToMatch = async (dbMatch: DbMatch): Promise<Match | null> => {
-  // Get all players for this match
-  const playerIds = [
-    dbMatch.team1_player1_id,
-    dbMatch.team1_player2_id,
-    dbMatch.team2_player1_id,
-    dbMatch.team2_player2_id,
-  ]
-
-  const players: { [id: string]: Player } = {}
-
-  for (const playerId of playerIds) {
-    const result = await playersService.getPlayerById(playerId)
-    if (result.data) {
-      players[playerId] = result.data
-    } else {
-      // If we can't find a player, skip this match
-      return null
-    }
+class MatchesService {
+  private db: Database
+  private playersService: {
+    getPlayerById: (id: string) => Promise<{ data: Player | null; error?: string }>
+    updateMultiplePlayers: (
+      updates: Array<{
+        id: string
+        ranking?: number
+        matchesPlayed?: number
+        wins?: number
+        losses?: number
+      }>,
+    ) => Promise<{ data?: Player[]; error?: string }>
   }
 
-  // Extract player stats if available
-  const playerStats: PlayerMatchStats[] = []
-
-  // Helper function to add player stats if they exist
-  const addPlayerStats = (playerId: string, preRanking?: number, postRanking?: number) => {
-    if (preRanking !== undefined && postRanking !== undefined) {
-      playerStats.push({
-        playerId,
-        preGameRanking: preRanking,
-        postGameRanking: postRanking,
-      })
-    }
+  constructor(
+    db: Database,
+    playersService: {
+      getPlayerById: (id: string) => Promise<{ data: Player | null; error?: string }>
+      updateMultiplePlayers: (
+        updates: Array<{
+          id: string
+          ranking?: number
+          matchesPlayed?: number
+          wins?: number
+          losses?: number
+        }>,
+      ) => Promise<{ data?: Player[]; error?: string }>
+    },
+  ) {
+    this.db = db
+    this.playersService = playersService
   }
 
-  addPlayerStats(
-    dbMatch.team1_player1_id,
-    dbMatch.team1_player1_pre_ranking,
-    dbMatch.team1_player1_post_ranking,
-  )
-  addPlayerStats(
-    dbMatch.team1_player2_id,
-    dbMatch.team1_player2_pre_ranking,
-    dbMatch.team1_player2_post_ranking,
-  )
-  addPlayerStats(
-    dbMatch.team2_player1_id,
-    dbMatch.team2_player1_pre_ranking,
-    dbMatch.team2_player1_post_ranking,
-  )
-  addPlayerStats(
-    dbMatch.team2_player2_id,
-    dbMatch.team2_player2_pre_ranking,
-    dbMatch.team2_player2_post_ranking,
-  )
-
-  return {
-    id: dbMatch.id,
-    team1: [players[dbMatch.team1_player1_id], players[dbMatch.team1_player2_id]],
-    team2: [players[dbMatch.team2_player1_id], players[dbMatch.team2_player2_id]],
-    score1: dbMatch.team1_score,
-    score2: dbMatch.team2_score,
-    date: dbMatch.match_date,
-    time: dbMatch.match_time,
-    groupId: dbMatch.group_id,
-    recordedBy: dbMatch.recorded_by,
-    createdAt: dbMatch.created_at,
-    playerStats: playerStats.length > 0 ? playerStats : undefined,
-  }
-}
-
-// Transform app match to database format for insert
-const matchToDbInsert = (
-  match: Omit<Match, 'id' | 'createdAt'> & { groupId: string },
-  recordedBy: string,
-): Omit<DbMatch, 'id' | 'created_at'> => {
-  const baseMatch = {
-    group_id: match.groupId,
-    team1_player1_id: match.team1[0].id,
-    team1_player2_id: match.team1[1].id,
-    team2_player1_id: match.team2[0].id,
-    team2_player2_id: match.team2[1].id,
-    team1_score: match.score1,
-    team2_score: match.score2,
-    match_date: match.date,
-    match_time: match.time,
-    recorded_by: recordedBy,
-  }
-
-  // Add player stats if available
-  if (match.playerStats && match.playerStats.length === 4) {
-    const statsMap = new Map(match.playerStats.map((s) => [s.playerId, s]))
-
-    const team1Player1Stats = statsMap.get(match.team1[0].id)
-    const team1Player2Stats = statsMap.get(match.team1[1].id)
-    const team2Player1Stats = statsMap.get(match.team2[0].id)
-    const team2Player2Stats = statsMap.get(match.team2[1].id)
-
-    return {
-      ...baseMatch,
-      team1_player1_pre_ranking: team1Player1Stats?.preGameRanking,
-      team1_player1_post_ranking: team1Player1Stats?.postGameRanking,
-      team1_player2_pre_ranking: team1Player2Stats?.preGameRanking,
-      team1_player2_post_ranking: team1Player2Stats?.postGameRanking,
-      team2_player1_pre_ranking: team2Player1Stats?.preGameRanking,
-      team2_player1_post_ranking: team2Player1Stats?.postGameRanking,
-      team2_player2_pre_ranking: team2Player2Stats?.preGameRanking,
-      team2_player2_post_ranking: team2Player2Stats?.postGameRanking,
-    }
-  }
-
-  return baseMatch
-}
-
-export const matchesService = {
   // Get all matches in a group
   async getMatchesByGroup(groupId: string): Promise<{ data: Match[]; error?: string }> {
-    try {
-      const { data, error } = await supabase
-        .from('matches')
-        .select('*')
-        .eq('group_id', groupId)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        return { data: [], error: error.message }
-      }
-
-      // Transform database matches to app matches
-      const matches: Match[] = []
-      for (const dbMatch of data || []) {
-        const match = await dbMatchToMatch(dbMatch)
-        if (match) {
-          matches.push(match)
-        }
-      }
-
-      return { data: matches }
-    } catch (err) {
-      return { data: [], error: err instanceof Error ? err.message : 'Failed to fetch matches' }
-    }
-  },
+    const result = await this.db.getMatchesByGroup(groupId)
+    return { data: result.data, error: result.error ?? undefined }
+  }
 
   // Record a new match
   async recordMatch(
@@ -165,10 +61,10 @@ export const matchesService = {
 
     // Get all players to validate they exist and are in the correct group
     const playersResults = await Promise.all([
-      playersService.getPlayerById(team1Player1Id),
-      playersService.getPlayerById(team1Player2Id),
-      playersService.getPlayerById(team2Player1Id),
-      playersService.getPlayerById(team2Player2Id),
+      this.playersService.getPlayerById(team1Player1Id),
+      this.playersService.getPlayerById(team1Player2Id),
+      this.playersService.getPlayerById(team2Player1Id),
+      this.playersService.getPlayerById(team2Player2Id),
     ])
 
     // Check if all players exist and are in the correct group
@@ -184,13 +80,7 @@ export const matchesService = {
 
     const [team1Player1, team1Player2, team2Player1, team2Player2] = players
 
-    // Store pre-game rankings
-    const preGameRankings = {
-      [team1Player1.id]: team1Player1.ranking,
-      [team1Player2.id]: team1Player2.ranking,
-      [team2Player1.id]: team2Player1.ranking,
-      [team2Player2.id]: team2Player2.ranking,
-    }
+    // Pre-game rankings would be stored for match history
 
     // Determine winner and calculate new rankings
     const team1Won = score1 > score2
@@ -249,93 +139,69 @@ export const matchesService = {
       },
     ]
 
-    // Create player match stats
-    const playerStats: PlayerMatchStats[] = [
-      {
-        playerId: team1Player1.id,
-        preGameRanking: preGameRankings[team1Player1.id],
-        postGameRanking: newRankings[team1Player1.id],
-      },
-      {
-        playerId: team1Player2.id,
-        preGameRanking: preGameRankings[team1Player2.id],
-        postGameRanking: newRankings[team1Player2.id],
-      },
-      {
-        playerId: team2Player1.id,
-        preGameRanking: preGameRankings[team2Player1.id],
-        postGameRanking: newRankings[team2Player1.id],
-      },
-      {
-        playerId: team2Player2.id,
-        preGameRanking: preGameRankings[team2Player2.id],
-        postGameRanking: newRankings[team2Player2.id],
-      },
-    ]
+    // Player stats would be used in full match recording implementation
 
     try {
-      // Start a transaction to update players and create match
-      const { data: matchData, error: matchError } = await supabase
-        .from('matches')
-        .insert(
-          matchToDbInsert(
-            {
-              team1: [team1Player1, team1Player2],
-              team2: [team2Player1, team2Player2],
-              score1,
-              score2,
-              date: new Date().toISOString().split('T')[0],
-              time: new Date().toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              }),
-              groupId,
-              playerStats,
-            },
-            recordedBy,
-          ),
-        )
-        .select()
-        .single()
-
-      if (matchError) {
-        return { data: null, error: matchError.message }
-      }
-
-      // Update all player stats
-      const updateResult = await playersService.updateMultiplePlayers(playerUpdates)
+      // Update all player stats first
+      const updateResult = await this.playersService.updateMultiplePlayers(playerUpdates)
       if (updateResult.error) {
-        // If player updates fail, we should ideally rollback the match creation
-        // For now, we'll return the error
         return { data: null, error: updateResult.error }
       }
 
-      // Convert the database match to app format
-      const match = await dbMatchToMatch(matchData)
-      if (!match) {
-        return { data: null, error: 'Failed to create match object' }
-      }
+      // Record the match using the database abstraction
+      const result = await this.db.recordMatch(
+        groupId,
+        team1Player1Id,
+        team1Player2Id,
+        team2Player1Id,
+        team2Player2Id,
+        score1,
+        score2,
+        recordedBy,
+        {
+          team1Player1PreRanking: team1Player1.ranking,
+          team1Player1PostRanking: newRankings[team1Player1.id],
+          team1Player2PreRanking: team1Player2.ranking,
+          team1Player2PostRanking: newRankings[team1Player2.id],
+          team2Player1PreRanking: team2Player1.ranking,
+          team2Player1PostRanking: newRankings[team2Player1.id],
+          team2Player2PreRanking: team2Player2.ranking,
+          team2Player2PostRanking: newRankings[team2Player2.id],
+        },
+      )
 
-      return { data: match }
+      return { data: result.data, error: result.error ?? undefined }
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to record match' }
     }
-  },
+  }
 
   // Get match by ID
   async getMatchById(matchId: string): Promise<{ data: Match | null; error?: string }> {
-    try {
-      const { data, error } = await supabase.from('matches').select('*').eq('id', matchId).single()
+    const result = await this.db.getMatchById(matchId)
+    return { data: result.data, error: result.error ?? undefined }
+  }
+}
 
-      if (error) {
-        return { data: null, error: error.message }
-      }
-
-      const match = await dbMatchToMatch(data)
-      return { data: match }
-    } catch (err) {
-      return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch match' }
-    }
+// Create a simple adapter to avoid circular dependency
+const playersServiceAdapter = {
+  async getPlayerById(id: string) {
+    const { playersService } = await import('./playersService')
+    return playersService.getPlayerById(id)
+  },
+  async updateMultiplePlayers(
+    updates: Array<{
+      id: string
+      ranking?: number
+      matchesPlayed?: number
+      wins?: number
+      losses?: number
+    }>,
+  ) {
+    const { playersService } = await import('./playersService')
+    return playersService.updateMultiplePlayers(updates)
   },
 }
+
+// Create the default service instance
+export const matchesService = new MatchesService(database, playersServiceAdapter)

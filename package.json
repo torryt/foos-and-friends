@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:mock": "VITE_SUPABASE_URL= VITE_SUPABASE_ANON_KEY= vite",
     "build": "tsc -b && vite build",
     "start": "npm run dev",
     "typecheck": "tsc -b",

@@ -1,4 +1,4 @@
-import { ChevronDown, Clipboard, Plus, Settings, UserPlus, Users } from 'lucide-react'
+import { ChevronDown, ChevronUp, Clipboard, Plus, Settings, UserPlus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useToast } from '@/hooks/useToast'
@@ -16,10 +16,10 @@ export const GroupSelector = ({
 }: GroupSelectorProps) => {
   const { currentGroup, userGroups, switchGroup, loading } = useGroupContext()
   const [isOpen, setIsOpen] = useState(false)
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const { toast } = useToast()
 
-  const copyInviteLink = async (inviteCode: string, groupName: string, e: React.MouseEvent) => {
-    e.stopPropagation()
+  const copyInviteLink = async (inviteCode: string, groupName: string) => {
     try {
       const inviteLink = `${window.location.origin}/invite?code=${inviteCode}`
       await navigator.clipboard.writeText(inviteLink)
@@ -29,85 +29,82 @@ export const GroupSelector = ({
     }
   }
 
+  const toggleGroupExpansion = (groupId: string) => {
+    const newExpanded = new Set(expandedGroups)
+    if (newExpanded.has(groupId)) {
+      newExpanded.delete(groupId)
+    } else {
+      newExpanded.add(groupId)
+    }
+    setExpandedGroups(newExpanded)
+  }
+
+  const handleSwitchToGroup = (groupId: string) => {
+    switchGroup(groupId)
+    setIsOpen(false)
+  }
+
   if (loading) {
     return (
       <div className="bg-white/80 px-3 py-2 rounded-lg border border-white/50">
-        <div className="flex items-center gap-2">
-          <Users size={16} className="text-gray-600" />
-          <span className="text-sm text-gray-600">Loading groups...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (!currentGroup) {
-    return (
-      <div className="bg-white/80 px-3 py-2 rounded-lg border border-white/50">
-        <div className="flex items-center gap-2">
-          <Users size={16} className="text-gray-600" />
-          <span className="text-sm text-gray-600">No group selected</span>
-        </div>
+        <div className="animate-pulse w-6 h-4 bg-gray-200 rounded" />
       </div>
     )
   }
 
   return (
     <div className="relative">
+      {/* Backdrop */}
+      {isOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-10"
+          onClick={() => setIsOpen(false)}
+          tabIndex={-1}
+          aria-label="Close group selector"
+        />
+      )}
+
+      {/* Trigger Button */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white/80 px-3 py-2 rounded-lg border border-white/50 hover:bg-white transition-colors flex items-center gap-2 min-w-0"
+        className="bg-white/80 px-3 py-2 rounded-lg border border-white/50 hover:bg-white transition-colors flex items-center gap-2"
+        title={currentGroup ? `Current group: ${currentGroup.name}` : 'Select a group'}
       >
-        <Users size={16} className="text-gray-600 flex-shrink-0" />
-        {/* Desktop: Show full info */}
-        <div className="hidden sm:flex flex-col items-start min-w-0 flex-1">
-          <span className="text-sm font-medium text-gray-700 truncate max-w-32">
-            {currentGroup.name}
-          </span>
-          <span className="text-xs text-gray-500">{currentGroup.inviteCode}</span>
-        </div>
-        {/* Mobile: Just show chevron */}
+        <Users size={16} className="text-gray-600" />
+        <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-32 truncate">
+          {currentGroup ? currentGroup.name : 'Select Group'}
+        </span>
         <ChevronDown
           size={14}
-          className={`text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
+      {/* Dropdown */}
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <button
-            type="button"
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-            tabIndex={-1}
-            aria-label="Close dropdown"
-            onKeyDown={(e) => e.key === 'Escape' && setIsOpen(false)}
-          />
+        <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 min-w-80 z-20">
+          <div className="p-2">
+            <div className="text-xs font-medium text-gray-500 px-3 py-2">Your Groups</div>
 
-          {/* Dropdown */}
-          <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 min-w-64 z-20">
-            <div className="p-2">
-              <div className="text-xs font-medium text-gray-500 px-3 py-2">Your Groups</div>
+            {userGroups.map((group) => {
+              const isExpanded = expandedGroups.has(group.id)
+              const isCurrent = group.id === currentGroup?.id
 
-              {userGroups.map((group) => (
-                <div
-                  key={group.id}
-                  className={`rounded-lg hover:bg-gray-50 transition-colors ${
-                    group.id === currentGroup.id ? 'bg-blue-50 border border-blue-200' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        switchGroup(group.id)
-                        setIsOpen(false)
-                      }}
-                      className="flex-1 text-left px-3 py-2 hover:bg-transparent"
-                    >
+              return (
+                <div key={group.id} className="mb-1">
+                  {/* Group Header - Clickable to expand/collapse */}
+                  <button
+                    type="button"
+                    onClick={() => toggleGroupExpansion(group.id)}
+                    className={`w-full text-left rounded-lg hover:bg-gray-50 transition-colors ${
+                      isCurrent ? 'bg-blue-50 border border-blue-200' : ''
+                    }`}
+                  >
+                    <div className="px-3 py-2">
                       <div className="flex items-center justify-between">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="font-medium text-gray-900">{group.name}</div>
                           {group.description && (
                             <div className="text-sm text-gray-500 truncate">
@@ -117,72 +114,96 @@ export const GroupSelector = ({
                           <div className="flex items-center gap-1 mt-1">
                             <span className="text-xs text-gray-400">Code: {group.inviteCode}</span>
                             {group.playerCount !== undefined && (
-                              <span className="text-xs text-gray-400 ml-2">
-                                • {group.playerCount} player{group.playerCount === 1 ? '' : 's'}
+                              <span className="text-xs text-gray-400">
+                                • {group.playerCount} players
                               </span>
                             )}
                           </div>
                         </div>
-                        {group.id === currentGroup.id && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
-                        )}
+                        <div className="flex items-center gap-2">
+                          {isCurrent && (
+                            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                          )}
+                          {isExpanded ? (
+                            <ChevronUp size={16} className="text-gray-400" />
+                          ) : (
+                            <ChevronDown size={16} className="text-gray-400" />
+                          )}
+                        </div>
                       </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        copyInviteLink(group.inviteCode, group.name, e)
-                      }}
-                      className="px-1 py-1 hover:bg-gray-200 rounded transition-colors"
-                      title={`Copy invite link for ${group.name}`}
-                    >
-                      <Clipboard size={12} className="text-gray-400 hover:text-gray-600" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onManageGroup?.(group.id)
-                        setIsOpen(false)
-                      }}
-                      className="px-1 py-1 hover:bg-gray-200 rounded transition-colors"
-                      title={`Manage ${group.name}`}
-                    >
-                      <Settings size={14} className="text-gray-400 hover:text-gray-600" />
-                    </button>
-                  </div>
+                    </div>
+                  </button>
+
+                  {/* Expanded Actions */}
+                  {isExpanded && (
+                    <div className="px-3 pb-2 space-y-1">
+                      {/* Switch to Group */}
+                      {!isCurrent && (
+                        <button
+                          type="button"
+                          onClick={() => handleSwitchToGroup(group.id)}
+                          className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-blue-700"
+                        >
+                          <Users size={14} className="text-blue-500" />
+                          Switch to Group
+                        </button>
+                      )}
+
+                      {/* Copy Invite Link */}
+                      <button
+                        type="button"
+                        onClick={() => copyInviteLink(group.inviteCode, group.name)}
+                        className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700"
+                      >
+                        <Clipboard size={14} className="text-gray-500" />
+                        Copy Invite Link
+                      </button>
+
+                      {/* Manage Players */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onManageGroup?.(group.id)
+                          setIsOpen(false)
+                        }}
+                        className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700"
+                      >
+                        <Settings size={14} className="text-gray-500" />
+                        Manage Players
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ))}
+              )
+            })}
 
-              <div className="border-t border-gray-100 mt-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onCreateGroup?.()
-                    setIsOpen(false)
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium text-gray-700"
-                >
-                  <Plus size={16} className="text-gray-500" />
-                  Create New Group
-                </button>
+            <div className="border-t border-gray-100 mt-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onCreateGroup?.()
+                  setIsOpen(false)
+                }}
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium text-gray-700"
+              >
+                <Plus size={16} className="text-gray-500" />
+                Create New Group
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    onJoinGroup?.()
-                    setIsOpen(false)
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium text-gray-700"
-                >
-                  <UserPlus size={16} className="text-gray-500" />
-                  Join Group
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onJoinGroup?.()
+                  setIsOpen(false)
+                }}
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium text-gray-700"
+              >
+                <UserPlus size={16} className="text-gray-500" />
+                Join Group
+              </button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

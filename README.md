@@ -10,7 +10,6 @@ A React + TypeScript foosball ranking application for tracking office games with
 - **Skill Tiers** - 5 ranking tiers with color-coded badges (Beginner to Master)
 - **Invite Links** - Shareable links for seamless user onboarding
 - **Real-time Updates** - Supabase integration with Row Level Security
-- **Mock Mode** - Full functionality without backend for development
 - **Magic Link Auth** - Passwordless authentication via Supabase
 - **Responsive Design** - Tailwind CSS with custom gradients
 
@@ -29,17 +28,7 @@ A React + TypeScript foosball ranking application for tracking office games with
    npm install
    ```
 
-2. **Choose your mode**
-   
-   **Option A: Mock Mode (No setup required)**
-   ```bash
-   npm run dev:mock
-   ```
-   - Uses demo data and mock authentication
-   - Perfect for development and testing
-   - No external dependencies
-
-   **Option B: Supabase Mode**
+2. **Start development**
    ```bash
    # Create .env.local
    VITE_SUPABASE_URL=your_supabase_url
@@ -66,8 +55,7 @@ A React + TypeScript foosball ranking application for tracking office games with
 
 ```bash
 # Development
-npm run dev              # Start with Supabase backend
-npm run dev:mock         # Start in mock mode (no backend)
+npm run dev              # Start development server
 
 # Building & Testing  
 npm run build           # TypeScript compilation + Vite build
@@ -155,9 +143,9 @@ npm run format          # Format code with Biome
 
 **useGameLogic** - Handles all game-related operations (players, matches, rankings)
 
-**useAuth** - Authentication state management with mock/real mode switching
+**useAuth** - Authentication state management with Supabase
 
-**Service Layer** - Abstracts data operations for consistent mock/Supabase switching
+**Service Layer** - Abstracts data operations for Supabase integration
 
 ## ELO Ranking System
 
@@ -324,7 +312,7 @@ The ELO system ensures that rankings accurately reflect player skill while maint
 
 ### ✅ Completed Features
 - [x] Private friend group system with invite codes
-- [x] Magic link authentication (Supabase + mock mode)
+- [x] Magic link authentication (Supabase)
 - [x] Player management (add/edit players)
 - [x] Match recording with 4-player teams
 - [x] ELO ranking system with automatic calculations
@@ -346,10 +334,6 @@ The ELO system ensures that rankings accurately reflect player skill while maint
 
 ## Development Tips
 
-### Mock vs Real Mode
-- **Mock Mode**: Use `npm run dev:mock` for quick development
-- **Real Mode**: Use `npm run dev` with Supabase setup
-- Both modes have identical user experience and feature parity
 
 ### Testing
 - Run `npm run test:run` before committing
@@ -378,7 +362,7 @@ See `docs/DEPLOYMENT.md` for complete deployment guide.
 
 ## Contributing
 
-1. Choose mock mode for development: `npm run dev:mock`
+1. Set up development environment with Supabase
 2. Make changes and test: `npm run test:run`  
 3. Check code quality: `npm run lint`
 4. Commit changes

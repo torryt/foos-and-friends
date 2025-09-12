@@ -1,11 +1,8 @@
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-import { useState } from 'react'
 import Header from '@/components/Header'
-import PlayerManagementModal from '@/components/PlayerManagementModal'
 import TabNavigation from '@/components/TabNavigation'
 import { ToastContainer } from '@/components/Toast'
-import { useGameLogic } from '@/hooks/useGameLogic'
 import type { AuthUser } from '@/types'
 
 interface MyRouterContext {
@@ -25,35 +22,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
   const { user, onSignOut } = Route.useRouteContext()
-  const [showManagePlayers, setShowManagePlayers] = useState(false)
-  const { players, updatePlayer, deletePlayer } = useGameLogic()
-  const isAdmin = true // Will need to get this from context later
 
   return (
     <>
-      <Header
-        user={user}
-        onSignOut={onSignOut}
-        onManageGroup={(_groupId) => {
-          // For now, just show the manage players modal
-          setShowManagePlayers(true)
-        }}
-      />
+      <Header user={user} onSignOut={onSignOut} />
       <TabNavigation />
 
       <div className="container mx-auto max-w-6xl p-4">
         <Outlet />
       </div>
-
-      <PlayerManagementModal
-        isOpen={showManagePlayers}
-        onClose={() => setShowManagePlayers(false)}
-        players={players}
-        currentUserId={user?.id}
-        isAdmin={isAdmin}
-        onUpdatePlayer={updatePlayer}
-        onDeletePlayer={deletePlayer}
-      />
     </>
   )
 }

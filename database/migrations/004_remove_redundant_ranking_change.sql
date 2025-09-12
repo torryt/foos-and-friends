@@ -4,6 +4,7 @@
 -- Drop the check constraint that references ranking_change columns
 ALTER TABLE matches DROP CONSTRAINT IF EXISTS chk_consistent_ranking_changes;
 ALTER TABLE matches DROP CONSTRAINT IF EXISTS chk_valid_ranking_changes;
+ALTER TABLE matches DROP CONSTRAINT IF EXISTS chk_valid_rankings;
 
 -- Remove ranking_change columns
 ALTER TABLE matches DROP COLUMN IF EXISTS team1_player1_ranking_change;
