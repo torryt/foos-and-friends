@@ -1,8 +1,9 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { CreateGroupModal } from '@/components/CreateGroupModal'
 import { GroupSelectionScreen } from '@/components/GroupSelectionScreen'
 import { JoinGroupModal } from '@/components/JoinGroupModal'
+import { PendingInviteScreen } from '@/components/PendingInviteScreen'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { GroupProvider, useGroupContext } from '@/contexts/GroupContext'
 import { useAuth } from '@/hooks/useAuth'
@@ -34,35 +35,26 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
 
-  const { currentGroup, userGroups, loading, switchGroup, joinGroup } = useGroupContext()
+  const { currentGroup, userGroups, loading, processingPendingInvite, switchGroup } =
+    useGroupContext()
 
-  // Handle invite links on app load
-  useEffect(() => {
-    const handleInviteLink = async () => {
-      const path = window.location.pathname
-      const inviteMatch = path.match(/\/invite\/([A-Z0-9]+)$/i)
+  // Show pending invite screen when processing an invite
+  if (processingPendingInvite) {
+    return <PendingInviteScreen />
+  }
 
-      if (inviteMatch && user) {
-        const inviteCode = inviteMatch[1]
-        try {
-          const result = await joinGroup(inviteCode)
-          if (result.success) {
-            // Clear the invite URL after successful join
-            window.history.replaceState({}, '', '/')
-            // Optional: Show success message
-            console.log('Successfully joined group via invite link')
-          } else {
-            console.error('Failed to join group:', result.error)
-            // Optional: Show error message to user
-          }
-        } catch (error) {
-          console.error('Error processing invite link:', error)
-        }
-      }
-    }
-
-    handleInviteLink()
-  }, [user, joinGroup])
+  // If on invite page, always use router regardless of group status
+  if (window.location.pathname === '/invite') {
+    return (
+      <RouterProvider
+        router={router}
+        context={{
+          user,
+          onSignOut,
+        }}
+      />
+    )
+  }
 
   // Show group selection when no active group
   if (!currentGroup) {

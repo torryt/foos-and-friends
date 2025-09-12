@@ -28,12 +28,7 @@ function InvitePageComponent() {
   const [error, setError] = useState<string | null>(null)
   const [joined, setJoined] = useState(false)
 
-  // For new users, we'll store the invite code to use after auth
-  useEffect(() => {
-    if (inviteCode) {
-      localStorage.setItem('pendingInviteCode', inviteCode)
-    }
-  }, [inviteCode])
+  // No need to store invite code in localStorage - we'll use URL parameters
 
   // Try to get group info without joining (for preview)
   useEffect(() => {
@@ -94,11 +89,10 @@ function InvitePageComponent() {
     }
   }
 
-  // Handle the flow for new users (redirect to auth with pending invite)
+  // Handle the flow for new users (redirect to auth with invite code in URL)
   const handleSignUpToJoin = () => {
-    // The invite code is already stored in localStorage
-    // After successful auth, the app will check for pending invites
-    window.location.href = '/' // This will trigger the auth flow
+    // Navigate to the auth page with the invite code in the URL
+    navigate({ to: '/', search: { code: inviteCode } })
   }
 
   if (!inviteCode) {
@@ -202,7 +196,7 @@ function InvitePageComponent() {
                 Already have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => navigate({ to: '/' })}
+                  onClick={() => navigate({ to: '/', search: { code: inviteCode } })}
                   className="text-orange-600 hover:text-orange-700 font-medium"
                 >
                   Sign in here

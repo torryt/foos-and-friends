@@ -82,12 +82,15 @@ export const useAuth = () => {
 
   const signInWithMagicLink = async (
     email: string,
+    redirectTo?: string,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      const finalRedirectUrl = redirectTo || window.location.origin
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: finalRedirectUrl,
         },
       })
 

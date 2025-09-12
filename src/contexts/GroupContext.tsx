@@ -10,6 +10,7 @@ interface GroupContextType {
   hasAnyGroups: boolean
   loading: boolean
   error: string | null
+  processingPendingInvite: boolean
   switchGroup: (groupId: string) => void
   refreshGroups: () => Promise<void>
   createGroup: (name: string, description?: string) => Promise<{ success: boolean; error?: string }>
@@ -36,6 +37,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   const [userGroups, setUserGroups] = useState<FriendGroup[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [processingPendingInvite, setProcessingPendingInvite] = useState(false)
 
   // Load user's groups
   const refreshGroups = useCallback(async () => {
@@ -86,15 +88,21 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   const handlePendingInvites = useCallback(async () => {
     if (!isAuthenticated || !user) return
 
-    const pendingInviteCode = localStorage.getItem('pendingInviteCode')
-    if (!pendingInviteCode) return
+    // Check for invite code in URL parameters only
+    const urlParams = new URLSearchParams(window.location.search)
+    const inviteCode = urlParams.get('invite')
+    if (!inviteCode) return
+
+    setProcessingPendingInvite(true)
 
     try {
-      const result = await groupService.joinGroupByInvite(pendingInviteCode)
+      const result = await groupService.joinGroupByInvite(inviteCode)
 
       if (result.success && result.groupId) {
-        // Clear the pending invite
-        localStorage.removeItem('pendingInviteCode')
+        // Clean up the URL
+        const cleanUrl = new URL(window.location.href)
+        cleanUrl.searchParams.delete('invite')
+        window.history.replaceState({}, document.title, cleanUrl.toString())
 
         // Refresh groups to include the new one
         await refreshGroups()
@@ -102,10 +110,11 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         // Switch to the newly joined group
         switchGroup(result.groupId)
       }
-      // If joining fails, we'll leave the pending invite for manual retry
+      // If joining fails, the user can retry manually or use the invite link again
     } catch (err) {
       console.error('Failed to handle pending invite:', err)
-      // Leave the pending invite for manual retry
+    } finally {
+      setProcessingPendingInvite(false)
     }
   }, [isAuthenticated, user, refreshGroups, switchGroup])
 
@@ -205,6 +214,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         hasAnyGroups: userGroups.length > 0,
         loading,
         error,
+        processingPendingInvite,
         switchGroup,
         refreshGroups,
         createGroup,

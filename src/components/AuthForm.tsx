@@ -28,7 +28,16 @@ export const AuthForm = () => {
     setMessage('')
 
     try {
-      const result = await signInWithMagicLink(email)
+      // Check if we have an invite code in the current URL
+      const urlParams = new URLSearchParams(window.location.search)
+      const inviteCode = urlParams.get('code')
+
+      // If we have an invite code, construct redirect URL to include it
+      const customRedirect = inviteCode
+        ? `${window.location.origin}/?invite=${inviteCode}`
+        : undefined
+
+      const result = await signInWithMagicLink(email, customRedirect)
 
       if (result.success) {
         setMessage('Check your email for a magic link to sign in!')

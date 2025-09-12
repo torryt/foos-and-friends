@@ -141,32 +141,31 @@ export class SupabaseDatabase implements Database {
 
   async getGroupByInviteCode(inviteCode: string): Promise<DatabaseResult<FriendGroup>> {
     try {
-      const { data, error } = await supabase
-        .from('friend_groups')
-        .select(`
-          *,
-          player_count:players(count)
-        `)
-        .eq('invite_code', inviteCode)
-        .eq('is_active', true)
-        .single()
+      const { data, error } = await supabase.rpc('get_group_by_invite_code', {
+        p_invite_code: inviteCode,
+      })
 
       if (error) {
         return { data: null, error: error.message }
       }
 
+      if (!data.success) {
+        return { data: null, error: data.error }
+      }
+
+      const groupData = data.data
       const group: FriendGroup = {
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        inviteCode: data.invite_code,
-        ownerId: data.owner_id,
-        createdBy: data.created_by,
-        isActive: data.is_active,
-        maxMembers: data.max_members,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        playerCount: data.player_count?.[0]?.count || 0,
+        id: groupData.id,
+        name: groupData.name,
+        description: groupData.description,
+        inviteCode: groupData.invite_code,
+        ownerId: groupData.owner_id,
+        createdBy: groupData.created_by,
+        isActive: groupData.is_active,
+        maxMembers: groupData.max_members,
+        createdAt: groupData.created_at,
+        updatedAt: groupData.updated_at,
+        playerCount: 0, // We don't need the actual count for invite preview
       }
 
       return { data: group, error: null }
