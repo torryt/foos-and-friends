@@ -1,4 +1,12 @@
-import type { DbMatch, DbPlayer, FriendGroup, GroupMembership, Match, Player } from '@/types'
+import type {
+  DbMatch,
+  DbPlayer,
+  FriendGroup,
+  GroupMembership,
+  Match,
+  Player,
+  PlayerMatchStats,
+} from '@/types'
 import type {
   Database,
   DatabaseListResult,
@@ -38,6 +46,54 @@ const dbMatchToMatch = async (
     throw new Error('Could not find all players for match')
   }
 
+  // Transform ranking data if available
+  const playerStats: PlayerMatchStats[] = []
+
+  // Add stats for each player if ranking data exists
+  if (
+    dbMatch.team1_player1_pre_ranking !== undefined &&
+    dbMatch.team1_player1_post_ranking !== undefined
+  ) {
+    playerStats.push({
+      playerId: dbMatch.team1_player1_id,
+      preGameRanking: dbMatch.team1_player1_pre_ranking,
+      postGameRanking: dbMatch.team1_player1_post_ranking,
+    })
+  }
+
+  if (
+    dbMatch.team1_player2_pre_ranking !== undefined &&
+    dbMatch.team1_player2_post_ranking !== undefined
+  ) {
+    playerStats.push({
+      playerId: dbMatch.team1_player2_id,
+      preGameRanking: dbMatch.team1_player2_pre_ranking,
+      postGameRanking: dbMatch.team1_player2_post_ranking,
+    })
+  }
+
+  if (
+    dbMatch.team2_player1_pre_ranking !== undefined &&
+    dbMatch.team2_player1_post_ranking !== undefined
+  ) {
+    playerStats.push({
+      playerId: dbMatch.team2_player1_id,
+      preGameRanking: dbMatch.team2_player1_pre_ranking,
+      postGameRanking: dbMatch.team2_player1_post_ranking,
+    })
+  }
+
+  if (
+    dbMatch.team2_player2_pre_ranking !== undefined &&
+    dbMatch.team2_player2_post_ranking !== undefined
+  ) {
+    playerStats.push({
+      playerId: dbMatch.team2_player2_id,
+      preGameRanking: dbMatch.team2_player2_pre_ranking,
+      postGameRanking: dbMatch.team2_player2_post_ranking,
+    })
+  }
+
   return {
     id: dbMatch.id,
     team1: [team1Player1, team1Player2],
@@ -49,8 +105,7 @@ const dbMatchToMatch = async (
     groupId: dbMatch.group_id,
     recordedBy: dbMatch.recorded_by,
     createdAt: dbMatch.created_at,
-    // TODO: Add playerStats transformation when needed
-    playerStats: [],
+    playerStats,
   }
 }
 
