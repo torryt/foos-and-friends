@@ -81,6 +81,18 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 3. **Development**: Run `npm run dev` to start the development server
 4. **Testing**: Run `npm run test:run` and `npm run lint` before committing
 
+### Quality Assurance Requirements
+
+**IMPORTANT**: After implementing every feature or fix of a non-trivial size, run the following commands and fix any issues:
+
+1. `npm run lint` - Check code with Biome linter
+2. `npm run test:run` - Run all tests once
+3. `npm run format` - Format code with Biome
+4. `npm run build` - Verify production build works
+5. `npm run typecheck` - Ensure TypeScript compliance
+
+This ensures consistent code quality and prevents regressions from reaching production.
+
 ### Database Management
 
 - **Migration-based Changes**: All SQL schema changes should be handled through migration files in the `/database/migrations/` folder

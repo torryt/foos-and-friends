@@ -123,13 +123,7 @@ const PlayerManagementModal = ({
   }
 
   const canDeletePlayer = (player: Player) => {
-    console.log('DEBUG canDeletePlayer - isAdmin:', isAdmin)
-    console.log('DEBUG canDeletePlayer - player.createdBy:', player.createdBy)
-    console.log('DEBUG canDeletePlayer - currentUserId:', currentUserId)
-    console.log('DEBUG canDeletePlayer - player.matchesPlayed:', player.matchesPlayed)
-    const canDelete = isAdmin || player.createdBy === currentUserId
-    console.log('DEBUG canDeletePlayer - result:', canDelete)
-    return canDelete
+    return isAdmin || player.createdBy === currentUserId
   }
 
   return (
@@ -182,14 +176,14 @@ const PlayerManagementModal = ({
                       <div className="text-sm font-semibold text-orange-800 mb-2">
                         Choose Avatar
                       </div>
-                      <div className="grid grid-cols-10 gap-2 max-h-32 overflow-y-auto">
+                      <div className="grid grid-cols-8 gap-3 max-h-40 overflow-y-auto p-1">
                         {AVAILABLE_AVATARS.map((avatar) => (
                           <button
                             key={avatar}
                             type="button"
                             onClick={() => setEditingPlayer({ ...editingPlayer, avatar })}
                             disabled={isLoading}
-                            className={`text-lg p-1 rounded-lg hover:bg-orange-100 ${
+                            className={`text-2xl p-2 rounded-lg hover:bg-orange-100 transition-colors ${
                               editingPlayer.avatar === avatar
                                 ? 'bg-orange-200 ring-2 ring-orange-400'
                                 : 'bg-white/60'

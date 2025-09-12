@@ -9,7 +9,8 @@ export const groupService = {
         .from('friend_groups')
         .select(`
           *,
-          group_memberships!inner(user_id, is_active)
+          group_memberships!inner(user_id, is_active),
+          player_count:players(count)
         `)
         .eq('group_memberships.user_id', userId)
         .eq('group_memberships.is_active', true)
@@ -31,6 +32,7 @@ export const groupService = {
         maxMembers: group.max_members,
         createdAt: group.created_at,
         updatedAt: group.updated_at,
+        playerCount: group.player_count?.[0]?.count || 0,
       }))
 
       return { data: groups }

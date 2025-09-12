@@ -30,6 +30,32 @@ export interface DbPlayer {
   updated_at: string
 }
 
+// Player match stats for tracking pre-game rankings and score changes
+export interface PlayerMatchStats {
+  playerId: string
+  preGameRanking: number
+  postGameRanking: number
+  // rankingChange can be calculated as: postGameRanking - preGameRanking
+}
+
+// Extended stats with calculated ranking change
+export interface PlayerStatsWithChange extends PlayerMatchStats {
+  rankingChange: number
+}
+
+// Utility function to calculate ranking change from player stats
+export const calculateRankingChange = (stats: PlayerMatchStats): number => {
+  return stats.postGameRanking - stats.preGameRanking
+}
+
+// Utility function to add ranking change to player stats
+export const addRankingChange = (stats: PlayerMatchStats): PlayerStatsWithChange => {
+  return {
+    ...stats,
+    rankingChange: calculateRankingChange(stats),
+  }
+}
+
 // Updated Match interface for Supabase integration
 export interface Match {
   id: string // Changed from number to string for Supabase UUID
@@ -42,6 +68,7 @@ export interface Match {
   groupId?: string // Added for group association
   recordedBy?: string // Added for audit trail
   createdAt?: string
+  playerStats?: PlayerMatchStats[] // Historical ranking data for each player
 }
 
 // Database Match type (matches Supabase schema)
@@ -58,6 +85,15 @@ export interface DbMatch {
   match_time: string
   recorded_by: string
   created_at: string
+  // Historical rankings (ranking changes calculated as post - pre)
+  team1_player1_pre_ranking?: number
+  team1_player1_post_ranking?: number
+  team1_player2_pre_ranking?: number
+  team1_player2_post_ranking?: number
+  team2_player1_pre_ranking?: number
+  team2_player1_post_ranking?: number
+  team2_player2_pre_ranking?: number
+  team2_player2_post_ranking?: number
 }
 
 // New types for group functionality
@@ -72,6 +108,7 @@ export interface FriendGroup {
   maxMembers: number
   createdAt: string
   updatedAt: string
+  playerCount?: number
 }
 
 export interface GroupMembership {

@@ -1,0 +1,18 @@
+# Auto-generated files
+src/routeTree.gen.ts
+
+# Build outputs
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Logs
+*.log

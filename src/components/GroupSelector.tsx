@@ -1,4 +1,4 @@
-import { ChevronDown, Clipboard, Plus, UserPlus, Users } from 'lucide-react'
+import { ChevronDown, Clipboard, Plus, Settings, UserPlus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useToast } from '@/hooks/useToast'
@@ -6,20 +6,26 @@ import { useToast } from '@/hooks/useToast'
 interface GroupSelectorProps {
   onCreateGroup?: () => void
   onJoinGroup?: () => void
+  onManageGroup?: (groupId: string) => void
 }
 
-export const GroupSelector = ({ onCreateGroup, onJoinGroup }: GroupSelectorProps) => {
+export const GroupSelector = ({
+  onCreateGroup,
+  onJoinGroup,
+  onManageGroup,
+}: GroupSelectorProps) => {
   const { currentGroup, userGroups, switchGroup, loading } = useGroupContext()
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
 
-  const copyInviteCode = async (inviteCode: string, groupName: string, e: React.MouseEvent) => {
+  const copyInviteLink = async (inviteCode: string, groupName: string, e: React.MouseEvent) => {
     e.stopPropagation()
     try {
-      await navigator.clipboard.writeText(inviteCode)
-      toast().success(`Invite code for "${groupName}" copied to clipboard!`)
+      const inviteLink = `${window.location.origin}/invite?code=${inviteCode}`
+      await navigator.clipboard.writeText(inviteLink)
+      toast().success(`Invite link for "${groupName}" copied to clipboard!`)
     } catch (_err) {
-      toast().error('Failed to copy invite code')
+      toast().error('Failed to copy invite link')
     }
   }
 
@@ -85,40 +91,68 @@ export const GroupSelector = ({ onCreateGroup, onJoinGroup }: GroupSelectorProps
               <div className="text-xs font-medium text-gray-500 px-3 py-2">Your Groups</div>
 
               {userGroups.map((group) => (
-                <button
-                  type="button"
+                <div
                   key={group.id}
-                  onClick={() => {
-                    switchGroup(group.id)
-                    setIsOpen(false)
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors ${
+                  className={`rounded-lg hover:bg-gray-50 transition-colors ${
                     group.id === currentGroup.id ? 'bg-blue-50 border border-blue-200' : ''
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{group.name}</div>
-                      {group.description && (
-                        <div className="text-sm text-gray-500 truncate">{group.description}</div>
-                      )}
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="text-xs text-gray-400">Code: {group.inviteCode}</span>
-                        <button
-                          type="button"
-                          onClick={(e) => copyInviteCode(group.inviteCode, group.name, e)}
-                          className="p-1 hover:bg-gray-200 rounded transition-colors"
-                          title={`Copy invite code for ${group.name}`}
-                        >
-                          <Clipboard size={12} className="text-gray-400 hover:text-gray-600" />
-                        </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        switchGroup(group.id)
+                        setIsOpen(false)
+                      }}
+                      className="flex-1 text-left px-3 py-2 hover:bg-transparent"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{group.name}</div>
+                          {group.description && (
+                            <div className="text-sm text-gray-500 truncate">
+                              {group.description}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="text-xs text-gray-400">Code: {group.inviteCode}</span>
+                            {group.playerCount !== undefined && (
+                              <span className="text-xs text-gray-400 ml-2">
+                                • {group.playerCount} player{group.playerCount === 1 ? '' : 's'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {group.id === currentGroup.id && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                        )}
                       </div>
-                    </div>
-                    {group.id === currentGroup.id && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
-                    )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        copyInviteLink(group.inviteCode, group.name, e)
+                      }}
+                      className="px-1 py-1 hover:bg-gray-200 rounded transition-colors"
+                      title={`Copy invite link for ${group.name}`}
+                    >
+                      <Clipboard size={12} className="text-gray-400 hover:text-gray-600" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onManageGroup?.(group.id)
+                        setIsOpen(false)
+                      }}
+                      className="px-1 py-1 hover:bg-gray-200 rounded transition-colors"
+                      title={`Manage ${group.name}`}
+                    >
+                      <Settings size={14} className="text-gray-400 hover:text-gray-600" />
+                    </button>
                   </div>
-                </button>
+                </div>
               ))}
 
               <div className="border-t border-gray-100 mt-2 pt-2">

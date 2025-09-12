@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
-import PlayerManagementModal from '../PlayerManagementModal'
 import type { Player } from '@/types'
+import PlayerManagementModal from '../PlayerManagementModal'
 
 // Mock the toast hook
 vi.mock('@/hooks/useToast', () => ({
@@ -84,7 +84,7 @@ describe('PlayerManagementModal', () => {
       // Should see edit button for player created by user1
       const johnRow = screen.getByText('John Doe').closest('.bg-white\\/60')
       expect(johnRow).toBeInTheDocument()
-      
+
       // Find edit button within John's row
       const editButton = johnRow?.querySelector('button[title="Edit player"]')
       expect(editButton).toBeInTheDocument()
@@ -106,7 +106,7 @@ describe('PlayerManagementModal', () => {
       // Should NOT see edit button for player created by user2
       const janeRow = screen.getByText('Jane Smith').closest('.bg-white\\/60')
       expect(janeRow).toBeInTheDocument()
-      
+
       // Should not find edit button within Jane's row
       const editButton = janeRow?.querySelector('button[title="Edit player"]')
       expect(editButton).not.toBeInTheDocument()
@@ -128,9 +128,11 @@ describe('PlayerManagementModal', () => {
       // Should see delete button for player created by user1 with 0 matches
       const johnRow = screen.getByText('John Doe').closest('.bg-white\\/60')
       expect(johnRow).toBeInTheDocument()
-      
+
       // Find delete button within John's row
-      const deleteButton = johnRow?.querySelector('button[title="Delete player (only if no matches played)"]')
+      const deleteButton = johnRow?.querySelector(
+        'button[title="Delete player (only if no matches played)"]',
+      )
       expect(deleteButton).toBeInTheDocument()
     })
 
@@ -150,9 +152,11 @@ describe('PlayerManagementModal', () => {
       // Should NOT see delete button for player created by user3
       const bobRow = screen.getByText('Bob Wilson').closest('.bg-white\\/60')
       expect(bobRow).toBeInTheDocument()
-      
+
       // Should not find delete button within Bob's row
-      const deleteButton = bobRow?.querySelector('button[title="Delete player (only if no matches played)"]')
+      const deleteButton = bobRow?.querySelector(
+        'button[title="Delete player (only if no matches played)"]',
+      )
       expect(deleteButton).not.toBeInTheDocument()
     })
   })
@@ -175,7 +179,7 @@ describe('PlayerManagementModal', () => {
       mockPlayers.forEach((player) => {
         const playerRow = screen.getByText(player.name).closest('.bg-white\\/60')
         expect(playerRow).toBeInTheDocument()
-        
+
         const editButton = playerRow?.querySelector('button[title="Edit player"]')
         expect(editButton).toBeInTheDocument()
       })
@@ -196,24 +200,30 @@ describe('PlayerManagementModal', () => {
 
       // Should see delete button for John (0 matches)
       const johnRow = screen.getByText('John Doe').closest('.bg-white\\/60')
-      const johnDeleteButton = johnRow?.querySelector('button[title="Delete player (only if no matches played)"]')
+      const johnDeleteButton = johnRow?.querySelector(
+        'button[title="Delete player (only if no matches played)"]',
+      )
       expect(johnDeleteButton).toBeInTheDocument()
 
-      // Should see delete button for Bob (0 matches)  
+      // Should see delete button for Bob (0 matches)
       const bobRow = screen.getByText('Bob Wilson').closest('.bg-white\\/60')
-      const bobDeleteButton = bobRow?.querySelector('button[title="Delete player (only if no matches played)"]')
+      const bobDeleteButton = bobRow?.querySelector(
+        'button[title="Delete player (only if no matches played)"]',
+      )
       expect(bobDeleteButton).toBeInTheDocument()
 
       // Should NOT see delete button for Jane (has matches)
       const janeRow = screen.getByText('Jane Smith').closest('.bg-white\\/60')
-      const janeDeleteButton = janeRow?.querySelector('button[title="Delete player (only if no matches played)"]')
+      const janeDeleteButton = janeRow?.querySelector(
+        'button[title="Delete player (only if no matches played)"]',
+      )
       expect(janeDeleteButton).not.toBeInTheDocument()
     })
 
     test('admin can successfully delete any player', async () => {
       // Mock window.confirm to return true
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
-      
+
       render(
         <PlayerManagementModal
           isOpen={true}
@@ -228,7 +238,9 @@ describe('PlayerManagementModal', () => {
 
       // Click delete button for Bob (created by user3, but admin should be able to delete)
       const bobRow = screen.getByText('Bob Wilson').closest('.bg-white\\/60')
-      const bobDeleteButton = bobRow?.querySelector('button[title="Delete player (only if no matches played)"]')
+      const bobDeleteButton = bobRow?.querySelector(
+        'button[title="Delete player (only if no matches played)"]',
+      )
       expect(bobDeleteButton).toBeInTheDocument()
 
       if (bobDeleteButton) {
@@ -260,8 +272,10 @@ describe('PlayerManagementModal', () => {
       // Jane has 5 matches played, should not show delete button
       const janeRow = screen.getByText('Jane Smith').closest('.bg-white\\/60')
       expect(janeRow).toBeInTheDocument()
-      
-      const deleteButton = janeRow?.querySelector('button[title="Delete player (only if no matches played)"]')
+
+      const deleteButton = janeRow?.querySelector(
+        'button[title="Delete player (only if no matches played)"]',
+      )
       expect(deleteButton).not.toBeInTheDocument()
     })
   })

@@ -15,6 +15,7 @@ const mockGroups: FriendGroup[] = [
     maxMembers: 50,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
+    playerCount: 5,
   },
   {
     id: 'group-2',
@@ -27,6 +28,7 @@ const mockGroups: FriendGroup[] = [
     maxMembers: 50,
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
+    playerCount: 8,
   },
 ]
 

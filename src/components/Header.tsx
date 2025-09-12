@@ -7,12 +7,12 @@ import { GroupSelector } from './GroupSelector'
 import { JoinGroupModal } from './JoinGroupModal'
 
 interface HeaderProps {
-  playerCount: number
   user?: AuthUser | null
   onSignOut?: () => void
+  onManageGroup?: (groupId: string) => void
 }
 
-const Header = ({ playerCount, user, onSignOut }: HeaderProps) => {
+const Header = ({ user, onSignOut, onManageGroup }: HeaderProps) => {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
@@ -33,11 +33,6 @@ const Header = ({ playerCount, user, onSignOut }: HeaderProps) => {
               </div>
 
               <div className="flex items-center gap-1 md:gap-3">
-                <div className="text-center bg-white/80 px-2 md:px-3 py-2 rounded-lg border border-white/50">
-                  <div className="text-sm font-bold text-orange-600">{playerCount}</div>
-                  <div className="text-xs text-slate-600 hidden sm:block">Players</div>
-                </div>
-
                 {user && (
                   <>
                     {/* Desktop Group Selector */}
@@ -45,6 +40,7 @@ const Header = ({ playerCount, user, onSignOut }: HeaderProps) => {
                       <GroupSelector
                         onCreateGroup={() => setShowCreateGroup(true)}
                         onJoinGroup={() => setShowJoinGroup(true)}
+                        onManageGroup={onManageGroup}
                       />
                     </div>
 
@@ -54,6 +50,7 @@ const Header = ({ playerCount, user, onSignOut }: HeaderProps) => {
                         <GroupSelector
                           onCreateGroup={() => setShowCreateGroup(true)}
                           onJoinGroup={() => setShowJoinGroup(true)}
+                          onManageGroup={onManageGroup}
                         />
                       ) : (
                         <div className="bg-white/80 px-2 py-2 rounded-lg border border-white/50">

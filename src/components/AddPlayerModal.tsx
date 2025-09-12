@@ -92,16 +92,16 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
 
           <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-xl border border-orange-200/50">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{selectedAvatar}</span>
+              <span className="text-3xl">{selectedAvatar}</span>
               <span className="text-sm font-semibold text-orange-800">Choose Avatar</span>
             </div>
-            <div className="grid grid-cols-8 gap-2 max-h-32 overflow-y-auto">
+            <div className="grid grid-cols-6 gap-3 max-h-40 overflow-y-auto p-1">
               {AVAILABLE_AVATARS.map((avatar) => (
                 <button
                   key={avatar}
                   type="button"
                   onClick={() => setSelectedAvatar(avatar)}
-                  className={`text-xl p-2 rounded-lg hover:bg-orange-100 ${
+                  className={`text-2xl p-3 rounded-lg hover:bg-orange-100 transition-colors ${
                     selectedAvatar === avatar
                       ? 'bg-orange-200 ring-2 ring-orange-400'
                       : 'bg-white/60'

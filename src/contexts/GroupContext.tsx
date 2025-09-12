@@ -72,12 +72,49 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   }, [isAuthenticated, user])
 
   // Switch to a different group
-  const switchGroup = (groupId: string) => {
-    const group = userGroups.find((g) => g.id === groupId)
-    if (group) {
-      setCurrentGroup(group)
+  const switchGroup = useCallback(
+    (groupId: string) => {
+      const group = userGroups.find((g) => g.id === groupId)
+      if (group) {
+        setCurrentGroup(group)
+      }
+    },
+    [userGroups],
+  )
+
+  // Check for pending invites and auto-join
+  const handlePendingInvites = useCallback(async () => {
+    if (!isAuthenticated || !user) return
+
+    const pendingInviteCode = localStorage.getItem('pendingInviteCode')
+    if (!pendingInviteCode) return
+
+    try {
+      const result = await groupService.joinGroupByInvite(pendingInviteCode)
+
+      if (result.success && result.groupId) {
+        // Clear the pending invite
+        localStorage.removeItem('pendingInviteCode')
+
+        // Refresh groups to include the new one
+        await refreshGroups()
+
+        // Switch to the newly joined group
+        switchGroup(result.groupId)
+      }
+      // If joining fails, we'll leave the pending invite for manual retry
+    } catch (err) {
+      console.error('Failed to handle pending invite:', err)
+      // Leave the pending invite for manual retry
     }
-  }
+  }, [isAuthenticated, user, refreshGroups, switchGroup])
+
+  // Check for pending invites after groups are loaded
+  useEffect(() => {
+    if (isAuthenticated && user && userGroups.length >= 0) {
+      handlePendingInvites()
+    }
+  }, [isAuthenticated, user, userGroups, handlePendingInvites])
 
   // Create a new group
   const createGroup = async (name: string, description?: string) => {

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import type { DbMatch, Match, Player } from '@/types'
+import type { DbMatch, Match, Player, PlayerMatchStats } from '@/types'
 import { playersService } from './playersService'
 
 // Transform database match to app match
@@ -24,6 +24,41 @@ const dbMatchToMatch = async (dbMatch: DbMatch): Promise<Match | null> => {
     }
   }
 
+  // Extract player stats if available
+  const playerStats: PlayerMatchStats[] = []
+
+  // Helper function to add player stats if they exist
+  const addPlayerStats = (playerId: string, preRanking?: number, postRanking?: number) => {
+    if (preRanking !== undefined && postRanking !== undefined) {
+      playerStats.push({
+        playerId,
+        preGameRanking: preRanking,
+        postGameRanking: postRanking,
+      })
+    }
+  }
+
+  addPlayerStats(
+    dbMatch.team1_player1_id,
+    dbMatch.team1_player1_pre_ranking,
+    dbMatch.team1_player1_post_ranking,
+  )
+  addPlayerStats(
+    dbMatch.team1_player2_id,
+    dbMatch.team1_player2_pre_ranking,
+    dbMatch.team1_player2_post_ranking,
+  )
+  addPlayerStats(
+    dbMatch.team2_player1_id,
+    dbMatch.team2_player1_pre_ranking,
+    dbMatch.team2_player1_post_ranking,
+  )
+  addPlayerStats(
+    dbMatch.team2_player2_id,
+    dbMatch.team2_player2_pre_ranking,
+    dbMatch.team2_player2_post_ranking,
+  )
+
   return {
     id: dbMatch.id,
     team1: [players[dbMatch.team1_player1_id], players[dbMatch.team1_player2_id]],
@@ -35,6 +70,7 @@ const dbMatchToMatch = async (dbMatch: DbMatch): Promise<Match | null> => {
     groupId: dbMatch.group_id,
     recordedBy: dbMatch.recorded_by,
     createdAt: dbMatch.created_at,
+    playerStats: playerStats.length > 0 ? playerStats : undefined,
   }
 }
 
@@ -42,18 +78,44 @@ const dbMatchToMatch = async (dbMatch: DbMatch): Promise<Match | null> => {
 const matchToDbInsert = (
   match: Omit<Match, 'id' | 'createdAt'> & { groupId: string },
   recordedBy: string,
-): Omit<DbMatch, 'id' | 'created_at'> => ({
-  group_id: match.groupId,
-  team1_player1_id: match.team1[0].id,
-  team1_player2_id: match.team1[1].id,
-  team2_player1_id: match.team2[0].id,
-  team2_player2_id: match.team2[1].id,
-  team1_score: match.score1,
-  team2_score: match.score2,
-  match_date: match.date,
-  match_time: match.time,
-  recorded_by: recordedBy,
-})
+): Omit<DbMatch, 'id' | 'created_at'> => {
+  const baseMatch = {
+    group_id: match.groupId,
+    team1_player1_id: match.team1[0].id,
+    team1_player2_id: match.team1[1].id,
+    team2_player1_id: match.team2[0].id,
+    team2_player2_id: match.team2[1].id,
+    team1_score: match.score1,
+    team2_score: match.score2,
+    match_date: match.date,
+    match_time: match.time,
+    recorded_by: recordedBy,
+  }
+
+  // Add player stats if available
+  if (match.playerStats && match.playerStats.length === 4) {
+    const statsMap = new Map(match.playerStats.map((s) => [s.playerId, s]))
+
+    const team1Player1Stats = statsMap.get(match.team1[0].id)
+    const team1Player2Stats = statsMap.get(match.team1[1].id)
+    const team2Player1Stats = statsMap.get(match.team2[0].id)
+    const team2Player2Stats = statsMap.get(match.team2[1].id)
+
+    return {
+      ...baseMatch,
+      team1_player1_pre_ranking: team1Player1Stats?.preGameRanking,
+      team1_player1_post_ranking: team1Player1Stats?.postGameRanking,
+      team1_player2_pre_ranking: team1Player2Stats?.preGameRanking,
+      team1_player2_post_ranking: team1Player2Stats?.postGameRanking,
+      team2_player1_pre_ranking: team2Player1Stats?.preGameRanking,
+      team2_player1_post_ranking: team2Player1Stats?.postGameRanking,
+      team2_player2_pre_ranking: team2Player2Stats?.preGameRanking,
+      team2_player2_post_ranking: team2Player2Stats?.postGameRanking,
+    }
+  }
+
+  return baseMatch
+}
 
 export const matchesService = {
   // Get all matches in a group
@@ -122,6 +184,14 @@ export const matchesService = {
 
     const [team1Player1, team1Player2, team2Player1, team2Player2] = players
 
+    // Store pre-game rankings
+    const preGameRankings = {
+      [team1Player1.id]: team1Player1.ranking,
+      [team1Player2.id]: team1Player2.ranking,
+      [team2Player1.id]: team2Player1.ranking,
+      [team2Player2.id]: team2Player2.ranking,
+    }
+
     // Determine winner and calculate new rankings
     const team1Won = score1 > score2
     const team1Ranking = (team1Player1.ranking + team1Player2.ranking) / 2
@@ -141,34 +211,65 @@ export const matchesService = {
     }
 
     // Calculate new stats for all players
+    const newRankings = {
+      [team1Player1.id]: calculateNewRanking(team1Player1.ranking, team2Ranking, team1Won),
+      [team1Player2.id]: calculateNewRanking(team1Player2.ranking, team2Ranking, team1Won),
+      [team2Player1.id]: calculateNewRanking(team2Player1.ranking, team1Ranking, !team1Won),
+      [team2Player2.id]: calculateNewRanking(team2Player2.ranking, team1Ranking, !team1Won),
+    }
+
     const playerUpdates = [
       {
         id: team1Player1.id,
-        ranking: calculateNewRanking(team1Player1.ranking, team2Ranking, team1Won),
+        ranking: newRankings[team1Player1.id],
         matchesPlayed: team1Player1.matchesPlayed + 1,
         wins: team1Player1.wins + (team1Won ? 1 : 0),
         losses: team1Player1.losses + (team1Won ? 0 : 1),
       },
       {
         id: team1Player2.id,
-        ranking: calculateNewRanking(team1Player2.ranking, team2Ranking, team1Won),
+        ranking: newRankings[team1Player2.id],
         matchesPlayed: team1Player2.matchesPlayed + 1,
         wins: team1Player2.wins + (team1Won ? 1 : 0),
         losses: team1Player2.losses + (team1Won ? 0 : 1),
       },
       {
         id: team2Player1.id,
-        ranking: calculateNewRanking(team2Player1.ranking, team1Ranking, !team1Won),
+        ranking: newRankings[team2Player1.id],
         matchesPlayed: team2Player1.matchesPlayed + 1,
         wins: team2Player1.wins + (!team1Won ? 1 : 0),
         losses: team2Player1.losses + (!team1Won ? 0 : 1),
       },
       {
         id: team2Player2.id,
-        ranking: calculateNewRanking(team2Player2.ranking, team1Ranking, !team1Won),
+        ranking: newRankings[team2Player2.id],
         matchesPlayed: team2Player2.matchesPlayed + 1,
         wins: team2Player2.wins + (!team1Won ? 1 : 0),
         losses: team2Player2.losses + (!team1Won ? 0 : 1),
+      },
+    ]
+
+    // Create player match stats
+    const playerStats: PlayerMatchStats[] = [
+      {
+        playerId: team1Player1.id,
+        preGameRanking: preGameRankings[team1Player1.id],
+        postGameRanking: newRankings[team1Player1.id],
+      },
+      {
+        playerId: team1Player2.id,
+        preGameRanking: preGameRankings[team1Player2.id],
+        postGameRanking: newRankings[team1Player2.id],
+      },
+      {
+        playerId: team2Player1.id,
+        preGameRanking: preGameRankings[team2Player1.id],
+        postGameRanking: newRankings[team2Player1.id],
+      },
+      {
+        playerId: team2Player2.id,
+        preGameRanking: preGameRankings[team2Player2.id],
+        postGameRanking: newRankings[team2Player2.id],
       },
     ]
 
@@ -190,6 +291,7 @@ export const matchesService = {
                 hour12: false,
               }),
               groupId,
+              playerStats,
             },
             recordedBy,
           ),
