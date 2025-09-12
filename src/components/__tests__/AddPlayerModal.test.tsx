@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { AVAILABLE_AVATARS } from '@/constants/avatars'
 import AddPlayerModal from '../AddPlayerModal'
 
 describe('AddPlayerModal', () => {
@@ -45,7 +46,7 @@ describe('AddPlayerModal', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', '👤')
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', AVAILABLE_AVATARS[0])
       expect(mockOnClose).toHaveBeenCalledTimes(1)
     })
   })
@@ -60,7 +61,7 @@ describe('AddPlayerModal', () => {
     await user.keyboard('{Enter}')
 
     await waitFor(() => {
-      expect(mockOnAddPlayer).toHaveBeenCalledWith('Jane Smith', '👤')
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('Jane Smith', AVAILABLE_AVATARS[0])
       expect(mockOnClose).toHaveBeenCalledTimes(1)
     })
   })
@@ -76,7 +77,7 @@ describe('AddPlayerModal', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', '👤')
+      expect(mockOnAddPlayer).toHaveBeenCalledWith('John Doe', AVAILABLE_AVATARS[0])
     })
   })
 

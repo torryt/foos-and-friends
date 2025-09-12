@@ -5,6 +5,7 @@ import { GroupSelectionScreen } from '@/components/GroupSelectionScreen'
 import Header from '@/components/Header'
 import { JoinGroupModal } from '@/components/JoinGroupModal'
 import MatchHistory from '@/components/MatchHistory'
+import PlayerManagementModal from '@/components/PlayerManagementModal'
 import PlayerRankings from '@/components/PlayerRankings'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import QuickActions from '@/components/QuickActions'
@@ -27,11 +28,12 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
   const [showRecordMatch, setShowRecordMatch] = useState(false)
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
+  const [showManagePlayers, setShowManagePlayers] = useState(false)
 
   const { currentGroup, userGroups, loading, switchGroup, joinGroup } = useGroupContext()
 
   // Always call useGameLogic at top level (hooks rule)
-  const { players, matches, addPlayer, recordMatch } = useGameLogic()
+  const { players, matches, addPlayer, recordMatch, updatePlayer, deletePlayer } = useGameLogic()
 
   // Handle invite links on app load
   useEffect(() => {
@@ -81,6 +83,10 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
   }
 
   // Normal app functionality when group is selected
+  const isAdmin = currentGroup?.ownerId === user?.id
+  console.log('DEBUG - currentGroup?.ownerId:', currentGroup?.ownerId)
+  console.log('DEBUG - user?.id:', user?.id)  
+  console.log('DEBUG - isAdmin:', isAdmin)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-100">
@@ -93,6 +99,7 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
             <QuickActions
               onRecordMatch={() => setShowRecordMatch(true)}
               onAddPlayer={() => setShowAddPlayer(true)}
+              onManagePlayers={() => setShowManagePlayers(true)}
             />
             <PlayerRankings players={players} />
           </div>
@@ -106,6 +113,16 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
           isOpen={showAddPlayer}
           onClose={() => setShowAddPlayer(false)}
           onAddPlayer={(name, avatar) => addPlayer(name, avatar)}
+        />
+
+        <PlayerManagementModal
+          isOpen={showManagePlayers}
+          onClose={() => setShowManagePlayers(false)}
+          players={players}
+          currentUserId={user?.id}
+          isAdmin={isAdmin}
+          onUpdatePlayer={updatePlayer}
+          onDeletePlayer={deletePlayer}
         />
 
         {showRecordMatch && (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getRandomAvatar } from '@/constants/avatars'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { matchesService } from '@/services/matchesService'
 import { playersService } from '@/services/playersService'
@@ -66,9 +67,7 @@ export const useGameLogic = () => {
       return { success: false, error: 'No group selected or user not authenticated' }
     }
 
-    const defaultAvatars = ['👨‍💻', '👩‍🎨', '🧔', '👩‍💼', '👨‍🔬', '👩‍🚀', '👨‍🎓', '👩‍⚕️']
-    const selectedAvatar =
-      avatar || defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)]
+    const selectedAvatar = avatar || getRandomAvatar()
 
     try {
       const result = await playersService.addPlayer(
@@ -144,6 +143,61 @@ export const useGameLogic = () => {
     }
   }
 
+  const updatePlayer = async (
+    playerId: string,
+    updates: { name?: string; avatar?: string },
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!currentGroup || !user) {
+      return { success: false, error: 'No group selected or user not authenticated' }
+    }
+
+    try {
+      const result = await playersService.updatePlayerProfile(playerId, updates)
+
+      if (result.error) {
+        return { success: false, error: result.error }
+      }
+
+      if (result.data) {
+        // Update local state
+        setPlayers((prev) =>
+          prev.map((player) => (player.id === playerId && result.data ? result.data : player)),
+        )
+      }
+
+      return { success: true }
+    } catch (err) {
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to update player',
+      }
+    }
+  }
+
+  const deletePlayer = async (playerId: string): Promise<{ success: boolean; error?: string }> => {
+    if (!currentGroup || !user) {
+      return { success: false, error: 'No group selected or user not authenticated' }
+    }
+
+    try {
+      const result = await playersService.deletePlayer(playerId)
+
+      if (result.error) {
+        return { success: false, error: result.error }
+      }
+
+      // Update local state
+      setPlayers((prev) => prev.filter((player) => player.id !== playerId))
+
+      return { success: true }
+    } catch (err) {
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to delete player',
+      }
+    }
+  }
+
   return {
     players,
     matches,
@@ -151,5 +205,7 @@ export const useGameLogic = () => {
     error,
     addPlayer,
     recordMatch,
+    updatePlayer,
+    deletePlayer,
   }
 }

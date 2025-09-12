@@ -180,7 +180,43 @@ export const playersService = {
     }
   },
 
-  // Delete player (optional - might not be needed)
+  // Update player profile (name, avatar)
+  async updatePlayerProfile(
+    playerId: string,
+    updates: {
+      name?: string
+      avatar?: string
+    },
+  ): Promise<{ data: Player | null; error?: string }> {
+    try {
+      const dbUpdates: Partial<DbPlayer> = {}
+      if (updates.name !== undefined) dbUpdates.name = updates.name
+      if (updates.avatar !== undefined) dbUpdates.avatar = updates.avatar
+      dbUpdates.updated_at = new Date().toISOString()
+
+      const { data, error } = await supabase
+        .from('players')
+        .update(dbUpdates)
+        .eq('id', playerId)
+        .select()
+        .single()
+
+      if (error) {
+        // Handle unique constraint violation (duplicate name in group)
+        if (error.code === '23505') {
+          return { data: null, error: 'A player with this name already exists in the group' }
+        }
+        return { data: null, error: error.message }
+      }
+
+      const player = dbPlayerToPlayer(data)
+      return { data: player }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to update player' }
+    }
+  },
+
+  // Delete player
   async deletePlayer(playerId: string): Promise<{ success: boolean; error?: string }> {
     try {
       const { error } = await supabase.from('players').delete().eq('id', playerId)

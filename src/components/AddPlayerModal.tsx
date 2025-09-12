@@ -1,5 +1,6 @@
 import { Loader, Users, X } from 'lucide-react'
 import { useState } from 'react'
+import { AVAILABLE_AVATARS } from '@/constants/avatars'
 
 interface AddPlayerModalProps {
   isOpen: boolean
@@ -9,28 +10,9 @@ interface AddPlayerModalProps {
 
 const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) => {
   const [newPlayer, setNewPlayer] = useState('')
-  const [selectedAvatar, setSelectedAvatar] = useState('👤')
+  const [selectedAvatar, setSelectedAvatar] = useState(AVAILABLE_AVATARS[0])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const availableAvatars = [
-    '👨‍💻',
-    '👩‍🎨',
-    '🧔',
-    '👩‍💼',
-    '👨‍🔬',
-    '👩‍🚀',
-    '👨‍🎓',
-    '👩‍⚕️',
-    '👨‍🎤',
-    '👩‍🏫',
-    '👨‍🍳',
-    '👩‍🔧',
-    '👨‍🎨',
-    '👩‍💻',
-    '🧑‍🏭',
-    '👤',
-  ]
 
   if (!isOpen) return null
 
@@ -48,7 +30,7 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
 
       if (result.success) {
         setNewPlayer('')
-        setSelectedAvatar('👤')
+        setSelectedAvatar(AVAILABLE_AVATARS[0])
         onClose()
       } else {
         setError(result.error || 'Failed to add player')
@@ -63,7 +45,7 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
   const handleClose = () => {
     if (!isLoading) {
       setNewPlayer('')
-      setSelectedAvatar('👤')
+      setSelectedAvatar(AVAILABLE_AVATARS[0])
       setError(null)
       onClose()
     }
@@ -113,8 +95,8 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
               <span className="text-2xl">{selectedAvatar}</span>
               <span className="text-sm font-semibold text-orange-800">Choose Avatar</span>
             </div>
-            <div className="grid grid-cols-8 gap-2">
-              {availableAvatars.map((avatar) => (
+            <div className="grid grid-cols-8 gap-2 max-h-32 overflow-y-auto">
+              {AVAILABLE_AVATARS.map((avatar) => (
                 <button
                   key={avatar}
                   type="button"

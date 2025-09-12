@@ -83,9 +83,10 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 
 ### Database Management
 
-- **Single Reset Script**: Use `/database/00_complete_reset.sql` for all database setup
-- **Complete Recreation**: This script drops and recreates the entire database schema
-- **No Migrations**: Run the reset script whenever database changes are needed
+- **Migration-based Changes**: All SQL schema changes should be handled through migration files in the `/database/migrations/` folder
+- **Single Reset Script**: Use `/database/00_complete_reset.sql` for initial database setup only
+- **Development**: For development, you can still use the reset script for complete recreation
+- **Production**: Always use migrations for production database changes to preserve data
 - **RLS Policies**: Designed to work with public JS client without circular dependencies
 
 ### Mock vs Supabase Mode
