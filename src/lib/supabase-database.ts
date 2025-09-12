@@ -12,7 +12,9 @@ import type {
   DatabaseListResult,
   DatabaseResult,
   GroupCreationRpcResult,
+  GroupDeletionRpcResult,
   GroupJoinRpcResult,
+  GroupLeaveRpcResult,
 } from './database'
 import { supabase } from './supabase'
 
@@ -154,6 +156,7 @@ export class SupabaseDatabase implements Database {
         createdAt: group.created_at,
         updatedAt: group.updated_at,
         playerCount: group.player_count?.[0]?.count || 0,
+        isOwner: group.owner_id === userId,
       }))
 
       return { data: groups, error: null }
@@ -269,6 +272,43 @@ export class SupabaseDatabase implements Database {
       return { data: data as GroupJoinRpcResult, error: null }
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to join group' }
+    }
+  }
+
+  async deleteGroup(
+    groupId: string,
+    userId: string,
+  ): Promise<DatabaseResult<GroupDeletionRpcResult>> {
+    try {
+      const { data, error } = await supabase.rpc('delete_group_with_cascade', {
+        p_group_id: groupId,
+        p_user_id: userId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as GroupDeletionRpcResult, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to delete group' }
+    }
+  }
+
+  async leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
+    try {
+      const { data, error } = await supabase.rpc('leave_group', {
+        p_group_id: groupId,
+        p_user_id: userId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as GroupLeaveRpcResult, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to leave group' }
     }
   }
 

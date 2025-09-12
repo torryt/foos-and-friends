@@ -1,6 +1,12 @@
 import type { Database } from '@/lib/database'
 import { database } from '@/lib/supabase-database'
-import type { FriendGroup, GroupCreationResult, GroupJoinResult, GroupMembership } from '@/types'
+import type {
+  FriendGroup,
+  GroupCreationResult,
+  GroupJoinResult,
+  GroupLeaveResult,
+  GroupMembership,
+} from '@/types'
 
 class GroupService {
   private db: Database
@@ -58,6 +64,40 @@ class GroupService {
     groupId: string,
   ): Promise<{ data: GroupMembership[]; error: string | null }> {
     return await this.db.getGroupMembers(groupId)
+  }
+
+  async deleteGroup(
+    groupId: string,
+    userId: string,
+  ): Promise<{
+    success: boolean
+    error?: string
+    deletedCounts?: { players: number; matches: number; members: number }
+  }> {
+    const result = await this.db.deleteGroup(groupId, userId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+      deletedCounts: result.data?.deleted_counts,
+    }
+  }
+
+  async leaveGroup(groupId: string, userId: string): Promise<GroupLeaveResult> {
+    const result = await this.db.leaveGroup(groupId, userId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+    }
   }
 }
 

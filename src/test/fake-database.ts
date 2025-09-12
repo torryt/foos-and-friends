@@ -3,7 +3,9 @@ import type {
   DatabaseListResult,
   DatabaseResult,
   GroupCreationRpcResult,
+  GroupDeletionRpcResult,
   GroupJoinRpcResult,
+  GroupLeaveRpcResult,
 } from '@/lib/database'
 import type { FriendGroup, GroupMembership, Match, Player } from '@/types'
 
@@ -26,6 +28,7 @@ export class FakeDatabase implements Database {
       .map((group) => ({
         ...group,
         playerCount: this.players.filter((p) => p.groupId === group.id).length,
+        isOwner: group.ownerId === userId,
       }))
 
     return { data: userGroups, error: null }
@@ -149,6 +152,85 @@ export class FakeDatabase implements Database {
         group_id: group.id,
         group_name: group.name,
       },
+      error: null,
+    }
+  }
+
+  async deleteGroup(
+    groupId: string,
+    userId: string,
+  ): Promise<DatabaseResult<GroupDeletionRpcResult>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: { success: false, error: 'Group not found' }, error: null }
+    }
+
+    // Check if user is owner
+    if (group.ownerId !== userId) {
+      return {
+        data: { success: false, error: 'Only group owner can delete the group' },
+        error: null,
+      }
+    }
+
+    // Count items to be deleted
+    const memberships = this.memberships.filter((m) => m.groupId === groupId)
+    const players = this.players.filter((p) => p.groupId === groupId)
+    const matches = this.matches.filter((m) => m.groupId === groupId)
+
+    // Delete all related data
+    this.memberships = this.memberships.filter((m) => m.groupId !== groupId)
+    this.players = this.players.filter((p) => p.groupId !== groupId)
+    this.matches = this.matches.filter((m) => m.groupId !== groupId)
+    this.groups = this.groups.filter((g) => g.id !== groupId)
+
+    return {
+      data: {
+        success: true,
+        deleted_counts: {
+          members: memberships.length,
+          players: players.length,
+          matches: matches.length,
+        },
+      },
+      error: null,
+    }
+  }
+
+  async leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: { success: false, error: 'Group not found' }, error: null }
+    }
+
+    // Check if user is owner (owners cannot leave, they must delete)
+    if (group.ownerId === userId) {
+      return {
+        data: {
+          success: false,
+          error: 'Group owner cannot leave the group. Delete the group instead.',
+        },
+        error: null,
+      }
+    }
+
+    const membership = this.memberships.find(
+      (m) => m.groupId === groupId && m.userId === userId && m.isActive,
+    )
+    if (!membership) {
+      return { data: { success: false, error: 'You are not a member of this group' }, error: null }
+    }
+
+    // Remove membership
+    this.memberships = this.memberships.filter(
+      (m) => !(m.groupId === groupId && m.userId === userId),
+    )
+
+    // Remove user's players from this group
+    this.players = this.players.filter((p) => !(p.groupId === groupId && p.createdBy === userId))
+
+    return {
+      data: { success: true },
       error: null,
     }
   }

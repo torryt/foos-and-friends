@@ -97,7 +97,7 @@ function InvitePageComponent() {
 
   if (!inviteCode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-100 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center min-h-[60vh] p-4">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50 text-center">
           <AlertCircle className="mx-auto mb-4 text-red-500" size={48} />
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Invite Link</h1>
@@ -118,7 +118,7 @@ function InvitePageComponent() {
 
   if (joined) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-100 flex items-center justify-center p-4">
+      <div className="flex items-center justify-center min-h-[60vh] p-4">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Users className="text-green-600" size={32} />
@@ -136,7 +136,7 @@ function InvitePageComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-100 flex items-center justify-center p-4">
+    <div className="flex items-center justify-center min-h-[60vh] p-4">
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-red-100 rounded-full flex items-center justify-center mx-auto mb-4">

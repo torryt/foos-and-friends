@@ -1,4 +1,14 @@
-import { ChevronDown, ChevronUp, Clipboard, Plus, Settings, UserPlus, Users } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronUp,
+  Clipboard,
+  LogOut,
+  Plus,
+  Settings,
+  Trash2,
+  UserPlus,
+  Users,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useToast } from '@/hooks/useToast'
@@ -7,12 +17,16 @@ interface GroupSelectorProps {
   onCreateGroup?: () => void
   onJoinGroup?: () => void
   onManageGroup?: (groupId: string) => void
+  onDeleteGroup?: (groupId: string) => void
+  onLeaveGroup?: (groupId: string) => void
 }
 
 export const GroupSelector = ({
   onCreateGroup,
   onJoinGroup,
   onManageGroup,
+  onDeleteGroup,
+  onLeaveGroup,
 }: GroupSelectorProps) => {
   const { currentGroup, userGroups, switchGroup, loading } = useGroupContext()
   const [isOpen, setIsOpen] = useState(false)
@@ -171,6 +185,36 @@ export const GroupSelector = ({
                         <Settings size={14} className="text-gray-500" />
                         Manage Players
                       </button>
+
+                      {/* Delete Group - Only show for groups with more than 1 total group and if group owner */}
+                      {userGroups.length > 1 && group.isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onDeleteGroup?.(group.id)
+                            setIsOpen(false)
+                          }}
+                          className="w-full text-left px-6 py-2 rounded-md bg-red-50 hover:bg-red-100 transition-colors flex items-center gap-3 text-sm font-medium text-red-700"
+                        >
+                          <Trash2 size={14} className="text-red-500" />
+                          Delete Group
+                        </button>
+                      )}
+
+                      {/* Leave Group - Only show for non-owners with more than 1 total group */}
+                      {userGroups.length > 1 && !group.isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onLeaveGroup?.(group.id)
+                            setIsOpen(false)
+                          }}
+                          className="w-full text-left px-6 py-2 rounded-md bg-orange-50 hover:bg-orange-100 transition-colors flex items-center gap-3 text-sm font-medium text-orange-700"
+                        >
+                          <LogOut size={14} className="text-orange-500" />
+                          Leave Group
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

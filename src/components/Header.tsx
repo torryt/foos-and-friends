@@ -5,8 +5,10 @@ import { useAuth } from '@/hooks/useAuth'
 import { playersService } from '@/services/playersService'
 import type { AuthUser, Player } from '@/types'
 import { CreateGroupModal } from './CreateGroupModal'
+import { DeleteGroupConfirmationModal } from './DeleteGroupConfirmationModal'
 import { GroupSelector } from './GroupSelector'
 import { JoinGroupModal } from './JoinGroupModal'
+import { LeaveGroupConfirmationModal } from './LeaveGroupConfirmationModal'
 import PlayerManagementModal from './PlayerManagementModal'
 
 interface HeaderProps {
@@ -19,9 +21,13 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
   const [showJoinGroup, setShowJoinGroup] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
   const [showPlayerManagement, setShowPlayerManagement] = useState(false)
+  const [showDeleteGroup, setShowDeleteGroup] = useState(false)
+  const [showLeaveGroup, setShowLeaveGroup] = useState(false)
+  const [groupToDelete, setGroupToDelete] = useState<string | null>(null)
+  const [groupToLeave, setGroupToLeave] = useState<string | null>(null)
   const [players, setPlayers] = useState<Player[]>([])
   const [_loadingPlayers, setLoadingPlayers] = useState(false)
-  const { currentGroup, userGroups } = useGroupContext()
+  const { currentGroup, userGroups, deleteGroup, leaveGroup } = useGroupContext()
   const { user: authUser } = useAuth()
 
   // Get current group data for admin check
@@ -47,6 +53,30 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
   const handleManageGroup = (_groupId: string) => {
     setShowPlayerManagement(true)
     loadPlayers()
+  }
+
+  const handleDeleteGroup = (groupId: string) => {
+    setGroupToDelete(groupId)
+    setShowDeleteGroup(true)
+  }
+
+  const handleDeleteGroupConfirm = async (groupId: string) => {
+    const result = await deleteGroup(groupId)
+    setShowDeleteGroup(false)
+    setGroupToDelete(null)
+    return result
+  }
+
+  const handleLeaveGroup = (groupId: string) => {
+    setGroupToLeave(groupId)
+    setShowLeaveGroup(true)
+  }
+
+  const handleLeaveGroupConfirm = async (groupId: string) => {
+    const result = await leaveGroup(groupId)
+    setShowLeaveGroup(false)
+    setGroupToLeave(null)
+    return result
   }
 
   const handleUpdatePlayer = async (
@@ -101,6 +131,8 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                         onCreateGroup={() => setShowCreateGroup(true)}
                         onJoinGroup={() => setShowJoinGroup(true)}
                         onManageGroup={handleManageGroup}
+                        onDeleteGroup={handleDeleteGroup}
+                        onLeaveGroup={handleLeaveGroup}
                       />
                     </div>
 
@@ -111,6 +143,8 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                           onCreateGroup={() => setShowCreateGroup(true)}
                           onJoinGroup={() => setShowJoinGroup(true)}
                           onManageGroup={handleManageGroup}
+                          onDeleteGroup={handleDeleteGroup}
+                          onLeaveGroup={handleLeaveGroup}
                         />
                       ) : (
                         <div className="bg-white/80 px-2 py-2 rounded-lg border border-white/50">
@@ -191,6 +225,26 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
       <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
 
       <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
+
+      <DeleteGroupConfirmationModal
+        isOpen={showDeleteGroup}
+        onClose={() => {
+          setShowDeleteGroup(false)
+          setGroupToDelete(null)
+        }}
+        group={groupToDelete ? userGroups.find((g) => g.id === groupToDelete) || null : null}
+        onDelete={handleDeleteGroupConfirm}
+      />
+
+      <LeaveGroupConfirmationModal
+        isOpen={showLeaveGroup}
+        onClose={() => {
+          setShowLeaveGroup(false)
+          setGroupToLeave(null)
+        }}
+        group={groupToLeave ? userGroups.find((g) => g.id === groupToLeave) || null : null}
+        onLeave={handleLeaveGroupConfirm}
+      />
 
       <PlayerManagementModal
         isOpen={showPlayerManagement}

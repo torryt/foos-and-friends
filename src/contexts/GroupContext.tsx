@@ -15,6 +15,12 @@ interface GroupContextType {
   refreshGroups: () => Promise<void>
   createGroup: (name: string, description?: string) => Promise<{ success: boolean; error?: string }>
   joinGroup: (inviteCode: string) => Promise<{ success: boolean; error?: string }>
+  deleteGroup: (groupId: string) => Promise<{
+    success: boolean
+    error?: string
+    deletedCounts?: { players: number; matches: number; members: number }
+  }>
+  leaveGroup: (groupId: string) => Promise<{ success: boolean; error?: string }>
 }
 
 const GroupContext = createContext<GroupContextType | null>(null)
@@ -149,7 +155,11 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         await refreshGroups()
 
         // Switch to the newly joined group
-        switchGroup(result.groupId)
+        setTimeout(() => {
+          if (result.groupId) {
+            switchGroup(result.groupId)
+          }
+        }, 100)
       }
       // If joining fails, the user can retry manually or use the invite link again
     } catch (err) {
@@ -183,7 +193,12 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
 
         // Switch to the new group if we have the ID
         if (result.groupId) {
-          switchGroup(result.groupId)
+          // Add a small delay to ensure groups are updated
+          setTimeout(() => {
+            if (result.groupId) {
+              switchGroup(result.groupId)
+            }
+          }, 100)
         }
 
         return { success: true }
@@ -215,7 +230,12 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
 
         // Switch to the joined group if we have the ID
         if (result.groupId) {
-          switchGroup(result.groupId)
+          // Add a small delay to ensure groups are updated
+          setTimeout(() => {
+            if (result.groupId) {
+              switchGroup(result.groupId)
+            }
+          }, 100)
         }
 
         return { success: true }
@@ -225,6 +245,93 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to join group'
+      setError(errorMessage)
+      return { success: false, error: errorMessage }
+    }
+  }
+
+  // Delete a group
+  const deleteGroup = async (groupId: string) => {
+    if (!isAuthenticated || !user) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    setError(null)
+
+    try {
+      const result = await groupService.deleteGroup(groupId, user.id)
+
+      if (result.success) {
+        // Handle current group cleanup
+        if (currentGroup?.id === groupId) {
+          // Remove from localStorage
+          removeStoredGroupId(user.id)
+          setCurrentGroup(null)
+        }
+
+        // Refresh groups to remove the deleted one
+        await refreshGroups()
+
+        // If we just deleted the current group, switch to the first available group
+        if (currentGroup?.id === groupId) {
+          const updatedGroups = userGroups.filter((g) => g.id !== groupId)
+          if (updatedGroups.length > 0) {
+            switchGroup(updatedGroups[0].id)
+          }
+        }
+
+        return {
+          success: true,
+          deletedCounts: result.deletedCounts,
+        }
+      } else {
+        setError(result.error || 'Failed to delete group')
+        return { success: false, error: result.error }
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete group'
+      setError(errorMessage)
+      return { success: false, error: errorMessage }
+    }
+  }
+
+  // Leave a group
+  const leaveGroup = async (groupId: string) => {
+    if (!isAuthenticated || !user) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    setError(null)
+
+    try {
+      const result = await groupService.leaveGroup(groupId, user.id)
+
+      if (result.success) {
+        // Handle current group cleanup
+        if (currentGroup?.id === groupId) {
+          // Remove from localStorage
+          removeStoredGroupId(user.id)
+          setCurrentGroup(null)
+        }
+
+        // Refresh groups to remove the left group
+        await refreshGroups()
+
+        // If we just left the current group, switch to the first available group
+        if (currentGroup?.id === groupId) {
+          const updatedGroups = userGroups.filter((g) => g.id !== groupId)
+          if (updatedGroups.length > 0) {
+            switchGroup(updatedGroups[0].id)
+          }
+        }
+
+        return { success: true }
+      } else {
+        setError(result.error || 'Failed to leave group')
+        return { success: false, error: result.error }
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to leave group'
       setError(errorMessage)
       return { success: false, error: errorMessage }
     }
@@ -255,6 +362,8 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         refreshGroups,
         createGroup,
         joinGroup,
+        deleteGroup,
+        leaveGroup,
       }}
     >
       {children}

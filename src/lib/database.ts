@@ -27,6 +27,21 @@ export interface GroupJoinRpcResult {
   error?: string
 }
 
+export interface GroupDeletionRpcResult {
+  success: boolean
+  deleted_counts?: {
+    players: number
+    matches: number
+    members: number
+  }
+  error?: string
+}
+
+export interface GroupLeaveRpcResult {
+  success: boolean
+  error?: string
+}
+
 // Database interface that abstracts all database operations
 export interface Database {
   // Group operations
@@ -38,6 +53,8 @@ export interface Database {
     inviteCode: string,
     userId?: string,
   ): Promise<DatabaseResult<GroupJoinRpcResult>>
+  deleteGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupDeletionRpcResult>>
+  leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>>
 
   // Group membership operations
   getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMembership>>

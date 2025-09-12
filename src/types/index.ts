@@ -109,6 +109,7 @@ export interface FriendGroup {
   createdAt: string
   updatedAt: string
   playerCount?: number
+  isOwner?: boolean // Added for client-side group owner detection
 }
 
 export interface GroupMembership {
@@ -143,5 +144,10 @@ export interface GroupJoinResult {
   success: boolean
   groupId?: string
   groupName?: string
+  error?: string
+}
+
+export interface GroupLeaveResult {
+  success: boolean
   error?: string
 }
