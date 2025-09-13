@@ -75,34 +75,41 @@ const MatchHistory = ({
     const hasStats = !!stats
 
     return (
-      <div key={player.id} className="mb-1">
+      <div key={player.id} className="flex flex-col items-center">
         <button
           type="button"
-          className="flex items-center justify-center gap-1 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none p-0"
+          className="flex flex-col items-center gap-0.5 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none p-0"
           onClick={() => onPlayerClick?.(player.id)}
         >
-          <span className="text-sm">{player.avatar}</span>
-          <div className={`text-xs font-medium ${teamColor}`}>{player.name}</div>
+          <span className="text-lg md:text-sm">{player.avatar}</span>
+          <div
+            className={`text-[10px] md:text-xs font-medium ${teamColor} text-center truncate max-w-[60px] md:max-w-none`}
+          >
+            {player.name}
+          </div>
         </button>
         {hasStats ? (
-          <div className="text-xs text-gray-600 mt-0.5">
-            <div className="flex items-center justify-center gap-1">
+          <div className="text-[10px] md:text-xs text-gray-600">
+            <div className="flex items-center justify-center gap-0.5">
               <span className="font-medium">{stats.postGameRanking}</span>
-              {formatRankingChange(calculateRankingChange(stats))}
+              <span className="scale-75 md:scale-100">
+                {formatRankingChange(calculateRankingChange(stats))}
+              </span>
             </div>
           </div>
         ) : (
-          <div className="text-xs text-gray-600 mt-0.5">
-            <div className="flex items-center justify-center">
-              <span className="font-medium">{player.ranking}</span>
-            </div>
+          <div className="text-[10px] md:text-xs text-gray-600">
+            <span className="font-medium">{player.ranking}</span>
           </div>
         )}
       </div>
     )
   }
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
+    <div
+      className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50"
+      data-testid="match-history"
+    >
       <div className="p-4 border-b border-slate-200/50">
         <div className="flex justify-between items-center">
           <div>
@@ -196,33 +203,38 @@ const MatchHistory = ({
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-2 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
             {filteredMatches.map((match) => (
               <div
                 key={match.id}
-                className="bg-gradient-to-br from-white to-slate-50 border border-white/50 rounded-xl p-3 shadow-sm"
+                className="bg-gradient-to-br from-white to-slate-50 border border-white/50 rounded-lg md:rounded-xl p-2 md:p-3 shadow-sm"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="text-xs text-slate-600 flex items-center gap-1">
-                    <Clock size={12} />
-                    {match.date} at {match.time}
+                <div className="flex justify-between items-start mb-2 md:mb-3">
+                  <div className="text-[10px] md:text-xs text-slate-600 flex items-center gap-1">
+                    <Clock size={10} className="md:w-3 md:h-3" />
+                    <span className="hidden md:inline">
+                      {match.date} at {match.time}
+                    </span>
+                    <span className="md:hidden">
+                      {match.date.split(' ').pop()} {match.time}
+                    </span>
                   </div>
-                  <span className="bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800 px-2 py-1 rounded-full text-xs font-bold">
-                    Completed
+                  <span className="bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-bold">
+                    Done
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 items-center">
-                  <div className="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-2 rounded-lg border border-blue-200/50">
-                    <div className="font-bold text-blue-800 mb-1 text-xs">Team 1</div>
-                    <div className="space-y-1">
+                <div className="grid grid-cols-3 gap-1 md:gap-3 items-center">
+                  <div className="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-1 md:p-2 rounded md:rounded-lg border border-blue-200/50">
+                    <div className="font-bold text-blue-800 text-[10px] md:text-xs md:mb-1">T1</div>
+                    <div className="flex flex-col gap-1 md:space-y-1">
                       {renderPlayerWithStats(match.team1[0], match, 'text-blue-700')}
                       {renderPlayerWithStats(match.team1[1], match, 'text-blue-700')}
                     </div>
-                    <div className="text-xs bg-blue-100 text-blue-600 px-1 py-0.5 rounded-full mt-1">
+                    <div className="text-[9px] md:text-xs bg-blue-100 text-blue-600 px-1 py-0.5 rounded-full mt-1 hidden md:block">
                       {match.playerStats ? (
                         <>
-                          Pre-Avg:{' '}
+                          Pre:{' '}
                           {Math.round(
                             (getPlayerStats(match, match.team1[0].id)?.preGameRanking ||
                               match.team1[0].ranking) +
@@ -240,7 +252,7 @@ const MatchHistory = ({
 
                   <div className="text-center">
                     <div
-                      className={`text-2xl font-bold mb-1 ${
+                      className={`text-lg md:text-2xl font-bold ${
                         match.score1 > match.score2
                           ? 'text-green-600'
                           : match.score2 > match.score1
@@ -248,21 +260,25 @@ const MatchHistory = ({
                             : 'text-slate-600'
                       }`}
                     >
-                      {match.score1} - {match.score2}
+                      {match.score1}-{match.score2}
                     </div>
-                    <div className="text-xs text-slate-500">Final Score</div>
+                    <div className="text-[9px] md:text-xs text-slate-500 hidden md:block">
+                      Final
+                    </div>
                   </div>
 
-                  <div className="text-center bg-gradient-to-br from-purple-50 to-violet-50 p-2 rounded-lg border border-purple-200/50">
-                    <div className="font-bold text-purple-800 mb-1 text-xs">Team 2</div>
-                    <div className="space-y-1">
+                  <div className="text-center bg-gradient-to-br from-purple-50 to-violet-50 p-1 md:p-2 rounded md:rounded-lg border border-purple-200/50">
+                    <div className="font-bold text-purple-800 text-[10px] md:text-xs md:mb-1">
+                      T2
+                    </div>
+                    <div className="flex flex-col gap-1 md:space-y-1">
                       {renderPlayerWithStats(match.team2[0], match, 'text-purple-700')}
                       {renderPlayerWithStats(match.team2[1], match, 'text-purple-700')}
                     </div>
-                    <div className="text-xs bg-purple-100 text-purple-600 px-1 py-0.5 rounded-full mt-1">
+                    <div className="text-[9px] md:text-xs bg-purple-100 text-purple-600 px-1 py-0.5 rounded-full mt-1 hidden md:block">
                       {match.playerStats ? (
                         <>
-                          Pre-Avg:{' '}
+                          Pre:{' '}
                           {Math.round(
                             (getPlayerStats(match, match.team2[0].id)?.preGameRanking ||
                               match.team2[0].ranking) +
@@ -280,9 +296,9 @@ const MatchHistory = ({
                 </div>
 
                 {match.score1 !== match.score2 && (
-                  <div className="mt-2 text-center">
-                    <span className="text-xs font-medium text-green-600">
-                      🎉 Team {match.score1 > match.score2 ? '1' : '2'} wins! Great game, friends!
+                  <div className="mt-1 md:mt-2 text-center">
+                    <span className="text-[10px] md:text-xs font-medium text-green-600">
+                      Team {match.score1 > match.score2 ? '1' : '2'} wins!
                     </span>
                   </div>
                 )}

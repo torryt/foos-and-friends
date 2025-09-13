@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { AVAILABLE_AVATARS } from '@/constants/avatars'
 import { useGameLogic } from '@/hooks/useGameLogic'
 import { cn } from '@/lib/utils'
 
@@ -203,14 +204,29 @@ function PlayerProfile() {
                     />
                   </div>
                   <div>
-                    <Label>Avatar Emoji</Label>
-                    <Input
-                      value={editedAvatar}
-                      onChange={(e) => setEditedAvatar(e.target.value)}
-                      placeholder={player.avatar}
-                      className="mt-1 w-20"
-                      maxLength={2}
-                    />
+                    <Label>Choose Avatar</Label>
+                    <div className="mt-2 bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-lg border border-orange-200/50">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-2xl">{editedAvatar}</span>
+                        <span className="text-sm text-orange-800">Current</span>
+                      </div>
+                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-1 max-h-32 overflow-y-auto">
+                        {AVAILABLE_AVATARS.map((avatar) => (
+                          <button
+                            key={avatar}
+                            type="button"
+                            onClick={() => setEditedAvatar(avatar)}
+                            className={`text-xl p-1.5 rounded hover:bg-orange-100 transition-colors ${
+                              editedAvatar === avatar
+                                ? 'bg-orange-200 border-2 border-orange-400'
+                                : 'bg-white/60 border-2 border-transparent'
+                            }`}
+                          >
+                            {avatar}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   <div className="flex space-x-2">
                     <Button onClick={handleSave} size="sm">
