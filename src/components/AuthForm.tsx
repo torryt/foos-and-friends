@@ -34,7 +34,7 @@ export const AuthForm = () => {
 
       // If we have an invite code, construct redirect URL to include it
       const customRedirect = inviteCode
-        ? `${window.location.origin}/?invite=${inviteCode}`
+        ? `${window.location.origin}/invite?code=${inviteCode}`
         : undefined
 
       const result = await signInWithMagicLink(email, customRedirect)

@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { CreateGroupModal } from '@/components/CreateGroupModal'
 import { GroupSelectionScreen } from '@/components/GroupSelectionScreen'
 import { JoinGroupModal } from '@/components/JoinGroupModal'
-import { PendingInviteScreen } from '@/components/PendingInviteScreen'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { GroupProvider, useGroupContext } from '@/contexts/GroupContext'
 import { useAuth } from '@/hooks/useAuth'
@@ -35,13 +34,7 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
 
-  const { currentGroup, userGroups, loading, processingPendingInvite, switchGroup } =
-    useGroupContext()
-
-  // Show pending invite screen when processing an invite
-  if (processingPendingInvite) {
-    return <PendingInviteScreen />
-  }
+  const { currentGroup, userGroups, loading, switchGroup } = useGroupContext()
 
   // If on invite page, always use router regardless of group status
   if (window.location.pathname === '/invite') {

@@ -89,12 +89,6 @@ function InvitePageComponent() {
     }
   }
 
-  // Handle the flow for new users (redirect to auth with invite code in URL)
-  const handleSignUpToJoin = () => {
-    // Navigate to the auth page with the invite code in the URL
-    navigate({ to: '/', search: { code: inviteCode } })
-  }
-
   if (!inviteCode) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
@@ -162,48 +156,24 @@ function InvitePageComponent() {
         )}
 
         <div className="space-y-4">
-          {isAuthenticated ? (
-            <button
-              type="button"
-              onClick={handleJoinGroup}
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader className="animate-spin" size={20} />
-                  Joining...
-                </>
-              ) : (
-                <>
-                  <UserPlus size={20} />
-                  Join Group
-                </>
-              )}
-            </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={handleSignUpToJoin}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-colors flex items-center justify-center gap-2"
-              >
+          <button
+            type="button"
+            onClick={handleJoinGroup}
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <Loader className="animate-spin" size={20} />
+                Joining...
+              </>
+            ) : (
+              <>
                 <UserPlus size={20} />
-                Sign Up & Join
-              </button>
-
-              <div className="text-center text-sm text-gray-500">
-                Already have an account?{' '}
-                <button
-                  type="button"
-                  onClick={() => navigate({ to: '/', search: { code: inviteCode } })}
-                  className="text-orange-600 hover:text-orange-700 font-medium"
-                >
-                  Sign in here
-                </button>
-              </div>
-            </>
-          )}
+                Join Group
+              </>
+            )}
+          </button>
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">

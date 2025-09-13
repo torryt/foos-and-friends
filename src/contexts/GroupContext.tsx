@@ -10,7 +10,6 @@ interface GroupContextType {
   hasAnyGroups: boolean
   loading: boolean
   error: string | null
-  processingPendingInvite: boolean
   switchGroup: (groupId: string) => void
   refreshGroups: () => Promise<void>
   createGroup: (name: string, description?: string) => Promise<{ success: boolean; error?: string }>
@@ -70,7 +69,6 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   const [userGroups, setUserGroups] = useState<FriendGroup[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [processingPendingInvite, setProcessingPendingInvite] = useState(false)
 
   // Load user's groups
   const refreshGroups = useCallback(async () => {
@@ -130,51 +128,6 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     },
     [userGroups, user],
   )
-
-  // Check for pending invites and auto-join
-  const handlePendingInvites = useCallback(async () => {
-    if (!isAuthenticated || !user) return
-
-    // Check for invite code in URL parameters only
-    const urlParams = new URLSearchParams(window.location.search)
-    const inviteCode = urlParams.get('invite')
-    if (!inviteCode) return
-
-    setProcessingPendingInvite(true)
-
-    try {
-      const result = await groupService.joinGroupByInvite(inviteCode)
-
-      if (result.success && result.groupId) {
-        // Clean up the URL
-        const cleanUrl = new URL(window.location.href)
-        cleanUrl.searchParams.delete('invite')
-        window.history.replaceState({}, document.title, cleanUrl.toString())
-
-        // Refresh groups to include the new one
-        await refreshGroups()
-
-        // Switch to the newly joined group
-        setTimeout(() => {
-          if (result.groupId) {
-            switchGroup(result.groupId)
-          }
-        }, 100)
-      }
-      // If joining fails, the user can retry manually or use the invite link again
-    } catch (err) {
-      console.error('Failed to handle pending invite:', err)
-    } finally {
-      setProcessingPendingInvite(false)
-    }
-  }, [isAuthenticated, user, refreshGroups, switchGroup])
-
-  // Check for pending invites after groups are loaded
-  useEffect(() => {
-    if (isAuthenticated && user && userGroups.length >= 0) {
-      handlePendingInvites()
-    }
-  }, [isAuthenticated, user, userGroups, handlePendingInvites])
 
   // Create a new group
   const createGroup = async (name: string, description?: string) => {
@@ -357,7 +310,6 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         hasAnyGroups: userGroups.length > 0,
         loading,
         error,
-        processingPendingInvite,
         switchGroup,
         refreshGroups,
         createGroup,
