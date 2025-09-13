@@ -127,11 +127,9 @@ describe('MatchHistory', () => {
       )
 
       // Check match details
-      const matchHistory = screen.getByTestId('match-history')
-      expect(matchHistory.textContent).toContain('2024-01-15')
-      expect(matchHistory.textContent).toContain('14:30')
-      expect(screen.getByText('10-8')).toBeInTheDocument()
-      expect(screen.getByText('Team 1 wins!')).toBeInTheDocument()
+      expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
+      expect(screen.getByText('10 - 8')).toBeInTheDocument()
+      expect(screen.getByText('🎉 Team 1 wins! Great game, friends!')).toBeInTheDocument()
 
       // Check player names
       expect(screen.getByText('Alice')).toBeInTheDocument()
@@ -139,8 +137,8 @@ describe('MatchHistory', () => {
       expect(screen.getByText('Charlie')).toBeInTheDocument()
       expect(screen.getByText('Diana')).toBeInTheDocument()
 
-      // Check pre-game team averages are present (might be hidden on mobile)
-      // The averages are hidden on mobile (class="hidden md:block"), so we can't reliably test them
+      // Check pre-game team averages (both teams have same average by coincidence)
+      expect(screen.getAllByText('Pre-Avg: 1250')).toHaveLength(2) // Team 1: (1200 + 1300) / 2 = 1250, Team 2: (1100 + 1400) / 2 = 1250
     })
 
     it('displays individual player ranking changes', () => {
@@ -216,11 +214,9 @@ describe('MatchHistory', () => {
       )
 
       // Check match details
-      const matchHistory = screen.getByTestId('match-history')
-      expect(matchHistory.textContent).toContain('2024-01-10')
-      expect(matchHistory.textContent).toContain('16:45')
-      expect(screen.getByText('7-10')).toBeInTheDocument()
-      expect(screen.getByText('Team 2 wins!')).toBeInTheDocument()
+      expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
+      expect(screen.getByText('7 - 10')).toBeInTheDocument()
+      expect(screen.getByText('🎉 Team 2 wins! Great game, friends!')).toBeInTheDocument()
 
       // Check that current averages are displayed (not pre-game averages)
       expect(screen.getAllByText(/^Avg: \d+$/)).toHaveLength(2)
@@ -275,20 +271,14 @@ describe('MatchHistory', () => {
       )
 
       // Check both matches are rendered
-      // Check dates are present (might be in different formats for mobile/desktop)
-      const allText = screen.getByTestId('match-history').textContent || ''
-      expect(allText).toContain('2024-01-15')
-      expect(allText).toContain('14:30')
-      expect(allText).toContain('2024-01-10')
-      expect(allText).toContain('16:45')
-      expect(screen.getByText('10-8')).toBeInTheDocument()
-      expect(screen.getByText('5-10')).toBeInTheDocument()
+      expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
+      expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
+      expect(screen.getByText('10 - 8')).toBeInTheDocument()
+      expect(screen.getByText('5 - 10')).toBeInTheDocument()
 
-      // Check that both types of averages are displayed (hidden on mobile)
-      const preAvgElements = screen.queryAllByText(/Pre:/)
-      const avgElements = screen.queryAllByText(/^Avg:/)
-      // On desktop they should be visible, on mobile they might be hidden
-      expect(preAvgElements.length + avgElements.length).toBeGreaterThanOrEqual(0)
+      // Check that both types of averages are displayed
+      expect(screen.getAllByText(/Pre-Avg:/)).toHaveLength(2) // New match has 2 teams
+      expect(screen.getAllByText(/^Avg:/)).toHaveLength(2) // Legacy match has 2 teams
     })
   })
 

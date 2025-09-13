@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   Calendar,
   Edit2,
@@ -380,10 +380,10 @@ function PlayerProfile() {
       </div>
 
       {/* Match History */}
-      <Card className="p-6 bg-white/80 backdrop-blur-sm">
+      <Card className="p-4 md:p-6 bg-white/80 backdrop-blur-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Match History</h2>
         {playerStats.playerMatches.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             {playerStats.playerMatches.map((match) => {
               const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
               const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
@@ -397,51 +397,83 @@ function PlayerProfile() {
                 <div
                   key={match.id}
                   className={cn(
-                    'p-4 rounded-lg border',
+                    'p-3 md:p-4 rounded-lg border',
                     won ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
                   )}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
+                    {/* Left side - Result and Teams */}
+                    <div className="flex items-center gap-2 md:gap-4">
                       <div
                         className={cn(
-                          'px-2 py-1 rounded text-xs font-medium',
+                          'px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-medium shrink-0',
                           won ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
                         )}
                       >
                         {won ? 'WIN' : 'LOSS'}
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      {/* Teams and Score */}
+                      <div className="flex items-center gap-1 md:gap-2">
+                        {/* Team 1 */}
                         <div className="flex items-center">
-                          <span className="text-sm">{match.team1[0].avatar}</span>
-                          <span className="text-sm">{match.team1[1].avatar}</span>
+                          {match.team1.map((player) => (
+                            <Link
+                              key={player.id}
+                              to="/players/$playerId"
+                              params={{ playerId: player.id }}
+                              className="flex flex-col items-center hover:opacity-80 transition-opacity -ml-1 first:ml-0"
+                            >
+                              <span className="text-xs md:text-sm">{player.avatar}</span>
+                              <span className="text-[8px] md:text-[10px] text-gray-600 max-w-[30px] md:max-w-none truncate">
+                                {player.name}
+                              </span>
+                            </Link>
+                          ))}
                         </div>
-                        <span className="font-semibold">{match.score1}</span>
-                        <span className="text-gray-400">-</span>
-                        <span className="font-semibold">{match.score2}</span>
+
+                        {/* Score */}
+                        <div className="flex items-center gap-0.5 md:gap-1 font-semibold text-sm md:text-base">
+                          <span>{match.score1}</span>
+                          <span className="text-gray-400">-</span>
+                          <span>{match.score2}</span>
+                        </div>
+
+                        {/* Team 2 */}
                         <div className="flex items-center">
-                          <span className="text-sm">{match.team2[0].avatar}</span>
-                          <span className="text-sm">{match.team2[1].avatar}</span>
+                          {match.team2.map((player) => (
+                            <Link
+                              key={player.id}
+                              to="/players/$playerId"
+                              params={{ playerId: player.id }}
+                              className="flex flex-col items-center hover:opacity-80 transition-opacity -ml-1 first:ml-0"
+                            >
+                              <span className="text-xs md:text-sm">{player.avatar}</span>
+                              <span className="text-[8px] md:text-[10px] text-gray-600 max-w-[30px] md:max-w-none truncate">
+                                {player.name}
+                              </span>
+                            </Link>
+                          ))}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    {/* Right side - Ranking and Date */}
+                    <div className="flex items-center justify-between md:justify-end gap-2 md:gap-3">
                       {playerRanking && (
-                        <div className="text-right">
-                          <p className="text-xs text-gray-500">Ranking</p>
-                          <div className="flex items-center space-x-1">
-                            <span className="text-sm font-medium">
+                        <div className="text-left md:text-right">
+                          <p className="text-[10px] md:text-xs text-gray-500 mb-0.5">Ranking</p>
+                          <div className="flex items-center gap-0.5 md:gap-1">
+                            <span className="text-xs md:text-sm font-medium">
                               {playerRanking.preGameRanking}
                             </span>
-                            <span className="text-gray-400">→</span>
-                            <span className="text-sm font-medium">
+                            <span className="text-gray-400 text-xs">→</span>
+                            <span className="text-xs md:text-sm font-medium">
                               {playerRanking.postGameRanking}
                             </span>
                             <span
                               className={cn(
-                                'text-xs font-medium',
+                                'text-[10px] md:text-xs font-medium',
                                 rankingChange > 0
                                   ? 'text-green-600'
                                   : rankingChange < 0
@@ -456,7 +488,9 @@ function PlayerProfile() {
                         </div>
                       )}
 
-                      <div className="text-xs text-gray-400">{match.date}</div>
+                      <div className="text-[10px] md:text-xs text-gray-400 shrink-0">
+                        {match.date}
+                      </div>
                     </div>
                   </div>
                 </div>
