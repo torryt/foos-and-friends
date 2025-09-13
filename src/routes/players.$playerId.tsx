@@ -264,7 +264,7 @@ function PlayerProfile() {
           </div>
 
           {!isEditing && (
-            <Button onClick={startEdit} variant="outline" size="sm">
+            <Button onClick={startEdit} variant="outline" size="sm" className="whitespace-normal">
               <Edit2 className="w-4 h-4 mr-1" />
               Edit Profile
             </Button>
