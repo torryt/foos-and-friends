@@ -28,4 +28,3 @@ settings.local.json
 .vite
 .env.local
 scripts/output/*
-public/avatar-test.html
