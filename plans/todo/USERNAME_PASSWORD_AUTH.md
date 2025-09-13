@@ -693,9 +693,8 @@ const validateUsername = (username: string): { valid: boolean; error?: string } 
 ### Phase 3: UI Components (3 hours)
 1. Create AuthModeSelector component
 2. Enhance AuthForm with password fields
-3. Add username validation and feedback
-4. Implement show/hide password functionality
-5. Add password strength indicators
+3. Implement show/hide password functionality
+4. Add password strength indicators
 
 ### Phase 4: Profile Management (1 hour)
 1. Add username to user profile display
