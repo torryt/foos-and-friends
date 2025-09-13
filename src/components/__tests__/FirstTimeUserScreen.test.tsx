@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { FirstTimeUserScreen } from '../FirstTimeUserScreen'
 
 describe('FirstTimeUserScreen', () => {
@@ -46,5 +47,27 @@ describe('FirstTimeUserScreen', () => {
     await user.click(joinButton)
 
     expect(mockProps.onJoinGroup).toHaveBeenCalledTimes(1)
+  })
+
+  test('shows consistent loading state without flickering', async () => {
+    // Start by rendering with loading state
+    const { rerender } = render(<FirstTimeUserScreen {...mockProps} loading={true} />)
+
+    // Verify loading state
+    expect(screen.getByText('Setting up your account...')).toBeInTheDocument()
+    expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
+    expect(screen.queryByText('Create Your First Group')).not.toBeInTheDocument()
+
+    // Transition to loaded state
+    rerender(<FirstTimeUserScreen {...mockProps} loading={false} />)
+
+    // Verify loaded state shows immediately without flicker
+    await waitFor(() => {
+      expect(screen.getByText('Get Started')).toBeInTheDocument()
+    })
+
+    expect(screen.queryByText('Setting up your account...')).not.toBeInTheDocument()
+    expect(screen.getByText('Create Your First Group')).toBeInTheDocument()
+    expect(screen.getByText('Join Existing Group')).toBeInTheDocument()
   })
 })

@@ -34,7 +34,7 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
 
-  const { currentGroup, loading } = useGroupContext()
+  const { currentGroup, userGroups, loading } = useGroupContext()
 
   // If on invite page, always use router regardless of group status
   if (window.location.pathname === '/invite') {
@@ -49,14 +49,25 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
     )
   }
 
-  // Show group selection when no active group
-  if (!currentGroup) {
+  // Show loading state while groups are being fetched
+  if (loading) {
+    return (
+      <FirstTimeUserScreen
+        onCreateGroup={() => setShowCreateGroup(true)}
+        onJoinGroup={() => setShowJoinGroup(true)}
+        loading={true}
+      />
+    )
+  }
+
+  // Show group selection only when we're certain user has no groups
+  if (!currentGroup && userGroups.length === 0) {
     return (
       <>
         <FirstTimeUserScreen
           onCreateGroup={() => setShowCreateGroup(true)}
           onJoinGroup={() => setShowJoinGroup(true)}
-          loading={loading}
+          loading={false}
         />
 
         {/* Group management modals - available from selection screen */}
