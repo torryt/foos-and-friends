@@ -6,15 +6,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
 // Create a dummy client for tests and builds without env vars
 // The app will use mock mode when these are not configured
-export const supabase = (!supabaseUrl || !supabaseAnonKey)
-  ? {} as ReturnType<typeof createClient>  // Dummy client for tests/builds
-  : createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-      },
-    })
+export const supabase =
+  !supabaseUrl || !supabaseAnonKey
+    ? ({} as ReturnType<typeof createClient>) // Dummy client for tests/builds
+    : createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+        },
+      })
 
 // Database type definitions
 export interface Database {
