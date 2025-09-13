@@ -1,7 +1,7 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { useState } from 'react'
 import { CreateGroupModal } from '@/components/CreateGroupModal'
-import { GroupSelectionScreen } from '@/components/GroupSelectionScreen'
+import { FirstTimeUserScreen } from '@/components/FirstTimeUserScreen'
 import { JoinGroupModal } from '@/components/JoinGroupModal'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { GroupProvider, useGroupContext } from '@/contexts/GroupContext'
@@ -34,7 +34,7 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
 
-  const { currentGroup, userGroups, loading, switchGroup } = useGroupContext()
+  const { currentGroup, loading } = useGroupContext()
 
   // If on invite page, always use router regardless of group status
   if (window.location.pathname === '/invite') {
@@ -53,9 +53,7 @@ const AppContent = ({ user, onSignOut }: AppContentProps) => {
   if (!currentGroup) {
     return (
       <>
-        <GroupSelectionScreen
-          userGroups={userGroups}
-          onSelectGroup={switchGroup}
+        <FirstTimeUserScreen
           onCreateGroup={() => setShowCreateGroup(true)}
           onJoinGroup={() => setShowJoinGroup(true)}
           loading={loading}

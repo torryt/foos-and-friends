@@ -120,11 +120,6 @@ export const GroupSelector = ({
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-gray-900">{group.name}</div>
-                          {group.description && (
-                            <div className="text-sm text-gray-500 truncate">
-                              {group.description}
-                            </div>
-                          )}
                           <div className="flex items-center gap-1 mt-1">
                             <span className="text-xs text-gray-400">Code: {group.inviteCode}</span>
                             {group.playerCount !== undefined && (
@@ -187,7 +182,7 @@ export const GroupSelector = ({
                       </button>
 
                       {/* Delete Group - Only show for groups with more than 1 total group and if group owner */}
-                      {userGroups.length > 1 && group.isOwner && (
+                      {group.isOwner && (
                         <button
                           type="button"
                           onClick={() => {
@@ -202,7 +197,7 @@ export const GroupSelector = ({
                       )}
 
                       {/* Leave Group - Only show for non-owners with more than 1 total group */}
-                      {userGroups.length > 1 && !group.isOwner && (
+                      {!group.isOwner && (
                         <button
                           type="button"
                           onClick={() => {
