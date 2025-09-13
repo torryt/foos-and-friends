@@ -23,7 +23,6 @@ const PlayerCard = ({ player, index }: PlayerCardProps) => (
       <span className="text-2xl">{player.avatar}</span>
       <div>
         <div className="font-semibold text-slate-800 text-sm">{player.name}</div>
-        <div className="text-xs text-slate-600">{player.department}</div>
         <div className="text-xs text-slate-500">
           {player.wins}W - {player.losses}L ({player.matchesPlayed} total)
         </div>

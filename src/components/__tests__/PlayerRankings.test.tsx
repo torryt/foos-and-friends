@@ -59,7 +59,6 @@ describe('PlayerRankings', () => {
     expect(screen.getByText('Alice Johnson')).toBeInTheDocument()
     expect(screen.getByText('1500')).toBeInTheDocument()
     expect(screen.getByText('7W - 3L (10 total)')).toBeInTheDocument()
-    expect(screen.getByText('Engineering')).toBeInTheDocument()
   })
 
   test('calculates and displays win rate correctly', () => {
