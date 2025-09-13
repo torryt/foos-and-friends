@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
 import MatchHistory from '@/components/MatchHistory'
@@ -16,8 +16,16 @@ export const Route = createFileRoute('/matches')({
 
 function Matches() {
   const { playerId } = Route.useSearch()
+  const navigate = useNavigate()
   const [showRecordMatch, setShowRecordMatch] = useState(false)
   const { players, matches, recordMatch } = useGameLogic()
+
+  const handlePlayerClick = (playerId: string) => {
+    navigate({
+      to: '/players/$playerId',
+      params: { playerId },
+    })
+  }
 
   return (
     <div>
@@ -26,6 +34,7 @@ function Matches() {
         players={players}
         onRecordMatch={() => setShowRecordMatch(true)}
         initialSelectedPlayer={playerId}
+        onPlayerClick={handlePlayerClick}
       />
 
       {showRecordMatch && (

@@ -4,7 +4,6 @@ import {
   Clipboard,
   LogOut,
   Plus,
-  Settings,
   Trash2,
   UserPlus,
   Users,
@@ -16,7 +15,6 @@ import { useToast } from '@/hooks/useToast'
 interface GroupSelectorProps {
   onCreateGroup?: () => void
   onJoinGroup?: () => void
-  onManageGroup?: (groupId: string) => void
   onDeleteGroup?: (groupId: string) => void
   onLeaveGroup?: (groupId: string) => void
 }
@@ -24,7 +22,6 @@ interface GroupSelectorProps {
 export const GroupSelector = ({
   onCreateGroup,
   onJoinGroup,
-  onManageGroup,
   onDeleteGroup,
   onLeaveGroup,
 }: GroupSelectorProps) => {
@@ -166,19 +163,6 @@ export const GroupSelector = ({
                       >
                         <Clipboard size={14} className="text-gray-500" />
                         Copy Invite Link
-                      </button>
-
-                      {/* Manage Players */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onManageGroup?.(group.id)
-                          setIsOpen(false)
-                        }}
-                        className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700"
-                      >
-                        <Settings size={14} className="text-gray-500" />
-                        Manage Players
                       </button>
 
                       {/* Delete Group - Only show for groups with more than 1 total group and if group owner */}

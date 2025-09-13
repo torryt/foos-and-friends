@@ -19,8 +19,8 @@ function Index() {
 
   const handlePlayerCardClick = (playerId: string) => {
     navigate({
-      to: '/matches',
-      search: { playerId },
+      to: '/players/$playerId',
+      params: { playerId },
     })
   }
 
