@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Picker Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .avatar-grid-6 {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 0.75rem;
+            max-height: 10rem;
+            overflow-y: auto;
+            padding: 0.25rem;
+        }
+        .avatar-grid-8 {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            gap: 0.75rem;
+            max-height: 10rem;
+            overflow-y: auto;
+            padding: 0.25rem;
+        }
+        .avatar-button {
+            font-size: 1.5rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.15s;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+        .avatar-button:hover {
+            background-color: rgb(254, 243, 199);
+        }
+        .avatar-button.selected {
+            background-color: rgb(254, 215, 170);
+            box-shadow: 0 0 0 2px rgb(251, 146, 60);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-sm mx-auto bg-white rounded-2xl p-4 shadow-xl">
+        <h2 class="text-lg font-bold mb-4">AddPlayerModal (grid-cols-6)</h2>
+        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-xl border border-orange-200/50">
+            <div class="text-sm font-semibold text-orange-800 mb-2">Choose Avatar</div>
+            <div class="avatar-grid-6" id="grid6">
+                <!-- Avatars will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl p-4 shadow-xl mt-8">
+        <h2 class="text-lg font-bold mb-4">PlayerManagementModal (grid-cols-8)</h2>
+        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-xl border border-orange-200/50">
+            <div class="text-sm font-semibold text-orange-800 mb-2">Choose Avatar</div>
+            <div class="avatar-grid-8" id="grid8">
+                <!-- Avatars will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample avatars from the constants file
+        const avatars = [
+            '👨‍💻', '👩‍💻', '👨‍🎨', '👩‍🎨', '👨‍💼', '👩‍💼', '👨‍🔬', '👩‍🔬',
+            '👨‍🚀', '👩‍🚀', '👨‍🎓', '👩‍🎓', '👨‍⚕️', '👩‍⚕️', '👨‍🏫', '👩‍🏫',
+            '👨‍⚖️', '👩‍⚖️', '👨‍🌾', '👩‍🌾', '👨‍🍳', '👩‍🍳', '👨‍🔧', '👩‍🔧',
+            '👨‍🏭', '👩‍🏭', '👨‍✈️', '👩‍✈️', '👨‍🎤', '👩‍🎤', '👨‍🚒', '👩‍🚒',
+            '👮‍♂️', '👮‍♀️', '🕵️‍♂️', '🕵️‍♀️', '💂‍♂️', '💂‍♀️', '🥷', '👤',
+            '👥', '🧔', '🧔‍♀️', '👨‍🦱', '👩‍🦱', '👨‍🦳', '👩‍🦳', '👨‍🦲',
+            '👩‍🦲', '🧓', '👴', '👵', '👶', '🧒', '👦', '👧', '🧑‍🦯', '👨‍🦯',
+            '👩‍🦯', '🧑‍🦽', '👨‍🦽', '👩‍🦽', '🧑‍🦼', '👨‍🦼', '👩‍🦼', '🤱',
+            '🤴', '👸', '🤵', '👰', '🤰', '🤹‍♂️', '🤹‍♀️', '🏃‍♂️', '🏃‍♀️', '🚶‍♂️',
+            '🚶‍♀️', '🧘‍♂️', '🧘‍♀️', '🛌', '🦸‍♂️', '🦸‍♀️', '🦹‍♂️', '🦹‍♀️', '🧙‍♂️',
+            '🧙‍♀️', '🧚‍♂️', '🧚‍♀️', '🧛‍♂️', '🧛‍♀️', '🧞‍♂️', '🧞‍♀️', '🧟‍♂️', '🧟‍♀️',
+            '🧝‍♂️', '🧝‍♀️', '🎅', '🤶', '🧑‍🎄', '🐵', '🐶', '🐺', '🦊', '🐱',
+            '🦁', '🐯', '🐨', '🐼', '🐸', '🐧', '🦄', '🤖', '👽', '👻',
+            '🐉', '🦖', '🦕', '🐙', '🦑', '🐠', '🐡', '🦈', '🐳', '🐋',
+            '🐬', '🦅', '🦆', '🦉', '🦇', '🐝', '🐞', '🦋', '🐛', '🐢',
+            '🐍', '🦎'
+        ];
+
+        let selectedAvatar6 = avatars[0];
+        let selectedAvatar8 = avatars[0];
+
+        function populateGrid(gridId, selectedVar, setSelected) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = '';
+            
+            avatars.forEach(avatar => {
+                const button = document.createElement('button');
+                button.textContent = avatar;
+                button.className = 'avatar-button';
+                if (avatar === selectedVar) {
+                    button.classList.add('selected');
+                }
+                button.onclick = () => {
+                    setSelected(avatar);
+                    populateGrid(gridId, avatar, setSelected);
+                };
+                grid.appendChild(button);
+            });
+        }
+
+        populateGrid('grid6', selectedAvatar6, (avatar) => selectedAvatar6 = avatar);
+        populateGrid('grid8', selectedAvatar8, (avatar) => selectedAvatar8 = avatar);
+    </script>
+</body>
+</html>
