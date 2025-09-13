@@ -94,7 +94,7 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
     render(<App />)
 
     // Initially should show loading state (via FirstTimeUserScreen with loading=true)
-    expect(screen.getByText('Setting up your account...')).toBeInTheDocument()
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
 
     // Should NOT show the "Get Started" section during loading
     expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
@@ -111,7 +111,7 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
     // Wait for the loading state to completely clear
     await waitFor(
       () => {
-        expect(screen.queryByText('Setting up your account...')).not.toBeInTheDocument()
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
       },
       { timeout: 500 },
     )
@@ -128,7 +128,7 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
     render(<App />)
 
     // Initially should show loading state
-    expect(screen.getByText('Setting up your account...')).toBeInTheDocument()
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
 
     // After loading completes with no groups, should show FirstTimeUserScreen content
     await waitFor(() => {
@@ -137,7 +137,7 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
 
     expect(screen.getByText('Create Your First Group')).toBeInTheDocument()
     expect(screen.getByText('Join Existing Group')).toBeInTheDocument()
-    expect(screen.queryByText('Setting up your account...')).not.toBeInTheDocument()
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     expect(screen.queryByTestId('router')).not.toBeInTheDocument()
   })
 
@@ -148,7 +148,7 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
     render(<App />)
 
     // Initially should show loading state
-    expect(screen.getByText('Setting up your account...')).toBeInTheDocument()
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
 
     // After error, should show FirstTimeUserScreen (treating as no groups)
     await waitFor(() => {
@@ -190,7 +190,7 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
       expect(screen.getByTestId('router')).toBeInTheDocument()
     })
 
-    expect(screen.queryByText('Setting up your account...')).not.toBeInTheDocument()
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
   })
 

@@ -10,7 +10,7 @@ const LoadingState = () => (
   <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-100 flex items-center justify-center">
     <div className="text-center">
       <Loader className="animate-spin mx-auto mb-4 text-orange-500" size={32} />
-      <p className="text-gray-600">Setting up your account...</p>
+      <p className="text-gray-600">Loading...</p>
     </div>
   </div>
 )

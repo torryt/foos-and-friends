@@ -17,7 +17,7 @@ describe('FirstTimeUserScreen', () => {
   test('shows loading state when loading is true', () => {
     render(<FirstTimeUserScreen {...mockProps} loading={true} />)
 
-    expect(screen.getByText('Setting up your account...')).toBeInTheDocument()
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
 
   test('shows first-time user section', () => {
@@ -54,7 +54,7 @@ describe('FirstTimeUserScreen', () => {
     const { rerender } = render(<FirstTimeUserScreen {...mockProps} loading={true} />)
 
     // Verify loading state
-    expect(screen.getByText('Setting up your account...')).toBeInTheDocument()
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
     expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
     expect(screen.queryByText('Create Your First Group')).not.toBeInTheDocument()
 
@@ -66,7 +66,7 @@ describe('FirstTimeUserScreen', () => {
       expect(screen.getByText('Get Started')).toBeInTheDocument()
     })
 
-    expect(screen.queryByText('Setting up your account...')).not.toBeInTheDocument()
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
     expect(screen.getByText('Create Your First Group')).toBeInTheDocument()
     expect(screen.getByText('Join Existing Group')).toBeInTheDocument()
   })
