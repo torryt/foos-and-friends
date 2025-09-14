@@ -194,9 +194,13 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
     expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
   })
 
-  test('renders without crashing', () => {
+  test('renders without crashing', async () => {
     mockGetUserGroups.mockResolvedValue({ data: [], error: null })
     render(<App />)
-    expect(document.body).toBeInTheDocument()
+
+    // Wait for async operations to complete to avoid act() warnings
+    await waitFor(() => {
+      expect(document.body).toBeInTheDocument()
+    })
   })
 })
