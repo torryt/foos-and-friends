@@ -11,7 +11,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -32,6 +32,14 @@ function PlayerProfile() {
   const [editedAvatar, setEditedAvatar] = useState('')
 
   const player = players.find((p) => p.id === playerId)
+
+  // Scroll to top when navigating to a different player
+  useEffect(() => {
+    // Explicitly using playerId to track navigation between different players
+    if (playerId) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [playerId])
 
   // Calculate player statistics
   const playerStats = useMemo(() => {
@@ -401,97 +409,101 @@ function PlayerProfile() {
                     won ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
                   )}
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
-                    {/* Left side - Result and Teams */}
-                    <div className="flex items-center gap-2 md:gap-4">
-                      <div
-                        className={cn(
-                          'px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-medium shrink-0',
-                          won ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
-                        )}
-                      >
-                        {won ? 'WIN' : 'LOSS'}
-                      </div>
-
-                      {/* Teams and Score */}
-                      <div className="flex items-center gap-1 md:gap-2">
-                        {/* Team 1 */}
-                        <div className="flex items-center">
-                          {match.team1.map((player) => (
-                            <Link
-                              key={player.id}
-                              to="/players/$playerId"
-                              params={{ playerId: player.id }}
-                              className="flex flex-col items-center hover:opacity-80 transition-opacity -ml-1 first:ml-0"
-                            >
-                              <span className="text-xs md:text-sm">{player.avatar}</span>
-                              <span className="text-[8px] md:text-[10px] text-gray-600 max-w-[30px] md:max-w-none truncate">
-                                {player.name}
-                              </span>
-                            </Link>
-                          ))}
+                  {/* Mobile and Desktop Layout */}
+                  <div className="space-y-2 md:space-y-0">
+                    {/* Top Row - Result, Teams & Score */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div
+                          className={cn(
+                            'px-2 py-1 rounded text-xs font-medium shrink-0',
+                            won ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
+                          )}
+                        >
+                          {won ? 'WIN' : 'LOSS'}
                         </div>
 
-                        {/* Score */}
-                        <div className="flex items-center gap-0.5 md:gap-1 font-semibold text-sm md:text-base">
-                          <span>{match.score1}</span>
-                          <span className="text-gray-400">-</span>
-                          <span>{match.score2}</span>
-                        </div>
+                        {/* Teams and Score - Improved layout */}
+                        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                          {/* Team 1 */}
+                          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+                            {match.team1.map((player, idx) => (
+                              <div key={player.id} className="flex items-center gap-1 min-w-0">
+                                {idx > 0 && (
+                                  <span className="text-gray-400 text-xs shrink-0">+</span>
+                                )}
+                                <Link
+                                  to="/players/$playerId"
+                                  params={{ playerId: player.id }}
+                                  className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
+                                >
+                                  <span className="text-sm shrink-0">{player.avatar}</span>
+                                  <span className="text-xs text-gray-600 truncate max-w-[50px] sm:max-w-[80px] lg:max-w-none">
+                                    {player.name}
+                                  </span>
+                                </Link>
+                              </div>
+                            ))}
+                          </div>
 
-                        {/* Team 2 */}
-                        <div className="flex items-center">
-                          {match.team2.map((player) => (
-                            <Link
-                              key={player.id}
-                              to="/players/$playerId"
-                              params={{ playerId: player.id }}
-                              className="flex flex-col items-center hover:opacity-80 transition-opacity -ml-1 first:ml-0"
-                            >
-                              <span className="text-xs md:text-sm">{player.avatar}</span>
-                              <span className="text-[8px] md:text-[10px] text-gray-600 max-w-[30px] md:max-w-none truncate">
-                                {player.name}
-                              </span>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                          {/* Score */}
+                          <div className="flex items-center gap-1 font-semibold text-base shrink-0 px-2">
+                            <span>{match.score1}</span>
+                            <span className="text-gray-400">-</span>
+                            <span>{match.score2}</span>
+                          </div>
 
-                    {/* Right side - Ranking and Date */}
-                    <div className="flex items-center justify-between md:justify-end gap-2 md:gap-3">
-                      {playerRanking && (
-                        <div className="text-left md:text-right">
-                          <p className="text-[10px] md:text-xs text-gray-500 mb-0.5">Ranking</p>
-                          <div className="flex items-center gap-0.5 md:gap-1">
-                            <span className="text-xs md:text-sm font-medium">
-                              {playerRanking.preGameRanking}
-                            </span>
-                            <span className="text-gray-400 text-xs">→</span>
-                            <span className="text-xs md:text-sm font-medium">
-                              {playerRanking.postGameRanking}
-                            </span>
-                            <span
-                              className={cn(
-                                'text-[10px] md:text-xs font-medium',
-                                rankingChange > 0
-                                  ? 'text-green-600'
-                                  : rankingChange < 0
-                                    ? 'text-red-600'
-                                    : 'text-gray-400',
-                              )}
-                            >
-                              ({rankingChange > 0 ? '+' : ''}
-                              {rankingChange})
-                            </span>
+                          {/* Team 2 */}
+                          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1 justify-end">
+                            {match.team2.map((player, idx) => (
+                              <div key={player.id} className="flex items-center gap-1 min-w-0">
+                                <Link
+                                  to="/players/$playerId"
+                                  params={{ playerId: player.id }}
+                                  className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
+                                >
+                                  <span className="text-sm shrink-0">{player.avatar}</span>
+                                  <span className="text-xs text-gray-600 truncate max-w-[50px] sm:max-w-[80px] lg:max-w-none">
+                                    {player.name}
+                                  </span>
+                                </Link>
+                                {idx === 0 && (
+                                  <span className="text-gray-400 text-xs shrink-0">+</span>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      )}
-
-                      <div className="text-[10px] md:text-xs text-gray-400 shrink-0">
-                        {match.date}
                       </div>
+
+                      {/* Date - Always visible on top row */}
+                      <div className="text-xs text-gray-400 shrink-0 ml-2">{match.date}</div>
                     </div>
+
+                    {/* Bottom Row - Ranking (only if available) */}
+                    {playerRanking && (
+                      <div className="flex justify-end">
+                        <div className="bg-white/50 px-2 py-1 rounded text-xs">
+                          <span className="text-gray-500">Ranking: </span>
+                          <span className="font-medium">{playerRanking.preGameRanking}</span>
+                          <span className="text-gray-400 mx-1">→</span>
+                          <span className="font-medium">{playerRanking.postGameRanking}</span>
+                          <span
+                            className={cn(
+                              'ml-1 font-medium',
+                              rankingChange > 0
+                                ? 'text-green-600'
+                                : rankingChange < 0
+                                  ? 'text-red-600'
+                                  : 'text-gray-400',
+                            )}
+                          >
+                            ({rankingChange > 0 ? '+' : ''}
+                            {rankingChange})
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )

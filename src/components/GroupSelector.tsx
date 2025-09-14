@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router'
 import {
   ChevronDown,
   ChevronUp,
@@ -29,6 +30,7 @@ export const GroupSelector = ({
   const [isOpen, setIsOpen] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const { toast } = useToast()
+  const navigate = useNavigate()
 
   const copyInviteLink = async (inviteCode: string, groupName: string) => {
     try {
@@ -53,6 +55,8 @@ export const GroupSelector = ({
   const handleSwitchToGroup = (groupId: string) => {
     switchGroup(groupId)
     setIsOpen(false)
+    // Navigate to rankings page when switching groups
+    navigate({ to: '/' })
   }
 
   if (loading) {
