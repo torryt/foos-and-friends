@@ -1,15 +1,12 @@
 import { LogOut, User, Users, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
-import { useAuth } from '@/hooks/useAuth'
-import { playersService } from '@/services/playersService'
-import type { AuthUser, Player } from '@/types'
+import type { AuthUser } from '@/types'
 import { CreateGroupModal } from './CreateGroupModal'
 import { DeleteGroupConfirmationModal } from './DeleteGroupConfirmationModal'
 import { GroupSelector } from './GroupSelector'
 import { JoinGroupModal } from './JoinGroupModal'
 import { LeaveGroupConfirmationModal } from './LeaveGroupConfirmationModal'
-import PlayerManagementModal from './PlayerManagementModal'
 
 interface HeaderProps {
   user?: AuthUser | null
@@ -20,40 +17,11 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showJoinGroup, setShowJoinGroup] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
-  const [showPlayerManagement, setShowPlayerManagement] = useState(false)
   const [showDeleteGroup, setShowDeleteGroup] = useState(false)
   const [showLeaveGroup, setShowLeaveGroup] = useState(false)
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null)
   const [groupToLeave, setGroupToLeave] = useState<string | null>(null)
-  const [players, setPlayers] = useState<Player[]>([])
-  const [_loadingPlayers, setLoadingPlayers] = useState(false)
   const { currentGroup, userGroups, deleteGroup, leaveGroup } = useGroupContext()
-  const { user: authUser } = useAuth()
-
-  // Get current group data for admin check
-  const currentGroupData = userGroups.find((g) => g.id === currentGroup?.id)
-  const isAdmin = currentGroupData?.ownerId === authUser?.id
-
-  const loadPlayers = async () => {
-    if (!currentGroup) return
-
-    setLoadingPlayers(true)
-    try {
-      const result = await playersService.getPlayersByGroup(currentGroup.id)
-      if (result.data) {
-        setPlayers(result.data)
-      }
-    } catch (_error) {
-      console.error('Failed to load players:', _error)
-    } finally {
-      setLoadingPlayers(false)
-    }
-  }
-
-  const handleManageGroup = (_groupId: string) => {
-    setShowPlayerManagement(true)
-    loadPlayers()
-  }
 
   const handleDeleteGroup = (groupId: string) => {
     setGroupToDelete(groupId)
@@ -79,35 +47,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
     return result
   }
 
-  const handleUpdatePlayer = async (
-    playerId: string,
-    updates: { name?: string; avatar?: string },
-  ) => {
-    try {
-      const result = await playersService.updatePlayerProfile(playerId, updates)
-      if (result.data) {
-        setPlayers((prev) => prev.map((p) => (p.id === playerId ? (result.data ?? p) : p)))
-        return { success: true }
-      }
-      return { success: false, error: result.error || 'Failed to update player' }
-    } catch (_error) {
-      return { success: false, error: 'An unexpected error occurred' }
-    }
-  }
-
-  const handleDeletePlayer = async (playerId: string) => {
-    try {
-      const result = await playersService.deletePlayer(playerId)
-      if (!result.error) {
-        setPlayers((prev) => prev.filter((p) => p.id !== playerId))
-        return { success: true }
-      }
-      return { success: false, error: result.error }
-    } catch (_error) {
-      return { success: false, error: 'An unexpected error occurred' }
-    }
-  }
-
   return (
     <>
       <div className="bg-gradient-to-r from-white/90 to-orange-50/90 backdrop-blur-sm shadow-sm border-b border-white/20 sticky top-0 z-40">
@@ -130,7 +69,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                       <GroupSelector
                         onCreateGroup={() => setShowCreateGroup(true)}
                         onJoinGroup={() => setShowJoinGroup(true)}
-                        onManageGroup={handleManageGroup}
                         onDeleteGroup={handleDeleteGroup}
                         onLeaveGroup={handleLeaveGroup}
                       />
@@ -142,7 +80,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                         <GroupSelector
                           onCreateGroup={() => setShowCreateGroup(true)}
                           onJoinGroup={() => setShowJoinGroup(true)}
-                          onManageGroup={handleManageGroup}
                           onDeleteGroup={handleDeleteGroup}
                           onLeaveGroup={handleLeaveGroup}
                         />
@@ -244,16 +181,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
         }}
         group={groupToLeave ? userGroups.find((g) => g.id === groupToLeave) || null : null}
         onLeave={handleLeaveGroupConfirm}
-      />
-
-      <PlayerManagementModal
-        isOpen={showPlayerManagement}
-        onClose={() => setShowPlayerManagement(false)}
-        players={players}
-        currentUserId={authUser?.id}
-        isAdmin={isAdmin}
-        onUpdatePlayer={handleUpdatePlayer}
-        onDeletePlayer={handleDeletePlayer}
       />
     </>
   )

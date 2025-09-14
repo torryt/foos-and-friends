@@ -9,6 +9,7 @@ interface MatchHistoryProps {
   players: Player[]
   onRecordMatch: () => void
   initialSelectedPlayer?: string
+  onPlayerClick?: (playerId: string) => void
 }
 
 const MatchHistory = ({
@@ -16,6 +17,7 @@ const MatchHistory = ({
   players,
   onRecordMatch,
   initialSelectedPlayer,
+  onPlayerClick,
 }: MatchHistoryProps) => {
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(initialSelectedPlayer || null)
   const [showPlayerFilter, setShowPlayerFilter] = useState(false)
@@ -74,10 +76,14 @@ const MatchHistory = ({
 
     return (
       <div key={player.id} className="mb-1">
-        <div className="flex items-center justify-center gap-1">
+        <button
+          type="button"
+          className="flex items-center justify-center gap-1 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none p-0"
+          onClick={() => onPlayerClick?.(player.id)}
+        >
           <span className="text-sm">{player.avatar}</span>
           <div className={`text-xs font-medium ${teamColor}`}>{player.name}</div>
-        </div>
+        </button>
         {hasStats ? (
           <div className="text-xs text-gray-600 mt-0.5">
             <div className="flex items-center justify-center gap-1">
