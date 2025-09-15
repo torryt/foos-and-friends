@@ -134,20 +134,36 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
             <div className="grid grid-cols-3 gap-2 items-center">
               <input
                 type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min="0"
                 max="10"
                 value={score1}
-                onChange={(e) => setScore1(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  // Only allow positive integers
+                  if (value === '' || (/^\d+$/.test(value) && Number.parseInt(value, 10) >= 0)) {
+                    setScore1(value)
+                  }
+                }}
                 placeholder="0"
                 className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300"
               />
               <div className="text-center font-bold text-orange-800">VS</div>
               <input
                 type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min="0"
                 max="10"
                 value={score2}
-                onChange={(e) => setScore2(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value
+                  // Only allow positive integers
+                  if (value === '' || (/^\d+$/.test(value) && Number.parseInt(value, 10) >= 0)) {
+                    setScore2(value)
+                  }
+                }}
                 placeholder="0"
                 className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300"
               />
