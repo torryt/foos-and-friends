@@ -4,6 +4,8 @@ import {
   Edit2,
   Minus,
   Save,
+  Shield,
+  Sword,
   Target,
   TrendingDown,
   TrendingUp,
@@ -12,12 +14,14 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { PositionIcon } from '@/components/PositionIcon'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { AVAILABLE_AVATARS } from '@/constants/avatars'
 import { useGameLogic } from '@/hooks/useGameLogic'
+import { usePositionStats } from '@/hooks/usePositionStats'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/players/$playerId')({
@@ -32,6 +36,7 @@ function PlayerProfile() {
   const [editedAvatar, setEditedAvatar] = useState('')
 
   const player = players.find((p) => p.id === playerId)
+  const positionStats = usePositionStats(playerId, matches)
 
   // Scroll to top when navigating to a different player
   useEffect(() => {
@@ -280,6 +285,65 @@ function PlayerProfile() {
         </div>
       </Card>
 
+      {/* Position Statistics */}
+      <Card className="p-4 md:p-6 bg-white/80 backdrop-blur-sm">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Position Statistics</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg border border-orange-200/50">
+            <div className="flex items-center gap-2 mb-2">
+              <Sword className="w-5 h-5 text-orange-500" />
+              <span className="font-medium text-orange-800">Attacker</span>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">
+                Games: <span className="font-semibold">{positionStats.gamesAsAttacker}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Wins:{' '}
+                <span className="font-semibold text-green-600">{positionStats.winsAsAttacker}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Losses:{' '}
+                <span className="font-semibold text-red-600">{positionStats.lossesAsAttacker}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Win Rate: <span className="font-semibold">{positionStats.winRateAsAttacker}%</span>
+              </p>
+            </div>
+          </div>
+          <div className="p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-200/50">
+            <div className="flex items-center gap-2 mb-2">
+              <Shield className="w-5 h-5 text-blue-500" />
+              <span className="font-medium text-blue-800">Defender</span>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">
+                Games: <span className="font-semibold">{positionStats.gamesAsDefender}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Wins:{' '}
+                <span className="font-semibold text-green-600">{positionStats.winsAsDefender}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Losses:{' '}
+                <span className="font-semibold text-red-600">{positionStats.lossesAsDefender}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Win Rate: <span className="font-semibold">{positionStats.winRateAsDefender}%</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        {positionStats.preferredPosition && (
+          <div className="mt-4 p-2 bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg border border-gray-200/50">
+            <p className="text-sm text-gray-600 flex items-center gap-2">
+              <span>Preferred Position:</span>
+              <PositionIcon position={positionStats.preferredPosition} size={14} showLabel />
+            </p>
+          </div>
+        )}
+      </Card>
+
       {/* Statistics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4 bg-white/80 backdrop-blur-sm">
@@ -414,13 +478,38 @@ function PlayerProfile() {
                     {/* Top Row - Result, Teams & Score */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div
-                          className={cn(
-                            'px-2 py-1 rounded text-xs font-medium shrink-0',
-                            won ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
-                          )}
-                        >
-                          {won ? 'WIN' : 'LOSS'}
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={cn(
+                              'px-2 py-1 rounded text-xs font-medium shrink-0',
+                              won ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
+                            )}
+                          >
+                            {won ? 'WIN' : 'LOSS'}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <PositionIcon
+                              position={
+                                wasInTeam1
+                                  ? match.team1[0].id === playerId
+                                    ? 'attacker'
+                                    : 'defender'
+                                  : match.team2[0].id === playerId
+                                    ? 'attacker'
+                                    : 'defender'
+                              }
+                              size={12}
+                            />
+                            <span className="text-xs text-gray-500">
+                              {wasInTeam1
+                                ? match.team1[0].id === playerId
+                                  ? 'Attacker'
+                                  : 'Defender'
+                                : match.team2[0].id === playerId
+                                  ? 'Attacker'
+                                  : 'Defender'}
+                            </span>
+                          </div>
                         </div>
 
                         {/* Teams and Score - Improved layout */}

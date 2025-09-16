@@ -1,4 +1,4 @@
-import { Target, Users, X } from 'lucide-react'
+import { Shield, Sword, Target, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import type { Player } from '@/types'
 
@@ -69,30 +69,44 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
               Team 1
             </div>
             <div className="space-y-2">
-              <select
-                value={team1Player1Id}
-                onChange={(e) => setTeam1Player1Id(e.target.value)}
-                className="w-full p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
-              >
-                <option value="">Select Player 1</option>
-                {getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id]).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.avatar} {p.name} ({p.ranking})
-                  </option>
-                ))}
-              </select>
-              <select
-                value={team1Player2Id}
-                onChange={(e) => setTeam1Player2Id(e.target.value)}
-                className="w-full p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
-              >
-                <option value="">Select Player 2</option>
-                {getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id]).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.avatar} {p.name} ({p.ranking})
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Sword className="text-orange-500" size={16} />
+                </div>
+                <select
+                  value={team1Player1Id}
+                  onChange={(e) => setTeam1Player1Id(e.target.value)}
+                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm"
+                >
+                  <option value="">Select Attacker</option>
+                  {getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id]).map(
+                    (p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.avatar} {p.name} ({p.ranking})
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+              <div className="relative">
+                <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Shield className="text-blue-500" size={16} />
+                </div>
+                <select
+                  value={team1Player2Id}
+                  onChange={(e) => setTeam1Player2Id(e.target.value)}
+                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
+                >
+                  <option value="">Select Defender</option>
+                  {getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id]).map(
+                    (p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.avatar} {p.name} ({p.ranking})
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -102,30 +116,44 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
               Team 2
             </div>
             <div className="space-y-2">
-              <select
-                value={team2Player1Id}
-                onChange={(e) => setTeam2Player1Id(e.target.value)}
-                className="w-full p-2 border border-purple-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-purple-300 focus:border-transparent text-sm"
-              >
-                <option value="">Select Player 1</option>
-                {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id]).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.avatar} {p.name} ({p.ranking})
-                  </option>
-                ))}
-              </select>
-              <select
-                value={team2Player2Id}
-                onChange={(e) => setTeam2Player2Id(e.target.value)}
-                className="w-full p-2 border border-purple-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-purple-300 focus:border-transparent text-sm"
-              >
-                <option value="">Select Player 2</option>
-                {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id]).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.avatar} {p.name} ({p.ranking})
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Sword className="text-orange-500" size={16} />
+                </div>
+                <select
+                  value={team2Player1Id}
+                  onChange={(e) => setTeam2Player1Id(e.target.value)}
+                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm"
+                >
+                  <option value="">Select Attacker</option>
+                  {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id]).map(
+                    (p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.avatar} {p.name} ({p.ranking})
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+              <div className="relative">
+                <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Shield className="text-blue-500" size={16} />
+                </div>
+                <select
+                  value={team2Player2Id}
+                  onChange={(e) => setTeam2Player2Id(e.target.value)}
+                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
+                >
+                  <option value="">Select Defender</option>
+                  {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id]).map(
+                    (p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.avatar} {p.name} ({p.ranking})
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
             </div>
           </div>
 

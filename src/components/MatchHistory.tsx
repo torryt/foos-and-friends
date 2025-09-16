@@ -1,7 +1,16 @@
-import { Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
+import {
+  Clock,
+  Filter,
+  Plus,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  X,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { PositionIcon } from '@/components/PositionIcon'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import type { Match, Player } from '@/types'
+import type { Match, Player, PlayerMatchStats, PlayerPosition } from '@/types'
 import { calculateRankingChange } from '@/types'
 
 interface MatchHistoryProps {
@@ -10,6 +19,81 @@ interface MatchHistoryProps {
   onRecordMatch: () => void
   initialSelectedPlayer?: string
   onPlayerClick?: (playerId: string) => void
+}
+
+interface PlayerWithStatsProps {
+  player: Player
+  match: Match
+  teamColor: string
+  position: PlayerPosition
+  onPlayerClick?: (playerId: string) => void
+}
+
+// Helper function to get player stats for a specific player in a match
+const getPlayerStats = (match: Match, playerId: string): PlayerMatchStats | undefined => {
+  return match.playerStats?.find((stats) => stats.playerId === playerId)
+}
+
+// Helper function to format ranking change display
+const formatRankingChange = (change: number) => {
+  if (change > 0) {
+    return (
+      <span className="text-green-600 flex items-center gap-0.5">
+        <TrendingUp size={10} />+{change}
+      </span>
+    )
+  } else if (change < 0) {
+    return (
+      <span className="text-red-600 flex items-center gap-0.5">
+        <TrendingDown size={10} />
+        {change}
+      </span>
+    )
+  } else {
+    return <span className="text-gray-500">0</span>
+  }
+}
+
+// Component to render player with stats
+const PlayerWithStats = ({
+  player,
+  match,
+  teamColor,
+  position,
+  onPlayerClick,
+}: PlayerWithStatsProps) => {
+  const stats = getPlayerStats(match, player.id)
+  const hasStats = !!stats
+
+  return (
+    <div className="mb-1">
+      <button
+        type="button"
+        className="flex items-center justify-center gap-1 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none p-0"
+        onClick={() => onPlayerClick?.(player.id)}
+      >
+        <span className="text-sm">{player.avatar}</span>
+        <div className="flex items-center gap-1">
+          <PositionIcon position={position} size={12} />
+          <div className={`text-xs font-medium ${teamColor}`}>{player.name}</div>
+        </div>
+      </button>
+      {hasStats ? (
+        <div className="text-xs text-gray-600 mt-0.5">
+          <div className="flex items-center justify-center gap-1">
+            <span className="font-medium">{stats.postGameRanking}</span>
+            {formatRankingChange(calculateRankingChange(stats))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-xs text-gray-600 mt-0.5">
+          <div className="flex items-center justify-center">
+            <span className="font-medium">{player.ranking}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 const MatchHistory = ({
@@ -44,63 +128,6 @@ const MatchHistory = ({
     : matches
 
   const selectedPlayerData = selectedPlayer ? players.find((p) => p.id === selectedPlayer) : null
-  // Helper function to get player stats for a specific player in a match
-  const getPlayerStats = (match: Match, playerId: string) => {
-    return match.playerStats?.find((stats) => stats.playerId === playerId)
-  }
-
-  // Helper function to format ranking change display
-  const formatRankingChange = (change: number) => {
-    if (change > 0) {
-      return (
-        <span className="text-green-600 flex items-center gap-0.5">
-          <TrendingUp size={10} />+{change}
-        </span>
-      )
-    } else if (change < 0) {
-      return (
-        <span className="text-red-600 flex items-center gap-0.5">
-          <TrendingDown size={10} />
-          {change}
-        </span>
-      )
-    } else {
-      return <span className="text-gray-500">0</span>
-    }
-  }
-
-  // Helper function to render player with stats
-  const renderPlayerWithStats = (player: Player, match: Match, teamColor: string) => {
-    const stats = getPlayerStats(match, player.id)
-    const hasStats = !!stats
-
-    return (
-      <div key={player.id} className="mb-1">
-        <button
-          type="button"
-          className="flex items-center justify-center gap-1 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none p-0"
-          onClick={() => onPlayerClick?.(player.id)}
-        >
-          <span className="text-sm">{player.avatar}</span>
-          <div className={`text-xs font-medium ${teamColor}`}>{player.name}</div>
-        </button>
-        {hasStats ? (
-          <div className="text-xs text-gray-600 mt-0.5">
-            <div className="flex items-center justify-center gap-1">
-              <span className="font-medium">{stats.postGameRanking}</span>
-              {formatRankingChange(calculateRankingChange(stats))}
-            </div>
-          </div>
-        ) : (
-          <div className="text-xs text-gray-600 mt-0.5">
-            <div className="flex items-center justify-center">
-              <span className="font-medium">{player.ranking}</span>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
       <div className="p-4 border-b border-slate-200/50">
@@ -216,8 +243,20 @@ const MatchHistory = ({
                   <div className="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-2 rounded-lg border border-blue-200/50">
                     <div className="font-bold text-blue-800 mb-1 text-xs">Team 1</div>
                     <div className="space-y-1">
-                      {renderPlayerWithStats(match.team1[0], match, 'text-blue-700')}
-                      {renderPlayerWithStats(match.team1[1], match, 'text-blue-700')}
+                      <PlayerWithStats
+                        player={match.team1[0]}
+                        match={match}
+                        teamColor="text-blue-700"
+                        position="attacker"
+                        onPlayerClick={onPlayerClick}
+                      />
+                      <PlayerWithStats
+                        player={match.team1[1]}
+                        match={match}
+                        teamColor="text-blue-700"
+                        position="defender"
+                        onPlayerClick={onPlayerClick}
+                      />
                     </div>
                     <div className="text-xs bg-blue-100 text-blue-600 px-1 py-0.5 rounded-full mt-1">
                       {match.playerStats ? (
@@ -256,8 +295,20 @@ const MatchHistory = ({
                   <div className="text-center bg-gradient-to-br from-purple-50 to-violet-50 p-2 rounded-lg border border-purple-200/50">
                     <div className="font-bold text-purple-800 mb-1 text-xs">Team 2</div>
                     <div className="space-y-1">
-                      {renderPlayerWithStats(match.team2[0], match, 'text-purple-700')}
-                      {renderPlayerWithStats(match.team2[1], match, 'text-purple-700')}
+                      <PlayerWithStats
+                        player={match.team2[0]}
+                        match={match}
+                        teamColor="text-purple-700"
+                        position="attacker"
+                        onPlayerClick={onPlayerClick}
+                      />
+                      <PlayerWithStats
+                        player={match.team2[1]}
+                        match={match}
+                        teamColor="text-purple-700"
+                        position="defender"
+                        onPlayerClick={onPlayerClick}
+                      />
                     </div>
                     <div className="text-xs bg-purple-100 text-purple-600 px-1 py-0.5 rounded-full mt-1">
                       {match.playerStats ? (
