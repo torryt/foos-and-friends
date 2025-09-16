@@ -473,105 +473,104 @@ function PlayerProfile() {
                     won ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
                   )}
                 >
-                  {/* Mobile and Desktop Layout */}
-                  <div className="space-y-2 md:space-y-0">
-                    {/* Top Row - Result, Teams & Score */}
+                  {/* Mobile-first responsive layout */}
+                  <div className="flex flex-col gap-2">
+                    {/* First Row: Result, Position, Date */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={cn(
-                              'px-2 py-1 rounded text-xs font-medium shrink-0',
-                              won ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
-                            )}
-                          >
-                            {won ? 'WIN' : 'LOSS'}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <PositionIcon
-                              position={
-                                wasInTeam1
-                                  ? match.team1[0].id === playerId
-                                    ? 'attacker'
-                                    : 'defender'
-                                  : match.team2[0].id === playerId
-                                    ? 'attacker'
-                                    : 'defender'
-                              }
-                              size={12}
-                            />
-                            <span className="text-xs text-gray-500">
-                              {wasInTeam1
-                                ? match.team1[0].id === playerId
-                                  ? 'Attacker'
-                                  : 'Defender'
-                                : match.team2[0].id === playerId
-                                  ? 'Attacker'
-                                  : 'Defender'}
-                            </span>
-                          </div>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={cn(
+                            'px-2 py-1 rounded text-xs font-medium',
+                            won ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
+                          )}
+                        >
+                          {won ? 'WIN' : 'LOSS'}
                         </div>
-
-                        {/* Teams and Score - Improved layout */}
-                        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                          {/* Team 1 */}
-                          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
-                            {match.team1.map((player, idx) => (
-                              <div key={player.id} className="flex items-center gap-1 min-w-0">
-                                {idx > 0 && (
-                                  <span className="text-gray-400 text-xs shrink-0">+</span>
-                                )}
-                                <Link
-                                  to="/players/$playerId"
-                                  params={{ playerId: player.id }}
-                                  className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
-                                >
-                                  <span className="text-sm shrink-0">{player.avatar}</span>
-                                  <span className="text-xs text-gray-600 truncate max-w-[50px] sm:max-w-[80px] lg:max-w-none">
-                                    {player.name}
-                                  </span>
-                                </Link>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Score */}
-                          <div className="flex items-center gap-1 font-semibold text-base shrink-0 px-2">
-                            <span>{match.score1}</span>
-                            <span className="text-gray-400">-</span>
-                            <span>{match.score2}</span>
-                          </div>
-
-                          {/* Team 2 */}
-                          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1 justify-end">
-                            {match.team2.map((player, idx) => (
-                              <div key={player.id} className="flex items-center gap-1 min-w-0">
-                                <Link
-                                  to="/players/$playerId"
-                                  params={{ playerId: player.id }}
-                                  className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
-                                >
-                                  <span className="text-sm shrink-0">{player.avatar}</span>
-                                  <span className="text-xs text-gray-600 truncate max-w-[50px] sm:max-w-[80px] lg:max-w-none">
-                                    {player.name}
-                                  </span>
-                                </Link>
-                                {idx === 0 && (
-                                  <span className="text-gray-400 text-xs shrink-0">+</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
+                        <div className="flex items-center gap-1">
+                          <PositionIcon
+                            position={
+                              wasInTeam1
+                                ? match.team1[0].id === playerId
+                                  ? 'attacker'
+                                  : 'defender'
+                                : match.team2[0].id === playerId
+                                  ? 'attacker'
+                                  : 'defender'
+                            }
+                            size={12}
+                          />
+                          <span className="hidden sm:inline text-xs text-gray-500">
+                            {wasInTeam1
+                              ? match.team1[0].id === playerId
+                                ? 'Attacker'
+                                : 'Defender'
+                              : match.team2[0].id === playerId
+                                ? 'Attacker'
+                                : 'Defender'}
+                          </span>
                         </div>
                       </div>
-
-                      {/* Date - Always visible on top row */}
-                      <div className="text-xs text-gray-400 shrink-0 ml-2">{match.date}</div>
+                      <div className="text-xs text-gray-400">{match.date}</div>
                     </div>
 
-                    {/* Bottom Row - Ranking (only if available) */}
+                    {/* Second Row: Teams with prominent score */}
+                    <div className="flex items-center justify-between gap-2">
+                      {/* Team 1 */}
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        {match.team1.map((player, idx) => (
+                          <div key={player.id} className="flex items-center gap-1 min-w-0">
+                            {idx > 0 && <span className="text-gray-400 text-xs">+</span>}
+                            <Link
+                              to="/players/$playerId"
+                              params={{ playerId: player.id }}
+                              className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
+                            >
+                              <span className="text-sm">{player.avatar}</span>
+                              <span className="hidden sm:inline text-xs text-gray-600 truncate max-w-[80px] lg:max-w-none">
+                                {player.name}
+                              </span>
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Score - More prominent on mobile */}
+                      <div
+                        className={cn(
+                          'flex items-center gap-1 px-3 py-1 rounded-lg font-bold shrink-0',
+                          won
+                            ? 'bg-green-100 text-green-800 text-lg sm:text-base'
+                            : 'bg-red-100 text-red-800 text-lg sm:text-base',
+                        )}
+                      >
+                        <span>{match.score1}</span>
+                        <span className="text-gray-500">-</span>
+                        <span>{match.score2}</span>
+                      </div>
+
+                      {/* Team 2 */}
+                      <div className="flex items-center gap-1 flex-1 min-w-0 justify-end">
+                        {match.team2.map((player, idx) => (
+                          <div key={player.id} className="flex items-center gap-1 min-w-0">
+                            <Link
+                              to="/players/$playerId"
+                              params={{ playerId: player.id }}
+                              className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
+                            >
+                              <span className="text-sm">{player.avatar}</span>
+                              <span className="hidden sm:inline text-xs text-gray-600 truncate max-w-[80px] lg:max-w-none">
+                                {player.name}
+                              </span>
+                            </Link>
+                            {idx === 0 && <span className="text-gray-400 text-xs">+</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Third Row: Ranking (only if available) */}
                     {playerRanking && (
-                      <div className="flex justify-end">
+                      <div className="flex justify-center sm:justify-end">
                         <div className="bg-white/50 px-2 py-1 rounded text-xs">
                           <span className="text-gray-500">Ranking: </span>
                           <span className="font-medium">{playerRanking.preGameRanking}</span>
