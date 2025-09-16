@@ -14,7 +14,7 @@ const QuickActions = ({ onRecordMatch, onAddPlayer }: QuickActionsProps) => {
         className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-xl hover:from-orange-600 hover:to-red-700 shadow-lg flex items-center justify-center gap-2 font-semibold"
       >
         <Target size={20} />
-        Record Game
+        Register Game
       </button>
       <button
         type="button"

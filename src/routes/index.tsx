@@ -4,7 +4,7 @@ import AddPlayerModal from '@/components/AddPlayerModal'
 import PlayerRankings from '@/components/PlayerRankings'
 import QuickActions from '@/components/QuickActions'
 import { useGameLogic } from '@/hooks/useGameLogic'
-import RecordMatchForm from '@/RecordMatchForm'
+import RegisterGameForm from '@/RegisterGameForm'
 
 export const Route = createFileRoute('/')({
   component: Index,
@@ -40,7 +40,7 @@ function Index() {
       />
 
       {showRecordMatch && (
-        <RecordMatchForm
+        <RegisterGameForm
           players={players}
           recordMatch={recordMatch}
           setShowRecordMatch={setShowRecordMatch}

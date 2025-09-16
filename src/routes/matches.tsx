@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { z } from 'zod'
 import MatchHistory from '@/components/MatchHistory'
 import { useGameLogic } from '@/hooks/useGameLogic'
-import RecordMatchForm from '@/RecordMatchForm'
+import RegisterGameForm from '@/RegisterGameForm'
 
 const matchesSearchSchema = z.object({
   playerId: z.string().optional(),
@@ -38,7 +38,7 @@ function Matches() {
       />
 
       {showRecordMatch && (
-        <RecordMatchForm
+        <RegisterGameForm
           players={players}
           recordMatch={recordMatch}
           setShowRecordMatch={setShowRecordMatch}

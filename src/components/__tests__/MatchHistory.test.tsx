@@ -322,4 +322,124 @@ describe('MatchHistory', () => {
       expect(screen.queryByText(/wins!/)).not.toBeInTheDocument()
     })
   })
+
+  describe('Position icons and labels', () => {
+    const matchWithPositions: Match = {
+      id: 'match1',
+      team1: [mockPlayer1, mockPlayer2],
+      team2: [mockPlayer3, mockPlayer4],
+      score1: 10,
+      score2: 8,
+      date: '2024-01-15',
+      time: '14:30',
+      groupId: 'group1',
+      playerStats: [
+        { playerId: 'player1', preGameRanking: 1200, postGameRanking: 1220 },
+        { playerId: 'player2', preGameRanking: 1300, postGameRanking: 1318 },
+        { playerId: 'player3', preGameRanking: 1100, postGameRanking: 1085 },
+        { playerId: 'player4', preGameRanking: 1400, postGameRanking: 1377 },
+      ],
+    }
+
+    it('displays position icons for each player', () => {
+      render(
+        <MatchHistory
+          matches={[matchWithPositions]}
+          players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
+          onRecordMatch={mockOnRecordMatch}
+        />,
+      )
+
+      // Check for sword icons (attackers) - should have orange color
+      const swordIcons = document.querySelectorAll('svg.text-orange-500')
+      expect(swordIcons.length).toBe(2) // 2 attackers (one per team)
+
+      // Check for shield icons (defenders) - should have blue color
+      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
+      expect(shieldIcons.length).toBe(2) // 2 defenders (one per team)
+    })
+
+    it('shows correct position assignments in teams', () => {
+      render(
+        <MatchHistory
+          matches={[matchWithPositions]}
+          players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
+          onRecordMatch={mockOnRecordMatch}
+        />,
+      )
+
+      // Team 1: Alice (attacker), Bob (defender)
+      // Team 2: Charlie (attacker), Diana (defender)
+
+      // All player names should be visible
+      expect(screen.getByText('Alice')).toBeInTheDocument()
+      expect(screen.getByText('Bob')).toBeInTheDocument()
+      expect(screen.getByText('Charlie')).toBeInTheDocument()
+      expect(screen.getByText('Diana')).toBeInTheDocument()
+
+      // Position icons should be present with players
+      const playerElements = screen
+        .getAllByRole('button')
+        .filter(
+          (button) =>
+            button.textContent?.includes('Alice') ||
+            button.textContent?.includes('Bob') ||
+            button.textContent?.includes('Charlie') ||
+            button.textContent?.includes('Diana'),
+        )
+
+      expect(playerElements).toHaveLength(4) // All 4 players
+    })
+
+    it('maintains position consistency across multiple matches', () => {
+      const multipleMatches: Match[] = [
+        matchWithPositions,
+        {
+          id: 'match2',
+          team1: [mockPlayer3, mockPlayer1], // Charlie (attacker), Alice (defender)
+          team2: [mockPlayer2, mockPlayer4], // Bob (attacker), Diana (defender)
+          score1: 6,
+          score2: 10,
+          date: '2024-01-16',
+          time: '15:30',
+          groupId: 'group1',
+        },
+      ]
+
+      render(
+        <MatchHistory
+          matches={multipleMatches}
+          players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
+          onRecordMatch={mockOnRecordMatch}
+        />,
+      )
+
+      // Should have 4 attackers (2 per match) and 4 defenders (2 per match)
+      const swordIcons = document.querySelectorAll('svg.text-orange-500')
+      expect(swordIcons.length).toBe(4) // 4 attackers total
+
+      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
+      expect(shieldIcons.length).toBe(4) // 4 defenders total
+    })
+
+    it('handles player click events with position context', async () => {
+      const mockOnPlayerClick = vi.fn()
+      const user = userEvent.setup()
+
+      render(
+        <MatchHistory
+          matches={[matchWithPositions]}
+          players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
+          onRecordMatch={mockOnRecordMatch}
+          onPlayerClick={mockOnPlayerClick}
+        />,
+      )
+
+      // Click on Alice (should be first player button)
+      const aliceButton = screen.getByRole('button', { name: /alice/i })
+      await user.click(aliceButton)
+
+      expect(mockOnPlayerClick).toHaveBeenCalledWith('player1')
+    })
+  })
 })

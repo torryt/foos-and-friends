@@ -1,12 +1,4 @@
-import {
-  Clock,
-  Filter,
-  Plus,
-  Target,
-  TrendingDown,
-  TrendingUp,
-  X,
-} from 'lucide-react'
+import { Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PositionIcon } from '@/components/PositionIcon'
 import { Alert, AlertDescription } from '@/components/ui/alert'

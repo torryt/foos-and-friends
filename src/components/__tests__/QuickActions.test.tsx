@@ -15,15 +15,15 @@ describe('QuickActions', () => {
   test('renders all action buttons', () => {
     render(<QuickActions onRecordMatch={mockOnRecordMatch} onAddPlayer={mockOnAddPlayer} />)
 
-    expect(screen.getByText('Record Game')).toBeInTheDocument()
+    expect(screen.getByText('Register Game')).toBeInTheDocument()
     expect(screen.getByText('Add Player')).toBeInTheDocument()
   })
 
-  test('calls onRecordMatch when Record Game button is clicked', async () => {
+  test('calls onRecordMatch when Register Game button is clicked', async () => {
     const user = userEvent.setup()
     render(<QuickActions onRecordMatch={mockOnRecordMatch} onAddPlayer={mockOnAddPlayer} />)
 
-    const recordButton = screen.getByRole('button', { name: /record game/i })
+    const recordButton = screen.getByRole('button', { name: /register game/i })
     await user.click(recordButton)
 
     expect(mockOnRecordMatch).toHaveBeenCalledTimes(1)
@@ -45,7 +45,7 @@ describe('QuickActions', () => {
     render(<QuickActions onRecordMatch={mockOnRecordMatch} onAddPlayer={mockOnAddPlayer} />)
 
     // Check that buttons contain the expected text content
-    const recordButton = screen.getByRole('button', { name: /record game/i })
+    const recordButton = screen.getByRole('button', { name: /register game/i })
     const addButton = screen.getByRole('button', { name: /add player/i })
 
     expect(recordButton).toBeInTheDocument()

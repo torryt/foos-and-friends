@@ -2,7 +2,7 @@ import { Shield, Sword, Target, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import type { Player } from '@/types'
 
-interface RecordMatchFormProps {
+interface RegisterGameFormProps {
   players: Player[]
   recordMatch: (
     team1Player1Id: string,
@@ -15,7 +15,7 @@ interface RecordMatchFormProps {
   setShowRecordMatch: (show: boolean) => void
 }
 
-const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMatchFormProps) => {
+const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: RegisterGameFormProps) => {
   const [team1Player1Id, setTeam1Player1Id] = useState('')
   const [team1Player2Id, setTeam1Player2Id] = useState('')
   const [team2Player1Id, setTeam2Player1Id] = useState('')
@@ -51,7 +51,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <Target className="text-orange-500" size={20} />
-            Record Game
+            Register Game
           </h3>
           <button
             type="button"
@@ -215,7 +215,7 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
             }
             className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Record Game
+            Register Game
           </button>
         </div>
       </div>
@@ -223,4 +223,4 @@ const RecordMatchForm = ({ players, recordMatch, setShowRecordMatch }: RecordMat
   )
 }
 
-export default RecordMatchForm
+export default RegisterGameForm
