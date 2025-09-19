@@ -24,11 +24,12 @@ const mockPlayers: Player[] = [
 ]
 
 describe('RegisterGameForm', () => {
-  const mockRecordMatch = vi.fn()
+  const mockRecordMatch = vi.fn().mockResolvedValue({ success: true })
   const mockSetShowRecordMatch = vi.fn()
 
   beforeEach(() => {
     mockRecordMatch.mockClear()
+    mockRecordMatch.mockResolvedValue({ success: true })
     mockSetShowRecordMatch.mockClear()
   })
 
@@ -182,8 +183,10 @@ describe('RegisterGameForm', () => {
 
     await user.click(submitButton)
 
-    expect(mockRecordMatch).toHaveBeenCalledWith('1', '2', '3', '4', '10', '8')
-    expect(mockSetShowRecordMatch).toHaveBeenCalledWith(false)
+    await waitFor(() => {
+      expect(mockRecordMatch).toHaveBeenCalledWith('1', '2', '3', '4', '10', '8')
+      expect(mockSetShowRecordMatch).toHaveBeenCalledWith(false)
+    })
   })
 
   test('displays register game button text', () => {
