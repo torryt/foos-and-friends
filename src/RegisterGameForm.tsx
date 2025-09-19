@@ -1,5 +1,6 @@
-import { Shield, Sword, Target, Users, X } from 'lucide-react'
+import { Loader2, Shield, Sword, Target, Users, X } from 'lucide-react'
 import { useState } from 'react'
+import { useToast } from '@/hooks/useToast'
 import type { Player } from '@/types'
 
 interface RegisterGameFormProps {
@@ -11,7 +12,7 @@ interface RegisterGameFormProps {
     team2Player2Id: string,
     score1: string,
     score2: string,
-  ) => void
+  ) => Promise<{ success: boolean; error?: string }>
   setShowRecordMatch: (show: boolean) => void
 }
 
@@ -22,22 +23,40 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
   const [team2Player2Id, setTeam2Player2Id] = useState('')
   const [score1, setScore1] = useState('')
   const [score2, setScore2] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const playerIds = [team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id]
     const allSelected = playerIds.every((id) => id !== '')
     const allUnique = new Set(playerIds).size === 4
     const scoresValid = score1 !== '' && score2 !== ''
 
     if (allSelected && allUnique && scoresValid) {
-      recordMatch(team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id, score1, score2)
-      setShowRecordMatch(false)
-      setTeam1Player1Id('')
-      setTeam1Player2Id('')
-      setTeam2Player1Id('')
-      setTeam2Player2Id('')
-      setScore1('')
-      setScore2('')
+      setIsSubmitting(true)
+      const result = await recordMatch(
+        team1Player1Id,
+        team1Player2Id,
+        team2Player1Id,
+        team2Player2Id,
+        score1,
+        score2,
+      )
+
+      if (result.success) {
+        toast().success('Match recorded successfully!')
+        setShowRecordMatch(false)
+        setTeam1Player1Id('')
+        setTeam1Player2Id('')
+        setTeam2Player1Id('')
+        setTeam2Player2Id('')
+        setScore1('')
+        setScore2('')
+      } else {
+        toast().error(result.error || 'Failed to record match')
+      }
+
+      setIsSubmitting(false)
     }
   }
 
@@ -56,7 +75,8 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
           <button
             type="button"
             onClick={() => setShowRecordMatch(false)}
-            className="text-slate-400 hover:text-slate-600  p-1 rounded-full hover:bg-white/50"
+            disabled={isSubmitting}
+            className="text-slate-400 hover:text-slate-600  p-1 rounded-full hover:bg-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X size={20} />
           </button>
@@ -76,7 +96,8 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
                 <select
                   value={team1Player1Id}
                   onChange={(e) => setTeam1Player1Id(e.target.value)}
-                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm"
+                  disabled={isSubmitting}
+                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Attacker</option>
                   {getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id]).map(
@@ -95,7 +116,8 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
                 <select
                   value={team1Player2Id}
                   onChange={(e) => setTeam1Player2Id(e.target.value)}
-                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
+                  disabled={isSubmitting}
+                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Defender</option>
                   {getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id]).map(
@@ -123,7 +145,8 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
                 <select
                   value={team2Player1Id}
                   onChange={(e) => setTeam2Player1Id(e.target.value)}
-                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm"
+                  disabled={isSubmitting}
+                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Attacker</option>
                   {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id]).map(
@@ -142,7 +165,8 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
                 <select
                   value={team2Player2Id}
                   onChange={(e) => setTeam2Player2Id(e.target.value)}
-                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm"
+                  disabled={isSubmitting}
+                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Defender</option>
                   {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id]).map(
@@ -174,8 +198,9 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
                     setScore1(value)
                   }
                 }}
+                disabled={isSubmitting}
                 placeholder="0"
-                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300"
+                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <div className="text-center font-bold text-orange-800">VS</div>
               <input
@@ -192,8 +217,9 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
                     setScore2(value)
                   }
                 }}
+                disabled={isSubmitting}
                 placeholder="0"
-                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300"
+                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             <p className="text-xs text-orange-600 mt-1 text-center">
@@ -205,6 +231,7 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
             type="button"
             onClick={handleSubmit}
             disabled={
+              isSubmitting ||
               !team1Player1Id ||
               !team1Player2Id ||
               !team2Player1Id ||
@@ -213,9 +240,16 @@ const RegisterGameForm = ({ players, recordMatch, setShowRecordMatch }: Register
               score2 === '' ||
               new Set([team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id]).size !== 4
             }
-            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Register Game
+            {isSubmitting ? (
+              <>
+                <Loader2 className="animate-spin" size={16} />
+                Registering...
+              </>
+            ) : (
+              'Register Game'
+            )}
           </button>
         </div>
       </div>
