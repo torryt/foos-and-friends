@@ -19,14 +19,19 @@ export const Route = createFileRoute('/invite')({
 function InvitePageComponent() {
   const { code: inviteCode } = Route.useSearch()
   const { isAuthenticated } = useAuth()
-  const { refreshGroups, switchGroup } = useGroupContext()
+  const { refreshGroups, switchGroup, userGroups } = useGroupContext()
   const navigate = useNavigate()
   const { toast } = useToast()
 
   const [loading, setLoading] = useState(false)
-  const [groupInfo, setGroupInfo] = useState<{ name: string; description?: string } | null>(null)
+  const [groupInfo, setGroupInfo] = useState<{
+    id?: string
+    name: string
+    description?: string
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [joined, setJoined] = useState(false)
+  const [checkingMembership, setCheckingMembership] = useState(true)
 
   // No need to store invite code in localStorage - we'll use URL parameters
 
@@ -39,6 +44,7 @@ function InvitePageComponent() {
         const result = await groupService.getGroupByInviteCode(inviteCode)
         if (result.data) {
           setGroupInfo({
+            id: result.data.id,
             name: result.data.name,
             description: result.data.description || undefined,
           })
@@ -47,11 +53,28 @@ function InvitePageComponent() {
         }
       } catch (err) {
         console.error('Failed to fetch group info:', err)
+      } finally {
+        setCheckingMembership(false)
       }
     }
 
     fetchGroupInfo()
   }, [inviteCode])
+
+  // Check if user is already a member of this group and redirect
+  useEffect(() => {
+    if (!groupInfo?.id || !isAuthenticated || checkingMembership) return
+
+    // Check if user is already a member
+    const isAlreadyMember = userGroups.some((group) => group.id === groupInfo.id)
+
+    if (isAlreadyMember) {
+      // User is already a member, switch to this group and redirect to Rankings
+      switchGroup(groupInfo.id)
+      toast().success(`You're already a member of ${groupInfo.name}!`)
+      navigate({ to: '/' })
+    }
+  }, [groupInfo, isAuthenticated, userGroups, checkingMembership, switchGroup, navigate, toast])
 
   // Handle joining for authenticated users
   const handleJoinGroup = async () => {
@@ -105,6 +128,19 @@ function InvitePageComponent() {
           >
             Go to App
           </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Show loading spinner while checking membership
+  if (checkingMembership && isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] p-4">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50 text-center">
+          <Loader className="animate-spin mx-auto mb-4 text-orange-500" size={48} />
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Checking Membership</h1>
+          <p className="text-gray-600">Please wait while we check your membership status...</p>
         </div>
       </div>
     )
