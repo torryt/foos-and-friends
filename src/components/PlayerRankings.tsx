@@ -67,7 +67,7 @@ const PlayerRankings = ({ players, onPlayerClick }: PlayerRankingsProps) => {
       </div>
 
       <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="flex flex-col gap-2 max-w-4xl mx-auto">
           {sortedPlayers.map((player, index) =>
             onPlayerClick ? (
               <button
