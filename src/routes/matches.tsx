@@ -40,6 +40,7 @@ function Matches() {
       {showRecordMatch && (
         <RegisterGameForm
           players={players}
+          matches={matches}
           recordMatch={recordMatch}
           setShowRecordMatch={setShowRecordMatch}
         />

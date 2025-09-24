@@ -42,6 +42,7 @@ function Index() {
       {showRecordMatch && (
         <RegisterGameForm
           players={players}
+          matches={matches}
           recordMatch={recordMatch}
           setShowRecordMatch={setShowRecordMatch}
         />

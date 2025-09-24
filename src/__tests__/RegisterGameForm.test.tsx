@@ -33,22 +33,24 @@ describe('RegisterGameForm', () => {
     mockSetShowRecordMatch.mockClear()
   })
 
-  test('renders with register game title', () => {
+  test('renders with record match title', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
     )
 
-    expect(screen.getByRole('heading', { name: /register game/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /record match/i })).toBeInTheDocument()
   })
 
   test('displays attacker and defender position labels', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -67,6 +69,7 @@ describe('RegisterGameForm', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -85,6 +88,7 @@ describe('RegisterGameForm', () => {
     const { container } = render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -98,6 +102,7 @@ describe('RegisterGameForm', () => {
     const { container } = render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -112,6 +117,7 @@ describe('RegisterGameForm', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -137,6 +143,7 @@ describe('RegisterGameForm', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -161,6 +168,7 @@ describe('RegisterGameForm', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -168,7 +176,7 @@ describe('RegisterGameForm', () => {
 
     const selects = screen.getAllByRole('combobox')
     const scoreInputs = screen.getAllByRole('spinbutton')
-    const submitButton = screen.getByRole('button', { name: /register game/i })
+    const submitButton = screen.getByRole('button', { name: /record match/i })
 
     // Fill out the form
     await user.selectOptions(selects[0], '1') // Team 1 Attacker: Alice
@@ -189,18 +197,19 @@ describe('RegisterGameForm', () => {
     })
   })
 
-  test('displays register game button text', () => {
+  test('displays record match button text', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
     )
 
-    const buttons = screen.getAllByText('Register Game')
+    const buttons = screen.getAllByText('Record Match')
     expect(buttons).toHaveLength(2) // Title and button
-    expect(screen.getByRole('button', { name: /register game/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /record match/i })).toBeInTheDocument()
   })
 
   test('closes form when close button is clicked', async () => {
@@ -208,6 +217,7 @@ describe('RegisterGameForm', () => {
     const { container } = render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -227,6 +237,7 @@ describe('RegisterGameForm', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -243,12 +254,13 @@ describe('RegisterGameForm', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
     )
 
-    const submitButton = screen.getByRole('button', { name: /register game/i })
+    const submitButton = screen.getByRole('button', { name: /record match/i })
     expect(submitButton).toBeDisabled()
   })
 
@@ -257,6 +269,7 @@ describe('RegisterGameForm', () => {
     render(
       <RegisterGameForm
         players={mockPlayers}
+        matches={[]}
         recordMatch={mockRecordMatch}
         setShowRecordMatch={mockSetShowRecordMatch}
       />,
@@ -264,7 +277,7 @@ describe('RegisterGameForm', () => {
 
     const selects = screen.getAllByRole('combobox')
     const scoreInputs = screen.getAllByRole('spinbutton')
-    const submitButton = screen.getByRole('button', { name: /register game/i })
+    const submitButton = screen.getByRole('button', { name: /record match/i })
 
     // Fill all required fields
     await user.selectOptions(selects[0], '1')
