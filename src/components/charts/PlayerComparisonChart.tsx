@@ -86,20 +86,22 @@ export function PlayerComparisonChart({
           <p className="text-xs font-medium text-gray-900 mb-2">
             {label === 0 ? 'Starting Rankings' : `After Match #${label}`}
           </p>
-          {payload.map((entry: any, index: number) => {
-            const history = histories.find((h) => h.playerId === entry.dataKey)
-            if (!history) return null
+          {payload.map(
+            (entry: { dataKey: string; color: string; value: number }, _index: number) => {
+              const history = histories.find((h) => h.playerId === entry.dataKey)
+              if (!history) return null
 
-            return (
-              <div key={index} className="flex items-center gap-2 mb-1">
-                <span className="text-sm">{history.playerAvatar}</span>
-                <span className="text-xs text-gray-600">{history.playerName}:</span>
-                <span className="text-sm font-bold" style={{ color: entry.color }}>
-                  {entry.value} pts
-                </span>
-              </div>
-            )
-          })}
+              return (
+                <div key={entry.dataKey} className="flex items-center gap-2 mb-1">
+                  <span className="text-sm">{history.playerAvatar}</span>
+                  <span className="text-xs text-gray-600">{history.playerName}:</span>
+                  <span className="text-sm font-bold" style={{ color: entry.color }}>
+                    {entry.value} pts
+                  </span>
+                </div>
+              )
+            },
+          )}
         </div>
       )
     }
@@ -113,12 +115,12 @@ export function PlayerComparisonChart({
     if (!payload) return null
     return (
       <div className="flex flex-wrap justify-center gap-3 mt-4">
-        {payload.map((entry: any, index: number) => {
+        {payload.map((entry: { dataKey: string; color: string }, _index: number) => {
           const history = histories.find((h) => h.playerId === entry.dataKey)
           if (!history) return null
 
           return (
-            <div key={index} className="flex items-center gap-2">
+            <div key={entry.dataKey} className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
               <span className="text-sm">{history.playerAvatar}</span>
               <span className="text-xs text-gray-600">{history.playerName}</span>
@@ -150,13 +152,7 @@ export function PlayerComparisonChart({
             axisLine={{ stroke: '#e5e7eb' }}
             tickFormatter={(value) => (value === 0 ? 'Start' : `#${value}`)}
           />
-          <YAxis
-            domain={yDomain}
-            tick={{ fontSize: 12 }}
-            tickLine={false}
-            axisLine={{ stroke: '#e5e7eb' }}
-            width={45}
-          />
+          <YAxis domain={yDomain} tick={false} tickLine={false} axisLine={false} width={0} />
           <Tooltip content={renderCustomTooltip} />
           <Legend content={renderCustomLegend} />
           {histories.map((history, index) => (
