@@ -87,13 +87,18 @@ class MatchesService {
     const team1Ranking = (team1Player1.ranking + team1Player2.ranking) / 2
     const team2Ranking = (team2Player1.ranking + team2Player2.ranking) / 2
 
-    // Calculate new rankings using ELO system
+    // ELO Configuration - Asymmetric K-factors for slight inflation
+    const K_FACTOR_WINNER = 35 // Winners get more points (+9% vs standard K=32)
+    const K_FACTOR_LOSER = 29 // Losers lose fewer points (-9% vs standard K=32)
+    // Net result: ~3-8 points inflation per match while maintaining competitive balance
+
+    // Calculate new rankings using inflationary ELO system
     const calculateNewRanking = (
       playerRanking: number,
       opponentRanking: number,
       isWinner: boolean,
     ) => {
-      const K = 32 // K-factor for ranking calculation
+      const K = isWinner ? K_FACTOR_WINNER : K_FACTOR_LOSER
       const expectedScore = 1 / (1 + 10 ** ((opponentRanking - playerRanking) / 400))
       const actualScore = isWinner ? 1 : 0
       const newRanking = playerRanking + K * (actualScore - expectedScore)
