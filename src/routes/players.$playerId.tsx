@@ -632,18 +632,6 @@ function PlayerProfile() {
             </div>
           </div>
         </Card>
-
-        <Card className="p-4 bg-white/80 backdrop-blur-sm">
-          <div className="flex items-center space-x-3">
-            <Users className="w-5 h-5 text-gray-400" />
-            <div>
-              <p className="text-sm text-gray-500">Ranking Range</p>
-              <p className="text-lg font-semibold text-gray-900">
-                {playerStats.lowestRanking} - {playerStats.highestRanking}
-              </p>
-            </div>
-          </div>
-        </Card>
       </div>
 
       {/* Match History */}
