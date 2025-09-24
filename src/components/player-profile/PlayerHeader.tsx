@@ -102,7 +102,7 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
             Edit Profile
           </Button>
         )}
-{/* Owner badge removed for now */}
+        {/* Owner badge removed for now */}
       </div>
     </Card>
   )

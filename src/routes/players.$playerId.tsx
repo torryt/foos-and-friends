@@ -21,6 +21,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { PlayerComparisonChart } from '@/components/charts/PlayerComparisonChart'
 import { RankingChart } from '@/components/charts/RankingChart'
 import { PositionIcon } from '@/components/PositionIcon'
+import { PlayerRelationshipStats } from '@/components/player-profile/PlayerRelationshipStats'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -540,7 +541,7 @@ function PlayerProfile() {
       </Card>
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-4 bg-white/80 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -601,7 +602,10 @@ function PlayerProfile() {
             </div>
           </div>
         </Card>
+      </div>
 
+      {/* Additional Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-4 bg-white/80 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
@@ -619,10 +623,6 @@ function PlayerProfile() {
             </div>
           </div>
         </Card>
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-4 bg-white/80 backdrop-blur-sm">
           <div className="flex items-center space-x-3">
             <Calendar className="w-5 h-5 text-gray-400" />
@@ -633,6 +633,9 @@ function PlayerProfile() {
           </div>
         </Card>
       </div>
+
+      {/* Relationship Statistics */}
+      <PlayerRelationshipStats playerId={playerId} players={players} matches={matches} />
 
       {/* Match History */}
       <Card className="p-4 md:p-6 bg-white/80 backdrop-blur-sm">

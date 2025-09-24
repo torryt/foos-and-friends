@@ -21,7 +21,11 @@ interface PlayerPositionStatsProps {
 export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps) {
   const attackPercentage =
     positionStats.gamesAsAttacker + positionStats.gamesAsDefender > 0
-      ? Math.round((positionStats.gamesAsAttacker / (positionStats.gamesAsAttacker + positionStats.gamesAsDefender)) * 100)
+      ? Math.round(
+          (positionStats.gamesAsAttacker /
+            (positionStats.gamesAsAttacker + positionStats.gamesAsDefender)) *
+            100,
+        )
       : 50
   const defensePercentage = 100 - attackPercentage
 
