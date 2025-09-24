@@ -61,9 +61,10 @@ describe('PlayerRankings', () => {
     expect(screen.getByText('7W - 3L (10 total)')).toBeInTheDocument()
   })
 
-  test('calculates and displays win rate correctly', () => {
+  test('calculates and displays win rate correctly when sorted by ELO', () => {
     render(<PlayerRankings players={mockPlayers} />)
 
+    // When sorted by ELO (default), it shows win rate as secondary info
     // Alice: 7/10 = 70%
     expect(screen.getByText('70% win rate')).toBeInTheDocument()
 
