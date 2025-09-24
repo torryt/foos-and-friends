@@ -123,11 +123,6 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
 
   return (
     <div ref={scrollRef} className={cn('bg-white rounded-lg', containerClass, className)}>
-      {needsScroll && (
-        <p className="text-xs text-gray-500 px-2 pt-2">
-          ← Scroll left for match history. Showing all {allChartData.length - 1} matches.
-        </p>
-      )}
       <div
         style={{
           width: typeof chartWidth === 'number' ? `${chartWidth}px` : chartWidth,

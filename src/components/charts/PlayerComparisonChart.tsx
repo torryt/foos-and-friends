@@ -1,6 +1,6 @@
+import React from 'react'
 import {
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -36,6 +36,66 @@ export function PlayerComparisonChart({
   height = 300,
   className,
 }: PlayerComparisonChartProps) {
+  const [isMobile, setIsMobile] = React.useState(false)
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Find the maximum number of matches among all players
+  const maxMatches =
+    histories && histories.length > 0 ? Math.max(...histories.map((h) => h.data.length)) : 0
+
+  // Create unified chart data
+  const chartData =
+    histories && histories.length > 0
+      ? Array.from({ length: maxMatches + 1 }, (_, index) => {
+          const dataPoint: ChartDataPoint = {
+            matchNumber: index,
+          }
+
+          histories.forEach((history) => {
+            if (index === 0) {
+              // Starting point
+              dataPoint[history.playerId] = history.initialRanking
+            } else if (index - 1 < history.data.length) {
+              // Player has data for this match
+              dataPoint[history.playerId] = history.data[index - 1].ranking
+            } else {
+              // Player hasn't played this many matches, use their last known ranking
+              dataPoint[history.playerId] =
+                history.data[history.data.length - 1]?.ranking || history.currentRanking
+            }
+          })
+
+          return dataPoint
+        })
+      : []
+
+  // On mobile with > 10 matches, enable horizontal scrolling
+  const MOBILE_VISIBLE_POINTS = 10
+  const needsScroll = isMobile && chartData.length > MOBILE_VISIBLE_POINTS
+
+  // Calculate chart width for scrolling on mobile
+  // Each point needs ~60px width to be clearly visible
+  const POINT_WIDTH = 60
+  const chartWidth = needsScroll
+    ? Math.max(chartData.length * POINT_WIDTH, 600) // Minimum 600px width
+    : '100%'
+
+  // Scroll to the right (most recent) on mount when scrolling is needed
+  React.useEffect(() => {
+    if (needsScroll && scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth - scrollRef.current.clientWidth
+    }
+  }, [needsScroll])
+
   if (!histories || histories.length === 0) {
     return (
       <div
@@ -49,32 +109,6 @@ export function PlayerComparisonChart({
       </div>
     )
   }
-
-  // Find the maximum number of matches among all players
-  const maxMatches = Math.max(...histories.map((h) => h.data.length))
-
-  // Create unified chart data
-  const chartData = Array.from({ length: maxMatches + 1 }, (_, index) => {
-    const dataPoint: ChartDataPoint = {
-      matchNumber: index,
-    }
-
-    histories.forEach((history) => {
-      if (index === 0) {
-        // Starting point
-        dataPoint[history.playerId] = history.initialRanking
-      } else if (index - 1 < history.data.length) {
-        // Player has data for this match
-        dataPoint[history.playerId] = history.data[index - 1].ranking
-      } else {
-        // Player hasn't played this many matches, use their last known ranking
-        dataPoint[history.playerId] =
-          history.data[history.data.length - 1]?.ranking || history.currentRanking
-      }
-    })
-
-    return dataPoint
-  })
 
   // Custom tooltip component
   // biome-ignore lint/suspicious/noExplicitAny: Recharts requires any for custom components
@@ -140,36 +174,64 @@ export function PlayerComparisonChart({
   const padding = Math.max(50, (maxRanking - minRanking) * 0.1)
   const yDomain = [Math.max(800, minRanking - padding), Math.min(2400, maxRanking + padding)]
 
+  const containerClass = needsScroll
+    ? 'overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'
+    : ''
+
   return (
     <div className={cn('bg-white rounded-lg p-4', className)}>
-      <ResponsiveContainer width="100%" height={height}>
-        <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-          <XAxis
-            dataKey="matchNumber"
-            tick={{ fontSize: 12 }}
-            tickLine={false}
-            axisLine={{ stroke: '#e5e7eb' }}
-            tickFormatter={(value) => (value === 0 ? 'Start' : `#${value}`)}
-          />
-          <YAxis domain={yDomain} tick={false} tickLine={false} axisLine={false} width={0} />
-          <Tooltip content={renderCustomTooltip} />
-          <Legend content={renderCustomLegend} />
-          {histories.map((history, index) => (
-            <Line
-              key={history.playerId}
-              type="monotone"
-              dataKey={history.playerId}
-              stroke={CHART_COLORS[index % CHART_COLORS.length]}
-              strokeWidth={2}
-              dot={{ r: 3, strokeWidth: 1, fill: '#fff' }}
-              activeDot={{ r: 5 }}
-              name={history.playerName}
-              animationDuration={500}
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+      {/* Legend stays outside scrollable area */}
+      <div className="mb-4">
+        {renderCustomLegend({
+          payload: histories.map((history, index) => ({
+            dataKey: history.playerId,
+            color: CHART_COLORS[index % CHART_COLORS.length],
+          })),
+        })}
+      </div>
+
+      <div ref={scrollRef} className={cn(containerClass)}>
+        {needsScroll && (
+          <p className="text-xs text-gray-500 mb-2">
+            ← Scroll left for match history. Showing all {chartData.length - 1} matches.
+          </p>
+        )}
+        <div
+          style={{
+            width: typeof chartWidth === 'number' ? `${chartWidth}px` : chartWidth,
+            minWidth: '100%',
+          }}
+        >
+          <ResponsiveContainer width="100%" height={height}>
+            <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <XAxis
+                dataKey="matchNumber"
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                axisLine={{ stroke: '#e5e7eb' }}
+                tickFormatter={(value) => (value === 0 ? 'Start' : `#${value}`)}
+              />
+              <YAxis domain={yDomain} tick={false} tickLine={false} axisLine={false} width={0} />
+              <Tooltip content={renderCustomTooltip} />
+              {/* Remove Legend from inside chart since it's now outside */}
+              {histories.map((history, index) => (
+                <Line
+                  key={history.playerId}
+                  type="monotone"
+                  dataKey={history.playerId}
+                  stroke={CHART_COLORS[index % CHART_COLORS.length]}
+                  strokeWidth={2}
+                  dot={{ r: 3, strokeWidth: 1, fill: '#fff' }}
+                  activeDot={{ r: 5 }}
+                  name={history.playerName}
+                  animationDuration={500}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   )
 }

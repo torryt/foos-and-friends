@@ -45,63 +45,84 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
           : 'text-red-700 bg-red-50'
 
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-      <div className="flex items-center gap-3">
+    <div className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+      <div className="flex items-start gap-3">
         {rank && (
-          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+          <div className="w-6 h-6 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
             {rank}
           </div>
         )}
-        <span className="text-2xl">{relationship.playerAvatar}</span>
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-900">{relationship.playerName}</span>
-            {badgeInfo && (
+        <span className="text-2xl flex-shrink-0">{relationship.playerAvatar}</span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-medium text-gray-900 truncate">
+                  {relationship.playerName}
+                </span>
+                {badgeInfo && (
+                  <div
+                    className={cn(
+                      'px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 flex-shrink-0',
+                      badgeInfo.color,
+                    )}
+                  >
+                    <badgeInfo.icon className="w-3 h-3" />
+                    <span>{badgeInfo.text}</span>
+                  </div>
+                )}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="flex-shrink-0">{relationship.gamesPlayed} games</span>
+                  <span className="flex-shrink-0">
+                    {relationship.wins}W-{relationship.losses}L
+                  </span>
+                  {relationship.goalDifference !== 0 && (
+                    <span
+                      className={cn(
+                        'flex-shrink-0',
+                        relationship.goalDifference > 0 ? 'text-green-600' : 'text-red-600',
+                      )}
+                    >
+                      {relationship.goalDifference > 0 ? '+' : ''}
+                      {relationship.goalDifference}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: Form and Win Rate */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Recent form - hide on very small screens */}
+              {relationship.recentForm.length > 0 && (
+                <div className="hidden sm:flex gap-1">
+                  {relationship.recentForm.map((result, index) => (
+                    <span
+                      key={`${relationship.playerId}-form-${index}`}
+                      className={cn(
+                        'w-4 h-4 sm:w-5 sm:h-5 rounded-full text-xs font-bold flex items-center justify-center text-white',
+                        result === 'W' ? 'bg-green-400' : 'bg-red-400',
+                      )}
+                    >
+                      {result}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Win rate */}
               <div
                 className={cn(
-                  'px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1',
-                  badgeInfo.color,
+                  'px-2 py-1 sm:px-3 rounded-full text-sm font-bold flex-shrink-0',
+                  winRateColor,
                 )}
               >
-                <badgeInfo.icon className="w-3 h-3" />
-                {badgeInfo.text}
+                {relationship.winRate}%
               </div>
-            )}
+            </div>
           </div>
-          <div className="text-sm text-gray-500">
-            {relationship.gamesPlayed} games • {relationship.wins}W-{relationship.losses}L
-            {relationship.goalDifference !== 0 && (
-              <span className={relationship.goalDifference > 0 ? 'text-green-600' : 'text-red-600'}>
-                {' • '}
-                {relationship.goalDifference > 0 ? '+' : ''}
-                {relationship.goalDifference} goal diff
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3">
-        {/* Recent form */}
-        {relationship.recentForm.length > 0 && (
-          <div className="flex gap-1">
-            {relationship.recentForm.map((result, index) => (
-              <span
-                key={`${relationship.playerId}-form-${index}`}
-                className={cn(
-                  'w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center text-white',
-                  result === 'W' ? 'bg-green-400' : 'bg-red-400',
-                )}
-              >
-                {result}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Win rate */}
-        <div className={cn('px-3 py-1 rounded-full text-sm font-bold', winRateColor)}>
-          {relationship.winRate}%
         </div>
       </div>
     </div>
@@ -280,22 +301,30 @@ export function PlayerRelationshipStats({
       {/* Summary stats at bottom */}
       {(relationshipData.topTeammate || relationshipData.biggestRival) && (
         <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0 text-sm">
             {relationshipData.topTeammate && (
               <div className="flex items-center gap-2 text-green-600">
-                <Crown className="w-4 h-4" />
-                <span>
-                  Best with <strong>{relationshipData.topTeammate.playerName}</strong>:{' '}
-                  {relationshipData.topTeammate.winRate}% win rate
+                <Crown className="w-4 h-4 flex-shrink-0" />
+                <span className="min-w-0">
+                  <span className="hidden sm:inline">Best with </span>
+                  <strong className="truncate">{relationshipData.topTeammate.playerName}</strong>
+                  <span className="hidden sm:inline">
+                    : {relationshipData.topTeammate.winRate}% win rate
+                  </span>
+                  <span className="sm:hidden">: {relationshipData.topTeammate.winRate}%</span>
                 </span>
               </div>
             )}
             {relationshipData.biggestRival && (
               <div className="flex items-center gap-2 text-purple-600">
-                <Shield className="w-4 h-4" />
-                <span>
-                  Most played vs <strong>{relationshipData.biggestRival.playerName}</strong>:{' '}
-                  {relationshipData.biggestRival.gamesPlayed} games
+                <Shield className="w-4 h-4 flex-shrink-0" />
+                <span className="min-w-0">
+                  <span className="hidden sm:inline">Most played vs </span>
+                  <strong className="truncate">{relationshipData.biggestRival.playerName}</strong>
+                  <span className="hidden sm:inline">
+                    : {relationshipData.biggestRival.gamesPlayed} games
+                  </span>
+                  <span className="sm:hidden">: {relationshipData.biggestRival.gamesPlayed}</span>
                 </span>
               </div>
             )}
