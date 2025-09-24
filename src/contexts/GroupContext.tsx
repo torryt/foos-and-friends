@@ -140,19 +140,30 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     try {
       const result = await groupService.createGroup(name, description)
 
-      if (result.success) {
-        // Refresh groups to include the new one
-        await refreshGroups()
-
-        // Switch to the new group if we have the ID
-        if (result.groupId) {
-          // Add a small delay to ensure groups are updated
-          setTimeout(() => {
-            if (result.groupId) {
-              switchGroup(result.groupId)
-            }
-          }, 100)
+      if (result.success && result.groupId) {
+        // Immediately set the new group as current to avoid UI issues
+        // This ensures smooth transition from FirstTimeUserScreen to the main app
+        const newGroup: FriendGroup = {
+          id: result.groupId,
+          name: result.name || name,
+          description: description || null,
+          inviteCode: result.inviteCode || '',
+          ownerId: user.id,
+          createdBy: user.id,
+          isActive: true,
+          maxMembers: 50,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isOwner: true,
+          playerCount: 0,
         }
+
+        // Set the new group as current immediately
+        setCurrentGroup(newGroup)
+        setStoredGroupId(user.id, result.groupId)
+
+        // Then refresh to get the complete group list
+        await refreshGroups()
 
         return { success: true }
       } else {
@@ -177,19 +188,30 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     try {
       const result = await groupService.joinGroupByInvite(inviteCode, user.id)
 
-      if (result.success) {
-        // Refresh groups to include the joined group
-        await refreshGroups()
-
-        // Switch to the joined group if we have the ID
-        if (result.groupId) {
-          // Add a small delay to ensure groups are updated
-          setTimeout(() => {
-            if (result.groupId) {
-              switchGroup(result.groupId)
-            }
-          }, 100)
+      if (result.success && result.groupId) {
+        // Immediately set the joined group as current to avoid UI issues
+        // This ensures smooth transition from FirstTimeUserScreen to the main app
+        const joinedGroup: FriendGroup = {
+          id: result.groupId,
+          name: result.groupName || '',
+          description: null,
+          inviteCode: inviteCode,
+          ownerId: '', // Will be updated after refresh
+          createdBy: '',
+          isActive: true,
+          maxMembers: 50,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          isOwner: false,
+          playerCount: 0,
         }
+
+        // Set the joined group as current immediately
+        setCurrentGroup(joinedGroup)
+        setStoredGroupId(user.id, result.groupId)
+
+        // Then refresh to get the complete group list with full details
+        await refreshGroups()
 
         return { success: true }
       } else {
