@@ -127,7 +127,6 @@ npm run format          # Format code with Biome
 - **Magic Link Authentication** - Passwordless login via email
 - **Private Friend Groups** - Data isolation using Row Level Security (RLS)
 - **Invite System** - Shareable group codes for joining
-- **Mock Mode** - Complete offline development experience
 
 ### Data Flow
 1. **Authentication**: Magic link → Supabase session → AuthContext
@@ -319,7 +318,6 @@ The ELO system ensures that rankings accurately reflect player skill while maint
 - [x] Match history with win/loss tracking
 - [x] Responsive UI with Tailwind CSS
 - [x] Complete test coverage for core functionality
-- [x] Mock mode for development without backend
 - [x] Database schema with Row Level Security policies
 
 ### 🚧 Known Issues
@@ -338,7 +336,7 @@ The ELO system ensures that rankings accurately reflect player skill while maint
 ### Testing
 - Run `npm run test:run` before committing
 - Tests cover components, hooks, and integration scenarios
-- Mock utilities available in `src/test/test-utils.tsx`
+- Test utilities available in `src/test/test-utils.tsx`
 
 ### Code Style
 - Biome handles formatting and linting

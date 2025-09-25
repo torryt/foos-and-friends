@@ -4,11 +4,10 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-// Create a dummy client for tests and builds without env vars
-// The app will use mock mode when these are not configured
+// Create Supabase client (returns empty object for tests/builds without env vars)
 export const supabase =
   !supabaseUrl || !supabaseAnonKey
-    ? ({} as ReturnType<typeof createClient>) // Dummy client for tests/builds
+    ? ({} as ReturnType<typeof createClient>) // Empty client for tests/builds
     : createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
           autoRefreshToken: true,
