@@ -62,7 +62,8 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                   to="/players/$playerId"
                   params={{ playerId: relationship.playerId }}
                   onClick={scrollToTop}
-                  className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors"
+                  className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
+                  aria-label={`View profile for ${relationship.playerName}`}
                 >
                   {relationship.playerName}
                 </Link>
