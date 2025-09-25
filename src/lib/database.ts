@@ -94,4 +94,14 @@ export interface Database {
       team2Player2PostRanking: number
     },
   ): Promise<DatabaseResult<Match>>
+  updateMatch(
+    matchId: string,
+    team1Player1Id: string,
+    team1Player2Id: string,
+    team2Player1Id: string,
+    team2Player2Id: string,
+    score1: number,
+    score2: number,
+  ): Promise<DatabaseResult<Match>>
+  deleteMatch(matchId: string): Promise<{ success?: boolean; error?: string }>
 }

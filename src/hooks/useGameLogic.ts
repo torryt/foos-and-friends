@@ -198,6 +198,86 @@ export const useGameLogic = () => {
     }
   }
 
+  const updateMatch = async (
+    matchId: string,
+    updates: {
+      team1Player1Id: string
+      team1Player2Id: string
+      team2Player1Id: string
+      team2Player2Id: string
+      score1: number
+      score2: number
+    },
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!currentGroup || !user) {
+      return { success: false, error: 'No group selected or user not authenticated' }
+    }
+
+    try {
+      const result = await matchesService.updateMatch(
+        matchId,
+        updates.team1Player1Id,
+        updates.team1Player2Id,
+        updates.team2Player1Id,
+        updates.team2Player2Id,
+        updates.score1,
+        updates.score2,
+      )
+
+      if (result.error) {
+        return { success: false, error: result.error }
+      }
+
+      // Refresh matches and players to reflect changes
+      const matchesResult = await matchesService.getMatchesByGroup(currentGroup.id)
+      if (matchesResult.data) {
+        setMatches(matchesResult.data)
+      }
+      const playersResult = await playersService.getPlayersByGroup(currentGroup.id)
+      if (playersResult.data) {
+        setPlayers(playersResult.data)
+      }
+
+      return { success: true }
+    } catch (err) {
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to update match',
+      }
+    }
+  }
+
+  const deleteMatch = async (matchId: string): Promise<{ success: boolean; error?: string }> => {
+    if (!currentGroup || !user) {
+      return { success: false, error: 'No group selected or user not authenticated' }
+    }
+
+    try {
+      const result = await matchesService.deleteMatch(matchId)
+
+      if (result.error) {
+        return { success: false, error: result.error }
+      }
+
+      // Refresh matches and players to reflect changes
+      const matchesResult = await matchesService.getMatchesByGroup(currentGroup.id)
+      if (matchesResult.data) {
+        setMatches(matchesResult.data)
+      }
+      const playersResult = await playersService.getPlayersByGroup(currentGroup.id)
+      if (playersResult.data) {
+        setPlayers(playersResult.data)
+      }
+
+      return { success: true }
+    } catch (err) {
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : 'Failed to delete match',
+      }
+    }
+  }
+
   return {
     players,
     matches,
@@ -207,5 +287,7 @@ export const useGameLogic = () => {
     recordMatch,
     updatePlayer,
     deletePlayer,
+    updateMatch,
+    deleteMatch,
   }
 }

@@ -340,6 +340,22 @@ export class FakeDatabase implements Database {
     return { data: null, error: 'Not implemented in fake' }
   }
 
+  async updateMatch(
+    _matchId: string,
+    _team1Player1Id: string,
+    _team1Player2Id: string,
+    _team2Player1Id: string,
+    _team2Player2Id: string,
+    _score1: number,
+    _score2: number,
+  ): Promise<DatabaseResult<Match>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async deleteMatch(_matchId: string): Promise<{ success?: boolean; error?: string }> {
+    return { error: 'Not implemented in fake' }
+  }
+
   // Test helper methods
   reset(): void {
     this.groups = []

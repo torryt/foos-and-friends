@@ -186,6 +186,215 @@ class MatchesService {
     const result = await this.db.getMatchById(matchId)
     return { data: result.data, error: result.error ?? undefined }
   }
+
+  // Update a match
+  async updateMatch(
+    matchId: string,
+    team1Player1Id: string,
+    team1Player2Id: string,
+    team2Player1Id: string,
+    team2Player2Id: string,
+    score1: number,
+    score2: number,
+  ): Promise<{ data?: Match; error?: string }> {
+    // Validate that all players are different
+    const playerIds = [team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id]
+    if (new Set(playerIds).size !== 4) {
+      return { error: 'All players must be different' }
+    }
+
+    // Update the match in the database
+    const result = await this.db.updateMatch(
+      matchId,
+      team1Player1Id,
+      team1Player2Id,
+      team2Player1Id,
+      team2Player2Id,
+      score1,
+      score2,
+    )
+
+    if (result.error) {
+      return { error: result.error }
+    }
+
+    // Trigger recalculation
+    const match = result.data
+    if (match && match.groupId) {
+      const matchDateTime = `${match.date}T${match.time}:00Z`
+      const recalcResult = await this.recalculateFromMatch(match.groupId, matchDateTime)
+      if (recalcResult.error) {
+        return { error: recalcResult.error }
+      }
+    }
+
+    return { data: result.data ?? undefined, error: result.error ?? undefined }
+  }
+
+  // Delete a match
+  async deleteMatch(matchId: string): Promise<{ success?: boolean; error?: string }> {
+    // Get the match first to know when it was played
+    const matchResult = await this.db.getMatchById(matchId)
+    if (matchResult.error || !matchResult.data) {
+      return { error: matchResult.error || 'Match not found' }
+    }
+
+    const match = matchResult.data
+
+    // Delete the match
+    const deleteResult = await this.db.deleteMatch(matchId)
+    if (deleteResult.error) {
+      return { error: deleteResult.error }
+    }
+
+    // Trigger recalculation from this point forward
+    if (match.groupId) {
+      const matchDateTime = `${match.date}T${match.time}:00Z`
+      const recalcResult = await this.recalculateFromMatch(match.groupId, matchDateTime)
+      if (recalcResult.error) {
+        return { error: recalcResult.error }
+      }
+    }
+
+    return { success: true }
+  }
+
+  // Recalculate all ELO scores from a specific match forward
+  async recalculateFromMatch(
+    groupId: string,
+    fromDate: string,
+  ): Promise<{ success?: boolean; error?: string }> {
+    // Get all matches in the group
+    const matchesResult = await this.db.getMatchesByGroup(groupId)
+    if (matchesResult.error) {
+      return { error: matchesResult.error }
+    }
+
+    // Sort matches chronologically
+    const matches = matchesResult.data.sort((a, b) => {
+      const dateA = new Date(`${a.date}T${a.time}:00Z`)
+      const dateB = new Date(`${b.date}T${b.time}:00Z`)
+      return dateA.getTime() - dateB.getTime()
+    })
+
+    // Find the index of the match from which to start recalculating
+    const startIndex = matches.findIndex((m) => {
+      const matchDate = new Date(`${m.date}T${m.time}:00Z`)
+      return matchDate >= new Date(fromDate)
+    })
+    if (startIndex === -1) {
+      return { success: true } // No matches to recalculate
+    }
+
+    // Get all players in the group
+    const playersResult = await this.getPlayersByGroup(groupId)
+    if (!playersResult.data) {
+      return { error: 'Failed to get players' }
+    }
+
+    // Reset all players to initial state (1200 ELO, 0 matches)
+    const playerStats = new Map<
+      string,
+      {
+        ranking: number
+        matchesPlayed: number
+        wins: number
+        losses: number
+      }
+    >()
+
+    playersResult.data.forEach((player) => {
+      playerStats.set(player.id, {
+        ranking: 1200,
+        matchesPlayed: 0,
+        wins: 0,
+        losses: 0,
+      })
+    })
+
+    // Recalculate all matches from the beginning
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i]
+
+      // Get current stats for all players in the match
+      const team1Player1Stats = playerStats.get(match.team1[0].id)
+      const team1Player2Stats = playerStats.get(match.team1[1].id)
+      const team2Player1Stats = playerStats.get(match.team2[0].id)
+      const team2Player2Stats = playerStats.get(match.team2[1].id)
+
+      if (!team1Player1Stats || !team1Player2Stats || !team2Player1Stats || !team2Player2Stats) {
+        continue // Skip if any player not found
+      }
+
+      const team1Won = match.score1 > match.score2
+      const team1Ranking = (team1Player1Stats.ranking + team1Player2Stats.ranking) / 2
+      const team2Ranking = (team2Player1Stats.ranking + team2Player2Stats.ranking) / 2
+
+      // Calculate new rankings using the same ELO system
+      const K_FACTOR_WINNER = 35
+      const K_FACTOR_LOSER = 29
+
+      const calculateNewRanking = (
+        playerRanking: number,
+        opponentRanking: number,
+        isWinner: boolean,
+      ) => {
+        const K = isWinner ? K_FACTOR_WINNER : K_FACTOR_LOSER
+        const expectedScore = 1 / (1 + 10 ** ((opponentRanking - playerRanking) / 400))
+        const actualScore = isWinner ? 1 : 0
+        const newRanking = playerRanking + K * (actualScore - expectedScore)
+        return Math.max(800, Math.min(2400, Math.round(newRanking)))
+      }
+
+      // Update player stats
+      playerStats.set(match.team1[0].id, {
+        ranking: calculateNewRanking(team1Player1Stats.ranking, team2Ranking, team1Won),
+        matchesPlayed: team1Player1Stats.matchesPlayed + 1,
+        wins: team1Player1Stats.wins + (team1Won ? 1 : 0),
+        losses: team1Player1Stats.losses + (team1Won ? 0 : 1),
+      })
+
+      playerStats.set(match.team1[1].id, {
+        ranking: calculateNewRanking(team1Player2Stats.ranking, team2Ranking, team1Won),
+        matchesPlayed: team1Player2Stats.matchesPlayed + 1,
+        wins: team1Player2Stats.wins + (team1Won ? 1 : 0),
+        losses: team1Player2Stats.losses + (team1Won ? 0 : 1),
+      })
+
+      playerStats.set(match.team2[0].id, {
+        ranking: calculateNewRanking(team2Player1Stats.ranking, team1Ranking, !team1Won),
+        matchesPlayed: team2Player1Stats.matchesPlayed + 1,
+        wins: team2Player1Stats.wins + (!team1Won ? 1 : 0),
+        losses: team2Player1Stats.losses + (!team1Won ? 0 : 1),
+      })
+
+      playerStats.set(match.team2[1].id, {
+        ranking: calculateNewRanking(team2Player2Stats.ranking, team1Ranking, !team1Won),
+        matchesPlayed: team2Player2Stats.matchesPlayed + 1,
+        wins: team2Player2Stats.wins + (!team1Won ? 1 : 0),
+        losses: team2Player2Stats.losses + (!team1Won ? 0 : 1),
+      })
+    }
+
+    // Update all players with their recalculated stats
+    const playerUpdates = Array.from(playerStats.entries()).map(([id, stats]) => ({
+      id,
+      ...stats,
+    }))
+
+    const updateResult = await this.playersService.updateMultiplePlayers(playerUpdates)
+    if (updateResult.error) {
+      return { error: updateResult.error }
+    }
+
+    return { success: true }
+  }
+
+  // Helper method for getPlayersByGroup
+  private async getPlayersByGroup(groupId: string) {
+    const { playersService } = await import('./playersService')
+    return playersService.getPlayersByGroup(groupId)
+  }
 }
 
 // Create a simple adapter to avoid circular dependency
@@ -205,6 +414,10 @@ const playersServiceAdapter = {
   ) {
     const { playersService } = await import('./playersService')
     return playersService.updateMultiplePlayers(updates)
+  },
+  async getPlayersByGroup(groupId: string) {
+    const { playersService } = await import('./playersService')
+    return playersService.getPlayersByGroup(groupId)
   },
 }
 
