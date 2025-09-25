@@ -33,23 +33,13 @@ const AuthModeSelector = ({ mode, onModeChange }: AuthModeProps) => {
       >
         Sign Up
       </button>
-      <button
-        onClick={() => onModeChange('magic-link')}
-        className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-          mode === 'magic-link'
-            ? 'bg-white text-slate-900 shadow-sm'
-            : 'text-slate-600 hover:text-slate-900'
-        }`}
-        type="button"
-      >
-        Magic Link
-      </button>
     </div>
   )
 }
 
 export const AuthForm = () => {
-  const [mode, setMode] = useState<AuthMode>('signin')
+  const [mode, setMode] = useState<AuthMode>('magic-link')
+  const [showPasswordAuth, setShowPasswordAuth] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -414,12 +404,61 @@ export const AuthForm = () => {
     <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Welcome to Foos & Friends</h2>
-        <p className="text-gray-600 mt-2">Choose your preferred sign-in method</p>
+        <p className="text-gray-600 mt-2">
+          {showPasswordAuth
+            ? 'Sign in with email and password'
+            : 'Sign in with a secure magic link'}
+        </p>
       </div>
 
-      <AuthModeSelector mode={mode} onModeChange={setMode} />
-
-      {mode === 'magic-link' ? renderMagicLinkForm() : renderPasswordForm()}
+      {showPasswordAuth ? (
+        <>
+          <AuthModeSelector mode={mode} onModeChange={setMode} />
+          {renderPasswordForm()}
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setShowPasswordAuth(false)
+                setMode('magic-link')
+                setPassword('')
+                setConfirmPassword('')
+                setError('')
+                setMessage('')
+              }}
+              className="text-sm text-blue-600 hover:text-blue-500"
+            >
+              ← Back to magic link
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          {renderMagicLinkForm()}
+          <div className="mt-6 text-center">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">or</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowPasswordAuth(true)
+                setMode('signin')
+                setError('')
+                setMessage('')
+              }}
+              className="mt-4 text-sm text-gray-600 hover:text-gray-900 underline"
+            >
+              Sign in with password
+            </button>
+          </div>
+        </>
+      )}
 
       {message && (
         <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">

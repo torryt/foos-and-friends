@@ -112,12 +112,35 @@ export const useAuth = () => {
     password: string,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      // First, try to sign up
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
 
       if (error) {
+        // If user already exists, they might have a magic link account
+        // Try to sign them in and update their password
+        if (error.message.includes('User already registered')) {
+          // Try to sign in with magic link first to check if account exists
+          const { error: linkError } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+              shouldCreateUser: false,
+            },
+          })
+
+          if (!linkError) {
+            return {
+              success: false,
+              error:
+                'An account with this email already exists. Please sign in with magic link and then add a password from settings.',
+            }
+          }
+
+          // If magic link also fails, show original error
+          return { success: false, error: error.message }
+        }
         return { success: false, error: error.message }
       }
 
@@ -203,20 +226,22 @@ export const useAuth = () => {
 
   const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      // For users who have magic link accounts, this will add a password to their account
+      // For users with password accounts, this will reset their password
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       })
 
       if (error) {
-        return { success: false, error: error.message }
+        // Supabase might return an error if the user doesn't exist
+        // But we don't want to reveal that for security reasons
+        return { success: true }
       }
 
       return { success: true }
     } catch (_err) {
-      return {
-        success: false,
-        error: _err instanceof Error ? _err.message : 'Failed to send reset email',
-      }
+      // Don't reveal errors for security reasons
+      return { success: true }
     }
   }
 

@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MatchesRoute = MatchesRouteImport.update({
   id: '/matches',
   path: '/matches',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/invite': typeof InviteRoute
   '/matches': typeof MatchesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/invite': typeof InviteRoute
   '/matches': typeof MatchesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
 }
 export interface FileRoutesById {
@@ -52,25 +60,45 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/invite': typeof InviteRoute
   '/matches': typeof MatchesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/invite' | '/matches' | '/players/$playerId'
+  fullPaths:
+    | '/'
+    | '/invite'
+    | '/matches'
+    | '/reset-password'
+    | '/players/$playerId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/invite' | '/matches' | '/players/$playerId'
-  id: '__root__' | '/' | '/invite' | '/matches' | '/players/$playerId'
+  to: '/' | '/invite' | '/matches' | '/reset-password' | '/players/$playerId'
+  id:
+    | '__root__'
+    | '/'
+    | '/invite'
+    | '/matches'
+    | '/reset-password'
+    | '/players/$playerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InviteRoute: typeof InviteRoute
   MatchesRoute: typeof MatchesRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   PlayersPlayerIdRoute: typeof PlayersPlayerIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/matches': {
       id: '/matches'
       path: '/matches'
@@ -106,6 +134,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InviteRoute: InviteRoute,
   MatchesRoute: MatchesRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   PlayersPlayerIdRoute: PlayersPlayerIdRoute,
 }
 export const routeTree = rootRouteImport
