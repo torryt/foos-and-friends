@@ -231,7 +231,7 @@ const MatchHistory = ({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 items-center">
+                <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
                   <div className="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-2 rounded-lg border border-blue-200/50">
                     <div className="font-bold text-blue-800 mb-1 text-xs">Team 1</div>
                     <div className="space-y-1">
@@ -269,7 +269,7 @@ const MatchHistory = ({
                     </div>
                   </div>
 
-                  <div className="text-center">
+                  <div className="text-center order-first sm:order-none">
                     <div
                       className={`text-2xl font-bold mb-1 ${
                         match.score1 > match.score2
