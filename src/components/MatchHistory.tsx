@@ -1,4 +1,14 @@
-import { Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
+import {
+  Clock,
+  Edit2,
+  Filter,
+  Plus,
+  Target,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+  X,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PositionIcon } from '@/components/PositionIcon'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -11,6 +21,8 @@ interface MatchHistoryProps {
   onRecordMatch: () => void
   initialSelectedPlayer?: string
   onPlayerClick?: (playerId: string) => void
+  onEditMatch?: (match: Match) => void
+  onDeleteMatch?: (matchId: string) => void
 }
 
 interface PlayerWithStatsProps {
@@ -94,6 +106,8 @@ const MatchHistory = ({
   onRecordMatch,
   initialSelectedPlayer,
   onPlayerClick,
+  onEditMatch,
+  onDeleteMatch,
 }: MatchHistoryProps) => {
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(initialSelectedPlayer || null)
   const [showPlayerFilter, setShowPlayerFilter] = useState(false)
@@ -226,9 +240,31 @@ const MatchHistory = ({
                     <Clock size={12} />
                     {match.date} at {match.time}
                   </div>
-                  <span className="bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800 px-2 py-1 rounded-full text-xs font-bold">
-                    Completed
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {onEditMatch && (
+                      <button
+                        type="button"
+                        onClick={() => onEditMatch(match)}
+                        className="p-1 rounded hover:bg-blue-100 text-blue-600 transition-colors"
+                        title="Edit match"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                    )}
+                    {onDeleteMatch && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteMatch(match.id)}
+                        className="p-1 rounded hover:bg-red-100 text-red-600 transition-colors"
+                        title="Delete match"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                    <span className="bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800 px-2 py-1 rounded-full text-xs font-bold ml-1">
+                      Completed
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">

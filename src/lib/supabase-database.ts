@@ -625,6 +625,70 @@ export class SupabaseDatabase implements Database {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to record match' }
     }
   }
+
+  async updateMatch(
+    matchId: string,
+    team1Player1Id: string,
+    team1Player2Id: string,
+    team2Player1Id: string,
+    team2Player2Id: string,
+    score1: number,
+    score2: number,
+  ): Promise<DatabaseResult<Match>> {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return { data: null, error: 'Not authenticated' }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('matches')
+        .update({
+          team1_player1_id: team1Player1Id,
+          team1_player2_id: team1Player2Id,
+          team2_player1_id: team2Player1Id,
+          team2_player2_id: team2Player2Id,
+          team1_score: score1,
+          team2_score: score2,
+        })
+        .eq('id', matchId)
+        .select()
+        .single()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      // Get the match with player data
+      const matchResult = await this.getMatchById(data.id)
+      return matchResult
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to update match' }
+    }
+  }
+
+  async deleteMatch(matchId: string): Promise<{ success?: boolean; error?: string }> {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return { error: 'Not authenticated' }
+    }
+
+    try {
+      const { error } = await supabase.from('matches').delete().eq('id', matchId)
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return { success: true }
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'Failed to delete match' }
+    }
+  }
 }
 
 // Create the default database instance
