@@ -118,11 +118,17 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
   const yDomain = [Math.max(800, minRanking - padding), Math.min(2400, maxRanking + padding)]
 
   const containerClass = needsScroll
-    ? 'overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'
+    ? 'overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 -webkit-overflow-scrolling-touch'
     : ''
 
   return (
-    <div ref={scrollRef} className={cn('bg-white rounded-lg', containerClass, className)}>
+    <div
+      ref={scrollRef}
+      className={cn('bg-white rounded-lg', containerClass, className)}
+      style={
+        needsScroll ? { WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain' } : {}
+      }
+    >
       <div
         style={{
           width: typeof chartWidth === 'number' ? `${chartWidth}px` : chartWidth,

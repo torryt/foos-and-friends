@@ -175,7 +175,7 @@ export function PlayerComparisonChart({
   const yDomain = [Math.max(800, minRanking - padding), Math.min(2400, maxRanking + padding)]
 
   const containerClass = needsScroll
-    ? 'overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'
+    ? 'overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 -webkit-overflow-scrolling-touch'
     : ''
 
   return (
@@ -190,7 +190,13 @@ export function PlayerComparisonChart({
         })}
       </div>
 
-      <div ref={scrollRef} className={cn(containerClass)}>
+      <div
+        ref={scrollRef}
+        className={cn(containerClass)}
+        style={
+          needsScroll ? { WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain' } : {}
+        }
+      >
         {needsScroll && (
           <p className="text-xs text-gray-500 mb-2">
             ← Scroll left for match history. Showing all {chartData.length - 1} matches.
