@@ -8,6 +8,15 @@ vi.mock('@/hooks/useRelationshipStats', () => ({
   useRelationshipStats: vi.fn(),
 }))
 
+// Mock TanStack Router
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, to, params, onClick, className }: any) => (
+    <a href={`${to}/${params?.playerId || ''}`} onClick={onClick} className={className}>
+      {children}
+    </a>
+  ),
+}))
+
 const mockPlayers: Player[] = [
   {
     id: 'player1',

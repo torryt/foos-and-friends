@@ -30,7 +30,7 @@ import { AVAILABLE_AVATARS } from '@/constants/avatars'
 import { useGameLogic } from '@/hooks/useGameLogic'
 import { usePositionStats } from '@/hooks/usePositionStats'
 import { useRankingHistory } from '@/hooks/useRankingHistory'
-import { cn } from '@/lib/utils'
+import { cn, scrollToTop } from '@/lib/utils'
 
 export const Route = createFileRoute('/players/$playerId')({
   component: PlayerProfile,
@@ -62,7 +62,7 @@ function PlayerProfile() {
   useEffect(() => {
     // Explicitly using playerId to track navigation between different players
     if (playerId) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      scrollToTop()
     }
   }, [playerId])
 
@@ -709,6 +709,7 @@ function PlayerProfile() {
                             <Link
                               to="/players/$playerId"
                               params={{ playerId: player.id }}
+                              onClick={scrollToTop}
                               className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
                             >
                               <span className="text-sm">{player.avatar}</span>
@@ -741,6 +742,7 @@ function PlayerProfile() {
                             <Link
                               to="/players/$playerId"
                               params={{ playerId: player.id }}
+                              onClick={scrollToTop}
                               className="flex items-center gap-1 hover:opacity-80 transition-opacity min-w-0"
                             >
                               <span className="text-sm">{player.avatar}</span>
