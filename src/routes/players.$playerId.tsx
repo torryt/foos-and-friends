@@ -294,16 +294,16 @@ function PlayerProfile() {
               ) : (
                 <>
                   <h1 className="text-2xl font-bold text-gray-900">{player.name}</h1>
-                  <div className="flex items-center space-x-3 mt-2">
+                  <div className="flex items-center space-x-2 sm:space-x-3 mt-2">
                     <span
                       className={cn(
-                        'px-3 py-1 rounded-full text-sm font-medium border',
+                        'px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border whitespace-nowrap',
                         getRankingBadgeColor(player.ranking),
                       )}
                     >
                       {player.ranking} pts
                     </span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">
                       Rank #
                       {players
                         .sort((a, b) => b.ranking - a.ranking)
@@ -316,9 +316,9 @@ function PlayerProfile() {
           </div>
 
           {!isEditing && (
-            <Button onClick={startEdit} variant="outline" size="sm" className="whitespace-normal">
-              <Edit2 className="w-4 h-4 mr-1" />
-              Edit Profile
+            <Button onClick={startEdit} variant="outline" size="sm">
+              <Edit2 className="w-4 h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Edit Profile</span>
             </Button>
           )}
         </div>
