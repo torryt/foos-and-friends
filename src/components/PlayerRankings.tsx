@@ -1,4 +1,4 @@
-import { ChevronDown, Medal, Trophy } from 'lucide-react'
+import { ArrowUpDown, ChevronDown, Medal, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Match, Player } from '@/types'
 
@@ -208,9 +208,13 @@ const PlayerRankings = ({ players, matches = [], onPlayerClick }: PlayerRankings
               type="button"
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"
+              aria-label={`Sort by ${SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label}`}
             >
-              {SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label}
-              <ChevronDown className="w-4 h-4" />
+              <span className="hidden sm:inline">
+                {SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label}
+              </span>
+              <ArrowUpDown className="w-4 h-4 sm:hidden" />
+              <ChevronDown className="w-4 h-4 hidden sm:inline-block" />
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-1 w-44 bg-white rounded-lg shadow-lg border border-slate-200 z-10">
