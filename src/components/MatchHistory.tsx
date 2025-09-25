@@ -58,10 +58,10 @@ const PlayerWithStats = ({
   const hasStats = !!stats
 
   return (
-    <div className="mb-1">
+    <div className="mb-1 flex items-center justify-between gap-2">
       <button
         type="button"
-        className="flex items-center justify-center gap-1 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none p-0"
+        className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity bg-transparent border-none p-0"
         onClick={() => onPlayerClick?.(player.id)}
       >
         <span className="text-sm">{player.avatar}</span>
@@ -71,15 +71,15 @@ const PlayerWithStats = ({
         </div>
       </button>
       {hasStats ? (
-        <div className="text-xs text-gray-600 mt-0.5">
-          <div className="flex items-center justify-center gap-1">
+        <div className="text-xs text-gray-600">
+          <div className="flex items-center gap-1">
             <span className="font-medium">{stats.postGameRanking}</span>
             {formatRankingChange(calculateRankingChange(stats))}
           </div>
         </div>
       ) : (
-        <div className="text-xs text-gray-600 mt-0.5">
-          <div className="flex items-center justify-center">
+        <div className="text-xs text-gray-600">
+          <div className="flex items-center">
             <span className="font-medium">{player.ranking}</span>
           </div>
         </div>
