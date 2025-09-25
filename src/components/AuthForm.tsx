@@ -61,8 +61,7 @@ export const AuthForm = () => {
   const passwordId = useId()
   const confirmPasswordId = useId()
 
-  const { signInWithMagicLink, signInWithPassword, signUpWithPassword, resetPassword, isMockMode } =
-    useAuth()
+  const { signInWithMagicLink, signInWithPassword, signUpWithPassword, resetPassword } = useAuth()
 
   const handleMagicLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -94,13 +93,7 @@ export const AuthForm = () => {
       const result = await signInWithMagicLink(email, customRedirect)
 
       if (result.success) {
-        if (isMockMode) {
-          setMessage('Demo mode: Signing you in...')
-          // In mock mode, reload to trigger auth state change
-          setTimeout(() => window.location.reload(), 500)
-        } else {
-          setMessage('Check your email for a magic link to sign in!')
-        }
+        setMessage('Check your email for a magic link to sign in!')
         setEmail('')
       } else {
         setError(result.error || 'Failed to send magic link')
@@ -143,15 +136,9 @@ export const AuthForm = () => {
       if (mode === 'signup') {
         const result = await signUpWithPassword(email, password)
         if (result.success) {
-          if (isMockMode) {
-            setMessage('Demo mode: Account created successfully!')
-            // In mock mode, reload to trigger auth state change
-            setTimeout(() => window.location.reload(), 500)
-          } else {
-            setMessage(
-              'Account created successfully! Please check your email to verify your account.',
-            )
-          }
+          setMessage(
+            'Account created successfully! Please check your email to verify your account.',
+          )
           // Reset form
           setEmail('')
           setPassword('')
@@ -162,12 +149,7 @@ export const AuthForm = () => {
       } else {
         const result = await signInWithPassword(email, password)
         if (result.success) {
-          if (isMockMode) {
-            setMessage('Demo mode: Signing you in...')
-            // In mock mode, reload to trigger auth state change
-            setTimeout(() => window.location.reload(), 500)
-          }
-          // If Supabase mode, the auth state change will be automatic
+          // The auth state change will be automatic
         } else {
           setError(result.error || 'Failed to sign in')
         }
@@ -432,9 +414,7 @@ export const AuthForm = () => {
     <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Welcome to Foos & Friends</h2>
-        <p className="text-gray-600 mt-2">
-          {isMockMode ? 'Running in demo mode' : 'Choose your preferred sign-in method'}
-        </p>
+        <p className="text-gray-600 mt-2">Choose your preferred sign-in method</p>
       </div>
 
       <AuthModeSelector mode={mode} onModeChange={setMode} />

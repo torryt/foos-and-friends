@@ -1,4 +1,4 @@
-import { useState, useId } from 'react'
+import { useId, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 
 export const PasswordSettings = () => {
@@ -55,7 +55,9 @@ export const PasswordSettings = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor={newPasswordId} className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+          <label htmlFor={newPasswordId} className="block text-sm font-medium text-gray-700 mb-1">
+            New Password
+          </label>
           <div className="relative">
             <input
               id={newPasswordId}
@@ -120,7 +122,10 @@ export const PasswordSettings = () => {
         </div>
 
         <div>
-          <label htmlFor={confirmPasswordId} className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor={confirmPasswordId}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Confirm New Password
           </label>
           <input
