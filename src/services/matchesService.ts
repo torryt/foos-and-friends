@@ -220,7 +220,7 @@ class MatchesService {
 
     // Trigger recalculation
     const match = result.data
-    if (match && match.groupId) {
+    if (match?.groupId) {
       const matchDateTime = `${match.date}T${match.time}:00Z`
       const recalcResult = await this.recalculateFromMatch(match.groupId, matchDateTime)
       if (recalcResult.error) {

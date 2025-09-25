@@ -21,7 +21,13 @@ export const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
   )
 }
 
-export const DialogContent = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
+export const DialogContent = ({
+  children,
+  className = '',
+}: {
+  children: ReactNode
+  className?: string
+}) => (
   <div className={`relative z-50 bg-white rounded-lg shadow-lg p-6 max-w-md mx-4 ${className}`}>
     {children}
   </div>

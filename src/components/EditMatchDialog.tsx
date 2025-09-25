@@ -166,7 +166,9 @@ export const EditMatchDialog = ({
                   <Input
                     type="number"
                     value={score1}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setScore1(Number(e.target.value))}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setScore1(Number(e.target.value))
+                    }
                     min="0"
                   />
                 </div>
@@ -175,7 +177,9 @@ export const EditMatchDialog = ({
                   <Input
                     type="number"
                     value={score2}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setScore2(Number(e.target.value))}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setScore2(Number(e.target.value))
+                    }
                     min="0"
                   />
                 </div>

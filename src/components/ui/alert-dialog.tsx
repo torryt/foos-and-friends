@@ -22,18 +22,20 @@ export const AlertDialog = ({ open, onOpenChange, children }: AlertDialogProps) 
 }
 
 export const AlertDialogContent = ({ children }: { children: ReactNode }) => (
-  <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 max-w-md mx-4">
-    {children}
-  </div>
+  <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 max-w-md mx-4">{children}</div>
 )
 
 export const AlertDialogHeader = ({ children }: { children: ReactNode }) => (
   <div className="mb-4">{children}</div>
 )
 
-export const AlertDialogTitle = ({ children }: { children: ReactNode }) => (
-  <h2 className="text-lg font-semibold">{children}</h2>
-)
+export const AlertDialogTitle = ({
+  children,
+  className = '',
+}: {
+  children: ReactNode
+  className?: string
+}) => <h2 className={`text-lg font-semibold ${className}`}>{children}</h2>
 
 export const AlertDialogDescription = ({ children }: { children: ReactNode }) => (
   <p className="text-sm text-gray-600 mt-2">{children}</p>

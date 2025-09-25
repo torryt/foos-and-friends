@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it, vi } from 'vitest'
 import type { Database } from '@/lib/database'
 import type { Match, Player } from '@/types'
@@ -32,22 +33,6 @@ const createMockPlayersService = () => ({
   getPlayersByGroup: vi.fn(),
 })
 
-// Dynamic import to get the MatchesService class
-const getMatchesServiceClass = async () => {
-  const module = await import('../matchesService')
-  // Extract the class from the module (we can't use the exported instance)
-  const MatchesService =
-    (module as any).default ||
-    Object.values(module).find((v) => typeof v === 'function' && v.name === 'MatchesService')
-
-  // If we can't get the class directly, we'll need to mock it differently
-  if (!MatchesService) {
-    throw new Error('Could not find MatchesService class')
-  }
-
-  return MatchesService
-}
-
 describe('MatchesService', () => {
   describe('recalculateFromMatch', () => {
     it.skip('should recalculate all ELO scores from a specific match forward', async () => {
@@ -66,6 +51,7 @@ describe('MatchesService', () => {
           matchesPlayed: 0,
           wins: 0,
           losses: 0,
+          department: '',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
@@ -78,6 +64,7 @@ describe('MatchesService', () => {
           matchesPlayed: 0,
           wins: 0,
           losses: 0,
+          department: '',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
@@ -90,6 +77,7 @@ describe('MatchesService', () => {
           matchesPlayed: 0,
           wins: 0,
           losses: 0,
+          department: '',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
@@ -102,6 +90,7 @@ describe('MatchesService', () => {
           matchesPlayed: 0,
           wins: 0,
           losses: 0,
+          department: '',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
@@ -144,9 +133,12 @@ describe('MatchesService', () => {
       ]
 
       // Mock database responses
-      ;(mockDb.getMatchesByGroup as any).mockResolvedValue({ data: matches, error: null })
-      ;(mockPlayersService.getPlayersByGroup as any).mockResolvedValue({ data: players })
-      ;(mockPlayersService.updateMultiplePlayers as any).mockResolvedValue({
+      ;(mockDb.getMatchesByGroup as unknown as any).mockResolvedValue({
+        data: matches,
+        error: null,
+      })
+      ;(mockPlayersService.getPlayersByGroup as unknown as any).mockResolvedValue({ data: players })
+      ;(mockPlayersService.updateMultiplePlayers as unknown as any).mockResolvedValue({
         data: [],
         error: null,
       })
@@ -154,9 +146,6 @@ describe('MatchesService', () => {
       // We need to test the actual service implementation
       // Since we can't easily import the class, we'll test through the exported instance
       const { matchesService } = await import('../matchesService')
-
-      // Create a spy on the private method through prototype if possible
-      const recalcSpy = vi.spyOn(matchesService as any, 'recalculateFromMatch')
 
       // Mock the dependencies
       ;(matchesService as any).db = mockDb
@@ -173,7 +162,8 @@ describe('MatchesService', () => {
       expect(mockPlayersService.updateMultiplePlayers).toHaveBeenCalled()
 
       // Check that the update was called with recalculated values
-      const updateCall = (mockPlayersService.updateMultiplePlayers as any).mock.calls[0][0]
+      const updateCall = (mockPlayersService.updateMultiplePlayers as unknown as any).mock
+        .calls[0][0]
       expect(updateCall).toHaveLength(4) // All 4 players should be updated
 
       // Verify that rankings were recalculated (not all 1200)
@@ -194,7 +184,7 @@ describe('MatchesService', () => {
       const groupId = 'test-group-1'
 
       // Mock empty matches
-      ;(mockDb.getMatchesByGroup as any).mockResolvedValue({ data: [], error: null })
+      ;(mockDb.getMatchesByGroup as unknown as any).mockResolvedValue({ data: [], error: null })
 
       const { matchesService } = await import('../matchesService')
       ;(matchesService as any).db = mockDb
@@ -216,7 +206,10 @@ describe('MatchesService', () => {
       const groupId = 'test-group-1'
 
       // Mock database error
-      ;(mockDb.getMatchesByGroup as any).mockResolvedValue({ data: [], error: 'Database error' })
+      ;(mockDb.getMatchesByGroup as unknown as any).mockResolvedValue({
+        data: [],
+        error: 'Database error',
+      })
 
       const { matchesService } = await import('../matchesService')
       ;(matchesService as any).db = mockDb
@@ -249,6 +242,7 @@ describe('MatchesService', () => {
             matchesPlayed: 1,
             wins: 1,
             losses: 0,
+            department: '',
             groupId: 'group-1',
             createdAt: '',
             updatedAt: '',
@@ -261,6 +255,7 @@ describe('MatchesService', () => {
             matchesPlayed: 1,
             wins: 1,
             losses: 0,
+            department: '',
             groupId: 'group-1',
             createdAt: '',
             updatedAt: '',
@@ -275,6 +270,7 @@ describe('MatchesService', () => {
             matchesPlayed: 1,
             wins: 0,
             losses: 1,
+            department: '',
             groupId: 'group-1',
             createdAt: '',
             updatedAt: '',
@@ -287,6 +283,7 @@ describe('MatchesService', () => {
             matchesPlayed: 1,
             wins: 0,
             losses: 1,
+            department: '',
             groupId: 'group-1',
             createdAt: '',
             updatedAt: '',
@@ -294,20 +291,19 @@ describe('MatchesService', () => {
         ],
         score1: 10,
         score2: 8,
-        playedAt: '2024-01-01T10:00:00Z',
         date: '2024-01-01',
         time: '10:00',
         recordedBy: 'user-1',
       }
 
       // Mock responses
-      ;(mockDb.getMatchById as any).mockResolvedValue({ data: match, error: null })
-      ;(mockDb.deleteMatch as any).mockResolvedValue({ success: true })
-      ;(mockDb.getMatchesByGroup as any).mockResolvedValue({ data: [], error: null })
-      ;(mockPlayersService.getPlayersByGroup as any).mockResolvedValue({
+      ;(mockDb.getMatchById as unknown as any).mockResolvedValue({ data: match, error: null })
+      ;(mockDb.deleteMatch as unknown as any).mockResolvedValue({ success: true })
+      ;(mockDb.getMatchesByGroup as unknown as any).mockResolvedValue({ data: [], error: null })
+      ;(mockPlayersService.getPlayersByGroup as unknown as any).mockResolvedValue({
         data: match.team1.concat(match.team2),
       })
-      ;(mockPlayersService.updateMultiplePlayers as any).mockResolvedValue({
+      ;(mockPlayersService.updateMultiplePlayers as unknown as any).mockResolvedValue({
         data: [],
         error: null,
       })
@@ -328,7 +324,7 @@ describe('MatchesService', () => {
       const mockDb = createMockDatabase()
       const mockPlayersService = createMockPlayersService()
 
-      ;(mockDb.getMatchById as any).mockResolvedValue({ data: null, error: 'Not found' })
+      ;(mockDb.getMatchById as unknown as any).mockResolvedValue({ data: null, error: 'Not found' })
 
       const { matchesService } = await import('../matchesService')
       ;(matchesService as any).db = mockDb
