@@ -1,9 +1,10 @@
+import { Link } from '@tanstack/react-router'
 import { ChevronDown, Crown, Shield, TrendingDown, TrendingUp, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { type RelationshipStats, useRelationshipStats } from '@/hooks/useRelationshipStats'
-import { cn } from '@/lib/utils'
+import { cn, scrollToTop } from '@/lib/utils'
 import type { Match, Player } from '@/types'
 
 interface PlayerRelationshipStatsProps {
@@ -57,9 +58,15 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-gray-900 truncate">
+                <Link
+                  to="/players/$playerId"
+                  params={{ playerId: relationship.playerId }}
+                  onClick={scrollToTop}
+                  className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
+                  aria-label={`View profile for ${relationship.playerName}`}
+                >
                   {relationship.playerName}
-                </span>
+                </Link>
                 {badgeInfo && (
                   <div
                     className={cn(
