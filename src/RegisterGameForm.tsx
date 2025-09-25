@@ -1,10 +1,11 @@
-import { Brain, Loader2, Shield, Shuffle, Sword, Target, Users, X } from 'lucide-react'
+import { Brain, Loader2, Shield, Shuffle, Sparkles, Sword, Target, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 import type { Match, Player } from '@/types'
 import {
   calculatePositionPreferences,
   findBestMatchup,
+  findRareMatchup,
   formatTeamAssignment,
 } from '@/utils/matchmaking'
 
@@ -29,6 +30,7 @@ const RegisterGameForm = ({
   setShowRecordMatch,
 }: RegisterGameFormProps) => {
   const [mode, setMode] = useState<'manual' | 'matchmaking'>('manual')
+  const [matchmakingMode, setMatchmakingMode] = useState<'balanced' | 'rare'>('balanced')
   const [team1Player1Id, setTeam1Player1Id] = useState('')
   const [team1Player2Id, setTeam1Player2Id] = useState('')
   const [team2Player1Id, setTeam2Player1Id] = useState('')
@@ -115,7 +117,10 @@ const RegisterGameForm = ({
     })
 
     try {
-      const result = findBestMatchup(poolPlayers, positionPreferences)
+      const result =
+        matchmakingMode === 'balanced'
+          ? findBestMatchup(poolPlayers, positionPreferences)
+          : findRareMatchup(poolPlayers, matches)
       setMatchmakingResult(result)
 
       // Auto-populate the manual form with matchmaking results
@@ -124,7 +129,8 @@ const RegisterGameForm = ({
       setTeam2Player1Id(result.team2.attacker.id)
       setTeam2Player2Id(result.team2.defender.id)
 
-      toast().success(`Teams generated! ${Math.round(result.confidence * 100)}% confidence`)
+      const modeText = matchmakingMode === 'balanced' ? 'Balanced teams' : 'Rare matchup'
+      toast().success(`${modeText} generated! ${Math.round(result.confidence * 100)}% confidence`)
     } catch (error) {
       toast().error(error instanceof Error ? error.message : 'Failed to generate matchup')
     }
@@ -242,6 +248,39 @@ const RegisterGameForm = ({
                 </div>
                 <div className="text-xs text-green-600">Select 4-7 players</div>
               </div>
+
+              {/* Matchmaking Mode Toggle */}
+              <div className="flex gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => setMatchmakingMode('balanced')}
+                  className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
+                    matchmakingMode === 'balanced'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white/60 text-green-700 hover:bg-white/80'
+                  }`}
+                >
+                  <Brain size={14} />
+                  Balanced
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMatchmakingMode('rare')}
+                  className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
+                    matchmakingMode === 'rare'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white/60 text-green-700 hover:bg-white/80'
+                  }`}
+                >
+                  <Sparkles size={14} />
+                  Rare Matchup
+                </button>
+              </div>
+              <div className="text-xs text-green-600 mb-3 text-center">
+                {matchmakingMode === 'balanced'
+                  ? 'Creates evenly matched teams based on rankings'
+                  : 'Pairs players who rarely play together'}
+              </div>
               <div className="space-y-2">
                 {players
                   .slice()
@@ -281,7 +320,9 @@ const RegisterGameForm = ({
                 className="w-full mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-4 rounded-lg hover:from-green-600 hover:to-emerald-700 font-medium shadow-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <Shuffle size={16} />
-                Generate Balanced Teams
+                {matchmakingMode === 'balanced'
+                  ? 'Generate Balanced Teams'
+                  : 'Generate Rare Matchup'}
               </button>
               {matchmakingResult && (
                 <div className="mt-3 p-3 bg-white/80 rounded-lg border border-green-200">

@@ -1,4 +1,4 @@
-import type { Player, PlayerPosition } from '@/types'
+import type { Match, Player, PlayerPosition } from '@/types'
 
 export interface TeamAssignment {
   team1: {
@@ -320,6 +320,139 @@ export const findBestMatchup = (
   }
 
   return bestMatchup
+}
+
+/**
+ * Calculate how frequently two players have played together
+ */
+export const calculatePairingFrequency = (
+  player1Id: string,
+  player2Id: string,
+  matches: Match[],
+): number => {
+  let gamesAsSameTeam = 0
+  let gamesAsOpponents = 0
+
+  for (const match of matches) {
+    const player1InTeam1 = match.team1[0].id === player1Id || match.team1[1].id === player1Id
+    const player2InTeam1 = match.team1[0].id === player2Id || match.team1[1].id === player2Id
+    const player1InTeam2 = match.team2[0].id === player1Id || match.team2[1].id === player1Id
+    const player2InTeam2 = match.team2[0].id === player2Id || match.team2[1].id === player2Id
+
+    // Check if they were on the same team
+    if ((player1InTeam1 && player2InTeam1) || (player1InTeam2 && player2InTeam2)) {
+      gamesAsSameTeam++
+    }
+    // Check if they were opponents
+    else if ((player1InTeam1 && player2InTeam2) || (player1InTeam2 && player2InTeam1)) {
+      gamesAsOpponents++
+    }
+  }
+
+  return gamesAsSameTeam + gamesAsOpponents
+}
+
+/**
+ * Calculate the rarity score for a team combination
+ * Lower score = more rare (preferred in rare matchup mode)
+ */
+export const calculateRarityScore = (
+  combination: { team1: [Player, Player]; team2: [Player, Player] },
+  matches: Match[],
+): number => {
+  let totalFrequency = 0
+
+  // Sum up frequencies of all pairings in this combination
+  // Team 1 internal pairing
+  totalFrequency += calculatePairingFrequency(
+    combination.team1[0].id,
+    combination.team1[1].id,
+    matches,
+  )
+
+  // Team 2 internal pairing
+  totalFrequency += calculatePairingFrequency(
+    combination.team2[0].id,
+    combination.team2[1].id,
+    matches,
+  )
+
+  // Cross-team pairings (as opponents)
+  totalFrequency += calculatePairingFrequency(
+    combination.team1[0].id,
+    combination.team2[0].id,
+    matches,
+  )
+  totalFrequency += calculatePairingFrequency(
+    combination.team1[0].id,
+    combination.team2[1].id,
+    matches,
+  )
+  totalFrequency += calculatePairingFrequency(
+    combination.team1[1].id,
+    combination.team2[0].id,
+    matches,
+  )
+  totalFrequency += calculatePairingFrequency(
+    combination.team1[1].id,
+    combination.team2[1].id,
+    matches,
+  )
+
+  return totalFrequency
+}
+
+/**
+ * Find the best rare matchup from a player pool
+ */
+export const findRareMatchup = (players: Player[], matches: Match[]): TeamAssignment => {
+  if (players.length < 4 || players.length > 7) {
+    throw new Error('Player pool must contain 4-7 players')
+  }
+
+  // Generate all possible team combinations
+  const teamCombinations = generateTeamCombinations(players)
+
+  // Find the combination with the lowest rarity score
+  let bestMatchup: { team1: [Player, Player]; team2: [Player, Player] } | null = null
+  let lowestRarityScore = Infinity
+
+  for (const combination of teamCombinations) {
+    const rarityScore = calculateRarityScore(combination, matches)
+
+    if (rarityScore < lowestRarityScore) {
+      lowestRarityScore = rarityScore
+      bestMatchup = combination
+    }
+  }
+
+  if (!bestMatchup) {
+    throw new Error('Could not find suitable matchup')
+  }
+
+  // For rare matchups, assign positions randomly
+  const randomizePositions = (team: [Player, Player]): { attacker: Player; defender: Player } => {
+    const randomIndex = Math.random() < 0.5 ? 0 : 1
+    return {
+      attacker: team[randomIndex],
+      defender: team[1 - randomIndex],
+    }
+  }
+
+  const team1Positions = randomizePositions(bestMatchup.team1)
+  const team2Positions = randomizePositions(bestMatchup.team2)
+
+  // Calculate ranking difference for display purposes
+  const team1Ranking = bestMatchup.team1[0].ranking + bestMatchup.team1[1].ranking
+  const team2Ranking = bestMatchup.team2[0].ranking + bestMatchup.team2[1].ranking
+  const rankingDifference = Math.abs(team1Ranking - team2Ranking)
+
+  return {
+    team1: team1Positions,
+    team2: team2Positions,
+    rankingDifference,
+    confidence: 1 - Math.min(lowestRarityScore / 20, 1), // Higher confidence for rarer matchups
+  }
 }
 
 /**
