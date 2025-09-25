@@ -42,11 +42,9 @@ If you encounter errors:
 3. Verify your Supabase project has authentication enabled
 4. Check that RLS (Row Level Security) is supported in your Supabase plan
 
-## Mock Mode
+## Database Requirements
 
-The app will work in mock mode if:
-- These database scripts haven't been executed yet
-- Environment variables are missing
-- Supabase connection fails
-
-This allows development to continue while database setup is in progress.
+The application requires a properly configured Supabase database with:
+- All database scripts executed in order
+- Environment variables properly configured
+- Active Supabase connection

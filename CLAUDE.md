@@ -17,13 +17,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is a React + TypeScript foosball ranking application built with Vite. The app tracks players, matches, and calculates ELO-based rankings for office foosball games. It supports both Supabase backend integration and a fully functional mock mode for development.
+This is a React + TypeScript foosball ranking application built with Vite. The app tracks players, matches, and calculates ELO-based rankings for office foosball games with Supabase backend integration.
 
 ### Core Architecture
 
 - **React 19** with TypeScript and Vite for fast development
 - **Supabase** for authentication, real-time database, and Row Level Security (RLS)
-- **Mock Mode** for development without Supabase configuration
 - **Tailwind CSS** with custom styling for UI components
 - **Component-based architecture** with clear separation of concerns
 - **Custom hooks** and React Context for state management
@@ -33,12 +32,11 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - **Magic Link Authentication** with Supabase Auth (passwordless)
 - **Private Friend Groups** with invite-only access via shareable codes
 - **Complete data isolation** between groups using RLS policies
-- **Mock mode fallback** for development with demo user and sample data
 
 ### Key Components Structure
 
 - `src/App.tsx` - Main app component with authentication and group context
-- `src/hooks/useAuth.ts` - Authentication logic with mock mode support
+- `src/hooks/useAuth.ts` - Authentication logic with Supabase
 - `src/contexts/GroupContext.tsx` - Group management and state
 - `src/hooks/useGameLogic.ts` - Group-aware game logic with ELO calculations
 - `src/services/` - Service layer for data operations (players, matches, groups)
@@ -76,7 +74,7 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 
 ### Getting Started
 
-1. **Environment Setup**: Create `.env.local` with Supabase credentials or run in mock mode
+1. **Environment Setup**: Create `.env.local` with Supabase credentials
 2. **Database Setup**: Execute `/database/00_complete_reset.sql` in Supabase SQL Editor if using Supabase
 3. **Development**: Run `npm run dev` to start the development server
 4. **Testing**: Run `npm run test:run` and `npm run lint` before committing
@@ -101,11 +99,11 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **Production**: Always use migrations for production database changes to preserve data
 - **RLS Policies**: Designed to work with public JS client without circular dependencies
 
-### Mock vs Supabase Mode
+### Supabase Integration
 
-- **Mock Mode**: Automatically activates when Supabase env vars are missing
-- **Supabase Mode**: Full backend integration with authentication and real-time sync
-- Both modes provide identical user experience with same features
+- **Full backend integration** with authentication and real-time sync
+- **Row Level Security** for data isolation
+- **Magic link authentication** for passwordless login
 
 ### Data Flow
 
@@ -116,10 +114,9 @@ This ensures consistent code quality and prevents regressions from reaching prod
 
 ### Key Implementation Details
 
-- All data operations go through service layer for consistent mock/real mode switching
+- All data operations go through service layer for consistent data handling
 - Group-based data scoping ensures privacy and security
 - ELO ranking system with K-factor 32, ratings clamped between 800-2400
-- Complete offline functionality with mock data for development
 
 ## Production Deployment
 
