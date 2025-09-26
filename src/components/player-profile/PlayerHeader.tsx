@@ -54,21 +54,23 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
               </div>
               <div>
                 <Label>Avatar</Label>
-                <div className="grid grid-cols-6 gap-2 mt-1">
-                  {AVAILABLE_AVATARS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      onClick={() => setEditedAvatar(emoji)}
-                      className={`p-2 text-2xl rounded-lg border-2 transition-all ${
-                        editedAvatar === emoji
-                          ? 'border-orange-500 bg-orange-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
+                <div className="mt-1 border border-gray-200 rounded-lg p-2 bg-white">
+                  <div className="grid grid-cols-6 gap-1.5 max-h-48 overflow-y-auto overflow-x-hidden">
+                    {AVAILABLE_AVATARS.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => setEditedAvatar(emoji)}
+                        className={`p-1.5 text-2xl rounded-lg flex items-center justify-center aspect-square transition-all ${
+                          editedAvatar === emoji
+                            ? 'bg-orange-100 ring-2 ring-orange-500 ring-offset-1'
+                            : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="flex gap-2">

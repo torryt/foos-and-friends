@@ -95,16 +95,17 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
               <span className="text-3xl">{selectedAvatar}</span>
               <span className="text-sm font-semibold text-orange-800">Choose Avatar</span>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 max-h-60 overflow-y-auto p-1">
+            <div className="grid grid-cols-5 gap-1.5 max-h-60 overflow-y-auto overflow-x-hidden p-1">
               {AVAILABLE_AVATARS.map((avatar) => (
                 <button
                   key={avatar}
                   type="button"
                   onClick={() => setSelectedAvatar(avatar)}
-                  className={`text-2xl p-2 rounded-lg hover:bg-orange-100 transition-colors ${selectedAvatar === avatar
-                      ? 'bg-orange-200 border-2 border-orange-400'
-                      : 'bg-white/60 border-2 border-transparent'
-                    }`}
+                  className={`text-2xl p-1.5 rounded-lg hover:bg-orange-100 transition-colors flex items-center justify-center aspect-square ${
+                    selectedAvatar === avatar
+                      ? 'bg-orange-200 ring-2 ring-orange-400 ring-offset-1'
+                      : 'bg-white/60'
+                  }`}
                 >
                   {avatar}
                 </button>
