@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, Target, X } from 'lucide-react'
+import { ArrowLeft, ArrowUpDown, Loader2, Target, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { TeamAssignment } from '@/utils/matchmaking'
 
@@ -8,6 +8,7 @@ interface ScoreEntryStepProps {
   onClose: () => void
   onSubmit: (score1: string, score2: string) => Promise<void>
   title?: string
+  onSwapPositions?: () => void
 }
 
 export const ScoreEntryStep = ({
@@ -16,6 +17,7 @@ export const ScoreEntryStep = ({
   onClose,
   onSubmit,
   title = 'Enter Score',
+  onSwapPositions,
 }: ScoreEntryStepProps) => {
   const [score1, setScore1] = useState('')
   const [score2, setScore2] = useState('')
@@ -88,6 +90,20 @@ export const ScoreEntryStep = ({
               </div>
             </div>
           </div>
+          {onSwapPositions && (
+            <div className="mt-3 flex justify-center">
+              <button
+                type="button"
+                onClick={onSwapPositions}
+                disabled={isSubmitting}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+                title="Swap attacker and defender positions"
+              >
+                <ArrowUpDown size={12} />
+                Swap positions
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Score Input */}

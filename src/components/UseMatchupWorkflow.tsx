@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 import type { SavedMatchup } from '@/services/savedMatchupsService'
 import { savedMatchupsService } from '@/services/savedMatchupsService'
+import type { TeamAssignment } from '@/utils/matchmaking'
 import { ScoreEntryStep } from './ScoreEntryStep'
 
 interface UseMatchupWorkflowProps {
@@ -32,10 +33,12 @@ export const UseMatchupWorkflow = ({
   const [step, setStep] = useState<Step>('selection')
   const [selectedMatchup, setSelectedMatchup] = useState<SavedMatchup | null>(null)
   const [savedMatchups, setSavedMatchups] = useState(initialMatchups)
+  const [isSwapped, setIsSwapped] = useState(false)
   const { toast } = useToast()
 
   const handleSelectMatchup = (matchup: SavedMatchup) => {
     setSelectedMatchup(matchup)
+    setIsSwapped(false) // Reset swap state when selecting a new matchup
     setStep('score')
   }
 
@@ -50,11 +53,18 @@ export const UseMatchupWorkflow = ({
     if (!selectedMatchup) return
 
     const { teams } = selectedMatchup
+
+    // Apply swap if needed
+    const team1Attacker = isSwapped ? teams.team1.defender : teams.team1.attacker
+    const team1Defender = isSwapped ? teams.team1.attacker : teams.team1.defender
+    const team2Attacker = isSwapped ? teams.team2.defender : teams.team2.attacker
+    const team2Defender = isSwapped ? teams.team2.attacker : teams.team2.defender
+
     const result = await addMatch(
-      teams.team1.attacker.id,
-      teams.team1.defender.id,
-      teams.team2.attacker.id,
-      teams.team2.defender.id,
+      team1Attacker.id,
+      team1Defender.id,
+      team2Attacker.id,
+      team2Defender.id,
       score1,
       score2,
     )
@@ -70,13 +80,30 @@ export const UseMatchupWorkflow = ({
   }
 
   if (step === 'score' && selectedMatchup) {
+    // Apply swap if needed for display
+    const displayTeams: TeamAssignment = isSwapped
+      ? {
+          team1: {
+            attacker: selectedMatchup.teams.team1.defender,
+            defender: selectedMatchup.teams.team1.attacker,
+          },
+          team2: {
+            attacker: selectedMatchup.teams.team2.defender,
+            defender: selectedMatchup.teams.team2.attacker,
+          },
+          rankingDifference: selectedMatchup.teams.rankingDifference,
+          confidence: selectedMatchup.teams.confidence,
+        }
+      : selectedMatchup.teams
+
     return (
       <ScoreEntryStep
-        teams={selectedMatchup.teams}
+        teams={displayTeams}
         onBack={() => setStep('selection')}
         onClose={onClose}
         onSubmit={handleAddMatch}
         title="Register Score"
+        onSwapPositions={() => setIsSwapped(!isSwapped)}
       />
     )
   }

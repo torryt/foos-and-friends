@@ -1,4 +1,14 @@
-import { ArrowLeft, Brain, Check, Loader2, Shuffle, Sparkles, Users, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowUpDown,
+  Brain,
+  Check,
+  Loader2,
+  Shuffle,
+  Sparkles,
+  Users,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 import { savedMatchupsService } from '@/services/savedMatchupsService'
@@ -140,6 +150,33 @@ export const PickTeamsWorkflow = ({
     setStep('score')
   }
 
+  const handleSwapPositions = () => {
+    if (!matchmakingResult) return
+
+    // Swap attacker and defender for both teams
+    const swappedResult: TeamAssignment = {
+      team1: {
+        attacker: matchmakingResult.team1.defender,
+        defender: matchmakingResult.team1.attacker,
+      },
+      team2: {
+        attacker: matchmakingResult.team2.defender,
+        defender: matchmakingResult.team2.attacker,
+      },
+      rankingDifference: matchmakingResult.rankingDifference,
+      confidence: matchmakingResult.confidence,
+    }
+
+    setMatchmakingResult(swappedResult)
+
+    // Update the saved matchup with swapped positions
+    if (savedMatchupId) {
+      savedMatchupsService.deleteMatchup(savedMatchupId)
+      const newSavedMatchup = savedMatchupsService.saveMatchup(swappedResult, matchmakingMode)
+      setSavedMatchupId(newSavedMatchup.id)
+    }
+  }
+
   const handleAddMatch = async (score1: string, score2: string) => {
     if (!matchmakingResult) return
 
@@ -231,10 +268,19 @@ export const PickTeamsWorkflow = ({
                 </div>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-200 text-center">
+            <div className="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between">
               <span className="text-xs text-gray-600">
-                Ranking difference: {matchmakingResult.rankingDifference} points
+                Ranking diff: {matchmakingResult.rankingDifference} pts
               </span>
+              <button
+                type="button"
+                onClick={handleSwapPositions}
+                className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
+                title="Swap attacker and defender positions"
+              >
+                <ArrowUpDown size={12} />
+                Swap positions
+              </button>
             </div>
           </div>
 
