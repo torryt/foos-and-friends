@@ -1,5 +1,6 @@
-import { ArrowLeft, Shield, Sword, Users, X } from 'lucide-react'
+import { ArrowLeft, Users, X } from 'lucide-react'
 import { useState } from 'react'
+import { PlayerCombobox } from '@/components/ui/PlayerCombobox'
 import { useToast } from '@/hooks/useToast'
 import type { Player } from '@/types'
 import { ScoreEntryStep } from './ScoreEntryStep'
@@ -155,44 +156,22 @@ export const ManualTeamsWorkflow = ({
               <h3 className="font-semibold text-blue-900">Team 1</h3>
             </div>
             <div className="space-y-3">
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Sword className="text-orange-500" size={16} />
-                </div>
-                <select
-                  value={team1Player1Id}
-                  onChange={(e) => setTeam1Player1Id(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-blue-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select Attacker</option>
-                  {getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id]).map(
-                    (p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.avatar} {p.name} ({p.ranking})
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Shield className="text-blue-500" size={16} />
-                </div>
-                <select
-                  value={team1Player2Id}
-                  onChange={(e) => setTeam1Player2Id(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-blue-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select Defender</option>
-                  {getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id]).map(
-                    (p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.avatar} {p.name} ({p.ranking})
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
+              <PlayerCombobox
+                players={getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id])}
+                value={team1Player1Id}
+                onChange={setTeam1Player1Id}
+                placeholder="Select Attacker"
+                position="attacker"
+                className="border-blue-300 focus:ring-2 focus:ring-blue-500"
+              />
+              <PlayerCombobox
+                players={getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id])}
+                value={team1Player2Id}
+                onChange={setTeam1Player2Id}
+                placeholder="Select Defender"
+                position="defender"
+                className="border-blue-300 focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
 
@@ -210,44 +189,22 @@ export const ManualTeamsWorkflow = ({
               <h3 className="font-semibold text-purple-900">Team 2</h3>
             </div>
             <div className="space-y-3">
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Sword className="text-orange-500" size={16} />
-                </div>
-                <select
-                  value={team2Player1Id}
-                  onChange={(e) => setTeam2Player1Id(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-purple-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="">Select Attacker</option>
-                  {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id]).map(
-                    (p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.avatar} {p.name} ({p.ranking})
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Shield className="text-blue-500" size={16} />
-                </div>
-                <select
-                  value={team2Player2Id}
-                  onChange={(e) => setTeam2Player2Id(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-purple-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="">Select Defender</option>
-                  {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id]).map(
-                    (p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.avatar} {p.name} ({p.ranking})
-                      </option>
-                    ),
-                  )}
-                </select>
-              </div>
+              <PlayerCombobox
+                players={getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id])}
+                value={team2Player1Id}
+                onChange={setTeam2Player1Id}
+                placeholder="Select Attacker"
+                position="attacker"
+                className="border-purple-300 focus:ring-2 focus:ring-purple-500"
+              />
+              <PlayerCombobox
+                players={getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id])}
+                value={team2Player2Id}
+                onChange={setTeam2Player2Id}
+                placeholder="Select Defender"
+                position="defender"
+                className="border-purple-300 focus:ring-2 focus:ring-purple-500"
+              />
             </div>
           </div>
         </div>
