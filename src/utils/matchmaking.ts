@@ -323,15 +323,14 @@ export const findBestMatchup = (
 }
 
 /**
- * Calculate how frequently two players have played together
+ * Calculate how frequently two players have played together as teammates
  */
-export const calculatePairingFrequency = (
+export const calculateTeammateFrequency = (
   player1Id: string,
   player2Id: string,
   matches: Match[],
 ): number => {
   let gamesAsSameTeam = 0
-  let gamesAsOpponents = 0
 
   for (const match of matches) {
     const player1InTeam1 = match.team1[0].id === player1Id || match.team1[1].id === player1Id
@@ -343,18 +342,15 @@ export const calculatePairingFrequency = (
     if ((player1InTeam1 && player2InTeam1) || (player1InTeam2 && player2InTeam2)) {
       gamesAsSameTeam++
     }
-    // Check if they were opponents
-    else if ((player1InTeam1 && player2InTeam2) || (player1InTeam2 && player2InTeam1)) {
-      gamesAsOpponents++
-    }
   }
 
-  return gamesAsSameTeam + gamesAsOpponents
+  return gamesAsSameTeam
 }
 
 /**
  * Calculate the rarity score for a team combination
  * Lower score = more rare (preferred in rare matchup mode)
+ * Only considers teammate pairings, not opponent history
  */
 export const calculateRarityScore = (
   combination: { team1: [Player, Player]; team2: [Player, Player] },
@@ -362,39 +358,17 @@ export const calculateRarityScore = (
 ): number => {
   let totalFrequency = 0
 
-  // Sum up frequencies of all pairings in this combination
-  // Team 1 internal pairing
-  totalFrequency += calculatePairingFrequency(
+  // Sum up teammate frequencies for internal team pairings only
+  // Team 1 internal pairing (how often these two have been teammates)
+  totalFrequency += calculateTeammateFrequency(
     combination.team1[0].id,
     combination.team1[1].id,
     matches,
   )
 
-  // Team 2 internal pairing
-  totalFrequency += calculatePairingFrequency(
+  // Team 2 internal pairing (how often these two have been teammates)
+  totalFrequency += calculateTeammateFrequency(
     combination.team2[0].id,
-    combination.team2[1].id,
-    matches,
-  )
-
-  // Cross-team pairings (as opponents)
-  totalFrequency += calculatePairingFrequency(
-    combination.team1[0].id,
-    combination.team2[0].id,
-    matches,
-  )
-  totalFrequency += calculatePairingFrequency(
-    combination.team1[0].id,
-    combination.team2[1].id,
-    matches,
-  )
-  totalFrequency += calculatePairingFrequency(
-    combination.team1[1].id,
-    combination.team2[0].id,
-    matches,
-  )
-  totalFrequency += calculatePairingFrequency(
-    combination.team1[1].id,
     combination.team2[1].id,
     matches,
   )
@@ -404,6 +378,8 @@ export const calculateRarityScore = (
 
 /**
  * Find the best rare matchup from a player pool
+ * Prioritizes pairing players who have rarely been teammates together
+ * Note: Opponent history is ignored - only teammate frequency matters
  */
 export const findRareMatchup = (players: Player[], matches: Match[]): TeamAssignment => {
   if (players.length < 4 || players.length > 7) {
@@ -451,7 +427,7 @@ export const findRareMatchup = (players: Player[], matches: Match[]): TeamAssign
     team1: team1Positions,
     team2: team2Positions,
     rankingDifference,
-    confidence: 1 - Math.min(lowestRarityScore / 20, 1), // Higher confidence for rarer matchups
+    confidence: 1 - Math.min(lowestRarityScore / 20, 1), // Higher confidence for rarer teammate pairings
   }
 }
 

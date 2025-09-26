@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import type { Player } from '@/types'
+import type { Match, Player } from '@/types'
 import {
   calculatePositionPreferences,
+  calculateRarityScore,
+  calculateTeammateFrequency,
   calculateTeamQuality,
   findBestMatchup,
   findBestPositions,
+  findRareMatchup,
   formatTeamAssignment,
   generateTeamCombinations,
   type PositionPreference,
@@ -533,6 +536,219 @@ describe('matchmaking algorithm', () => {
       // Should still produce a result, even if not perfectly balanced
       expect(result).toBeDefined()
       expect(result.rankingDifference).toBeGreaterThanOrEqual(0)
+    })
+  })
+
+  describe('rare matchup functionality', () => {
+    const createMockMatch = (
+      team1Player1Id: string,
+      team1Player2Id: string,
+      team2Player1Id: string,
+      team2Player2Id: string,
+      score1: number,
+      score2: number,
+    ): Match => ({
+      id: `match-${Date.now()}-${Math.random()}`,
+      team1: [
+        createMockPlayer(team1Player1Id, `Player${team1Player1Id}`, 1200),
+        createMockPlayer(team1Player2Id, `Player${team1Player2Id}`, 1200),
+      ],
+      team2: [
+        createMockPlayer(team2Player1Id, `Player${team2Player1Id}`, 1200),
+        createMockPlayer(team2Player2Id, `Player${team2Player2Id}`, 1200),
+      ],
+      score1,
+      score2,
+      date: '2024-01-01',
+      time: '12:00',
+      groupId: 'group1',
+      createdAt: '2024-01-01T00:00:00.000Z',
+    })
+
+    describe('calculateTeammateFrequency', () => {
+      it('should count only teammate pairings', () => {
+        const matches: Match[] = [
+          createMockMatch('1', '2', '3', '4', 10, 5), // 1&2 teammates, 3&4 teammates
+          createMockMatch('1', '3', '2', '4', 8, 10), // 1&3 teammates, 2&4 teammates
+          createMockMatch('1', '2', '3', '4', 6, 10), // 1&2 teammates again
+        ]
+
+        expect(calculateTeammateFrequency('1', '2', matches)).toBe(2) // Been teammates twice
+        expect(calculateTeammateFrequency('1', '3', matches)).toBe(1) // Been teammates once
+        expect(calculateTeammateFrequency('1', '4', matches)).toBe(0) // Never been teammates
+        expect(calculateTeammateFrequency('2', '3', matches)).toBe(0) // Never been teammates (only opponents)
+      })
+
+      it('should handle empty match history', () => {
+        const matches: Match[] = []
+        expect(calculateTeammateFrequency('1', '2', matches)).toBe(0)
+      })
+
+      it('should handle players not in any matches', () => {
+        const matches: Match[] = [createMockMatch('1', '2', '3', '4', 10, 5)]
+        expect(calculateTeammateFrequency('5', '6', matches)).toBe(0)
+      })
+    })
+
+    describe('calculateRarityScore', () => {
+      it('should only consider teammate frequencies, not opponent history', () => {
+        const players = [
+          createMockPlayer('1', 'Alice', 1200),
+          createMockPlayer('2', 'Bob', 1200),
+          createMockPlayer('3', 'Charlie', 1200),
+          createMockPlayer('4', 'Diana', 1200),
+        ]
+
+        const matches: Match[] = [
+          // Alice & Bob teammates, Charlie & Diana teammates
+          createMockMatch('1', '2', '3', '4', 10, 5),
+          createMockMatch('1', '2', '3', '4', 8, 10),
+          // Alice & Charlie teammates, Bob & Diana teammates
+          createMockMatch('1', '3', '2', '4', 7, 10),
+          // Alice & Diana teammates, Charlie & Bob teammates
+          createMockMatch('1', '4', '2', '3', 6, 10),
+        ]
+
+        const combination1 = {
+          team1: [players[0], players[1]] as [Player, Player], // Alice & Bob (2 teammate games)
+          team2: [players[2], players[3]] as [Player, Player], // Charlie & Diana (2 teammate games)
+        }
+
+        const combination2 = {
+          team1: [players[0], players[2]] as [Player, Player], // Alice & Charlie (1 teammate game)
+          team2: [players[1], players[3]] as [Player, Player], // Bob & Diana (1 teammate game)
+        }
+
+        const score1 = calculateRarityScore(combination1, matches)
+        const score2 = calculateRarityScore(combination2, matches)
+
+        // Combination2 should be rarer (lower score)
+        expect(score2).toBeLessThan(score1)
+        expect(score1).toBe(4) // 2 (Alice&Bob) + 2 (Charlie&Diana) = 4
+        expect(score2).toBe(2) // 1 (Alice&Charlie) + 1 (Bob&Diana) = 2
+      })
+
+      it('should handle teams with no shared history', () => {
+        const players = [
+          createMockPlayer('1', 'Alice', 1200),
+          createMockPlayer('2', 'Bob', 1200),
+          createMockPlayer('3', 'Charlie', 1200),
+          createMockPlayer('4', 'Diana', 1200),
+        ]
+
+        const matches: Match[] = [] // No match history
+
+        const combination = {
+          team1: [players[0], players[1]] as [Player, Player],
+          team2: [players[2], players[3]] as [Player, Player],
+        }
+
+        const score = calculateRarityScore(combination, matches)
+        expect(score).toBe(0) // No teammate history = rarest possible
+      })
+    })
+
+    describe('findRareMatchup', () => {
+      it('should prioritize rare teammate pairings over frequent opponent pairings', () => {
+        const players = [
+          createMockPlayer('1', 'Alice', 1200),
+          createMockPlayer('2', 'Bob', 1200),
+          createMockPlayer('3', 'Charlie', 1200),
+          createMockPlayer('4', 'Diana', 1200),
+        ]
+
+        const matches: Match[] = [
+          // Alice & Bob have been teammates frequently (3 times)
+          createMockMatch('1', '2', '3', '4', 10, 5),
+          createMockMatch('1', '2', '3', '4', 8, 10),
+          createMockMatch('1', '2', '3', '4', 7, 10),
+          // Alice & Charlie have played as opponents but never teammates
+          createMockMatch('1', '3', '2', '4', 6, 10),
+          createMockMatch('3', '1', '2', '4', 5, 10),
+        ]
+
+        const result = findRareMatchup(players, matches)
+
+        // Should avoid pairing Alice & Bob since they've been frequent teammates
+        const team1Ids = [result.team1.attacker.id, result.team1.defender.id]
+        const team2Ids = [result.team2.attacker.id, result.team2.defender.id]
+
+        // Alice & Bob should NOT be on the same team (they're frequent teammates)
+        const hasFrequentPair =
+          (team1Ids.includes('1') && team1Ids.includes('2')) ||
+          (team2Ids.includes('1') && team2Ids.includes('2'))
+
+        expect(hasFrequentPair).toBe(false)
+
+        // Charlie & Diana should also NOT be on the same team (they've also been teammates 3 times)
+        const hasOtherFrequentPair =
+          (team1Ids.includes('3') && team1Ids.includes('4')) ||
+          (team2Ids.includes('3') && team2Ids.includes('4'))
+
+        expect(hasOtherFrequentPair).toBe(false)
+      })
+
+      it('should work with no match history', () => {
+        const players = [
+          createMockPlayer('1', 'Alice', 1200),
+          createMockPlayer('2', 'Bob', 1200),
+          createMockPlayer('3', 'Charlie', 1200),
+          createMockPlayer('4', 'Diana', 1200),
+        ]
+
+        const matches: Match[] = []
+
+        const result = findRareMatchup(players, matches)
+
+        // Should return a valid matchup
+        expect(result.team1.attacker).toBeDefined()
+        expect(result.team1.defender).toBeDefined()
+        expect(result.team2.attacker).toBeDefined()
+        expect(result.team2.defender).toBeDefined()
+        expect(result.confidence).toBe(1) // Maximum confidence for no history
+      })
+
+      it('should throw error for invalid pool size', () => {
+        const tooFew = [createMockPlayer('1', 'A', 1200)]
+        const tooMany = Array.from({ length: 8 }, (_, i) => createMockPlayer(`${i}`, `P${i}`, 1200))
+
+        expect(() => findRareMatchup(tooFew, [])).toThrow('Player pool must contain 4-7 players')
+        expect(() => findRareMatchup(tooMany, [])).toThrow('Player pool must contain 4-7 players')
+      })
+
+      it('should handle larger player pools', () => {
+        const players = [
+          createMockPlayer('1', 'A', 1500),
+          createMockPlayer('2', 'B', 1400),
+          createMockPlayer('3', 'C', 1300),
+          createMockPlayer('4', 'D', 1200),
+          createMockPlayer('5', 'E', 1100),
+        ]
+
+        const matches: Match[] = [
+          createMockMatch('1', '2', '3', '4', 10, 5), // A&B frequent teammates
+        ]
+
+        const result = findRareMatchup(players, matches)
+
+        // Should select 4 players from the pool
+        const assignedIds = [
+          result.team1.attacker.id,
+          result.team1.defender.id,
+          result.team2.attacker.id,
+          result.team2.defender.id,
+        ]
+        expect(new Set(assignedIds).size).toBe(4)
+        expect(assignedIds.every((id) => players.some((p) => p.id === id))).toBe(true)
+
+        // Should avoid pairing A&B since they're frequent teammates
+        const team1Ids = [result.team1.attacker.id, result.team1.defender.id]
+        const team2Ids = [result.team2.attacker.id, result.team2.defender.id]
+        const hasFrequentPair =
+          (team1Ids.includes('1') && team1Ids.includes('2')) ||
+          (team2Ids.includes('1') && team2Ids.includes('2'))
+        expect(hasFrequentPair).toBe(false)
+      })
     })
   })
 })
