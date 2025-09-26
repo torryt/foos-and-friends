@@ -92,7 +92,7 @@ export function PlayerRecentMatches({
         )}
       </div>
 
-      <div className="space-y-2 max-h-96 overflow-y-auto">
+      <div className="space-y-2 overflow-y-auto">
         {playerMatches.length === 0 ? (
           <p className="text-sm text-gray-500 text-center py-8">No matches played yet</p>
         ) : (
