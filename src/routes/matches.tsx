@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
+import { MatchEntryModal } from '@/components/MatchEntryModal'
 import MatchHistory from '@/components/MatchHistory'
 import { useGameLogic } from '@/hooks/useGameLogic'
-import RegisterGameForm from '@/RegisterGameForm'
 
 const matchesSearchSchema = z.object({
   playerId: z.string().optional(),
@@ -18,7 +18,7 @@ function Matches() {
   const { playerId } = Route.useSearch()
   const navigate = useNavigate()
   const [showRecordMatch, setShowRecordMatch] = useState(false)
-  const { players, matches, recordMatch } = useGameLogic()
+  const { players, matches, addMatch } = useGameLogic()
 
   const handlePlayerClick = (playerId: string) => {
     navigate({
@@ -32,17 +32,17 @@ function Matches() {
       <MatchHistory
         matches={matches}
         players={players}
-        onRecordMatch={() => setShowRecordMatch(true)}
+        onAddMatch={() => setShowRecordMatch(true)}
         initialSelectedPlayer={playerId}
         onPlayerClick={handlePlayerClick}
       />
 
       {showRecordMatch && (
-        <RegisterGameForm
+        <MatchEntryModal
           players={players}
           matches={matches}
-          recordMatch={recordMatch}
-          setShowRecordMatch={setShowRecordMatch}
+          addMatch={addMatch}
+          onClose={() => setShowRecordMatch(false)}
         />
       )}
     </div>

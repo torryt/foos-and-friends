@@ -42,8 +42,8 @@ class MatchesService {
     return { data: result.data, error: result.error ?? undefined }
   }
 
-  // Record a new match
-  async recordMatch(
+  // Add a new match
+  async addMatch(
     groupId: string,
     team1Player1Id: string,
     team1Player2Id: string,
@@ -177,7 +177,7 @@ class MatchesService {
 
       return { data: result.data, error: result.error ?? undefined }
     } catch (err) {
-      return { data: null, error: err instanceof Error ? err.message : 'Failed to record match' }
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to add match' }
     }
   }
 

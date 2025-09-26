@@ -8,7 +8,7 @@ import { calculateRankingChange } from '@/types'
 interface MatchHistoryProps {
   matches: Match[]
   players: Player[]
-  onRecordMatch: () => void
+  onAddMatch: () => void
   initialSelectedPlayer?: string
   onPlayerClick?: (playerId: string) => void
 }
@@ -91,7 +91,7 @@ const PlayerWithStats = ({
 const MatchHistory = ({
   matches,
   players,
-  onRecordMatch,
+  onAddMatch,
   initialSelectedPlayer,
   onPlayerClick,
 }: MatchHistoryProps) => {
@@ -145,7 +145,7 @@ const MatchHistory = ({
             </button>
             <button
               type="button"
-              onClick={onRecordMatch}
+              onClick={onAddMatch}
               className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-2 rounded-lg hover:from-orange-600 hover:to-red-700"
             >
               <Plus size={16} />

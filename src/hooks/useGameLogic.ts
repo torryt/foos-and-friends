@@ -94,7 +94,7 @@ export const useGameLogic = () => {
     }
   }
 
-  const recordMatch = async (
+  const addMatch = async (
     team1Player1Id: string,
     team1Player2Id: string,
     team2Player1Id: string,
@@ -107,7 +107,7 @@ export const useGameLogic = () => {
     }
 
     try {
-      const result = await matchesService.recordMatch(
+      const result = await matchesService.addMatch(
         currentGroup.id,
         team1Player1Id,
         team1Player2Id,
@@ -138,7 +138,7 @@ export const useGameLogic = () => {
     } catch (err) {
       return {
         success: false,
-        error: err instanceof Error ? err.message : 'Failed to record match',
+        error: err instanceof Error ? err.message : 'Failed to add match',
       }
     }
   }
@@ -204,7 +204,7 @@ export const useGameLogic = () => {
     loading,
     error,
     addPlayer,
-    recordMatch,
+    addMatch,
     updatePlayer,
     deletePlayer,
   }

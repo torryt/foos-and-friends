@@ -1,16 +1,16 @@
 import { Plus, Target } from 'lucide-react'
 
 interface QuickActionsProps {
-  onRecordMatch: () => void
+  onAddMatch: () => void
   onAddPlayer: () => void
 }
 
-const QuickActions = ({ onRecordMatch, onAddPlayer }: QuickActionsProps) => {
+const QuickActions = ({ onAddMatch, onAddPlayer }: QuickActionsProps) => {
   return (
     <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
       <button
         type="button"
-        onClick={onRecordMatch}
+        onClick={onAddMatch}
         className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-xl hover:from-orange-600 hover:to-red-700 shadow-lg flex items-center justify-center gap-2 font-semibold"
       >
         <Target size={20} />
