@@ -5,7 +5,7 @@ import type { Match, Player } from '@/types'
 import MatchHistory from '../MatchHistory'
 
 describe('MatchHistory', () => {
-  const mockOnRecordMatch = vi.fn()
+  const mockOnAddMatch = vi.fn()
 
   const mockPlayer1: Player = {
     id: 'player1',
@@ -61,7 +61,7 @@ describe('MatchHistory', () => {
 
   describe('Empty state', () => {
     it('renders empty state when no matches provided', () => {
-      render(<MatchHistory matches={[]} players={[]} onRecordMatch={mockOnRecordMatch} />)
+      render(<MatchHistory matches={[]} players={[]} onAddMatch={mockOnAddMatch} />)
 
       expect(screen.getByText('Recent Games')).toBeInTheDocument()
       expect(
@@ -69,15 +69,15 @@ describe('MatchHistory', () => {
       ).toBeInTheDocument()
     })
 
-    it('calls onRecordMatch when + button is clicked in empty state', async () => {
+    it('calls onAddMatch when + button is clicked in empty state', async () => {
       const user = userEvent.setup()
-      render(<MatchHistory matches={[]} players={[]} onRecordMatch={mockOnRecordMatch} />)
+      render(<MatchHistory matches={[]} players={[]} onAddMatch={mockOnAddMatch} />)
 
       const buttons = screen.getAllByRole('button')
       const addButton = buttons[1] // Second button is the add match button (+ icon)
       await user.click(addButton)
 
-      expect(mockOnRecordMatch).toHaveBeenCalledTimes(1)
+      expect(mockOnAddMatch).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -122,7 +122,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[matchWithRankingData]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -146,7 +146,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[matchWithRankingData]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -176,7 +176,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[matchWithRankingData]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -209,7 +209,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[legacyMatch]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -266,7 +266,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={matches}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -305,7 +305,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[matchWithZeroChange]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -346,7 +346,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[matchWithPositions]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -364,7 +364,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[matchWithPositions]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -410,7 +410,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={multipleMatches}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
         />,
       )
 
@@ -430,7 +430,7 @@ describe('MatchHistory', () => {
         <MatchHistory
           matches={[matchWithPositions]}
           players={[mockPlayer1, mockPlayer2, mockPlayer3, mockPlayer4]}
-          onRecordMatch={mockOnRecordMatch}
+          onAddMatch={mockOnAddMatch}
           onPlayerClick={mockOnPlayerClick}
         />,
       )
