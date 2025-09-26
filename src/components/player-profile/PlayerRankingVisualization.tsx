@@ -88,7 +88,7 @@ export function PlayerRankingVisualization({
         {showRankingChart && (
           <>
             {showComparison ? (
-              <div className="space-y-4">
+              <div>
                 {/* Player selector for comparison */}
                 <div className="flex flex-wrap gap-2">
                   {comparePlayerIds.map((id) => {
@@ -153,7 +153,13 @@ export function PlayerRankingVisualization({
                 </div>
 
                 {/* Comparison chart */}
-                <PlayerComparisonChart histories={comparisonHistories} height={300} />
+                <PlayerComparisonChart
+                  histories={comparisonHistories.filter(
+                    (h) => h.playerId === playerId || comparePlayerIds.includes(h.playerId),
+                  )}
+                  height={300}
+                  showLegend={false}
+                />
               </div>
             ) : (
               /* Single player chart */

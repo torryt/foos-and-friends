@@ -15,6 +15,7 @@ interface PlayerComparisonChartProps {
   histories: PlayerRankingHistory[]
   height?: number
   className?: string
+  showLegend?: boolean
 }
 
 const CHART_COLORS = [
@@ -35,6 +36,7 @@ export function PlayerComparisonChart({
   histories,
   height = 300,
   className,
+  showLegend = true,
 }: PlayerComparisonChartProps) {
   const [isMobile, setIsMobile] = React.useState(false)
   const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -181,14 +183,16 @@ export function PlayerComparisonChart({
   return (
     <div className={cn('bg-white rounded-lg p-4', className)}>
       {/* Legend stays outside scrollable area */}
-      <div className="mb-4">
-        {renderCustomLegend({
-          payload: histories.map((history, index) => ({
-            dataKey: history.playerId,
-            color: CHART_COLORS[index % CHART_COLORS.length],
-          })),
-        })}
-      </div>
+      {showLegend && (
+        <div className="mb-4">
+          {renderCustomLegend({
+            payload: histories.map((history, index) => ({
+              dataKey: history.playerId,
+              color: CHART_COLORS[index % CHART_COLORS.length],
+            })),
+          })}
+        </div>
+      )}
 
       <div
         ref={scrollRef}
@@ -197,11 +201,6 @@ export function PlayerComparisonChart({
           needsScroll ? { WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain' } : {}
         }
       >
-        {needsScroll && (
-          <p className="text-xs text-gray-500 mb-2">
-            ← Scroll left for match history. Showing all {chartData.length - 1} matches.
-          </p>
-        )}
         <div
           style={{
             width: typeof chartWidth === 'number' ? `${chartWidth}px` : chartWidth,

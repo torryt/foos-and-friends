@@ -4,11 +4,7 @@ import { useToast } from '@/hooks/useToast'
 import { savedMatchupsService } from '@/services/savedMatchupsService'
 import type { Match, Player } from '@/types'
 import type { TeamAssignment } from '@/utils/matchmaking'
-import {
-  calculatePositionPreferences,
-  findBestMatchup,
-  findRareMatchup,
-} from '@/utils/matchmaking'
+import { calculatePositionPreferences, findBestMatchup, findRareMatchup } from '@/utils/matchmaking'
 import { ScoreEntryStep } from './ScoreEntryStep'
 
 interface PickTeamsWorkflowProps {
@@ -138,7 +134,6 @@ export const PickTeamsWorkflow = ({
       setIsGenerating(false)
     }
   }
-
 
   const handleContinueToScore = () => {
     if (!matchmakingResult) return
@@ -306,10 +301,11 @@ export const PickTeamsWorkflow = ({
             <button
               type="button"
               onClick={() => setMatchmakingMode('rare')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${matchmakingMode === 'rare'
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                matchmakingMode === 'rare'
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-                }`}
+              }`}
             >
               <Sparkles size={14} />
               Rare Matchup
@@ -317,10 +313,11 @@ export const PickTeamsWorkflow = ({
             <button
               type="button"
               onClick={() => setMatchmakingMode('balanced')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${matchmakingMode === 'balanced'
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                matchmakingMode === 'balanced'
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-                }`}
+              }`}
             >
               <Brain size={14} />
               Balanced

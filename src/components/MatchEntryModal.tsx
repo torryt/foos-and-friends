@@ -22,12 +22,7 @@ interface MatchEntryModalProps {
 
 type WorkflowMode = 'entry' | 'pick-teams' | 'manual-teams' | 'use-matchup'
 
-export const MatchEntryModal = ({
-  players,
-  matches,
-  addMatch,
-  onClose,
-}: MatchEntryModalProps) => {
+export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEntryModalProps) => {
   const [mode, setMode] = useState<WorkflowMode>('entry')
   const savedMatchups = savedMatchupsService.getAllMatchups()
 

@@ -1,6 +1,7 @@
+import { Link } from '@tanstack/react-router'
 import { Calendar, Shield, Sword } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
-import { cn } from '@/lib/utils'
+import { cn, scrollToTop } from '@/lib/utils'
 import type { Match, Player } from '@/types'
 
 interface PlayerRecentMatchesProps {
@@ -81,7 +82,7 @@ export function PlayerRecentMatches({
                 key={`form-${recentForm.length - index}`}
                 className={cn(
                   'w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white',
-                  result === 'W' ? 'bg-green-500' : 'bg-red-500',
+                  result === 'W' ? 'bg-green-600' : 'bg-red-400',
                 )}
               >
                 {result}
@@ -108,38 +109,80 @@ export function PlayerRecentMatches({
                 key={match.id}
                 className={cn(
                   'p-3 rounded-lg border-l-4 bg-gray-50',
-                  won ? 'border-l-green-500' : 'border-l-red-500',
+                  won ? 'border-l-green-600' : 'border-l-red-400',
                 )}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        'px-2 py-1 rounded text-xs font-bold text-white',
-                        won ? 'bg-green-500' : 'bg-red-500',
-                      )}
-                    >
-                      {won ? 'W' : 'L'}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        {position === 'attacker' ? (
-                          <Sword className="w-4 h-4 text-orange-500" />
-                        ) : (
-                          <Shield className="w-4 h-4 text-blue-500" />
+                {/* Mobile-first layout: score on top, centered */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                  {/* Score - on top for mobile, right side for desktop */}
+                  <div className="text-center sm:hidden">
+                    <div className="text-xl font-bold text-gray-900">{score}</div>
+                  </div>
+
+                  {/* Main content - centered on mobile */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-center sm:text-left flex-1">
+                    <div className="flex items-center justify-center sm:justify-start gap-3">
+                      <div
+                        className={cn(
+                          'px-2 py-1 rounded text-xs font-bold text-white flex-shrink-0',
+                          won ? 'bg-green-600' : 'bg-red-400',
                         )}
-                        <span className="text-sm font-medium text-gray-900">
-                          with {teammate?.name || 'Unknown'}
-                        </span>
-                        <span className="text-xs text-gray-500">vs</span>
-                        <div className="flex items-center gap-1">
-                          {opponents.map((opponent) => (
-                            <span key={opponent?.id} className="text-xs text-gray-600">
-                              {opponent?.name}
-                            </span>
-                          ))}
+                      >
+                        {won ? 'W' : 'L'}
+                      </div>
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      {/* Main match info */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <div className="flex items-center justify-center sm:justify-start gap-2">
+                          {position === 'attacker' ? (
+                            <Sword className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                          ) : (
+                            <Shield className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                          )}
+                          <span className="text-sm font-medium text-gray-900">
+                            with{' '}
+                            {teammate ? (
+                              <Link
+                                to="/players/$playerId"
+                                params={{ playerId: teammate.id }}
+                                className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                onClick={() => scrollToTop()}
+                              >
+                                {teammate.name}
+                              </Link>
+                            ) : (
+                              'Unknown'
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-center sm:justify-start gap-1">
+                          <span className="text-xs text-gray-500">vs</span>
+                          <div className="flex items-center gap-1">
+                            {opponents.map((opponent, idx) => (
+                              <span key={opponent?.id} className="text-xs">
+                                {opponent ? (
+                                  <Link
+                                    to="/players/$playerId"
+                                    params={{ playerId: opponent.id }}
+                                    className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                    onClick={() => scrollToTop()}
+                                  >
+                                    {opponent.name}
+                                  </Link>
+                                ) : (
+                                  <span className="text-gray-600">Unknown</span>
+                                )}
+                                {idx < opponents.length - 1 && (
+                                  <span className="text-gray-600">, </span>
+                                )}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </div>
+                      {/* Date */}
                       <div className="text-xs text-gray-500 mt-1">
                         {new Date(match.date).toLocaleDateString('en-US', {
                           month: 'short',
@@ -148,7 +191,9 @@ export function PlayerRecentMatches({
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+
+                  {/* Score - hidden on mobile, shown on desktop */}
+                  <div className="hidden sm:block text-right">
                     <div className="text-lg font-bold text-gray-900">{score}</div>
                   </div>
                 </div>
