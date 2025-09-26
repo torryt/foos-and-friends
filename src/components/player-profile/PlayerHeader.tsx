@@ -20,7 +20,10 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
   const nameInputId = React.useId()
 
   const handleSave = async () => {
-    if (editedName.trim() && editedName !== player.name) {
+    const nameChanged = editedName.trim() !== player.name
+    const avatarChanged = editedAvatar !== player.avatar
+
+    if (editedName.trim() && (nameChanged || avatarChanged)) {
       await onUpdatePlayer(player.id, {
         name: editedName.trim(),
         avatar: editedAvatar,
@@ -61,10 +64,11 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
                         key={emoji}
                         type="button"
                         onClick={() => setEditedAvatar(emoji)}
-                        className={`p-1.5 text-2xl rounded-lg flex items-center justify-center aspect-square transition-all ${editedAvatar === emoji
+                        className={`p-1.5 text-2xl rounded-lg flex items-center justify-center aspect-square transition-all ${
+                          editedAvatar === emoji
                             ? 'bg-orange-100 ring-2 ring-orange-500 ring-offset-1'
                             : 'hover:bg-gray-50'
-                          }`}
+                        }`}
                       >
                         {emoji}
                       </button>
