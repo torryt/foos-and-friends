@@ -61,11 +61,10 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
                         key={emoji}
                         type="button"
                         onClick={() => setEditedAvatar(emoji)}
-                        className={`p-1.5 text-2xl rounded-lg flex items-center justify-center aspect-square transition-all ${
-                          editedAvatar === emoji
+                        className={`p-1.5 text-2xl rounded-lg flex items-center justify-center aspect-square transition-all ${editedAvatar === emoji
                             ? 'bg-orange-100 ring-2 ring-orange-500 ring-offset-1'
                             : 'hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {emoji}
                       </button>
@@ -90,7 +89,7 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
               <p className="text-sm text-gray-500 mt-1">
                 Member since {new Date(player.createdAt || Date.now()).toLocaleDateString()}
               </p>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
                 <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
                   {player.ranking} ELO
                 </span>
