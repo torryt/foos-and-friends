@@ -13,7 +13,7 @@ vi.mock('@/services/playersService', () => ({
 vi.mock('@/services/matchesService', () => ({
   matchesService: {
     getMatchesByGroup: vi.fn().mockResolvedValue({ data: [] }),
-    recordMatch: vi.fn().mockResolvedValue({ data: null }),
+    addMatch: vi.fn().mockResolvedValue({ data: null }),
   },
 }))
 
@@ -52,7 +52,7 @@ describe('useGameLogic', () => {
     expect(result.current.loading).toBe(false)
     expect(result.current.error).toBeNull()
     expect(typeof result.current.addPlayer).toBe('function')
-    expect(typeof result.current.recordMatch).toBe('function')
+    expect(typeof result.current.addMatch).toBe('function')
   })
 
   test('addPlayer returns error when no group selected', async () => {
@@ -64,10 +64,10 @@ describe('useGameLogic', () => {
     expect(response.error).toBe('No group selected or user not authenticated')
   })
 
-  test('recordMatch returns error when no group selected', async () => {
+  test('addMatch returns error when no group selected', async () => {
     const { result } = renderHook(() => useGameLogic())
 
-    const response = await result.current.recordMatch('1', '2', '3', '4', '10', '5')
+    const response = await result.current.addMatch('1', '2', '3', '4', '10', '5')
 
     expect(response.success).toBe(false)
     expect(response.error).toBe('No group selected or user not authenticated')

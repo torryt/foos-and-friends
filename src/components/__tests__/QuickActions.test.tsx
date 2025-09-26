@@ -4,45 +4,45 @@ import { vi } from 'vitest'
 import QuickActions from '../QuickActions'
 
 describe('QuickActions', () => {
-  const mockOnRecordMatch = vi.fn()
+  const mockOnAddMatch = vi.fn()
   const mockOnAddPlayer = vi.fn()
 
   beforeEach(() => {
-    mockOnRecordMatch.mockClear()
+    mockOnAddMatch.mockClear()
     mockOnAddPlayer.mockClear()
   })
 
   test('renders all action buttons', () => {
-    render(<QuickActions onRecordMatch={mockOnRecordMatch} onAddPlayer={mockOnAddPlayer} />)
+    render(<QuickActions onAddMatch={mockOnAddMatch} onAddPlayer={mockOnAddPlayer} />)
 
     expect(screen.getByText('Add Match')).toBeInTheDocument()
     expect(screen.getByText('Add Player')).toBeInTheDocument()
   })
 
-  test('calls onRecordMatch when Add Match button is clicked', async () => {
+  test('calls onAddMatch when Add Match button is clicked', async () => {
     const user = userEvent.setup()
-    render(<QuickActions onRecordMatch={mockOnRecordMatch} onAddPlayer={mockOnAddPlayer} />)
+    render(<QuickActions onAddMatch={mockOnAddMatch} onAddPlayer={mockOnAddPlayer} />)
 
     const recordButton = screen.getByRole('button', { name: /add match/i })
     await user.click(recordButton)
 
-    expect(mockOnRecordMatch).toHaveBeenCalledTimes(1)
+    expect(mockOnAddMatch).toHaveBeenCalledTimes(1)
     expect(mockOnAddPlayer).not.toHaveBeenCalled()
   })
 
   test('calls onAddPlayer when Add Player button is clicked', async () => {
     const user = userEvent.setup()
-    render(<QuickActions onRecordMatch={mockOnRecordMatch} onAddPlayer={mockOnAddPlayer} />)
+    render(<QuickActions onAddMatch={mockOnAddMatch} onAddPlayer={mockOnAddPlayer} />)
 
     const addButton = screen.getByRole('button', { name: /add player/i })
     await user.click(addButton)
 
     expect(mockOnAddPlayer).toHaveBeenCalledTimes(1)
-    expect(mockOnRecordMatch).not.toHaveBeenCalled()
+    expect(mockOnAddMatch).not.toHaveBeenCalled()
   })
 
   test('renders with correct icons', () => {
-    render(<QuickActions onRecordMatch={mockOnRecordMatch} onAddPlayer={mockOnAddPlayer} />)
+    render(<QuickActions onAddMatch={mockOnAddMatch} onAddPlayer={mockOnAddPlayer} />)
 
     // Check that buttons contain the expected text content
     const recordButton = screen.getByRole('button', { name: /add match/i })
