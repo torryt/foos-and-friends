@@ -163,12 +163,22 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
               animationDuration={500}
               // biome-ignore lint/suspicious/noExplicitAny: Recharts requires any for custom components
               dot={(props: any) => {
-                const { cx, cy, payload } = props
+                const { cx, cy, payload, index } = props
                 if (!cx || !cy || !payload || payload.matchNumber === 0) {
-                  return <circle cx={0} cy={0} r={0} fill="transparent" />
+                  return <circle key={`dot-${index}`} cx={0} cy={0} r={0} fill="transparent" />
                 }
                 const color = payload.result === 'win' ? '#16a34a' : '#dc2626'
-                return <circle cx={cx} cy={cy} r={4} fill={color} stroke="#fff" strokeWidth={2} />
+                return (
+                  <circle
+                    key={`dot-${index}`}
+                    cx={cx}
+                    cy={cy}
+                    r={4}
+                    fill={color}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
+                )
               }}
             />
           </AreaChart>
