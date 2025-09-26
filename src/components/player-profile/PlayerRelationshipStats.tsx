@@ -3,6 +3,7 @@ import { ChevronDown, Crown, Shield, TrendingDown, TrendingUp, Users } from 'luc
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { WinLossBadge } from '@/components/ui/WinLossBadge'
 import { type RelationshipStats, useRelationshipStats } from '@/hooks/useRelationshipStats'
 import { cn, scrollToTop } from '@/lib/utils'
 import type { Match, Player } from '@/types'
@@ -106,15 +107,11 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
               {relationship.recentForm.length > 0 && (
                 <div className="hidden sm:flex gap-1">
                   {relationship.recentForm.map((result, index) => (
-                    <span
+                    <WinLossBadge
                       key={`${relationship.playerId}-form-${index}`}
-                      className={cn(
-                        'w-4 h-4 sm:w-5 sm:h-5 rounded-full text-xs font-bold flex items-center justify-center text-white',
-                        result === 'W' ? 'bg-green-400' : 'bg-red-400',
-                      )}
-                    >
-                      {result}
-                    </span>
+                      result={result as 'W' | 'L'}
+                      size="sm"
+                    />
                   ))}
                 </div>
               )}

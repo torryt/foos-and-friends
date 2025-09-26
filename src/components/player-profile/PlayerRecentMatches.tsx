@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Calendar, Shield, Sword } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
+import { WinLossBadge } from '@/components/ui/WinLossBadge'
 import { cn, scrollToTop } from '@/lib/utils'
 import type { Match, Player } from '@/types'
 
@@ -78,15 +79,11 @@ export function PlayerRecentMatches({
         {recentForm.length > 0 && (
           <div className="flex gap-1">
             {recentForm.map((result, index) => (
-              <span
+              <WinLossBadge
                 key={`form-${recentForm.length - index}`}
-                className={cn(
-                  'w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center text-white',
-                  result === 'W' ? 'bg-green-600' : 'bg-red-400',
-                )}
-              >
-                {result}
-              </span>
+                result={result as 'W' | 'L'}
+                size="md"
+              />
             ))}
           </div>
         )}
@@ -122,14 +119,7 @@ export function PlayerRecentMatches({
                   {/* Main content - centered on mobile */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-center sm:text-left flex-1">
                     <div className="flex items-center justify-center sm:justify-start gap-3">
-                      <div
-                        className={cn(
-                          'px-2 py-1 rounded text-xs font-bold text-white flex-shrink-0',
-                          won ? 'bg-green-600' : 'bg-red-400',
-                        )}
-                      >
-                        {won ? 'W' : 'L'}
-                      </div>
+                      <WinLossBadge result={won ? 'W' : 'L'} size="md" className="flex-shrink-0" />
                     </div>
 
                     <div className="min-w-0 flex-1">
