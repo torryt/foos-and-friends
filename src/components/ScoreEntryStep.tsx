@@ -81,37 +81,41 @@ export const ScoreEntryStep = ({
           <div className="space-y-3">
             <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
               <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-              <div className="flex items-center justify-between text-blue-800">
+              <div className="grid grid-cols-3 items-center text-blue-800">
                 <span className="text-left">{teams.team1.attacker.name} (A)</span>
-                {onSwapTeam1 && (
-                  <button
-                    type="button"
-                    onClick={onSwapTeam1}
-                    disabled={isSubmitting}
-                    className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
-                    title="Swap positions for Team 1"
-                  >
-                    <ArrowLeftRight size={18} />
-                  </button>
-                )}
+                <div className="flex justify-center">
+                  {onSwapTeam1 && (
+                    <button
+                      type="button"
+                      onClick={onSwapTeam1}
+                      disabled={isSubmitting}
+                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
+                      title="Swap positions for Team 1"
+                    >
+                      <ArrowLeftRight size={18} />
+                    </button>
+                  )}
+                </div>
                 <span className="text-right">{teams.team1.defender.name} (D)</span>
               </div>
             </div>
             <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
               <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-              <div className="flex items-center justify-between text-purple-800">
+              <div className="grid grid-cols-3 items-center text-purple-800">
                 <span className="text-left">{teams.team2.attacker.name} (A)</span>
-                {onSwapTeam2 && (
-                  <button
-                    type="button"
-                    onClick={onSwapTeam2}
-                    disabled={isSubmitting}
-                    className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
-                    title="Swap positions for Team 2"
-                  >
-                    <ArrowLeftRight size={18} />
-                  </button>
-                )}
+                <div className="flex justify-center">
+                  {onSwapTeam2 && (
+                    <button
+                      type="button"
+                      onClick={onSwapTeam2}
+                      disabled={isSubmitting}
+                      className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
+                      title="Swap positions for Team 2"
+                    >
+                      <ArrowLeftRight size={18} />
+                    </button>
+                  )}
+                </div>
                 <span className="text-right">{teams.team2.defender.name} (D)</span>
               </div>
             </div>
