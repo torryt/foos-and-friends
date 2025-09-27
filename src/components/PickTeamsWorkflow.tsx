@@ -306,8 +306,8 @@ export const PickTeamsWorkflow = ({
             <div className="space-y-3">
               <div className="bg-blue-100 rounded-lg p-3">
                 <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-                <div className="flex items-center text-blue-800">
-                  <span>
+                <div className="flex items-center justify-between text-blue-800">
+                  <span className="text-left">
                     {team1Swapped
                       ? matchmakingResult.team1.defender.name
                       : matchmakingResult.team1.attacker.name}{' '}
@@ -316,12 +316,12 @@ export const PickTeamsWorkflow = ({
                   <button
                     type="button"
                     onClick={() => handleSwapTeam(1)}
-                    className="mx-2 p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors"
+                    className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors"
                     title="Swap positions for Team 1"
                   >
                     <ArrowLeftRight size={18} />
                   </button>
-                  <span>
+                  <span className="text-right">
                     {team1Swapped
                       ? matchmakingResult.team1.attacker.name
                       : matchmakingResult.team1.defender.name}{' '}
@@ -332,8 +332,8 @@ export const PickTeamsWorkflow = ({
               <div className="text-center font-bold text-gray-600">VS</div>
               <div className="bg-purple-100 rounded-lg p-3">
                 <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-                <div className="flex items-center text-purple-800">
-                  <span>
+                <div className="flex items-center justify-between text-purple-800">
+                  <span className="text-left">
                     {team2Swapped
                       ? matchmakingResult.team2.defender.name
                       : matchmakingResult.team2.attacker.name}{' '}
@@ -342,12 +342,12 @@ export const PickTeamsWorkflow = ({
                   <button
                     type="button"
                     onClick={() => handleSwapTeam(2)}
-                    className="mx-2 p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors"
+                    className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors"
                     title="Swap positions for Team 2"
                   >
                     <ArrowLeftRight size={18} />
                   </button>
-                  <span>
+                  <span className="text-right">
                     {team2Swapped
                       ? matchmakingResult.team2.attacker.name
                       : matchmakingResult.team2.defender.name}{' '}
