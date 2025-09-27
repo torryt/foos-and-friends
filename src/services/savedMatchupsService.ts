@@ -9,14 +9,17 @@ export interface SavedMatchup {
   playerCount: number
 }
 
-const STORAGE_KEY = 'foosball_saved_matchups'
+const STORAGE_KEY_PREFIX = 'foosball_saved_matchups'
 const EXPIRY_HOURS = 48
 
 class SavedMatchupsService {
+  private getStorageKey(groupId: string): string {
+    return `${STORAGE_KEY_PREFIX}_${groupId}`
+  }
   /**
    * Save a generated matchup to localStorage
    */
-  saveMatchup(teams: TeamAssignment, mode: 'balanced' | 'rare'): SavedMatchup {
+  saveMatchup(teams: TeamAssignment, mode: 'balanced' | 'rare', groupId: string): SavedMatchup {
     const matchup: SavedMatchup = {
       id: `matchup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
@@ -26,22 +29,22 @@ class SavedMatchupsService {
       playerCount: 4, // Always 4 players in a team assignment
     }
 
-    const existing = this.getAllMatchups()
+    const existing = this.getAllMatchups(groupId)
     const updated = [matchup, ...existing]
 
     // Keep only the 10 most recent matchups
     const trimmed = updated.slice(0, 10)
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed))
+    localStorage.setItem(this.getStorageKey(groupId), JSON.stringify(trimmed))
     return matchup
   }
 
   /**
    * Get all saved matchups, filtered by expiry
    */
-  getAllMatchups(): SavedMatchup[] {
+  getAllMatchups(groupId: string): SavedMatchup[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY)
+      const stored = localStorage.getItem(this.getStorageKey(groupId))
       if (!stored) return []
 
       const matchups: SavedMatchup[] = JSON.parse(stored)
@@ -55,7 +58,7 @@ class SavedMatchupsService {
 
       // Update storage if we filtered out expired items
       if (valid.length !== matchups.length) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(valid))
+        localStorage.setItem(this.getStorageKey(groupId), JSON.stringify(valid))
       }
 
       return valid
@@ -68,25 +71,25 @@ class SavedMatchupsService {
   /**
    * Get a specific matchup by ID
    */
-  getMatchup(id: string): SavedMatchup | null {
-    const matchups = this.getAllMatchups()
+  getMatchup(id: string, groupId: string): SavedMatchup | null {
+    const matchups = this.getAllMatchups(groupId)
     return matchups.find((m) => m.id === id) || null
   }
 
   /**
    * Delete a specific matchup
    */
-  deleteMatchup(id: string): void {
-    const matchups = this.getAllMatchups()
+  deleteMatchup(id: string, groupId: string): void {
+    const matchups = this.getAllMatchups(groupId)
     const filtered = matchups.filter((m) => m.id !== id)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered))
+    localStorage.setItem(this.getStorageKey(groupId), JSON.stringify(filtered))
   }
 
   /**
-   * Clear all saved matchups
+   * Clear all saved matchups for a specific group
    */
-  clearAllMatchups(): void {
-    localStorage.removeItem(STORAGE_KEY)
+  clearAllMatchups(groupId: string): void {
+    localStorage.removeItem(this.getStorageKey(groupId))
   }
 
   /**

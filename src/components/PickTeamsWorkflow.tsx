@@ -21,6 +21,7 @@ interface PickTeamsWorkflowProps {
   onBack: () => void
   onClose: () => void
   onSuccess: () => void
+  groupId: string
 }
 
 type Step = 'selection' | 'result' | 'score'
@@ -32,6 +33,7 @@ export const PickTeamsWorkflow = ({
   onBack,
   onClose,
   onSuccess,
+  groupId,
 }: PickTeamsWorkflowProps) => {
   const [step, setStep] = useState<Step>('selection')
   const [matchmakingMode, setMatchmakingMode] = useState<'balanced' | 'rare'>('rare')
@@ -121,7 +123,7 @@ export const PickTeamsWorkflow = ({
       setMatchmakingResult(result)
 
       // Auto-save the matchup immediately
-      const savedMatchup = savedMatchupsService.saveMatchup(result, matchmakingMode)
+      const savedMatchup = savedMatchupsService.saveMatchup(result, matchmakingMode, groupId)
       setSavedMatchupId(savedMatchup.id)
 
       setStep('result')
@@ -181,7 +183,7 @@ export const PickTeamsWorkflow = ({
               onClick={() => {
                 // Remove the saved matchup when going back
                 if (savedMatchupId) {
-                  savedMatchupsService.deleteMatchup(savedMatchupId)
+                  savedMatchupsService.deleteMatchup(savedMatchupId, groupId)
                   setSavedMatchupId(null)
                 }
                 setStep('selection')
@@ -252,7 +254,7 @@ export const PickTeamsWorkflow = ({
               onClick={() => {
                 // Remove the previously saved matchup when regenerating
                 if (savedMatchupId) {
-                  savedMatchupsService.deleteMatchup(savedMatchupId)
+                  savedMatchupsService.deleteMatchup(savedMatchupId, groupId)
                   setSavedMatchupId(null)
                 }
                 setStep('selection')
