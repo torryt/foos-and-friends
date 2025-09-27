@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader2, Target, X } from 'lucide-react'
+import { ArrowLeft, ArrowLeftRight, Loader2, Target, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { TeamAssignment } from '@/utils/matchmaking'
 
@@ -8,6 +8,8 @@ interface ScoreEntryStepProps {
   onClose: () => void
   onSubmit: (score1: string, score2: string) => Promise<void>
   title?: string
+  onSwapTeam1?: () => void
+  onSwapTeam2?: () => void
 }
 
 export const ScoreEntryStep = ({
@@ -16,6 +18,8 @@ export const ScoreEntryStep = ({
   onClose,
   onSubmit,
   title = 'Enter Score',
+  onSwapTeam1,
+  onSwapTeam2,
 }: ScoreEntryStepProps) => {
   const [score1, setScore1] = useState('')
   const [score2, setScore2] = useState('')
@@ -77,14 +81,42 @@ export const ScoreEntryStep = ({
           <div className="space-y-3">
             <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
               <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-              <div className="text-blue-800">
-                {teams.team1.attacker.name} (A) + {teams.team1.defender.name} (D)
+              <div className="grid grid-cols-3 items-center text-blue-800">
+                <span className="text-left">{teams.team1.attacker.name} (A)</span>
+                <div className="flex justify-center">
+                  {onSwapTeam1 && (
+                    <button
+                      type="button"
+                      onClick={onSwapTeam1}
+                      disabled={isSubmitting}
+                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
+                      title="Swap positions for Team 1"
+                    >
+                      <ArrowLeftRight size={18} />
+                    </button>
+                  )}
+                </div>
+                <span className="text-right">{teams.team1.defender.name} (D)</span>
               </div>
             </div>
             <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
               <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-              <div className="text-purple-800">
-                {teams.team2.attacker.name} (A) + {teams.team2.defender.name} (D)
+              <div className="grid grid-cols-3 items-center text-purple-800">
+                <span className="text-left">{teams.team2.attacker.name} (A)</span>
+                <div className="flex justify-center">
+                  {onSwapTeam2 && (
+                    <button
+                      type="button"
+                      onClick={onSwapTeam2}
+                      disabled={isSubmitting}
+                      className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
+                      title="Swap positions for Team 2"
+                    >
+                      <ArrowLeftRight size={18} />
+                    </button>
+                  )}
+                </div>
+                <span className="text-right">{teams.team2.defender.name} (D)</span>
               </div>
             </div>
           </div>
