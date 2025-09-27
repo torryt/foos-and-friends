@@ -80,16 +80,24 @@ describe('matchmaking algorithm', () => {
   })
 
   describe('generateTeamCombinations', () => {
-    it('should throw error for invalid player pool size', () => {
+    it('should throw error for too few players', () => {
       const tooFew = [createMockPlayer('1', 'A', 1200), createMockPlayer('2', 'B', 1200)]
-      const tooMany = Array.from({ length: 8 }, (_, i) =>
+
+      expect(() => generateTeamCombinations(tooFew)).toThrow(
+        'Player pool must contain 4 or more players',
+      )
+    })
+
+    it('should work with 8 or more players', () => {
+      const eightPlayers = Array.from({ length: 8 }, (_, i) =>
         createMockPlayer(`${i}`, `Player${i}`, 1200),
       )
 
-      expect(() => generateTeamCombinations(tooFew)).toThrow('Player pool must contain 4-7 players')
-      expect(() => generateTeamCombinations(tooMany)).toThrow(
-        'Player pool must contain 4-7 players',
-      )
+      const combinations = generateTeamCombinations(eightPlayers)
+
+      // Should generate combinations without error
+      expect(combinations.length).toBeGreaterThan(0)
+      expect(() => generateTeamCombinations(eightPlayers)).not.toThrow()
     })
 
     it('should generate correct number of combinations for 4 players', () => {
@@ -428,12 +436,25 @@ describe('matchmaking algorithm', () => {
       expect(Math.abs(team1Total - team2Total)).toBeLessThan(600) // Reasonable balance
     })
 
-    it('should throw error for invalid pool size', () => {
+    it('should throw error for too few players', () => {
       const tooFew = [createMockPlayer('1', 'A', 1200)]
-      const tooMany = Array.from({ length: 8 }, (_, i) => createMockPlayer(`${i}`, `P${i}`, 1200))
 
-      expect(() => findBestMatchup(tooFew)).toThrow('Player pool must contain 4-7 players')
-      expect(() => findBestMatchup(tooMany)).toThrow('Player pool must contain 4-7 players')
+      expect(() => findBestMatchup(tooFew)).toThrow('Player pool must contain 4 or more players')
+    })
+
+    it('should work with 8 or more players', () => {
+      const eightPlayers = Array.from({ length: 8 }, (_, i) =>
+        createMockPlayer(`${i}`, `P${i}`, 1200),
+      )
+
+      const result = findBestMatchup(eightPlayers)
+
+      // Should work without error
+      expect(result).toBeDefined()
+      expect(result.team1.attacker).toBeDefined()
+      expect(result.team1.defender).toBeDefined()
+      expect(result.team2.attacker).toBeDefined()
+      expect(result.team2.defender).toBeDefined()
     })
 
     it('should use provided position preferences', () => {
@@ -708,12 +729,27 @@ describe('matchmaking algorithm', () => {
         expect(result.confidence).toBe(1) // Maximum confidence for no history
       })
 
-      it('should throw error for invalid pool size', () => {
+      it('should throw error for too few players', () => {
         const tooFew = [createMockPlayer('1', 'A', 1200)]
-        const tooMany = Array.from({ length: 8 }, (_, i) => createMockPlayer(`${i}`, `P${i}`, 1200))
 
-        expect(() => findRareMatchup(tooFew, [])).toThrow('Player pool must contain 4-7 players')
-        expect(() => findRareMatchup(tooMany, [])).toThrow('Player pool must contain 4-7 players')
+        expect(() => findRareMatchup(tooFew, [])).toThrow(
+          'Player pool must contain 4 or more players',
+        )
+      })
+
+      it('should work with 8 or more players', () => {
+        const eightPlayers = Array.from({ length: 8 }, (_, i) =>
+          createMockPlayer(`${i}`, `P${i}`, 1200),
+        )
+
+        const result = findRareMatchup(eightPlayers, [])
+
+        // Should work without error
+        expect(result).toBeDefined()
+        expect(result.team1.attacker).toBeDefined()
+        expect(result.team1.defender).toBeDefined()
+        expect(result.team2.attacker).toBeDefined()
+        expect(result.team2.defender).toBeDefined()
       })
 
       it('should handle larger player pools', () => {
