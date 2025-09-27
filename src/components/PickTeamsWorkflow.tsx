@@ -49,6 +49,8 @@ export const PickTeamsWorkflow = ({
   const [matchmakingResult, setMatchmakingResult] = useState<TeamAssignment | null>(null)
   const [savedMatchupId, setSavedMatchupId] = useState<string | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [team1Swapped, setTeam1Swapped] = useState(false)
+  const [team2Swapped, setTeam2Swapped] = useState(false)
   const { toast } = useToast()
 
   const handlePlayerPoolToggle = (playerId: string) => {
@@ -129,6 +131,9 @@ export const PickTeamsWorkflow = ({
           : findRareMatchup(poolPlayers, matches)
 
       setMatchmakingResult(result)
+      // Reset swap states when generating new matchup
+      setTeam1Swapped(false)
+      setTeam2Swapped(false)
 
       // Auto-save the matchup immediately
       const savedMatchup = savedMatchupsService.saveMatchup(result, matchmakingMode)
@@ -150,29 +155,60 @@ export const PickTeamsWorkflow = ({
     setStep('score')
   }
 
-  const handleSwapPositions = () => {
+  const handleSwapTeam = (teamNumber: 1 | 2) => {
     if (!matchmakingResult) return
 
-    // Swap attacker and defender for both teams
-    const swappedResult: TeamAssignment = {
+    if (teamNumber === 1) {
+      setTeam1Swapped(!team1Swapped)
+    } else {
+      setTeam2Swapped(!team2Swapped)
+    }
+
+    // Update the saved matchup with swapped positions
+    const updatedResult: TeamAssignment = {
       team1: {
-        attacker: matchmakingResult.team1.defender,
-        defender: matchmakingResult.team1.attacker,
+        attacker:
+          teamNumber === 1 && !team1Swapped
+            ? matchmakingResult.team1.defender
+            : teamNumber === 1 && team1Swapped
+              ? matchmakingResult.team1.attacker
+              : team1Swapped
+                ? matchmakingResult.team1.defender
+                : matchmakingResult.team1.attacker,
+        defender:
+          teamNumber === 1 && !team1Swapped
+            ? matchmakingResult.team1.attacker
+            : teamNumber === 1 && team1Swapped
+              ? matchmakingResult.team1.defender
+              : team1Swapped
+                ? matchmakingResult.team1.attacker
+                : matchmakingResult.team1.defender,
       },
       team2: {
-        attacker: matchmakingResult.team2.defender,
-        defender: matchmakingResult.team2.attacker,
+        attacker:
+          teamNumber === 2 && !team2Swapped
+            ? matchmakingResult.team2.defender
+            : teamNumber === 2 && team2Swapped
+              ? matchmakingResult.team2.attacker
+              : team2Swapped
+                ? matchmakingResult.team2.defender
+                : matchmakingResult.team2.attacker,
+        defender:
+          teamNumber === 2 && !team2Swapped
+            ? matchmakingResult.team2.attacker
+            : teamNumber === 2 && team2Swapped
+              ? matchmakingResult.team2.defender
+              : team2Swapped
+                ? matchmakingResult.team2.attacker
+                : matchmakingResult.team2.defender,
       },
       rankingDifference: matchmakingResult.rankingDifference,
       confidence: matchmakingResult.confidence,
     }
 
-    setMatchmakingResult(swappedResult)
-
-    // Update the saved matchup with swapped positions
     if (savedMatchupId) {
       savedMatchupsService.deleteMatchup(savedMatchupId)
-      const newSavedMatchup = savedMatchupsService.saveMatchup(swappedResult, matchmakingMode)
+      const newSavedMatchup = savedMatchupsService.saveMatchup(updatedResult, matchmakingMode)
       setSavedMatchupId(newSavedMatchup.id)
     }
   }
@@ -180,11 +216,25 @@ export const PickTeamsWorkflow = ({
   const handleAddMatch = async (score1: string, score2: string) => {
     if (!matchmakingResult) return
 
+    // Get the actual positions after swapping
+    const team1Attacker = team1Swapped
+      ? matchmakingResult.team1.defender
+      : matchmakingResult.team1.attacker
+    const team1Defender = team1Swapped
+      ? matchmakingResult.team1.attacker
+      : matchmakingResult.team1.defender
+    const team2Attacker = team2Swapped
+      ? matchmakingResult.team2.defender
+      : matchmakingResult.team2.attacker
+    const team2Defender = team2Swapped
+      ? matchmakingResult.team2.attacker
+      : matchmakingResult.team2.defender
+
     const result = await addMatch(
-      matchmakingResult.team1.attacker.id,
-      matchmakingResult.team1.defender.id,
-      matchmakingResult.team2.attacker.id,
-      matchmakingResult.team2.defender.id,
+      team1Attacker.id,
+      team1Defender.id,
+      team2Attacker.id,
+      team2Defender.id,
       score1,
       score2,
     )
@@ -221,6 +271,8 @@ export const PickTeamsWorkflow = ({
                   savedMatchupsService.deleteMatchup(savedMatchupId)
                   setSavedMatchupId(null)
                 }
+                setTeam1Swapped(false)
+                setTeam2Swapped(false)
                 setStep('selection')
               }}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
@@ -254,33 +306,60 @@ export const PickTeamsWorkflow = ({
             <div className="space-y-3">
               <div className="bg-blue-100 rounded-lg p-3">
                 <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-                <div className="text-blue-800">
-                  {matchmakingResult.team1.attacker.name} (A) +{' '}
-                  {matchmakingResult.team1.defender.name} (D)
+                <div className="flex items-center text-blue-800">
+                  <span>
+                    {team1Swapped
+                      ? matchmakingResult.team1.defender.name
+                      : matchmakingResult.team1.attacker.name}{' '}
+                    (A)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSwapTeam(1)}
+                    className="mx-2 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors"
+                    title="Swap positions for Team 1"
+                  >
+                    <ArrowUpDown size={14} />
+                  </button>
+                  <span>
+                    {team1Swapped
+                      ? matchmakingResult.team1.attacker.name
+                      : matchmakingResult.team1.defender.name}{' '}
+                    (D)
+                  </span>
                 </div>
               </div>
               <div className="text-center font-bold text-gray-600">VS</div>
               <div className="bg-purple-100 rounded-lg p-3">
                 <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-                <div className="text-purple-800">
-                  {matchmakingResult.team2.attacker.name} (A) +{' '}
-                  {matchmakingResult.team2.defender.name} (D)
+                <div className="flex items-center text-purple-800">
+                  <span>
+                    {team2Swapped
+                      ? matchmakingResult.team2.defender.name
+                      : matchmakingResult.team2.attacker.name}{' '}
+                    (A)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSwapTeam(2)}
+                    className="mx-2 p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors"
+                    title="Swap positions for Team 2"
+                  >
+                    <ArrowUpDown size={14} />
+                  </button>
+                  <span>
+                    {team2Swapped
+                      ? matchmakingResult.team2.attacker.name
+                      : matchmakingResult.team2.defender.name}{' '}
+                    (D)
+                  </span>
                 </div>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between">
+            <div className="mt-3 pt-3 border-t border-gray-200">
               <span className="text-xs text-gray-600">
                 Ranking diff: {matchmakingResult.rankingDifference} pts
               </span>
-              <button
-                type="button"
-                onClick={handleSwapPositions}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors"
-                title="Swap attacker and defender positions"
-              >
-                <ArrowUpDown size={12} />
-                Swap positions
-              </button>
             </div>
           </div>
 
@@ -301,6 +380,8 @@ export const PickTeamsWorkflow = ({
                   savedMatchupsService.deleteMatchup(savedMatchupId)
                   setSavedMatchupId(null)
                 }
+                setTeam1Swapped(false)
+                setTeam2Swapped(false)
                 setStep('selection')
               }}
               className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"

@@ -8,7 +8,8 @@ interface ScoreEntryStepProps {
   onClose: () => void
   onSubmit: (score1: string, score2: string) => Promise<void>
   title?: string
-  onSwapPositions?: () => void
+  onSwapTeam1?: () => void
+  onSwapTeam2?: () => void
 }
 
 export const ScoreEntryStep = ({
@@ -17,7 +18,8 @@ export const ScoreEntryStep = ({
   onClose,
   onSubmit,
   title = 'Enter Score',
-  onSwapPositions,
+  onSwapTeam1,
+  onSwapTeam2,
 }: ScoreEntryStepProps) => {
   const [score1, setScore1] = useState('')
   const [score2, setScore2] = useState('')
@@ -79,31 +81,41 @@ export const ScoreEntryStep = ({
           <div className="space-y-3">
             <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
               <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-              <div className="text-blue-800">
-                {teams.team1.attacker.name} (A) + {teams.team1.defender.name} (D)
+              <div className="flex items-center text-blue-800">
+                <span>{teams.team1.attacker.name} (A)</span>
+                {onSwapTeam1 && (
+                  <button
+                    type="button"
+                    onClick={onSwapTeam1}
+                    disabled={isSubmitting}
+                    className="mx-2 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
+                    title="Swap positions for Team 1"
+                  >
+                    <ArrowUpDown size={14} />
+                  </button>
+                )}
+                <span>{teams.team1.defender.name} (D)</span>
               </div>
             </div>
             <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
               <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-              <div className="text-purple-800">
-                {teams.team2.attacker.name} (A) + {teams.team2.defender.name} (D)
+              <div className="flex items-center text-purple-800">
+                <span>{teams.team2.attacker.name} (A)</span>
+                {onSwapTeam2 && (
+                  <button
+                    type="button"
+                    onClick={onSwapTeam2}
+                    disabled={isSubmitting}
+                    className="mx-2 p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
+                    title="Swap positions for Team 2"
+                  >
+                    <ArrowUpDown size={14} />
+                  </button>
+                )}
+                <span>{teams.team2.defender.name} (D)</span>
               </div>
             </div>
           </div>
-          {onSwapPositions && (
-            <div className="mt-3 flex justify-center">
-              <button
-                type="button"
-                onClick={onSwapPositions}
-                disabled={isSubmitting}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
-                title="Swap attacker and defender positions"
-              >
-                <ArrowUpDown size={12} />
-                Swap positions
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Score Input */}

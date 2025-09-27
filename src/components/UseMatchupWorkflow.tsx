@@ -33,12 +33,14 @@ export const UseMatchupWorkflow = ({
   const [step, setStep] = useState<Step>('selection')
   const [selectedMatchup, setSelectedMatchup] = useState<SavedMatchup | null>(null)
   const [savedMatchups, setSavedMatchups] = useState(initialMatchups)
-  const [isSwapped, setIsSwapped] = useState(false)
+  const [team1Swapped, setTeam1Swapped] = useState(false)
+  const [team2Swapped, setTeam2Swapped] = useState(false)
   const { toast } = useToast()
 
   const handleSelectMatchup = (matchup: SavedMatchup) => {
     setSelectedMatchup(matchup)
-    setIsSwapped(false) // Reset swap state when selecting a new matchup
+    setTeam1Swapped(false) // Reset swap states when selecting a new matchup
+    setTeam2Swapped(false)
     setStep('score')
   }
 
@@ -54,11 +56,11 @@ export const UseMatchupWorkflow = ({
 
     const { teams } = selectedMatchup
 
-    // Apply swap if needed
-    const team1Attacker = isSwapped ? teams.team1.defender : teams.team1.attacker
-    const team1Defender = isSwapped ? teams.team1.attacker : teams.team1.defender
-    const team2Attacker = isSwapped ? teams.team2.defender : teams.team2.attacker
-    const team2Defender = isSwapped ? teams.team2.attacker : teams.team2.defender
+    // Apply swap if needed for each team independently
+    const team1Attacker = team1Swapped ? teams.team1.defender : teams.team1.attacker
+    const team1Defender = team1Swapped ? teams.team1.attacker : teams.team1.defender
+    const team2Attacker = team2Swapped ? teams.team2.defender : teams.team2.attacker
+    const team2Defender = team2Swapped ? teams.team2.attacker : teams.team2.defender
 
     const result = await addMatch(
       team1Attacker.id,
@@ -81,20 +83,26 @@ export const UseMatchupWorkflow = ({
 
   if (step === 'score' && selectedMatchup) {
     // Apply swap if needed for display
-    const displayTeams: TeamAssignment = isSwapped
-      ? {
-          team1: {
-            attacker: selectedMatchup.teams.team1.defender,
-            defender: selectedMatchup.teams.team1.attacker,
-          },
-          team2: {
-            attacker: selectedMatchup.teams.team2.defender,
-            defender: selectedMatchup.teams.team2.attacker,
-          },
-          rankingDifference: selectedMatchup.teams.rankingDifference,
-          confidence: selectedMatchup.teams.confidence,
-        }
-      : selectedMatchup.teams
+    const displayTeams: TeamAssignment = {
+      team1: {
+        attacker: team1Swapped
+          ? selectedMatchup.teams.team1.defender
+          : selectedMatchup.teams.team1.attacker,
+        defender: team1Swapped
+          ? selectedMatchup.teams.team1.attacker
+          : selectedMatchup.teams.team1.defender,
+      },
+      team2: {
+        attacker: team2Swapped
+          ? selectedMatchup.teams.team2.defender
+          : selectedMatchup.teams.team2.attacker,
+        defender: team2Swapped
+          ? selectedMatchup.teams.team2.attacker
+          : selectedMatchup.teams.team2.defender,
+      },
+      rankingDifference: selectedMatchup.teams.rankingDifference,
+      confidence: selectedMatchup.teams.confidence,
+    }
 
     return (
       <ScoreEntryStep
@@ -103,7 +111,8 @@ export const UseMatchupWorkflow = ({
         onClose={onClose}
         onSubmit={handleAddMatch}
         title="Register Score"
-        onSwapPositions={() => setIsSwapped(!isSwapped)}
+        onSwapTeam1={() => setTeam1Swapped(!team1Swapped)}
+        onSwapTeam2={() => setTeam2Swapped(!team2Swapped)}
       />
     )
   }
