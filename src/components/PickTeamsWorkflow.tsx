@@ -1,6 +1,6 @@
 import {
   ArrowLeft,
-  ArrowUpDown,
+  ArrowLeftRight,
   Brain,
   Check,
   Loader2,
@@ -316,10 +316,10 @@ export const PickTeamsWorkflow = ({
                   <button
                     type="button"
                     onClick={() => handleSwapTeam(1)}
-                    className="mx-2 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors"
+                    className="mx-2 p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors"
                     title="Swap positions for Team 1"
                   >
-                    <ArrowUpDown size={14} />
+                    <ArrowLeftRight size={18} />
                   </button>
                   <span>
                     {team1Swapped
@@ -342,10 +342,10 @@ export const PickTeamsWorkflow = ({
                   <button
                     type="button"
                     onClick={() => handleSwapTeam(2)}
-                    className="mx-2 p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors"
+                    className="mx-2 p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors"
                     title="Swap positions for Team 2"
                   >
-                    <ArrowUpDown size={14} />
+                    <ArrowLeftRight size={18} />
                   </button>
                   <span>
                     {team2Swapped

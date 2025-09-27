@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpDown, Loader2, Target, X } from 'lucide-react'
+import { ArrowLeft, ArrowLeftRight, Loader2, Target, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { TeamAssignment } from '@/utils/matchmaking'
 
@@ -88,10 +88,10 @@ export const ScoreEntryStep = ({
                     type="button"
                     onClick={onSwapTeam1}
                     disabled={isSubmitting}
-                    className="mx-2 p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
+                    className="mx-2 p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
                     title="Swap positions for Team 1"
                   >
-                    <ArrowUpDown size={14} />
+                    <ArrowLeftRight size={18} />
                   </button>
                 )}
                 <span>{teams.team1.defender.name} (D)</span>
@@ -106,10 +106,10 @@ export const ScoreEntryStep = ({
                     type="button"
                     onClick={onSwapTeam2}
                     disabled={isSubmitting}
-                    className="mx-2 p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
+                    className="mx-2 p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
                     title="Swap positions for Team 2"
                   >
-                    <ArrowUpDown size={14} />
+                    <ArrowLeftRight size={18} />
                   </button>
                 )}
                 <span>{teams.team2.defender.name} (D)</span>
