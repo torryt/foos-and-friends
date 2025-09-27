@@ -1,5 +1,6 @@
 import { Brain, History, Target, Users, X } from 'lucide-react'
 import { useState } from 'react'
+import { useGroupContext } from '@/contexts/GroupContext'
 import { savedMatchupsService } from '@/services/savedMatchupsService'
 import type { Match, Player } from '@/types'
 import { ManualTeamsWorkflow } from './ManualTeamsWorkflow'
@@ -24,7 +25,8 @@ type WorkflowMode = 'entry' | 'pick-teams' | 'manual-teams' | 'use-matchup'
 
 export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEntryModalProps) => {
   const [mode, setMode] = useState<WorkflowMode>('entry')
-  const savedMatchups = savedMatchupsService.getAllMatchups()
+  const { currentGroup } = useGroupContext()
+  const savedMatchups = currentGroup ? savedMatchupsService.getAllMatchups(currentGroup.id) : []
 
   const handleBack = () => {
     setMode('entry')
@@ -43,6 +45,7 @@ export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEn
         onBack={handleBack}
         onClose={onClose}
         onSuccess={handleSuccess}
+        groupId={currentGroup?.id || ''}
       />
     )
   }
@@ -55,6 +58,7 @@ export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEn
         onBack={handleBack}
         onClose={onClose}
         onSuccess={handleSuccess}
+        groupId={currentGroup?.id || ''}
       />
     )
   }

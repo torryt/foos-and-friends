@@ -19,6 +19,7 @@ interface UseMatchupWorkflowProps {
   onBack: () => void
   onClose: () => void
   onSuccess: () => void
+  groupId: string
 }
 
 type Step = 'selection' | 'score'
@@ -29,6 +30,7 @@ export const UseMatchupWorkflow = ({
   onBack,
   onClose,
   onSuccess,
+  groupId,
 }: UseMatchupWorkflowProps) => {
   const [step, setStep] = useState<Step>('selection')
   const [selectedMatchup, setSelectedMatchup] = useState<SavedMatchup | null>(null)
@@ -46,7 +48,7 @@ export const UseMatchupWorkflow = ({
 
   const handleDeleteMatchup = (matchupId: string, event: React.MouseEvent) => {
     event.stopPropagation()
-    savedMatchupsService.deleteMatchup(matchupId)
+    savedMatchupsService.deleteMatchup(matchupId, groupId)
     setSavedMatchups((prev) => prev.filter((m) => m.id !== matchupId))
     toast().success('Matchup deleted')
   }
@@ -74,7 +76,7 @@ export const UseMatchupWorkflow = ({
     if (result.success) {
       toast().success('Match added successfully!')
       // Optionally delete the used matchup
-      savedMatchupsService.deleteMatchup(selectedMatchup.id)
+      savedMatchupsService.deleteMatchup(selectedMatchup.id, groupId)
       onSuccess()
     } else {
       toast().error(result.error || 'Failed to add match')
