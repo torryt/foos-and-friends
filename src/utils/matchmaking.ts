@@ -81,7 +81,7 @@ export const calculatePositionPreferences = (
 }
 
 /**
- * Generate all possible team combinations from a pool of 4-7 players
+ * Generate all possible team combinations from a pool of 4 or more players
  *
  * COMBINATORIAL MATHEMATICS:
  * For N players, we need to choose 4 players and split them into 2 teams of 2.
@@ -99,8 +99,8 @@ export const calculatePositionPreferences = (
 export const generateTeamCombinations = (
   players: Player[],
 ): { team1: [Player, Player]; team2: [Player, Player] }[] => {
-  if (players.length < 4 || players.length > 7) {
-    throw new Error('Player pool must contain 4-7 players')
+  if (players.length < 4) {
+    throw new Error('Player pool must contain 4 or more players')
   }
 
   const combinations: { team1: [Player, Player]; team2: [Player, Player] }[] = []
@@ -288,8 +288,8 @@ export const findBestMatchup = (
   players: Player[],
   positionPreferences?: PositionPreference[],
 ): TeamAssignment => {
-  if (players.length < 4 || players.length > 7) {
-    throw new Error('Player pool must contain 4-7 players')
+  if (players.length < 4) {
+    throw new Error('Player pool must contain 4 or more players')
   }
 
   // Generate position preferences if not provided
@@ -382,8 +382,8 @@ export const calculateRarityScore = (
  * Note: Opponent history is ignored - only teammate frequency matters
  */
 export const findRareMatchup = (players: Player[], matches: Match[]): TeamAssignment => {
-  if (players.length < 4 || players.length > 7) {
-    throw new Error('Player pool must contain 4-7 players')
+  if (players.length < 4) {
+    throw new Error('Player pool must contain 4 or more players')
   }
 
   // Generate all possible team combinations

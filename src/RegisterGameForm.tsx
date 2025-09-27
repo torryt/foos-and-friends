@@ -60,8 +60,8 @@ const RegisterGameForm = ({
   }
 
   const handleGenerateMatchup = () => {
-    if (selectedPlayerPool.length < 4 || selectedPlayerPool.length > 7) {
-      toast().error('Player pool must contain 4-7 players')
+    if (selectedPlayerPool.length < 4) {
+      toast().error('Player pool must contain 4 or more players')
       return
     }
 
@@ -243,10 +243,10 @@ const RegisterGameForm = ({
                 <div className="flex items-center gap-2">
                   <Users className="text-green-500" size={14} />
                   <span className="text-sm font-semibold text-green-800">
-                    Player Pool ({selectedPlayerPool.length}/7)
+                    Player Pool ({selectedPlayerPool.length})
                   </span>
                 </div>
-                <div className="text-xs text-green-600">Select 4-7 players</div>
+                <div className="text-xs text-green-600">Select 4 or more players</div>
               </div>
 
               {/* Matchmaking Mode Toggle */}
@@ -294,11 +294,7 @@ const RegisterGameForm = ({
                         type="checkbox"
                         checked={selectedPlayerPool.includes(player.id)}
                         onChange={() => handlePlayerPoolToggle(player.id)}
-                        disabled={
-                          isSubmitting ||
-                          (!selectedPlayerPool.includes(player.id) &&
-                            selectedPlayerPool.length >= 7)
-                        }
+                        disabled={isSubmitting}
                         className="rounded border-green-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
                       />
                       <span className="text-lg">{player.avatar}</span>
@@ -314,9 +310,7 @@ const RegisterGameForm = ({
               <button
                 type="button"
                 onClick={handleGenerateMatchup}
-                disabled={
-                  isSubmitting || selectedPlayerPool.length < 4 || selectedPlayerPool.length > 7
-                }
+                disabled={isSubmitting || selectedPlayerPool.length < 4}
                 className="w-full mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-4 rounded-lg hover:from-green-600 hover:to-emerald-700 font-medium shadow-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <Shuffle size={16} />
