@@ -1,5 +1,6 @@
-import { ArrowLeft, ArrowLeftRight, Loader2, Target, X } from 'lucide-react'
+import { ArrowLeft, ArrowLeftRight, CloudOff, Loader2, Target, X } from 'lucide-react'
 import { useId, useState } from 'react'
+import { useOfflineStatus } from '@/hooks/useOfflineStatus'
 import type { TeamAssignment } from '@/utils/matchmaking'
 
 interface ScoreEntryStepProps {
@@ -24,6 +25,7 @@ export const ScoreEntryStep = ({
   const [score1, setScore1] = useState('')
   const [score2, setScore2] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { isOnline } = useOfflineStatus()
   const team1Id = useId()
   const team2Id = useId()
 
@@ -174,10 +176,16 @@ export const ScoreEntryStep = ({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!isValid || isSubmitting}
+          disabled={!isValid || isSubmitting || !isOnline}
           className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          title={!isOnline ? 'Cannot register score while offline' : undefined}
         >
-          {isSubmitting ? (
+          {!isOnline ? (
+            <>
+              <CloudOff size={16} />
+              Offline - Cannot Register
+            </>
+          ) : isSubmitting ? (
             <>
               <Loader2 className="animate-spin" size={16} />
               Registering Score...

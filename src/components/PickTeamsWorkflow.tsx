@@ -209,8 +209,12 @@ export const PickTeamsWorkflow = ({
     }
 
     if (savedMatchupId) {
-      savedMatchupsService.deleteMatchup(savedMatchupId)
-      const newSavedMatchup = savedMatchupsService.saveMatchup(updatedResult, matchmakingMode)
+      savedMatchupsService.deleteMatchup(savedMatchupId, groupId)
+      const newSavedMatchup = savedMatchupsService.saveMatchup(
+        updatedResult,
+        matchmakingMode,
+        groupId,
+      )
       setSavedMatchupId(newSavedMatchup.id)
     }
   }

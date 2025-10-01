@@ -1,6 +1,7 @@
-import { Edit, Loader, Settings, Trash2, Users, X } from 'lucide-react'
+import { CloudOff, Edit, Loader, Settings, Trash2, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { AVAILABLE_AVATARS } from '@/constants/avatars'
+import { useOfflineStatus } from '@/hooks/useOfflineStatus'
 import { useToast } from '@/hooks/useToast'
 import type { Player } from '@/types'
 
@@ -36,6 +37,7 @@ const PlayerManagementModal = ({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
+  const { isOnline } = useOfflineStatus()
 
   if (!isOpen) return null
 
@@ -207,10 +209,16 @@ const PlayerManagementModal = ({
                       <button
                         type="button"
                         onClick={handleSaveEdit}
-                        disabled={isLoading || !editingPlayer.name.trim()}
+                        disabled={isLoading || !editingPlayer.name.trim() || !isOnline}
                         className="px-3 py-1.5 text-sm bg-blue-500 text-white hover:bg-blue-600 rounded-lg disabled:opacity-50 flex items-center gap-1"
+                        title={!isOnline ? 'Cannot save changes while offline' : undefined}
                       >
-                        {isLoading ? (
+                        {!isOnline ? (
+                          <>
+                            <CloudOff size={14} />
+                            Offline
+                          </>
+                        ) : isLoading ? (
                           <>
                             <Loader size={14} className="animate-spin" />
                             Saving...
@@ -238,22 +246,26 @@ const PlayerManagementModal = ({
                         <button
                           type="button"
                           onClick={() => handleStartEdit(player)}
-                          disabled={isLoading}
+                          disabled={isLoading || !isOnline}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg disabled:opacity-50"
-                          title="Edit player"
+                          title={!isOnline ? 'Cannot edit while offline' : 'Edit player'}
                         >
-                          <Edit size={16} />
+                          {!isOnline ? <CloudOff size={16} /> : <Edit size={16} />}
                         </button>
                       )}
                       {canDeletePlayer(player) && player.matchesPlayed === 0 && (
                         <button
                           type="button"
                           onClick={() => handleDeletePlayer(player.id)}
-                          disabled={isLoading}
+                          disabled={isLoading || !isOnline}
                           className="p-2 text-red-600 hover:bg-red-100 rounded-lg disabled:opacity-50"
-                          title="Delete player (only if no matches played)"
+                          title={
+                            !isOnline
+                              ? 'Cannot delete while offline'
+                              : 'Delete player (only if no matches played)'
+                          }
                         >
-                          <Trash2 size={16} />
+                          {!isOnline ? <CloudOff size={16} /> : <Trash2 size={16} />}
                         </button>
                       )}
                     </div>
