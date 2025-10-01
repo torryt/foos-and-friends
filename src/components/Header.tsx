@@ -2,6 +2,7 @@ import { LogOut, User, Users, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import type { AuthUser } from '@/types'
+import { ConnectionStatus } from './ConnectionStatus'
 import { CreateGroupModal } from './CreateGroupModal'
 import { DeleteGroupConfirmationModal } from './DeleteGroupConfirmationModal'
 import { GroupSelector } from './GroupSelector'
@@ -62,6 +63,9 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
               </div>
 
               <div className="flex items-center gap-1 md:gap-3">
+                {/* Connection Status Indicator */}
+                <ConnectionStatus />
+
                 {user && (
                   <>
                     {/* Desktop Group Selector */}

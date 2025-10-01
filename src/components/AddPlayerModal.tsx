@@ -1,6 +1,7 @@
-import { Loader, Users, X } from 'lucide-react'
+import { CloudOff, Loader, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { AVAILABLE_AVATARS } from '@/constants/avatars'
+import { useOfflineStatus } from '@/hooks/useOfflineStatus'
 
 interface AddPlayerModalProps {
   isOpen: boolean
@@ -13,6 +14,7 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
   const [selectedAvatar, setSelectedAvatar] = useState(AVAILABLE_AVATARS[0])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { isOnline } = useOfflineStatus()
 
   if (!isOpen) return null
 
@@ -122,10 +124,16 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!newPlayer.trim() || isLoading}
+            disabled={!newPlayer.trim() || isLoading || !isOnline}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-purple-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            title={!isOnline ? 'Cannot add players while offline' : undefined}
           >
-            {isLoading ? (
+            {!isOnline ? (
+              <>
+                <CloudOff size={16} />
+                Offline - Cannot Add
+              </>
+            ) : isLoading ? (
               <>
                 <Loader size={16} className="animate-spin" />
                 Adding...

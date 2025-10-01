@@ -1,5 +1,17 @@
-import { Brain, Loader2, Shield, Shuffle, Sparkles, Sword, Target, Users, X } from 'lucide-react'
+import {
+  Brain,
+  CloudOff,
+  Loader2,
+  Shield,
+  Shuffle,
+  Sparkles,
+  Sword,
+  Target,
+  Users,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
+import { useOfflineStatus } from '@/hooks/useOfflineStatus'
 import { useToast } from '@/hooks/useToast'
 import type { Match, Player } from '@/types'
 import {
@@ -43,6 +55,7 @@ const RegisterGameForm = ({
     typeof findBestMatchup
   > | null>(null)
   const { toast } = useToast()
+  const { isOnline } = useOfflineStatus()
 
   const handlePlayerPoolToggle = (playerId: string) => {
     setSelectedPlayerPool((prev) => {
@@ -479,6 +492,7 @@ const RegisterGameForm = ({
             type="button"
             onClick={handleSubmit}
             disabled={
+              !isOnline ||
               isSubmitting ||
               !team1Player1Id ||
               !team1Player2Id ||
@@ -489,8 +503,14 @@ const RegisterGameForm = ({
               new Set([team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id]).size !== 4
             }
             className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            title={!isOnline ? 'Cannot record matches while offline' : undefined}
           >
-            {isSubmitting ? (
+            {!isOnline ? (
+              <>
+                <CloudOff size={16} />
+                Offline - Cannot Record
+              </>
+            ) : isSubmitting ? (
               <>
                 <Loader2 className="animate-spin" size={16} />
                 Recording...
