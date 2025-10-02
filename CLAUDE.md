@@ -68,7 +68,6 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - Custom test utilities in `src/test/test-utils.tsx` with context providers
 - Component tests in `src/components/__tests__/`
 - Hook tests in `src/hooks/__tests__/`
-- Run `npm run test:run` before committing changes
 
 ## Development Workflow
 
@@ -77,7 +76,6 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 1. **Environment Setup**: Create `.env.local` with Supabase credentials
 2. **Database Setup**: Execute `/database/00_complete_reset.sql` in Supabase SQL Editor if using Supabase
 3. **Development**: Run `npm run dev` to start the development server
-4. **Testing**: Run `npm run test:run` and `npm run lint` before committing
 
 ### Quality Assurance Requirements
 
@@ -86,8 +84,7 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 1. `npm run lint` - Check code with Biome linter
 2. `npm run test:run` - Run all tests once
 3. `npm run format` - Format code with Biome
-4. `npm run build` - Verify production build works
-5. `npm run typecheck` - Ensure TypeScript compliance
+4. `npm run typecheck` - Ensure TypeScript compliance
 
 This ensures consistent code quality and prevents regressions from reaching production.
 
