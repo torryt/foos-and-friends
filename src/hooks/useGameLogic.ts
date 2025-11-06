@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getRandomAvatar } from '@/constants/avatars'
 import { useGroupContext } from '@/contexts/GroupContext'
+import { useSeasonContext } from '@/contexts/SeasonContext'
 import { matchesService } from '@/services/matchesService'
 import { playersService } from '@/services/playersService'
 import type { Match, Player } from '@/types'
@@ -13,11 +14,12 @@ export const useGameLogic = () => {
   const [error, setError] = useState<string | null>(null)
 
   const { currentGroup } = useGroupContext()
+  const { currentSeason } = useSeasonContext()
   const { user } = useAuth()
 
-  // Load data when group changes
+  // Load data when group or season changes
   useEffect(() => {
-    if (!currentGroup || !user) {
+    if (!currentGroup || !currentSeason || !user) {
       setPlayers([])
       setMatches([])
       return
@@ -28,10 +30,10 @@ export const useGameLogic = () => {
       setError(null)
 
       try {
-        // Load players and matches for the current group
+        // Load players and matches for the current group and season
         const [playersResult, matchesResult] = await Promise.all([
           playersService.getPlayersByGroup(currentGroup.id),
-          matchesService.getMatchesByGroup(currentGroup.id),
+          matchesService.getMatchesBySeason(currentSeason.id),
         ])
 
         if (playersResult.error) {
@@ -57,7 +59,7 @@ export const useGameLogic = () => {
     }
 
     loadGroupData()
-  }, [currentGroup, user])
+  }, [currentGroup, currentSeason, user])
 
   const addPlayer = async (
     name: string,
@@ -102,13 +104,14 @@ export const useGameLogic = () => {
     score1: string,
     score2: string,
   ): Promise<{ success: boolean; error?: string }> => {
-    if (!currentGroup || !user) {
-      return { success: false, error: 'No group selected or user not authenticated' }
+    if (!currentGroup || !currentSeason || !user) {
+      return { success: false, error: 'No group or season selected, or user not authenticated' }
     }
 
     try {
       const result = await matchesService.addMatch(
         currentGroup.id,
+        currentSeason.id,
         team1Player1Id,
         team1Player2Id,
         team2Player1Id,

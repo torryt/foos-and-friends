@@ -5,6 +5,7 @@ import { FirstTimeUserScreen } from '@/components/FirstTimeUserScreen'
 import { JoinGroupModal } from '@/components/JoinGroupModal'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { GroupProvider, useGroupContext } from '@/contexts/GroupContext'
+import { SeasonProvider } from '@/contexts/SeasonContext'
 import { useAuth } from '@/hooks/useAuth'
 import { routeTree } from '@/routeTree.gen'
 import type { AuthUser } from '@/types'
@@ -99,7 +100,9 @@ function App() {
   return (
     <ProtectedRoute>
       <GroupProvider>
-        <AppContent user={user} onSignOut={handleSignOut} />
+        <SeasonProvider>
+          <AppContent user={user} onSignOut={handleSignOut} />
+        </SeasonProvider>
       </GroupProvider>
     </ProtectedRoute>
   )

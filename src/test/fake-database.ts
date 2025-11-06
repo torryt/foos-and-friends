@@ -6,8 +6,16 @@ import type {
   GroupDeletionRpcResult,
   GroupJoinRpcResult,
   GroupLeaveRpcResult,
+  SeasonCreationRpcResult,
 } from '@/lib/database'
-import type { FriendGroup, GroupMembership, Match, Player } from '@/types'
+import type {
+  FriendGroup,
+  GroupMembership,
+  Match,
+  Player,
+  PlayerSeasonStats,
+  Season,
+} from '@/types'
 
 export class FakeDatabase implements Database {
   private groups: FriendGroup[] = []
@@ -328,6 +336,7 @@ export class FakeDatabase implements Database {
 
   async recordMatch(
     _groupId: string,
+    _seasonId: string,
     _team1Player1Id: string,
     _team1Player2Id: string,
     _team2Player1Id: string,
@@ -335,9 +344,75 @@ export class FakeDatabase implements Database {
     _score1: number,
     _score2: number,
     _recordedBy: string,
+    _rankingData: {
+      team1Player1PreRanking: number
+      team1Player1PostRanking: number
+      team1Player2PreRanking: number
+      team1Player2PostRanking: number
+      team2Player1PreRanking: number
+      team2Player1PostRanking: number
+      team2Player2PreRanking: number
+      team2Player2PostRanking: number
+    },
   ): Promise<DatabaseResult<Match>> {
     // Simplified implementation - would need full match logic
     return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async getMatchesBySeason(_seasonId: string): Promise<DatabaseListResult<Match>> {
+    return { data: [], error: 'Not implemented in fake' }
+  }
+
+  async getSeasonsByGroup(_groupId: string): Promise<DatabaseListResult<Season>> {
+    return { data: [], error: 'Not implemented in fake' }
+  }
+
+  async getActiveSeason(_groupId: string): Promise<DatabaseResult<Season>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async getSeasonById(_seasonId: string): Promise<DatabaseResult<Season>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async endSeasonAndCreateNew(
+    _groupId: string,
+    _newSeasonName: string,
+    _newSeasonDescription?: string,
+  ): Promise<DatabaseResult<SeasonCreationRpcResult>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async getPlayerSeasonStats(
+    _playerId: string,
+    _seasonId: string,
+  ): Promise<DatabaseResult<PlayerSeasonStats>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async getSeasonLeaderboard(_seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>> {
+    return { data: [], error: 'Not implemented in fake' }
+  }
+
+  async initializePlayerForSeason(
+    _playerId: string,
+    _seasonId: string,
+  ): Promise<DatabaseResult<PlayerSeasonStats>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async updatePlayerSeasonStats(
+    _playerId: string,
+    _seasonId: string,
+    _updates: Partial<PlayerSeasonStats>,
+  ): Promise<DatabaseResult<PlayerSeasonStats>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async updateMultiplePlayerSeasonStats(
+    _updates: Array<{ playerId: string; seasonId: string } & Partial<PlayerSeasonStats>>,
+  ): Promise<{ data?: PlayerSeasonStats[]; error?: string }> {
+    return { data: [], error: 'Not implemented in fake' }
   }
 
   // Test helper methods

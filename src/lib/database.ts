@@ -1,5 +1,12 @@
 /// <reference types="vite/client" />
-import type { FriendGroup, GroupMembership, Match, Player } from '@/types'
+import type {
+  FriendGroup,
+  GroupMembership,
+  Match,
+  Player,
+  PlayerSeasonStats,
+  Season,
+} from '@/types'
 
 // Database operation results
 export interface DatabaseResult<T> {
@@ -42,6 +49,14 @@ export interface GroupLeaveRpcResult {
   error?: string
 }
 
+export interface SeasonCreationRpcResult {
+  success: boolean
+  old_season_id?: string
+  new_season_id?: string
+  season_number?: number
+  error?: string
+}
+
 // Database interface that abstracts all database operations
 export interface Database {
   // Group operations
@@ -73,9 +88,11 @@ export interface Database {
 
   // Match operations
   getMatchesByGroup(groupId: string): Promise<DatabaseListResult<Match>>
+  getMatchesBySeason(seasonId: string): Promise<DatabaseListResult<Match>>
   getMatchById(matchId: string): Promise<DatabaseResult<Match>>
   recordMatch(
     groupId: string,
+    seasonId: string,
     team1Player1Id: string,
     team1Player2Id: string,
     team2Player1Id: string,
@@ -94,4 +111,33 @@ export interface Database {
       team2Player2PostRanking: number
     },
   ): Promise<DatabaseResult<Match>>
+
+  // Season operations
+  getSeasonsByGroup(groupId: string): Promise<DatabaseListResult<Season>>
+  getActiveSeason(groupId: string): Promise<DatabaseResult<Season>>
+  getSeasonById(seasonId: string): Promise<DatabaseResult<Season>>
+  endSeasonAndCreateNew(
+    groupId: string,
+    newSeasonName: string,
+    newSeasonDescription?: string,
+  ): Promise<DatabaseResult<SeasonCreationRpcResult>>
+
+  // Player season stats operations
+  getPlayerSeasonStats(
+    playerId: string,
+    seasonId: string,
+  ): Promise<DatabaseResult<PlayerSeasonStats>>
+  getSeasonLeaderboard(seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>>
+  initializePlayerForSeason(
+    playerId: string,
+    seasonId: string,
+  ): Promise<DatabaseResult<PlayerSeasonStats>>
+  updatePlayerSeasonStats(
+    playerId: string,
+    seasonId: string,
+    updates: Partial<PlayerSeasonStats>,
+  ): Promise<DatabaseResult<PlayerSeasonStats>>
+  updateMultiplePlayerSeasonStats(
+    updates: Array<{ playerId: string; seasonId: string } & Partial<PlayerSeasonStats>>,
+  ): Promise<{ data?: PlayerSeasonStats[]; error?: string }>
 }
