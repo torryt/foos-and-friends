@@ -1,11 +1,12 @@
 import { ArrowUpDown, ChevronDown, Medal, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import type { Match, Player } from '@/types'
+import type { Match, Player, PlayerSeasonStats } from '@/types'
 
 type SortOption = 'elo' | 'goalDifference' | 'winRate'
 
 interface PlayerRankingsProps {
   players: Player[]
+  seasonStats?: PlayerSeasonStats[]
   matches?: Match[]
   onPlayerClick?: (playerId: string) => void
 }
@@ -114,7 +115,12 @@ const SORT_OPTIONS = [
   { value: 'winRate' as const, label: 'Win Rate' },
 ]
 
-const PlayerRankings = ({ players, matches = [], onPlayerClick }: PlayerRankingsProps) => {
+const PlayerRankings = ({
+  players,
+  seasonStats,
+  matches = [],
+  onPlayerClick,
+}: PlayerRankingsProps) => {
   const [sortBy, setSortBy] = useState<SortOption>('elo')
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
@@ -131,35 +137,55 @@ const PlayerRankings = ({ players, matches = [], onPlayerClick }: PlayerRankings
     localStorage.setItem('rankingSortPreference', sortBy)
   }, [sortBy])
 
-  // Calculate additional stats for each player
+  // Calculate additional stats for each player, using season stats if available
   const playersWithStats = useMemo(() => {
     return players.map((player) => {
-      // Calculate goal difference from matches
-      const playerMatches = matches.filter(
-        (match) =>
-          match.team1[0].id === player.id ||
-          match.team1[1].id === player.id ||
-          match.team2[0].id === player.id ||
-          match.team2[1].id === player.id,
-      )
+      // Find season-specific stats for this player
+      const seasonStat = seasonStats?.find((stat) => stat.playerId === player.id)
 
-      const goalDifference = playerMatches.reduce((diff, match) => {
-        const wasInTeam1 = match.team1[0].id === player.id || match.team1[1].id === player.id
-        const goalsFor = wasInTeam1 ? match.score1 : match.score2
-        const goalsAgainst = wasInTeam1 ? match.score2 : match.score1
-        return diff + (goalsFor - goalsAgainst)
-      }, 0)
+      // Use season stats if available, otherwise use global player stats
+      const ranking = seasonStat?.ranking ?? player.ranking
+      const wins = seasonStat?.wins ?? player.wins
+      const losses = seasonStat?.losses ?? player.losses
+      const matchesPlayed = seasonStat?.matchesPlayed ?? player.matchesPlayed
+      const goalsFor = seasonStat?.goalsFor ?? 0
+      const goalsAgainst = seasonStat?.goalsAgainst ?? 0
 
-      const winRate =
-        player.matchesPlayed > 0 ? Math.round((player.wins / player.matchesPlayed) * 100) : 0
+      // Calculate goal difference (use season stats if available, otherwise calculate from matches)
+      let goalDifference: number
+      if (seasonStat) {
+        goalDifference = goalsFor - goalsAgainst
+      } else {
+        // Fallback: calculate from matches
+        const playerMatches = matches.filter(
+          (match) =>
+            match.team1[0].id === player.id ||
+            match.team1[1].id === player.id ||
+            match.team2[0].id === player.id ||
+            match.team2[1].id === player.id,
+        )
+
+        goalDifference = playerMatches.reduce((diff, match) => {
+          const wasInTeam1 = match.team1[0].id === player.id || match.team1[1].id === player.id
+          const goalsForMatch = wasInTeam1 ? match.score1 : match.score2
+          const goalsAgainstMatch = wasInTeam1 ? match.score2 : match.score1
+          return diff + (goalsForMatch - goalsAgainstMatch)
+        }, 0)
+      }
+
+      const winRate = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0
 
       return {
         ...player,
+        ranking,
+        wins,
+        losses,
+        matchesPlayed,
         goalDifference,
         winRate,
       }
     })
-  }, [players, matches])
+  }, [players, seasonStats, matches])
 
   // Sort players based on selected criteria
   const sortedPlayers = useMemo(() => {

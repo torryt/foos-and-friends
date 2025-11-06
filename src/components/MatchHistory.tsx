@@ -1,7 +1,8 @@
-import { Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
+import { Calendar, Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PositionIcon } from '@/components/PositionIcon'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useSeasonContext } from '@/contexts/SeasonContext'
 import type { Match, Player, PlayerMatchStats, PlayerPosition } from '@/types'
 import { calculateRankingChange } from '@/types'
 
@@ -95,6 +96,7 @@ const MatchHistory = ({
   initialSelectedPlayer,
   onPlayerClick,
 }: MatchHistoryProps) => {
+  const { currentSeason } = useSeasonContext()
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(initialSelectedPlayer || null)
   const [showPlayerFilter, setShowPlayerFilter] = useState(false)
 
@@ -120,8 +122,21 @@ const MatchHistory = ({
     : matches
 
   const selectedPlayerData = selectedPlayer ? players.find((p) => p.id === selectedPlayer) : null
+  const isArchived = !!currentSeason && !currentSeason.isActive
+
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
+      {/* Archived Season Indicator */}
+      {isArchived && (
+        <div className="bg-gradient-to-r from-orange-100 to-amber-100 border-b border-orange-200 px-4 py-2 flex items-center gap-2">
+          <Calendar size={16} className="text-orange-600" />
+          <span className="text-sm font-medium text-orange-800">
+            Viewing archived season: {currentSeason.name} ({currentSeason.startDate} -{' '}
+            {currentSeason.endDate || 'Unknown'})
+          </span>
+        </div>
+      )}
+
       <div className="p-4 border-b border-slate-200/50">
         <div className="flex justify-between items-center">
           <div>
@@ -131,7 +146,9 @@ const MatchHistory = ({
             <p className="text-sm text-slate-600">
               {selectedPlayerData
                 ? `Match history for ${selectedPlayerData.name}`
-                : 'Latest foos battles with friends'}
+                : isArchived
+                  ? `Historical matches from ${currentSeason?.name || 'archived season'}`
+                  : 'Latest foos battles with friends'}
             </p>
           </div>
           <div className="flex items-center gap-2">

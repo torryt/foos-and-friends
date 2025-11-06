@@ -4,17 +4,25 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-// Create Supabase client (returns empty object for tests/builds without env vars)
-export const supabase =
-  !supabaseUrl || !supabaseAnonKey
-    ? ({} as ReturnType<typeof createClient>) // Empty client for tests/builds
-    : createClient(supabaseUrl, supabaseAnonKey, {
-        auth: {
-          autoRefreshToken: true,
-          persistSession: true,
-          detectSessionInUrl: true,
-        },
-      })
+// Validate Supabase environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error(
+    '❌ Supabase environment variables are missing!\n\n' +
+      'Please create a .env.local file with:\n' +
+      '  VITE_SUPABASE_URL=https://your-project.supabase.co\n' +
+      '  VITE_SUPABASE_ANON_KEY=your-anon-key-here\n\n' +
+      'Get these values from: https://app.supabase.com/project/_/settings/api',
+  )
+}
+
+// Create Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+})
 
 // Database type definitions
 export interface Database {
