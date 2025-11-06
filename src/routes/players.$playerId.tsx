@@ -12,6 +12,7 @@ import { useGameLogic } from '@/hooks/useGameLogic'
 import { usePositionStats } from '@/hooks/usePositionStats'
 import { useRankingHistory } from '@/hooks/useRankingHistory'
 import { scrollToTop } from '@/lib/utils'
+import { calculateStreaks } from '@/utils/streakCalculations'
 
 export const Route = createFileRoute('/players/$playerId')({
   component: PlayerProfile,
@@ -61,22 +62,11 @@ function PlayerProfile() {
       return won ? 'W' : 'L'
     })
 
-    // Win/loss streaks
-    let currentStreak = 0
-    let streakType: 'win' | 'loss' | null = null
-    for (const match of playerMatches) {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
-      const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
-
-      if (streakType === null) {
-        streakType = won ? 'win' : 'loss'
-        currentStreak = 1
-      } else if ((won && streakType === 'win') || (!won && streakType === 'loss')) {
-        currentStreak++
-      } else {
-        break
-      }
-    }
+    // Calculate win/loss streaks using utility function
+    const { currentStreak, streakType, bestStreak, worstStreak } = calculateStreaks(
+      playerId,
+      playerMatches,
+    )
 
     // Goals statistics
     const totalGoalsScored = playerMatches.reduce((sum, match) => {
@@ -115,6 +105,8 @@ function PlayerProfile() {
       recentForm,
       currentStreak,
       streakType,
+      bestStreak,
+      worstStreak,
       avgGoalsScored,
       avgGoalsConceded,
       goalDifference: totalGoalsScored - totalGoalsConceded,
@@ -177,8 +169,8 @@ function PlayerProfile() {
         goalsAgainst={parseInt(playerStats.avgGoalsConceded, 10) * playerStats.totalMatches}
         currentStreak={playerStats.currentStreak}
         streakType={playerStats.streakType}
-        bestStreak={playerStats.currentStreak} // Simplified for now
-        worstStreak={playerStats.currentStreak} // Simplified for now
+        bestStreak={playerStats.bestStreak}
+        worstStreak={playerStats.worstStreak}
       />
 
       {/* Additional Stats */}
