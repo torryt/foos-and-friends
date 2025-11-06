@@ -117,6 +117,8 @@ function PlayerProfile() {
       streakType,
       avgGoalsScored,
       avgGoalsConceded,
+      totalGoalsScored,
+      totalGoalsConceded,
       goalDifference: totalGoalsScored - totalGoalsConceded,
       highestRanking,
       lowestRanking,
@@ -173,8 +175,8 @@ function PlayerProfile() {
         wins={player.wins}
         losses={player.losses}
         goalDifference={playerStats.goalDifference}
-        goalsFor={parseInt(playerStats.avgGoalsScored, 10) * playerStats.totalMatches}
-        goalsAgainst={parseInt(playerStats.avgGoalsConceded, 10) * playerStats.totalMatches}
+        goalsFor={playerStats.totalGoalsScored}
+        goalsAgainst={playerStats.totalGoalsConceded}
         currentStreak={playerStats.currentStreak}
         streakType={playerStats.streakType}
         bestStreak={playerStats.currentStreak} // Simplified for now
