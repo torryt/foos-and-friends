@@ -1,5 +1,5 @@
+import { renderHook } from '@testing-library/react'
 import { vi } from 'vitest'
-import { renderHook } from '@/test/test-utils'
 import { useGameLogic } from '../useGameLogic'
 
 // Mock everything to return empty data and prevent API calls
@@ -90,6 +90,6 @@ describe('useGameLogic', () => {
     const response = await result.current.addMatch('1', '2', '3', '4', '10', '5')
 
     expect(response.success).toBe(false)
-    expect(response.error).toBe('No group selected or user not authenticated')
+    expect(response.error).toBe('No group or season selected, or user not authenticated')
   })
 })
