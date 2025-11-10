@@ -1,5 +1,5 @@
 import { Calendar, CheckCircle, PlusCircle, XCircle } from 'lucide-react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 
@@ -15,6 +15,8 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const seasonNameId = useId()
+  const seasonDescriptionId = useId()
 
   const handleCreateSeason = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -133,14 +135,14 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                 <form onSubmit={handleCreateSeason} className="space-y-4">
                   <div>
                     <label
-                      htmlFor="season-name"
+                      htmlFor={seasonNameId}
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Season Name *
                     </label>
                     <input
                       type="text"
-                      id="season-name"
+                      id={seasonNameId}
                       value={newSeasonName}
                       onChange={(e) => setNewSeasonName(e.target.value)}
                       placeholder="e.g., Spring 2024, Season 2"
@@ -151,13 +153,13 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
 
                   <div>
                     <label
-                      htmlFor="season-description"
+                      htmlFor={seasonDescriptionId}
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
                       Description (optional)
                     </label>
                     <textarea
-                      id="season-description"
+                      id={seasonDescriptionId}
                       value={newSeasonDescription}
                       onChange={(e) => setNewSeasonDescription(e.target.value)}
                       placeholder="Add a description for this season..."

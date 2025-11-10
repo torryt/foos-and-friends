@@ -8,7 +8,8 @@ import { DeleteGroupConfirmationModal } from './DeleteGroupConfirmationModal'
 import { GroupSelector } from './GroupSelector'
 import { JoinGroupModal } from './JoinGroupModal'
 import { LeaveGroupConfirmationModal } from './LeaveGroupConfirmationModal'
-import { SeasonSelector } from './SeasonSelector'
+
+// import { SeasonSelector } from './SeasonSelector' // Hidden for now
 
 interface HeaderProps {
   user?: AuthUser | null
@@ -95,8 +96,8 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                       )}
                     </div>
 
-                    {/* Season Selector */}
-                    <SeasonSelector />
+                    {/* Season Selector - Hidden for now while implementing underlying support */}
+                    {/* <SeasonSelector /> */}
 
                     {/* Profile Dropdown for all screen sizes */}
                     <div className="relative">
