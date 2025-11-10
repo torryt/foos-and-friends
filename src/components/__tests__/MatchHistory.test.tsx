@@ -1,6 +1,6 @@
-import { render, screen } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
+import { render, screen } from '@/test/test-utils'
 import type { Match, Player } from '@/types'
 import MatchHistory from '../MatchHistory'
 
