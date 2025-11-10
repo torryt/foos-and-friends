@@ -1,5 +1,5 @@
-import { renderHook } from '@testing-library/react'
 import { vi } from 'vitest'
+import { renderHook } from '@/test/test-utils'
 import { useGameLogic } from '../useGameLogic'
 
 // Mock everything to return empty data and prevent API calls
@@ -18,19 +18,23 @@ vi.mock('@/services/matchesService', () => ({
 }))
 
 // Mock to return null/empty values to prevent loops
-vi.mock('@/contexts/GroupContext', () => ({
-  useGroupContext: () => ({
-    currentGroup: null,
-    userGroups: [],
-    hasAnyGroups: false,
-    loading: false,
-    error: null,
-    switchGroup: vi.fn(),
-    refreshGroups: vi.fn(),
-    createGroup: vi.fn(),
-    joinGroup: vi.fn(),
-  }),
-}))
+vi.mock('@/contexts/GroupContext', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useGroupContext: () => ({
+      currentGroup: null,
+      userGroups: [],
+      hasAnyGroups: false,
+      loading: false,
+      error: null,
+      switchGroup: vi.fn(),
+      refreshGroups: vi.fn(),
+      createGroup: vi.fn(),
+      joinGroup: vi.fn(),
+    }),
+  }
+})
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({
@@ -42,6 +46,22 @@ vi.mock('@/hooks/useAuth', () => ({
     signOut: vi.fn(),
   }),
 }))
+
+vi.mock('@/contexts/SeasonContext', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useSeasonContext: () => ({
+      currentSeason: null,
+      seasons: [],
+      loading: false,
+      error: null,
+      switchSeason: vi.fn(),
+      refreshSeasons: vi.fn(),
+      endSeasonAndCreateNew: vi.fn(),
+    }),
+  }
+})
 
 describe('useGameLogic', () => {
   test('initializes with empty state when no group/user', () => {

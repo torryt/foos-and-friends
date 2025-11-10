@@ -1,8 +1,32 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen } from '@/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import type { Match, Player } from '@/types'
 import MatchHistory from '../MatchHistory'
+
+// Mock the SeasonContext
+vi.mock('@/contexts/SeasonContext', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useSeasonContext: () => ({
+      currentSeason: {
+        id: 'season1',
+        name: 'Season 1',
+        startDate: '2024-01-01',
+        endDate: null,
+        isActive: true,
+        seasonNumber: 1,
+      },
+      seasons: [],
+      loading: false,
+      error: null,
+      switchSeason: vi.fn(),
+      refreshSeasons: vi.fn(),
+      endSeasonAndCreateNew: vi.fn(),
+    }),
+  }
+})
 
 describe('MatchHistory', () => {
   const mockOnAddMatch = vi.fn()
