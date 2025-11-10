@@ -69,6 +69,7 @@ export interface Match {
   date: string
   time: string
   groupId?: string // Added for group association
+  seasonId?: string // Added for season association
   recordedBy?: string // Added for audit trail
   createdAt?: string
   playerStats?: PlayerMatchStats[] // Historical ranking data for each player
@@ -78,6 +79,7 @@ export interface Match {
 export interface DbMatch {
   id: string
   group_id: string
+  season_id: string
   team1_player1_id: string
   team1_player2_id: string
   team2_player1_id: string
@@ -126,6 +128,64 @@ export interface GroupMembership {
   createdAt: string
 }
 
+// Season types for competitive periods
+export interface Season {
+  id: string
+  groupId: string
+  name: string
+  description: string | null
+  seasonNumber: number
+  startDate: string
+  endDate: string | null
+  isActive: boolean
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DbSeason {
+  id: string
+  group_id: string
+  name: string
+  description: string | null
+  season_number: number
+  start_date: string
+  end_date: string | null
+  is_active: boolean
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+// Player season stats for per-season tracking
+export interface PlayerSeasonStats {
+  id: string
+  playerId: string
+  seasonId: string
+  ranking: number
+  matchesPlayed: number
+  wins: number
+  losses: number
+  goalsFor: number
+  goalsAgainst: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DbPlayerSeasonStats {
+  id: string
+  player_id: string
+  season_id: string
+  ranking: number
+  matches_played: number
+  wins: number
+  losses: number
+  goals_for: number
+  goals_against: number
+  created_at: string
+  updated_at: string
+}
+
 // Auth types
 export interface AuthUser {
   id: string
@@ -152,5 +212,14 @@ export interface GroupJoinResult {
 
 export interface GroupLeaveResult {
   success: boolean
+  error?: string
+}
+
+// Season management responses
+export interface SeasonCreationResult {
+  success: boolean
+  oldSeasonId?: string
+  newSeasonId?: string
+  seasonNumber?: number
   error?: string
 }

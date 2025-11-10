@@ -15,7 +15,7 @@ function Index() {
   const [showAddPlayer, setShowAddPlayer] = useState(false)
   const [showRecordMatch, setShowRecordMatch] = useState(false)
 
-  const { players, matches, addPlayer, addMatch } = useGameLogic()
+  const { players, seasonStats, matches, addPlayer, addMatch } = useGameLogic()
 
   const handlePlayerCardClick = (playerId: string) => {
     navigate({
@@ -31,7 +31,12 @@ function Index() {
         onAddPlayer={() => setShowAddPlayer(true)}
       />
 
-      <PlayerRankings players={players} matches={matches} onPlayerClick={handlePlayerCardClick} />
+      <PlayerRankings
+        players={players}
+        seasonStats={seasonStats}
+        matches={matches}
+        onPlayerClick={handlePlayerCardClick}
+      />
 
       <AddPlayerModal
         isOpen={showAddPlayer}

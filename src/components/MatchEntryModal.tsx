@@ -1,6 +1,7 @@
-import { Brain, History, Target, Users, X } from 'lucide-react'
+import { AlertTriangle, Brain, History, Target, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
+import { useSeasonContext } from '@/contexts/SeasonContext'
 import { savedMatchupsService } from '@/services/savedMatchupsService'
 import type { Match, Player } from '@/types'
 import { ManualTeamsWorkflow } from './ManualTeamsWorkflow'
@@ -26,7 +27,10 @@ type WorkflowMode = 'entry' | 'pick-teams' | 'manual-teams' | 'use-matchup'
 export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEntryModalProps) => {
   const [mode, setMode] = useState<WorkflowMode>('entry')
   const { currentGroup } = useGroupContext()
+  const { currentSeason } = useSeasonContext()
   const savedMatchups = currentGroup ? savedMatchupsService.getAllMatchups(currentGroup.id) : []
+
+  const isArchived = !!currentSeason && !currentSeason.isActive
 
   const handleBack = () => {
     setMode('entry')
@@ -94,13 +98,35 @@ export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEn
         </div>
 
         <div className="space-y-3">
+          {/* Archived Season Warning */}
+          {isArchived && (
+            <div className="bg-gradient-to-r from-orange-100 to-red-100 border border-orange-300 rounded-xl p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="text-orange-600 flex-shrink-0 mt-0.5" size={20} />
+                <div>
+                  <h3 className="font-semibold text-orange-900 mb-1">Archived Season</h3>
+                  <p className="text-sm text-orange-800">
+                    You're viewing {currentSeason?.name || 'an archived season'}. Matches can only
+                    be recorded in the active season. Please switch to the active season to record
+                    new matches.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <p className="text-gray-600 text-center mb-6">How do you want to create teams?</p>
 
           {/* Pick Teams Smartly */}
           <button
             type="button"
             onClick={() => setMode('pick-teams')}
-            className="w-full p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl hover:from-blue-100 hover:to-indigo-100 transition-colors text-left"
+            disabled={isArchived}
+            className={`w-full p-4 border rounded-xl transition-colors text-left ${
+              isArchived
+                ? 'bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100'
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -117,7 +143,12 @@ export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEn
           <button
             type="button"
             onClick={() => setMode('manual-teams')}
-            className="w-full p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl hover:from-green-100 hover:to-emerald-100 transition-colors text-left"
+            disabled={isArchived}
+            className={`w-full p-4 border rounded-xl transition-colors text-left ${
+              isArchived
+                ? 'bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed'
+                : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:from-green-100 hover:to-emerald-100'
+            }`}
           >
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
@@ -134,9 +165,9 @@ export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEn
           <button
             type="button"
             onClick={() => setMode('use-matchup')}
-            disabled={savedMatchups.length === 0}
+            disabled={isArchived || savedMatchups.length === 0}
             className={`w-full p-4 border rounded-xl transition-colors text-left ${
-              savedMatchups.length === 0
+              isArchived || savedMatchups.length === 0
                 ? 'bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 hover:from-purple-100 hover:to-violet-100'
             }`}

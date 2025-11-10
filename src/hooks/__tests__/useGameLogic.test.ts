@@ -18,19 +18,23 @@ vi.mock('@/services/matchesService', () => ({
 }))
 
 // Mock to return null/empty values to prevent loops
-vi.mock('@/contexts/GroupContext', () => ({
-  useGroupContext: () => ({
-    currentGroup: null,
-    userGroups: [],
-    hasAnyGroups: false,
-    loading: false,
-    error: null,
-    switchGroup: vi.fn(),
-    refreshGroups: vi.fn(),
-    createGroup: vi.fn(),
-    joinGroup: vi.fn(),
-  }),
-}))
+vi.mock('@/contexts/GroupContext', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>
+  return {
+    ...actual,
+    useGroupContext: () => ({
+      currentGroup: null,
+      userGroups: [],
+      hasAnyGroups: false,
+      loading: false,
+      error: null,
+      switchGroup: vi.fn(),
+      refreshGroups: vi.fn(),
+      createGroup: vi.fn(),
+      joinGroup: vi.fn(),
+    }),
+  }
+})
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({
@@ -42,6 +46,22 @@ vi.mock('@/hooks/useAuth', () => ({
     signOut: vi.fn(),
   }),
 }))
+
+vi.mock('@/contexts/SeasonContext', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>
+  return {
+    ...actual,
+    useSeasonContext: () => ({
+      currentSeason: null,
+      seasons: [],
+      loading: false,
+      error: null,
+      switchSeason: vi.fn(),
+      refreshSeasons: vi.fn(),
+      endSeasonAndCreateNew: vi.fn(),
+    }),
+  }
+})
 
 describe('useGameLogic', () => {
   test('initializes with empty state when no group/user', () => {
@@ -70,6 +90,6 @@ describe('useGameLogic', () => {
     const response = await result.current.addMatch('1', '2', '3', '4', '10', '5')
 
     expect(response.success).toBe(false)
-    expect(response.error).toBe('No group selected or user not authenticated')
+    expect(response.error).toBe('No group or season selected, or user not authenticated')
   })
 })

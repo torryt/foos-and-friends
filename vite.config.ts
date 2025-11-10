@@ -8,7 +8,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    TanStackRouterVite(),
+    TanStackRouterVite({
+      routeFileIgnorePattern: '__tests__|\\.(test|spec)\\.[jt]sx?$',
+    }),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -76,8 +78,14 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/.{idea,git,cache,output,temp}/**'],
     typecheck: {
       tsconfig: './tsconfig.test.json',
+    },
+    env: {
+      VITE_SUPABASE_URL: 'https://test.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'test-anon-key',
     },
   },
 })

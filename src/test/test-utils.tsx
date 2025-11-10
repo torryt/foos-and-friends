@@ -2,6 +2,7 @@ import { render, renderHook } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { vi } from 'vitest'
 import { GroupProvider } from '@/contexts/GroupContext'
+import { SeasonProvider } from '@/contexts/SeasonContext'
 
 // Mock the useAuth hook globally
 vi.mock('@/hooks/useAuth', () => ({
@@ -20,7 +21,11 @@ vi.mock('@/hooks/useAuth', () => ({
 
 // Test wrapper that provides all necessary context
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return <GroupProvider>{children}</GroupProvider>
+  return (
+    <GroupProvider>
+      <SeasonProvider>{children}</SeasonProvider>
+    </GroupProvider>
+  )
 }
 
 // Custom render function with providers

@@ -33,13 +33,25 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - **Private Friend Groups** with invite-only access via shareable codes
 - **Complete data isolation** between groups using RLS policies
 
+### Seasons System
+
+- **Competitive Seasons** with independent rankings per season
+- **Fresh Start**: Each season resets all player rankings to 1200
+- **Season Management**: Group owners can manually create and end seasons
+- **Historical Data**: Full access to archived season leaderboards and match history
+- **Automatic Migration**: Existing matches automatically migrated to "Season 1"
+
 ### Key Components Structure
 
-- `src/App.tsx` - Main app component with authentication and group context
+- `src/App.tsx` - Main app component with authentication, group, and season contexts
 - `src/hooks/useAuth.ts` - Authentication logic with Supabase
 - `src/contexts/GroupContext.tsx` - Group management and state
-- `src/hooks/useGameLogic.ts` - Group-aware game logic with ELO calculations
-- `src/services/` - Service layer for data operations (players, matches, groups)
+- `src/contexts/SeasonContext.tsx` - Season management and state
+- `src/hooks/useGameLogic.ts` - Season-aware game logic with ELO calculations
+- `src/services/` - Service layer for data operations (players, matches, groups, seasons)
+  - `seasonsService.ts` - Season CRUD operations
+  - `playerSeasonStatsService.ts` - Per-season player statistics
+  - `matchesService.ts` - Season-aware match recording with dual stats updates
 - `src/types/index.ts` - TypeScript interfaces for all entities
 - `src/components/` - Reusable UI components including auth and group management
 
@@ -47,9 +59,11 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 
 - **friend_groups** - Private groups with invite codes and ownership
 - **group_memberships** - User membership in groups with roles
-- **players** - Group-scoped player profiles with rankings
-- **matches** - Match records with team compositions and scores
-- **Row Level Security** policies ensure complete data isolation
+- **seasons** - Competitive seasons with start/end dates (one active per group)
+- **players** - Group-scoped player profiles with global rankings (for backwards compatibility)
+- **player_season_stats** - Per-season statistics (ranking, wins, losses, goals)
+- **matches** - Match records with team compositions, scores, and season association
+- **Row Level Security** policies ensure complete data isolation between groups
 
 ### Styling
 
@@ -91,10 +105,37 @@ This ensures consistent code quality and prevents regressions from reaching prod
 ### Database Management
 
 - **Migration-based Changes**: All SQL schema changes should be handled through migration files in the `/database/migrations/` folder
-- **Single Reset Script**: Use `/database/00_complete_reset.sql` for initial database setup only
+- **Single Reset Script**: Use `/database/00_drop_and_create.sql` for initial database setup only
 - **Development**: For development, you can still use the reset script for complete recreation
 - **Production**: Always use migrations for production database changes to preserve data
 - **RLS Policies**: Designed to work with public JS client without circular dependencies
+- **Seasons Migration**: `/database/migrations/008_add_seasons.sql` creates seasons infrastructure and migrates existing data to "Season 1"
+
+### Seasons Feature Architecture
+
+**Database Layer** (`/database/migrations/008_add_seasons.sql`):
+- **seasons** table: Tracks competitive periods with start/end dates, one active per group
+- **player_season_stats** table: Per-season statistics (ranking starts at 1200, wins, losses, goals)
+- **matches.season_id**: Foreign key associating each match with a season
+- **Partial unique index**: Ensures only one active season per group
+- **Data migration**: Automatically creates "Season 1" for existing groups and associates all existing matches
+
+**Service Layer**:
+- **seasonsService**: Season CRUD operations, get active season, end/create seasons
+- **playerSeasonStatsService**: Initialize players for seasons, update stats, get leaderboards
+- **matchesService**: Season-aware match recording with dual updates (global + season stats)
+
+**State Management**:
+- **SeasonContext**: Manages current season, loads seasons on group change
+- **localStorage**: Persists selected season per group (key: `selectedSeasonId_{groupId}`)
+- **Auto-selection**: Defaults to active season, falls back to most recent
+
+**Key Design Decisions**:
+- **Reset rankings**: Each season starts fresh at 1200 ELO
+- **Manual season management**: Group owners explicitly create/end seasons
+- **Full historical access**: All past seasons remain queryable
+- **Backwards compatibility**: Global player stats maintained alongside season stats
+- **Season scoping**: Matches filtered by current season in UI
 
 ### Supabase Integration
 
@@ -106,14 +147,23 @@ This ensures consistent code quality and prevents regressions from reaching prod
 
 1. **Authentication**: Magic link → Supabase session → AuthContext
 2. **Group Selection**: User groups → GroupContext → Current group
-3. **Game Data**: Service layer → useGameLogic → UI components
-4. **Real-time**: Supabase subscriptions (planned) → Context updates
+3. **Season Selection**: Group seasons → SeasonContext → Current season (persisted to localStorage per group)
+4. **Game Data**: Service layer → useGameLogic → UI components (filtered by current season)
+5. **Match Recording**:
+   - Records match in active season
+   - Updates both player global stats (backwards compat) and player_season_stats
+   - Uses season-specific rankings for ELO calculations
+6. **Real-time**: Supabase subscriptions (planned) → Context updates
 
 ### Key Implementation Details
 
 - All data operations go through service layer for consistent data handling
 - Group-based data scoping ensures privacy and security
-- ELO ranking system with K-factor 32, ratings clamped between 800-2400
+- Season-based data isolation with independent rankings per season
+- ELO ranking system with asymmetric K-factors (K_WINNER=35, K_LOSER=29) for slight inflation
+- Rankings clamped between 800-2400, all seasons start at 1200
+- Dual stats tracking: global player stats (backwards compat) + per-season stats
+- Season lifecycle: Only one active season per group, group owners control season transitions
 
 ## Production Deployment
 

@@ -1,11 +1,15 @@
 import type {
   DbMatch,
   DbPlayer,
+  DbPlayerSeasonStats,
+  DbSeason,
   FriendGroup,
   GroupMembership,
   Match,
   Player,
   PlayerMatchStats,
+  PlayerSeasonStats,
+  Season,
 } from '@/types'
 import type {
   Database,
@@ -15,6 +19,7 @@ import type {
   GroupDeletionRpcResult,
   GroupJoinRpcResult,
   GroupLeaveRpcResult,
+  SeasonCreationRpcResult,
 } from './database'
 import { supabase } from './supabase'
 
@@ -124,6 +129,38 @@ const playerToDbInsert = (
   department: player.department,
   group_id: player.groupId ?? '',
   created_by: player.createdBy ?? '',
+})
+
+// Transform database season to app season
+const dbSeasonToSeason = (dbSeason: DbSeason): Season => ({
+  id: dbSeason.id,
+  groupId: dbSeason.group_id,
+  name: dbSeason.name,
+  description: dbSeason.description,
+  seasonNumber: dbSeason.season_number,
+  startDate: dbSeason.start_date,
+  endDate: dbSeason.end_date,
+  isActive: dbSeason.is_active,
+  createdBy: dbSeason.created_by,
+  createdAt: dbSeason.created_at,
+  updatedAt: dbSeason.updated_at,
+})
+
+// Transform database player season stats to app format
+const dbPlayerSeasonStatsToPlayerSeasonStats = (
+  dbStats: DbPlayerSeasonStats,
+): PlayerSeasonStats => ({
+  id: dbStats.id,
+  playerId: dbStats.player_id,
+  seasonId: dbStats.season_id,
+  ranking: dbStats.ranking,
+  matchesPlayed: dbStats.matches_played,
+  wins: dbStats.wins,
+  losses: dbStats.losses,
+  goalsFor: dbStats.goals_for,
+  goalsAgainst: dbStats.goals_against,
+  createdAt: dbStats.created_at,
+  updatedAt: dbStats.updated_at,
 })
 
 export class SupabaseDatabase implements Database {
@@ -565,6 +602,7 @@ export class SupabaseDatabase implements Database {
 
   async recordMatch(
     groupId: string,
+    seasonId: string,
     team1Player1Id: string,
     team1Player2Id: string,
     team2Player1Id: string,
@@ -592,6 +630,7 @@ export class SupabaseDatabase implements Database {
         .from('matches')
         .insert({
           group_id: groupId,
+          season_id: seasonId,
           team1_player1_id: team1Player1Id,
           team1_player2_id: team1Player2Id,
           team2_player1_id: team2Player1Id,
@@ -623,6 +662,287 @@ export class SupabaseDatabase implements Database {
       return matchResult
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to record match' }
+    }
+  }
+
+  // ===== SEASON OPERATIONS =====
+
+  async getSeasonsByGroup(groupId: string): Promise<DatabaseListResult<Season>> {
+    try {
+      const { data, error } = await supabase
+        .from('seasons')
+        .select('*')
+        .eq('group_id', groupId)
+        .order('season_number', { ascending: false })
+
+      if (error) {
+        return { data: [], error: error.message }
+      }
+
+      const seasons = (data || []).map(dbSeasonToSeason)
+      return { data: seasons, error: null }
+    } catch (err) {
+      return { data: [], error: err instanceof Error ? err.message : 'Failed to fetch seasons' }
+    }
+  }
+
+  async getActiveSeason(groupId: string): Promise<DatabaseResult<Season>> {
+    try {
+      const { data, error } = await supabase
+        .from('seasons')
+        .select('*')
+        .eq('group_id', groupId)
+        .eq('is_active', true)
+        .single()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: dbSeasonToSeason(data), error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch active season',
+      }
+    }
+  }
+
+  async getSeasonById(seasonId: string): Promise<DatabaseResult<Season>> {
+    try {
+      const { data, error } = await supabase.from('seasons').select('*').eq('id', seasonId).single()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: dbSeasonToSeason(data), error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch season' }
+    }
+  }
+
+  async endSeasonAndCreateNew(
+    groupId: string,
+    newSeasonName: string,
+    newSeasonDescription?: string,
+  ): Promise<DatabaseResult<SeasonCreationRpcResult>> {
+    try {
+      const { data, error } = await supabase.rpc('end_season_and_create_new', {
+        p_group_id: groupId,
+        p_new_season_name: newSeasonName,
+        p_new_season_description: newSeasonDescription || null,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to create new season',
+      }
+    }
+  }
+
+  async getMatchesBySeason(seasonId: string): Promise<DatabaseListResult<Match>> {
+    try {
+      const { data: matchesData, error: matchesError } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('season_id', seasonId)
+        .order('match_date', { ascending: false })
+        .order('match_time', { ascending: false })
+
+      if (matchesError) {
+        return { data: [], error: matchesError.message }
+      }
+
+      if (!matchesData || matchesData.length === 0) {
+        return { data: [], error: null }
+      }
+
+      // Get unique player IDs
+      const playerIds = new Set<string>()
+      matchesData.forEach((match) => {
+        playerIds.add(match.team1_player1_id)
+        playerIds.add(match.team1_player2_id)
+        playerIds.add(match.team2_player1_id)
+        playerIds.add(match.team2_player2_id)
+      })
+
+      // Fetch all players
+      const { data: playersData, error: playersError } = await supabase
+        .from('players')
+        .select('*')
+        .in('id', Array.from(playerIds))
+
+      if (playersError) {
+        return { data: [], error: playersError.message }
+      }
+
+      // Create players map
+      const playersById = new Map<string, Player>()
+      playersData.forEach((dbPlayer) => {
+        playersById.set(dbPlayer.id, dbPlayerToPlayer(dbPlayer))
+      })
+
+      // Transform matches
+      const matches = await Promise.all(
+        matchesData.map((dbMatch) => dbMatchToMatch(dbMatch, playersById)),
+      )
+
+      return { data: matches, error: null }
+    } catch (err) {
+      return {
+        data: [],
+        error: err instanceof Error ? err.message : 'Failed to fetch season matches',
+      }
+    }
+  }
+
+  // ===== PLAYER SEASON STATS OPERATIONS =====
+
+  async getPlayerSeasonStats(
+    playerId: string,
+    seasonId: string,
+  ): Promise<DatabaseResult<PlayerSeasonStats>> {
+    try {
+      const { data, error } = await supabase
+        .from('player_season_stats')
+        .select('*')
+        .eq('player_id', playerId)
+        .eq('season_id', seasonId)
+        .single()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: dbPlayerSeasonStatsToPlayerSeasonStats(data), error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch player season stats',
+      }
+    }
+  }
+
+  async getSeasonLeaderboard(seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>> {
+    try {
+      const { data, error } = await supabase
+        .from('player_season_stats')
+        .select('*')
+        .eq('season_id', seasonId)
+        .order('ranking', { ascending: false })
+
+      if (error) {
+        return { data: [], error: error.message }
+      }
+
+      const stats = (data || []).map(dbPlayerSeasonStatsToPlayerSeasonStats)
+      return { data: stats, error: null }
+    } catch (err) {
+      return {
+        data: [],
+        error: err instanceof Error ? err.message : 'Failed to fetch season leaderboard',
+      }
+    }
+  }
+
+  async initializePlayerForSeason(
+    playerId: string,
+    seasonId: string,
+  ): Promise<DatabaseResult<PlayerSeasonStats>> {
+    try {
+      const { data, error } = await supabase
+        .from('player_season_stats')
+        .insert({
+          player_id: playerId,
+          season_id: seasonId,
+          ranking: 1200,
+          matches_played: 0,
+          wins: 0,
+          losses: 0,
+          goals_for: 0,
+          goals_against: 0,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: dbPlayerSeasonStatsToPlayerSeasonStats(data), error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to initialize player for season',
+      }
+    }
+  }
+
+  async updatePlayerSeasonStats(
+    playerId: string,
+    seasonId: string,
+    updates: Partial<PlayerSeasonStats>,
+  ): Promise<DatabaseResult<PlayerSeasonStats>> {
+    try {
+      // Convert camelCase updates to snake_case for database
+      const dbUpdates: Partial<DbPlayerSeasonStats> = {}
+      if (updates.ranking !== undefined) dbUpdates.ranking = updates.ranking
+      if (updates.matchesPlayed !== undefined) dbUpdates.matches_played = updates.matchesPlayed
+      if (updates.wins !== undefined) dbUpdates.wins = updates.wins
+      if (updates.losses !== undefined) dbUpdates.losses = updates.losses
+      if (updates.goalsFor !== undefined) dbUpdates.goals_for = updates.goalsFor
+      if (updates.goalsAgainst !== undefined) dbUpdates.goals_against = updates.goalsAgainst
+
+      const { data, error } = await supabase
+        .from('player_season_stats')
+        .update(dbUpdates)
+        .eq('player_id', playerId)
+        .eq('season_id', seasonId)
+        .select()
+        .single()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: dbPlayerSeasonStatsToPlayerSeasonStats(data), error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to update player season stats',
+      }
+    }
+  }
+
+  async updateMultiplePlayerSeasonStats(
+    updates: Array<{ playerId: string; seasonId: string } & Partial<PlayerSeasonStats>>,
+  ): Promise<{ data?: PlayerSeasonStats[]; error?: string }> {
+    try {
+      const results = await Promise.all(
+        updates.map((update) =>
+          this.updatePlayerSeasonStats(update.playerId, update.seasonId, update),
+        ),
+      )
+
+      // Check if any updates failed
+      const failedUpdate = results.find((result) => result.error)
+      if (failedUpdate) {
+        return { error: failedUpdate.error || 'Failed to update some player season stats' }
+      }
+
+      const data = results.map((result) => result.data).filter(Boolean) as PlayerSeasonStats[]
+      return { data }
+    } catch (err) {
+      return {
+        error: err instanceof Error ? err.message : 'Failed to update multiple player season stats',
+      }
     }
   }
 }

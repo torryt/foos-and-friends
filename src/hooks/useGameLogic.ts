@@ -1,23 +1,27 @@
 import { useEffect, useState } from 'react'
 import { getRandomAvatar } from '@/constants/avatars'
 import { useGroupContext } from '@/contexts/GroupContext'
+import { useSeasonContext } from '@/contexts/SeasonContext'
 import { matchesService } from '@/services/matchesService'
+import { playerSeasonStatsService } from '@/services/playerSeasonStatsService'
 import { playersService } from '@/services/playersService'
-import type { Match, Player } from '@/types'
+import type { Match, Player, PlayerSeasonStats } from '@/types'
 import { useAuth } from './useAuth'
 
 export const useGameLogic = () => {
   const [players, setPlayers] = useState<Player[]>([])
+  const [seasonStats, setSeasonStats] = useState<PlayerSeasonStats[]>([])
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const { currentGroup } = useGroupContext()
+  const { currentSeason } = useSeasonContext()
   const { user } = useAuth()
 
-  // Load data when group changes
+  // Load data when group or season changes
   useEffect(() => {
-    if (!currentGroup || !user) {
+    if (!currentGroup || !currentSeason || !user) {
       setPlayers([])
       setMatches([])
       return
@@ -28,10 +32,11 @@ export const useGameLogic = () => {
       setError(null)
 
       try {
-        // Load players and matches for the current group
-        const [playersResult, matchesResult] = await Promise.all([
+        // Load players, season stats, and matches for the current group and season
+        const [playersResult, seasonStatsResult, matchesResult] = await Promise.all([
           playersService.getPlayersByGroup(currentGroup.id),
-          matchesService.getMatchesByGroup(currentGroup.id),
+          playerSeasonStatsService.getSeasonLeaderboard(currentSeason.id),
+          matchesService.getMatchesBySeason(currentSeason.id),
         ])
 
         if (playersResult.error) {
@@ -39,6 +44,13 @@ export const useGameLogic = () => {
           setPlayers([])
         } else {
           setPlayers(playersResult.data)
+        }
+
+        if (seasonStatsResult.error) {
+          setError(`Failed to load season stats: ${seasonStatsResult.error}`)
+          setSeasonStats([])
+        } else {
+          setSeasonStats(seasonStatsResult.data)
         }
 
         if (matchesResult.error) {
@@ -50,6 +62,7 @@ export const useGameLogic = () => {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load group data')
         setPlayers([])
+        setSeasonStats([])
         setMatches([])
       } finally {
         setLoading(false)
@@ -57,7 +70,7 @@ export const useGameLogic = () => {
     }
 
     loadGroupData()
-  }, [currentGroup, user])
+  }, [currentGroup, currentSeason, user])
 
   const addPlayer = async (
     name: string,
@@ -102,13 +115,14 @@ export const useGameLogic = () => {
     score1: string,
     score2: string,
   ): Promise<{ success: boolean; error?: string }> => {
-    if (!currentGroup || !user) {
-      return { success: false, error: 'No group selected or user not authenticated' }
+    if (!currentGroup || !currentSeason || !user) {
+      return { success: false, error: 'No group or season selected, or user not authenticated' }
     }
 
     try {
       const result = await matchesService.addMatch(
         currentGroup.id,
+        currentSeason.id,
         team1Player1Id,
         team1Player2Id,
         team2Player1Id,
@@ -123,14 +137,22 @@ export const useGameLogic = () => {
       }
 
       if (result.data) {
-        // Update local state - add new match and refresh players
+        // Update local state - add new match and refresh players and season stats
         const newMatch = result.data
         setMatches((prev) => [newMatch, ...prev])
 
-        // Refresh players to get updated stats
-        const playersResult = await playersService.getPlayersByGroup(currentGroup.id)
+        // Refresh players and season stats to get updated data
+        const [playersResult, seasonStatsResult] = await Promise.all([
+          playersService.getPlayersByGroup(currentGroup.id),
+          playerSeasonStatsService.getSeasonLeaderboard(currentSeason.id),
+        ])
+
         if (playersResult.data) {
           setPlayers(playersResult.data)
+        }
+
+        if (seasonStatsResult.data) {
+          setSeasonStats(seasonStatsResult.data)
         }
       }
 
@@ -200,6 +222,7 @@ export const useGameLogic = () => {
 
   return {
     players,
+    seasonStats,
     matches,
     loading,
     error,
