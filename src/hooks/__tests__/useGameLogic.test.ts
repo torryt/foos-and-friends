@@ -19,7 +19,7 @@ vi.mock('@/services/matchesService', () => ({
 
 // Mock to return null/empty values to prevent loops
 vi.mock('@/contexts/GroupContext', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = (await importOriginal()) as Record<string, unknown>
   return {
     ...actual,
     useGroupContext: () => ({
@@ -48,7 +48,7 @@ vi.mock('@/hooks/useAuth', () => ({
 }))
 
 vi.mock('@/contexts/SeasonContext', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = (await importOriginal()) as Record<string, unknown>
   return {
     ...actual,
     useSeasonContext: () => ({

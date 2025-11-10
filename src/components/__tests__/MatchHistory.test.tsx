@@ -6,7 +6,7 @@ import MatchHistory from '../MatchHistory'
 
 // Mock the SeasonContext
 vi.mock('@/contexts/SeasonContext', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = (await importOriginal()) as Record<string, unknown>
   return {
     ...actual,
     useSeasonContext: () => ({

@@ -9,9 +9,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   plugins: [
     TanStackRouterVite({
-      routesDirectory: './src/routes',
-      generatedRouteTree: './src/routeTree.gen.ts',
-      exclude: ['**/__tests__/**', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+      routeFileIgnorePattern: '__tests__|\\.(test|spec)\\.[jt]sx?$',
     }),
     react(),
     VitePWA({
