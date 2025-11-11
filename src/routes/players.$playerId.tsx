@@ -45,17 +45,24 @@ function PlayerProfile() {
   const playerStats = useMemo(() => {
     if (!player) return null
 
-    const playerMatches = matches.filter((match) => {
-      return (
-        match.team1[0].id === playerId ||
-        match.team1[1].id === playerId ||
-        match.team2[0].id === playerId ||
-        match.team2[1].id === playerId
-      )
-    })
+    const playerMatches = matches
+      .filter((match) => {
+        return (
+          match.team1[0].id === playerId ||
+          match.team1[1].id === playerId ||
+          match.team2[0].id === playerId ||
+          match.team2[1].id === playerId
+        )
+      })
+      .sort((a, b) => {
+        // Sort by createdAt in ascending order (oldest first)
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return timeA - timeB
+      })
 
     // Recent form (last 5 matches)
-    const recentMatches = playerMatches.slice(0, 5)
+    const recentMatches = playerMatches.slice(-5)
     const recentForm = recentMatches.map((match) => {
       const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
       const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
