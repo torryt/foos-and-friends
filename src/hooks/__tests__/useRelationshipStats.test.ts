@@ -60,17 +60,22 @@ const createMatch = (
   team2: [Player, Player],
   score1: number,
   score2: number,
-): Match => ({
-  id,
-  team1,
-  team2,
-  score1,
-  score2,
-  date: new Date().toISOString().split('T')[0],
-  time: '12:00',
-  createdAt: new Date().toISOString(),
-  groupId: 'group1',
-})
+  createdAtOffset: number = 0,
+): Match => {
+  const baseDate = new Date('2024-01-01T12:00:00Z')
+  const createdAt = new Date(baseDate.getTime() + createdAtOffset * 60000) // Add minutes
+  return {
+    id,
+    team1,
+    team2,
+    score1,
+    score2,
+    date: createdAt.toISOString().split('T')[0],
+    time: '12:00',
+    createdAt: createdAt.toISOString(),
+    groupId: 'group1',
+  }
+}
 
 describe('useRelationshipStats', () => {
   it('should return empty arrays when no matches include the player', () => {
@@ -266,6 +271,7 @@ describe('useRelationshipStats', () => {
         [mockPlayers[2], mockPlayers[3]],
         5,
         3,
+        0,
       ), // W
       createMatch(
         'match2',
@@ -273,12 +279,14 @@ describe('useRelationshipStats', () => {
         [mockPlayers[2], mockPlayers[3]],
         2,
         5,
+        1,
       ), // L
       createMatch(
         'match3',
         [mockPlayers[0], mockPlayers[1]],
         [mockPlayers[2], mockPlayers[3]],
         5,
+        2,
         2,
       ), // W
       createMatch(
@@ -287,6 +295,7 @@ describe('useRelationshipStats', () => {
         [mockPlayers[2], mockPlayers[3]],
         1,
         5,
+        3,
       ), // L
       createMatch(
         'match5',
@@ -294,12 +303,14 @@ describe('useRelationshipStats', () => {
         [mockPlayers[2], mockPlayers[3]],
         5,
         1,
+        4,
       ), // W
       createMatch(
         'match6',
         [mockPlayers[0], mockPlayers[1]],
         [mockPlayers[2], mockPlayers[3]],
         2,
+        5,
         5,
       ), // L
       createMatch(
@@ -308,6 +319,7 @@ describe('useRelationshipStats', () => {
         [mockPlayers[2], mockPlayers[3]],
         5,
         0,
+        6,
       ), // W
     ]
 
@@ -316,6 +328,59 @@ describe('useRelationshipStats', () => {
     const bobTeammate = result.current.teammates.find((t) => t.playerId === 'player2')
     expect(bobTeammate?.recentForm).toHaveLength(5)
     expect(bobTeammate?.recentForm).toEqual(['W', 'L', 'W', 'L', 'W'])
+  })
+
+  it('should show recent form with most recent game on the right', () => {
+    // Create matches in non-chronological order to test sorting
+    const matches: Match[] = [
+      createMatch(
+        'match2',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        2,
+        5,
+        1,
+      ), // L (second oldest)
+      createMatch(
+        'match5',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        5,
+        1,
+        4,
+      ), // W (most recent)
+      createMatch(
+        'match1',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        5,
+        3,
+        0,
+      ), // W (oldest)
+      createMatch(
+        'match4',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        1,
+        5,
+        3,
+      ), // L (fourth)
+      createMatch(
+        'match3',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        5,
+        2,
+        2,
+      ), // W (third)
+    ]
+
+    const { result } = renderHook(() => useRelationshipStats('player1', matches, mockPlayers))
+
+    const bobTeammate = result.current.teammates.find((t) => t.playerId === 'player2')
+    // Should be sorted by createdAt: match1(W), match2(L), match3(W), match4(L), match5(W)
+    expect(bobTeammate?.recentForm).toEqual(['W', 'L', 'W', 'L', 'W'])
+    // The rightmost 'W' should be from match5 (most recent)
   })
 
   it('should identify top teammate correctly', () => {
