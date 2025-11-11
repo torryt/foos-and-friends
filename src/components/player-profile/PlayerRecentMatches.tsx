@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { Calendar, Shield, Sword } from 'lucide-react'
+import { ArrowUpDown, Calendar, Shield, Sword } from 'lucide-react'
+import { useState } from 'react'
+import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { WinLossBadge } from '@/components/ui/WinLossBadge'
 import { cn, scrollToTop } from '@/lib/utils'
@@ -18,6 +20,8 @@ export function PlayerRecentMatches({
   matches,
   recentForm,
 }: PlayerRecentMatchesProps) {
+  const [sortNewestFirst, setSortNewestFirst] = useState(true)
+
   // Get recent matches for the player
   const playerMatches = matches
     .filter((match) => {
@@ -29,10 +33,10 @@ export function PlayerRecentMatches({
       )
     })
     .sort((a, b) => {
-      // Sort by createdAt in ascending order (oldest first)
+      // Sort by createdAt based on user preference
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
       const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
-      return timeA - timeB
+      return sortNewestFirst ? timeB - timeA : timeA - timeB
     })
 
   const getPlayerPosition = (match: Match, playerId: string) => {
@@ -81,17 +85,29 @@ export function PlayerRecentMatches({
           <Calendar className="w-5 h-5 text-orange-500" />
           Recent Matches
         </h3>
-        {recentForm.length > 0 && (
-          <div className="flex gap-1">
-            {recentForm.map((result, index) => (
-              <WinLossBadge
-                key={`form-${recentForm.length - index}`}
-                result={result as 'W' | 'L'}
-                size="md"
-              />
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortNewestFirst(!sortNewestFirst)}
+            className="text-xs"
+            title={sortNewestFirst ? 'Sort oldest first' : 'Sort newest first'}
+          >
+            <ArrowUpDown className="w-4 h-4 mr-1" />
+            {sortNewestFirst ? 'Newest' : 'Oldest'}
+          </Button>
+          {recentForm.length > 0 && (
+            <div className="flex gap-1">
+              {recentForm.map((result, index) => (
+                <WinLossBadge
+                  key={`form-${recentForm.length - index}`}
+                  result={result as 'W' | 'L'}
+                  size="md"
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2 overflow-y-auto">
