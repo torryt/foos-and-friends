@@ -28,15 +28,23 @@ export const useRelationshipStats = (
   players: Player[],
 ): RelationshipStatsData => {
   return useMemo(() => {
-    // Filter matches that include the target player
-    const playerMatches = matches.filter((match) => {
-      return (
-        match.team1[0].id === playerId ||
-        match.team1[1].id === playerId ||
-        match.team2[0].id === playerId ||
-        match.team2[1].id === playerId
-      )
-    })
+    // Filter matches that include the target player and sort by createdAt
+    const playerMatches = matches
+      .filter((match) => {
+        return (
+          match.team1[0].id === playerId ||
+          match.team1[1].id === playerId ||
+          match.team2[0].id === playerId ||
+          match.team2[1].id === playerId
+        )
+      })
+      .sort((a, b) => {
+        // Sort by createdAt in ascending order (oldest first)
+        // This ensures slice(-5) gets the most recent 5 games
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return timeA - timeB
+      })
 
     // Maps to track stats
     const teammateStats = new Map<
