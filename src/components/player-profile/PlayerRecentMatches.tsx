@@ -28,7 +28,12 @@ export function PlayerRecentMatches({
         match.team2[1].id === playerId
       )
     })
-    .slice(0, 10) // Show last 10 matches
+    .sort((a, b) => {
+      // Sort by createdAt in ascending order (oldest first)
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return timeA - timeB
+    })
 
   const getPlayerPosition = (match: Match, playerId: string) => {
     // For now, determine position based on player index
