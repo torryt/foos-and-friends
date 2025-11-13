@@ -60,9 +60,11 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - **friend_groups** - Private groups with invite codes and ownership
 - **group_memberships** - User membership in groups with roles
 - **seasons** - Competitive seasons with start/end dates (one active per group)
-- **players** - Group-scoped player profiles with global rankings (for backwards compatibility)
-- **player_season_stats** - Per-season statistics (ranking, wins, losses, goals)
-- **matches** - Match records with team compositions, scores, and season association
+- **players** - Group-scoped player profiles (name, avatar, department only - stats computed from matches)
+- **player_season_stats** - Player-season relationship records (stats computed from matches via views)
+- **matches** - Match records with team compositions, scores, season association, and pre/post rankings
+- **player_season_stats_computed** (VIEW) - Computed per-season statistics from match history
+- **player_stats_computed** (VIEW) - Computed global player statistics from match history
 - **Row Level Security** policies ensure complete data isolation between groups
 
 ### Styling
@@ -110,6 +112,7 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **Production**: Always use migrations for production database changes to preserve data
 - **RLS Policies**: Designed to work with public JS client without circular dependencies
 - **Seasons Migration**: `/database/migrations/008_add_seasons.sql` creates seasons infrastructure and migrates existing data to "Season 1"
+- **Computed Stats Migration**: `/database/migrations/009_remove_aggregated_stats.sql` removes duplicate statistics storage and creates database views and functions for computing stats from match history
 
 ### Seasons Feature Architecture
 
@@ -122,8 +125,8 @@ This ensures consistent code quality and prevents regressions from reaching prod
 
 **Service Layer**:
 - **seasonsService**: Season CRUD operations, get active season, end/create seasons
-- **playerSeasonStatsService**: Initialize players for seasons, update stats, get leaderboards
-- **matchesService**: Season-aware match recording with dual updates (global + season stats)
+- **playerSeasonStatsService**: Initialize players for seasons, get leaderboards (stats computed from matches)
+- **matchesService**: Season-aware match recording (stats automatically computed from match history)
 
 **State Management**:
 - **SeasonContext**: Manages current season, loads seasons on group change
@@ -134,8 +137,9 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **Reset rankings**: Each season starts fresh at 1200 ELO
 - **Manual season management**: Group owners explicitly create/end seasons
 - **Full historical access**: All past seasons remain queryable
-- **Backwards compatibility**: Global player stats maintained alongside season stats
+- **Computed statistics**: Stats derived from match history (single source of truth)
 - **Season scoping**: Matches filtered by current season in UI
+- **ELO calculation**: Rankings computed stateless from chronological match history
 
 ### Supabase Integration
 
@@ -150,10 +154,14 @@ This ensures consistent code quality and prevents regressions from reaching prod
 3. **Season Selection**: Group seasons → SeasonContext → Current season (persisted to localStorage per group)
 4. **Game Data**: Service layer → useGameLogic → UI components (filtered by current season)
 5. **Match Recording**:
-   - Records match in active season
-   - Updates both player global stats (backwards compat) and player_season_stats
+   - Records match in active season with pre/post rankings
+   - Stats automatically computed from match history via database views
    - Uses season-specific rankings for ELO calculations
-6. **Real-time**: Supabase subscriptions (planned) → Context updates
+6. **Statistics Retrieval**:
+   - Player/season stats computed on-demand from matches table
+   - Database views (`player_season_stats_computed`, `player_stats_computed`) aggregate match data
+   - PostgreSQL functions compute current rankings from chronological match history
+7. **Real-time**: Supabase subscriptions (planned) → Context updates
 
 ### Key Implementation Details
 
@@ -162,7 +170,8 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - Season-based data isolation with independent rankings per season
 - ELO ranking system with asymmetric K-factors (K_WINNER=35, K_LOSER=29) for slight inflation
 - Rankings clamped between 800-2400, all seasons start at 1200
-- Dual stats tracking: global player stats (backwards compat) + per-season stats
+- **Single source of truth**: Match history is the only stored data; all stats computed from it
+- **No duplicate storage**: Player and season stats derived from matches table via views and functions
 - Season lifecycle: Only one active season per group, group owners control season transitions
 
 ## Production Deployment

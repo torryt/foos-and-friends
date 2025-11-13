@@ -18,13 +18,10 @@ export interface Player {
 }
 
 // Database Player type (matches Supabase schema)
+// Note: Stats are computed from matches table, not stored
 export interface DbPlayer {
   id: string
   name: string
-  ranking: number
-  matches_played: number
-  wins: number
-  losses: number
   avatar: string
   department: string
   group_id: string
@@ -158,16 +155,17 @@ export interface DbSeason {
 }
 
 // Player season stats for per-season tracking
+// Note: Stats are computed from matches table, not stored
 export interface PlayerSeasonStats {
   id: string
   playerId: string
   seasonId: string
-  ranking: number
-  matchesPlayed: number
-  wins: number
-  losses: number
-  goalsFor: number
-  goalsAgainst: number
+  ranking: number // Computed from match history
+  matchesPlayed: number // Computed from match history
+  wins: number // Computed from match history
+  losses: number // Computed from match history
+  goalsFor: number // Computed from match history
+  goalsAgainst: number // Computed from match history
   createdAt: string
   updatedAt: string
 }
@@ -176,12 +174,6 @@ export interface DbPlayerSeasonStats {
   id: string
   player_id: string
   season_id: string
-  ranking: number
-  matches_played: number
-  wins: number
-  losses: number
-  goals_for: number
-  goals_against: number
   created_at: string
   updated_at: string
 }

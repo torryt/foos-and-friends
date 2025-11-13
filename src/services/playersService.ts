@@ -25,6 +25,7 @@ class PlayersService {
   ): Promise<{ data: Player | null; error?: string }> {
     const result = await this.db.createPlayer({
       name,
+      // Stats are computed from matches, so we pass defaults for the type
       ranking: 1200,
       matchesPlayed: 0,
       wins: 0,
@@ -38,33 +39,7 @@ class PlayersService {
     return { data: result.data, error: result.error ?? undefined }
   }
 
-  // Update player stats (usually after a match)
-  async updatePlayerStats(
-    playerId: string,
-    updates: {
-      ranking?: number
-      matchesPlayed?: number
-      wins?: number
-      losses?: number
-    },
-  ): Promise<{ data: Player | null; error?: string }> {
-    const result = await this.db.updatePlayer(playerId, updates)
-    return { data: result.data, error: result.error ?? undefined }
-  }
-
-  // Update multiple players (batch update for match results)
-  async updateMultiplePlayers(
-    updates: Array<{
-      id: string
-      ranking?: number
-      matchesPlayed?: number
-      wins?: number
-      losses?: number
-    }>,
-  ): Promise<{ data: Player[]; error?: string }> {
-    const result = await this.db.updateMultiplePlayers(updates)
-    return { data: result.data ?? [], error: result.error }
-  }
+  // Note: Player stats are now computed from matches, not stored/updated directly
 
   // Get player by ID
   async getPlayerById(playerId: string): Promise<{ data: Player | null; error?: string }> {

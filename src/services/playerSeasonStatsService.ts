@@ -42,39 +42,8 @@ class PlayerSeasonStatsService {
     return { data: result.data, error: result.error ?? undefined }
   }
 
-  // Update player season stats (usually after a match)
-  async updatePlayerSeasonStats(
-    playerId: string,
-    seasonId: string,
-    updates: {
-      ranking?: number
-      matchesPlayed?: number
-      wins?: number
-      losses?: number
-      goalsFor?: number
-      goalsAgainst?: number
-    },
-  ): Promise<{ data: PlayerSeasonStats | null; error?: string }> {
-    const result = await this.db.updatePlayerSeasonStats(playerId, seasonId, updates)
-    return { data: result.data, error: result.error ?? undefined }
-  }
-
-  // Update multiple players' season stats (batch update for match results)
-  async updateMultiplePlayerSeasonStats(
-    updates: Array<{
-      playerId: string
-      seasonId: string
-      ranking?: number
-      matchesPlayed?: number
-      wins?: number
-      losses?: number
-      goalsFor?: number
-      goalsAgainst?: number
-    }>,
-  ): Promise<{ data: PlayerSeasonStats[]; error?: string }> {
-    const result = await this.db.updateMultiplePlayerSeasonStats(updates)
-    return { data: result.data ?? [], error: result.error }
-  }
+  // Note: Player season stats are now computed from matches, not stored/updated directly
+  // The database layer will compute stats when fetching
 
   // Calculate goal difference for a player in a season
   calculateGoalDifference(stats: PlayerSeasonStats): number {

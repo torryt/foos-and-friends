@@ -24,13 +24,17 @@ import type {
 import { supabase } from './supabase'
 
 // Transform database player to app player
-const dbPlayerToPlayer = (dbPlayer: DbPlayer): Player => ({
+// Stats are computed from matches, so we need to fetch them separately
+const dbPlayerToPlayer = (
+  dbPlayer: DbPlayer,
+  computedStats?: { ranking: number; matchesPlayed: number; wins: number; losses: number },
+): Player => ({
   id: dbPlayer.id,
   name: dbPlayer.name,
-  ranking: dbPlayer.ranking,
-  matchesPlayed: dbPlayer.matches_played,
-  wins: dbPlayer.wins,
-  losses: dbPlayer.losses,
+  ranking: computedStats?.ranking ?? 1200, // Default ELO if no matches
+  matchesPlayed: computedStats?.matchesPlayed ?? 0,
+  wins: computedStats?.wins ?? 0,
+  losses: computedStats?.losses ?? 0,
   avatar: dbPlayer.avatar,
   department: dbPlayer.department,
   groupId: dbPlayer.group_id,
@@ -117,14 +121,11 @@ const dbMatchToMatch = async (
 }
 
 // Transform app player to database format for insert
+// Stats are computed from matches, so we don't insert them
 const playerToDbInsert = (
   player: Omit<Player, 'id' | 'createdAt' | 'updatedAt'>,
 ): Omit<DbPlayer, 'id' | 'created_at' | 'updated_at'> => ({
   name: player.name,
-  ranking: player.ranking,
-  matches_played: player.matchesPlayed,
-  wins: player.wins,
-  losses: player.losses,
   avatar: player.avatar,
   department: player.department,
   group_id: player.groupId ?? '',
@@ -147,18 +148,26 @@ const dbSeasonToSeason = (dbSeason: DbSeason): Season => ({
 })
 
 // Transform database player season stats to app format
+// Stats are computed from matches via the view
 const dbPlayerSeasonStatsToPlayerSeasonStats = (
-  dbStats: DbPlayerSeasonStats,
+  dbStats: DbPlayerSeasonStats & {
+    ranking?: number
+    matches_played?: number
+    wins?: number
+    losses?: number
+    goals_for?: number
+    goals_against?: number
+  },
 ): PlayerSeasonStats => ({
   id: dbStats.id,
   playerId: dbStats.player_id,
   seasonId: dbStats.season_id,
-  ranking: dbStats.ranking,
-  matchesPlayed: dbStats.matches_played,
-  wins: dbStats.wins,
-  losses: dbStats.losses,
-  goalsFor: dbStats.goals_for,
-  goalsAgainst: dbStats.goals_against,
+  ranking: dbStats.ranking ?? 1200, // Default ELO if no matches
+  matchesPlayed: dbStats.matches_played ?? 0,
+  wins: dbStats.wins ?? 0,
+  losses: dbStats.losses ?? 0,
+  goalsFor: dbStats.goals_for ?? 0,
+  goalsAgainst: dbStats.goals_against ?? 0,
   createdAt: dbStats.created_at,
   updatedAt: dbStats.updated_at,
 })
@@ -380,17 +389,44 @@ export class SupabaseDatabase implements Database {
 
   async getPlayersByGroup(groupId: string): Promise<DatabaseListResult<Player>> {
     try {
-      const { data, error } = await supabase
+      // Get players
+      const { data: playersData, error: playersError } = await supabase
         .from('players')
         .select('*')
         .eq('group_id', groupId)
-        .order('ranking', { ascending: false })
 
-      if (error) {
-        return { data: [], error: error.message }
+      if (playersError) {
+        return { data: [], error: playersError.message }
       }
 
-      const players = (data || []).map(dbPlayerToPlayer)
+      // Get computed stats for all players
+      const { data: statsData, error: statsError } = await supabase
+        .from('player_stats_computed')
+        .select('*')
+        .eq('group_id', groupId)
+
+      if (statsError) {
+        return { data: [], error: statsError.message }
+      }
+
+      // Create a map of player ID to stats
+      const statsById = new Map(statsData.map((s) => [s.player_id, s]))
+
+      // Transform players with computed stats
+      const players = (playersData || []).map((dbPlayer) => {
+        const stats = statsById.get(dbPlayer.id)
+        // Compute ranking by calling the function
+        return dbPlayerToPlayer(dbPlayer, {
+          ranking: stats?.ranking ?? 1200,
+          matchesPlayed: stats?.matches_played ?? 0,
+          wins: stats?.wins ?? 0,
+          losses: stats?.losses ?? 0,
+        })
+      })
+
+      // Sort by ranking (computed or default)
+      players.sort((a, b) => b.ranking - a.ranking)
+
       return { data: players, error: null }
     } catch (err) {
       return { data: [], error: err instanceof Error ? err.message : 'Failed to fetch players' }
@@ -405,7 +441,27 @@ export class SupabaseDatabase implements Database {
         return { data: null, error: error.message }
       }
 
-      return { data: dbPlayerToPlayer(data), error: null }
+      // Get computed stats
+      const { data: statsData } = await supabase
+        .from('player_stats_computed')
+        .select('*')
+        .eq('player_id', playerId)
+        .single()
+
+      // Compute ranking from match history
+      const { data: rankingData } = await supabase.rpc('compute_player_global_ranking', {
+        p_player_id: playerId,
+      })
+
+      return {
+        data: dbPlayerToPlayer(data, {
+          ranking: rankingData ?? 1200,
+          matchesPlayed: statsData?.matches_played ?? 0,
+          wins: statsData?.wins ?? 0,
+          losses: statsData?.losses ?? 0,
+        }),
+        error: null,
+      }
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to fetch player' }
     }
@@ -433,12 +489,9 @@ export class SupabaseDatabase implements Database {
 
   async updatePlayer(playerId: string, updates: Partial<Player>): Promise<DatabaseResult<Player>> {
     try {
+      // Only allow updating profile fields, not computed stats
       const dbUpdates: Record<string, unknown> = {}
       if (updates.name !== undefined) dbUpdates.name = updates.name
-      if (updates.ranking !== undefined) dbUpdates.ranking = updates.ranking
-      if (updates.matchesPlayed !== undefined) dbUpdates.matches_played = updates.matchesPlayed
-      if (updates.wins !== undefined) dbUpdates.wins = updates.wins
-      if (updates.losses !== undefined) dbUpdates.losses = updates.losses
       if (updates.avatar !== undefined) dbUpdates.avatar = updates.avatar
       if (updates.department !== undefined) dbUpdates.department = updates.department
 
@@ -453,7 +506,27 @@ export class SupabaseDatabase implements Database {
         return { data: null, error: error.message }
       }
 
-      return { data: dbPlayerToPlayer(data), error: null }
+      // Get computed stats after update
+      const { data: statsData } = await supabase
+        .from('player_stats_computed')
+        .select('*')
+        .eq('player_id', playerId)
+        .single()
+
+      // Compute ranking from match history
+      const { data: rankingData } = await supabase.rpc('compute_player_global_ranking', {
+        p_player_id: playerId,
+      })
+
+      return {
+        data: dbPlayerToPlayer(data, {
+          ranking: rankingData ?? 1200,
+          matchesPlayed: statsData?.matches_played ?? 0,
+          wins: statsData?.wins ?? 0,
+          losses: statsData?.losses ?? 0,
+        }),
+        error: null,
+      }
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to update player' }
     }
@@ -810,6 +883,7 @@ export class SupabaseDatabase implements Database {
     seasonId: string,
   ): Promise<DatabaseResult<PlayerSeasonStats>> {
     try {
+      // Get player season stats record (just the relationship)
       const { data, error } = await supabase
         .from('player_season_stats')
         .select('*')
@@ -821,7 +895,32 @@ export class SupabaseDatabase implements Database {
         return { data: null, error: error.message }
       }
 
-      return { data: dbPlayerSeasonStatsToPlayerSeasonStats(data), error: null }
+      // Get computed stats from the view
+      const { data: computedData } = await supabase
+        .from('player_season_stats_computed')
+        .select('*')
+        .eq('player_id', playerId)
+        .eq('season_id', seasonId)
+        .single()
+
+      // Compute ranking from match history
+      const { data: rankingData } = await supabase.rpc('compute_player_season_ranking', {
+        p_player_id: playerId,
+        p_season_id: seasonId,
+      })
+
+      return {
+        data: dbPlayerSeasonStatsToPlayerSeasonStats({
+          ...data,
+          ranking: rankingData ?? 1200,
+          matches_played: computedData?.matches_played,
+          wins: computedData?.wins,
+          losses: computedData?.losses,
+          goals_for: computedData?.goals_for,
+          goals_against: computedData?.goals_against,
+        }),
+        error: null,
+      }
     } catch (err) {
       return {
         data: null,
@@ -832,18 +931,44 @@ export class SupabaseDatabase implements Database {
 
   async getSeasonLeaderboard(seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>> {
     try {
-      const { data, error } = await supabase
-        .from('player_season_stats')
+      // Get all player season stats for this season from the computed view
+      const { data: computedData, error: computedError } = await supabase
+        .from('player_season_stats_computed')
         .select('*')
         .eq('season_id', seasonId)
-        .order('ranking', { ascending: false })
 
-      if (error) {
-        return { data: [], error: error.message }
+      if (computedError) {
+        return { data: [], error: computedError.message }
       }
 
-      const stats = (data || []).map(dbPlayerSeasonStatsToPlayerSeasonStats)
-      return { data: stats, error: null }
+      // For each player, compute ranking from match history
+      const statsWithRankings = await Promise.all(
+        (computedData || []).map(async (stats) => {
+          const { data: rankingData } = await supabase.rpc('compute_player_season_ranking', {
+            p_player_id: stats.player_id,
+            p_season_id: seasonId,
+          })
+
+          return dbPlayerSeasonStatsToPlayerSeasonStats({
+            id: stats.id,
+            player_id: stats.player_id,
+            season_id: stats.season_id,
+            created_at: stats.created_at,
+            updated_at: stats.updated_at,
+            ranking: rankingData ?? 1200,
+            matches_played: stats.matches_played,
+            wins: stats.wins,
+            losses: stats.losses,
+            goals_for: stats.goals_for,
+            goals_against: stats.goals_against,
+          })
+        }),
+      )
+
+      // Sort by ranking descending
+      statsWithRankings.sort((a, b) => b.ranking - a.ranking)
+
+      return { data: statsWithRankings, error: null }
     } catch (err) {
       return {
         data: [],
@@ -857,17 +982,12 @@ export class SupabaseDatabase implements Database {
     seasonId: string,
   ): Promise<DatabaseResult<PlayerSeasonStats>> {
     try {
+      // Just create the relationship record, stats will be computed
       const { data, error } = await supabase
         .from('player_season_stats')
         .insert({
           player_id: playerId,
           season_id: seasonId,
-          ranking: 1200,
-          matches_played: 0,
-          wins: 0,
-          losses: 0,
-          goals_for: 0,
-          goals_against: 0,
         })
         .select()
         .single()
@@ -876,7 +996,19 @@ export class SupabaseDatabase implements Database {
         return { data: null, error: error.message }
       }
 
-      return { data: dbPlayerSeasonStatsToPlayerSeasonStats(data), error: null }
+      // Return with default stats (no matches yet)
+      return {
+        data: dbPlayerSeasonStatsToPlayerSeasonStats({
+          ...data,
+          ranking: 1200,
+          matches_played: 0,
+          wins: 0,
+          losses: 0,
+          goals_for: 0,
+          goals_against: 0,
+        }),
+        error: null,
+      }
     } catch (err) {
       return {
         data: null,
@@ -888,31 +1020,48 @@ export class SupabaseDatabase implements Database {
   async updatePlayerSeasonStats(
     playerId: string,
     seasonId: string,
-    updates: Partial<PlayerSeasonStats>,
+    _updates: Partial<PlayerSeasonStats>,
   ): Promise<DatabaseResult<PlayerSeasonStats>> {
     try {
-      // Convert camelCase updates to snake_case for database
-      const dbUpdates: Partial<DbPlayerSeasonStats> = {}
-      if (updates.ranking !== undefined) dbUpdates.ranking = updates.ranking
-      if (updates.matchesPlayed !== undefined) dbUpdates.matches_played = updates.matchesPlayed
-      if (updates.wins !== undefined) dbUpdates.wins = updates.wins
-      if (updates.losses !== undefined) dbUpdates.losses = updates.losses
-      if (updates.goalsFor !== undefined) dbUpdates.goals_for = updates.goalsFor
-      if (updates.goalsAgainst !== undefined) dbUpdates.goals_against = updates.goalsAgainst
-
+      // Stats are computed, so this method just ensures the record exists
+      // and returns the computed stats (updates parameter ignored)
       const { data, error } = await supabase
         .from('player_season_stats')
-        .update(dbUpdates)
+        .select('*')
         .eq('player_id', playerId)
         .eq('season_id', seasonId)
-        .select()
         .single()
 
       if (error) {
         return { data: null, error: error.message }
       }
 
-      return { data: dbPlayerSeasonStatsToPlayerSeasonStats(data), error: null }
+      // Get computed stats from the view
+      const { data: computedData } = await supabase
+        .from('player_season_stats_computed')
+        .select('*')
+        .eq('player_id', playerId)
+        .eq('season_id', seasonId)
+        .single()
+
+      // Compute ranking from match history
+      const { data: rankingData } = await supabase.rpc('compute_player_season_ranking', {
+        p_player_id: playerId,
+        p_season_id: seasonId,
+      })
+
+      return {
+        data: dbPlayerSeasonStatsToPlayerSeasonStats({
+          ...data,
+          ranking: rankingData ?? 1200,
+          matches_played: computedData?.matches_played,
+          wins: computedData?.wins,
+          losses: computedData?.losses,
+          goals_for: computedData?.goals_for,
+          goals_against: computedData?.goals_against,
+        }),
+        error: null,
+      }
     } catch (err) {
       return {
         data: null,
