@@ -115,15 +115,15 @@ describe('SupabaseDatabase - Group Isolation', () => {
         eq: eqSpy,
       }
 
-      mockSupabase.from.mockImplementation((table: string) => {
+      mockSupabase.from.mockImplementation(((table: string) => {
         if (table === 'matches') {
-          return mockMatchesQuery
+          return mockMatchesQuery as any
         }
         if (table === 'players') {
-          return mockPlayersQuery
+          return mockPlayersQuery as any
         }
-        return null
-      })
+        throw new Error(`Unexpected table: ${table}`)
+      }) as any)
 
       await database.getMatchesByGroup(groupId)
 
@@ -225,15 +225,15 @@ describe('SupabaseDatabase - Group Isolation', () => {
         eq: vi.fn().mockResolvedValue({ data: mockPlayers, error: null }),
       }
 
-      mockSupabase.from.mockImplementation((table: string) => {
+      mockSupabase.from.mockImplementation(((table: string) => {
         if (table === 'matches') {
-          return mockMatchesQuery
+          return mockMatchesQuery as any
         }
         if (table === 'players') {
-          return mockPlayersQuery
+          return mockPlayersQuery as any
         }
-        return null
-      })
+        throw new Error(`Unexpected table: ${table}`)
+      }) as any)
 
       const result = await database.getMatchesByGroup(groupId)
 
@@ -351,15 +351,15 @@ describe('SupabaseDatabase - Group Isolation', () => {
         eq: eqSpy,
       }
 
-      mockSupabase.from.mockImplementation((table: string) => {
+      mockSupabase.from.mockImplementation(((table: string) => {
         if (table === 'matches') {
-          return mockMatchQuery
+          return mockMatchQuery as any
         }
         if (table === 'players') {
-          return mockPlayersQuery
+          return mockPlayersQuery as any
         }
-        return null
-      })
+        throw new Error(`Unexpected table: ${table}`)
+      }) as any)
 
       await database.getMatchById(matchId)
 
