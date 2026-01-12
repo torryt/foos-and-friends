@@ -522,11 +522,12 @@ export class SupabaseDatabase implements Database {
         playerIds.add(match.team2_player2_id)
       })
 
-      // Fetch all players in one query
+      // Fetch all players in one query, filtered by group
       const { data: playersData, error: playersError } = await supabase
         .from('players')
         .select('*')
         .in('id', Array.from(playerIds))
+        .eq('group_id', groupId)
 
       if (playersError) {
         return { data: [], error: playersError.message }
@@ -581,6 +582,7 @@ export class SupabaseDatabase implements Database {
         .from('players')
         .select('*')
         .in('id', playerIds)
+        .eq('group_id', matchData.group_id)
 
       if (playersError) {
         return { data: null, error: playersError.message }
@@ -764,6 +766,9 @@ export class SupabaseDatabase implements Database {
         return { data: [], error: null }
       }
 
+      // Get group ID from the first match (all matches in a season belong to the same group)
+      const groupId = matchesData[0].group_id
+
       // Get unique player IDs
       const playerIds = new Set<string>()
       matchesData.forEach((match) => {
@@ -773,11 +778,12 @@ export class SupabaseDatabase implements Database {
         playerIds.add(match.team2_player2_id)
       })
 
-      // Fetch all players
+      // Fetch all players, filtered by group
       const { data: playersData, error: playersError } = await supabase
         .from('players')
         .select('*')
         .in('id', Array.from(playerIds))
+        .eq('group_id', groupId)
 
       if (playersError) {
         return { data: [], error: playersError.message }
