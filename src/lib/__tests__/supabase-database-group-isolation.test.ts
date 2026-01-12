@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DbMatch, DbPlayer } from '@/types'
-import { SupabaseDatabase } from '../supabase-database'
 import { supabase } from '../supabase'
+import { SupabaseDatabase } from '../supabase-database'
 
 // Mock the supabase client
 vi.mock('../supabase', () => ({
