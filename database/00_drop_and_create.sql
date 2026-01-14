@@ -215,6 +215,7 @@ AS $$
 DECLARE
   new_group_id uuid;
   new_invite_code text;
+  new_season_id uuid;
 BEGIN
   -- Create the group
   INSERT INTO friend_groups (name, description, owner_id, created_by)
@@ -225,11 +226,25 @@ BEGIN
   INSERT INTO group_memberships (group_id, user_id, role, is_active)
   VALUES (new_group_id, auth.uid(), 'owner', true);
 
+  -- Create initial season (Season 1) for the new group
+  INSERT INTO seasons (group_id, name, description, season_number, start_date, is_active, created_by)
+  VALUES (
+    new_group_id,
+    'Season 1',
+    'Initial season',
+    1,
+    CURRENT_DATE,
+    true,
+    auth.uid()
+  )
+  RETURNING id INTO new_season_id;
+
   RETURN json_build_object(
     'success', true,
     'group_id', new_group_id,
     'invite_code', new_invite_code,
-    'name', p_name
+    'name', p_name,
+    'season_id', new_season_id
   );
 END;
 $$;
