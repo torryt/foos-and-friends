@@ -22,6 +22,9 @@ export class FakeDatabase implements Database {
   private memberships: GroupMembership[] = []
   private players: Player[] = []
   private matches: Match[] = []
+  private seasons: Season[] = []
+  // @ts-expect-error - Reserved for future implementation
+  private _playerSeasonStats: PlayerSeasonStats[] = []
   private nextId = 1
 
   private generateId(): string {
@@ -97,6 +100,24 @@ export class FakeDatabase implements Database {
       joinedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     })
+
+    // Create initial season (Season 1) for the new group
+    const seasonId = this.generateId()
+    const season: Season = {
+      id: seasonId,
+      groupId,
+      name: 'Season 1',
+      description: 'Initial season',
+      seasonNumber: 1,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: null,
+      isActive: true,
+      createdBy: 'fake-user-id',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    this.seasons.push(season)
 
     const result: GroupCreationRpcResult = {
       success: true,
@@ -363,16 +384,19 @@ export class FakeDatabase implements Database {
     return { data: [], error: 'Not implemented in fake' }
   }
 
-  async getSeasonsByGroup(_groupId: string): Promise<DatabaseListResult<Season>> {
-    return { data: [], error: 'Not implemented in fake' }
+  async getSeasonsByGroup(groupId: string): Promise<DatabaseListResult<Season>> {
+    const seasons = this.seasons.filter((s) => s.groupId === groupId)
+    return { data: seasons, error: null }
   }
 
-  async getActiveSeason(_groupId: string): Promise<DatabaseResult<Season>> {
-    return { data: null, error: 'Not implemented in fake' }
+  async getActiveSeason(groupId: string): Promise<DatabaseResult<Season>> {
+    const season = this.seasons.find((s) => s.groupId === groupId && s.isActive)
+    return { data: season || null, error: null }
   }
 
-  async getSeasonById(_seasonId: string): Promise<DatabaseResult<Season>> {
-    return { data: null, error: 'Not implemented in fake' }
+  async getSeasonById(seasonId: string): Promise<DatabaseResult<Season>> {
+    const season = this.seasons.find((s) => s.id === seasonId)
+    return { data: season || null, error: null }
   }
 
   async endSeasonAndCreateNew(
@@ -421,6 +445,8 @@ export class FakeDatabase implements Database {
     this.memberships = []
     this.players = []
     this.matches = []
+    this.seasons = []
+    this._playerSeasonStats = []
     this.nextId = 1
   }
 
@@ -429,10 +455,14 @@ export class FakeDatabase implements Database {
     memberships?: GroupMembership[]
     players?: Player[]
     matches?: Match[]
+    seasons?: Season[]
+    playerSeasonStats?: PlayerSeasonStats[]
   }): void {
     if (data.groups) this.groups = [...data.groups]
     if (data.memberships) this.memberships = [...data.memberships]
     if (data.players) this.players = [...data.players]
     if (data.matches) this.matches = [...data.matches]
+    if (data.seasons) this.seasons = [...data.seasons]
+    if (data.playerSeasonStats) this._playerSeasonStats = [...data.playerSeasonStats]
   }
 }
