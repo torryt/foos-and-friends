@@ -50,8 +50,8 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - `src/hooks/useGameLogic.ts` - Season-aware game logic with ELO calculations
 - `src/services/` - Service layer for data operations (players, matches, groups, seasons)
   - `seasonsService.ts` - Season CRUD operations
-  - `playerSeasonStatsService.ts` - Per-season player statistics
-  - `matchesService.ts` - Season-aware match recording with dual stats updates
+  - `playerSeasonStatsService.ts` - Player season participation (statistics computed from matches)
+  - `matchesService.ts` - Match recording (statistics automatically computed)
 - `src/types/index.ts` - TypeScript interfaces for all entities
 - `src/components/` - Reusable UI components including auth and group management
 
@@ -60,10 +60,14 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - **friend_groups** - Private groups with invite codes and ownership
 - **group_memberships** - User membership in groups with roles
 - **seasons** - Competitive seasons with start/end dates (one active per group)
-- **players** - Group-scoped player profiles with global rankings (for backwards compatibility)
-- **player_season_stats** - Per-season statistics (ranking, wins, losses, goals)
-- **matches** - Match records with team compositions, scores, and season association
+- **players** - Group-scoped player profiles (statistics computed from matches)
+- **player_season_stats** - Player season participation tracking (statistics computed from matches)
+- **matches** - **Single source of truth** - Match records with team compositions, scores, rankings, and season association
+- **player_stats_computed** - Database view providing global player statistics computed from matches
+- **player_season_stats_computed** - Database view providing per-season statistics computed from matches
 - **Row Level Security** policies ensure complete data isolation between groups
+
+**Important**: Player statistics (wins, losses, ranking, etc.) are NOT stored in the `players` or `player_season_stats` tables. Instead, they are computed on-demand from the `matches` table using database views and functions. This ensures a single source of truth and eliminates data synchronization issues.
 
 ### Styling
 
@@ -113,17 +117,18 @@ This ensures consistent code quality and prevents regressions from reaching prod
 
 ### Seasons Feature Architecture
 
-**Database Layer** (`/database/migrations/008_add_seasons.sql`):
-- **seasons** table: Tracks competitive periods with start/end dates, one active per group
-- **player_season_stats** table: Per-season statistics (ranking starts at 1200, wins, losses, goals)
+**Database Layer**:
+- **seasons** table (`/database/migrations/008_add_seasons.sql`): Tracks competitive periods with start/end dates, one active per group
+- **player_season_stats** table: Tracks which players participated in which seasons (statistics computed from matches)
 - **matches.season_id**: Foreign key associating each match with a season
+- **Computed statistics** (`/database/migrations/009_add_computed_stats.sql`): Database views and functions compute all statistics from matches
 - **Partial unique index**: Ensures only one active season per group
 - **Data migration**: Automatically creates "Season 1" for existing groups and associates all existing matches
 
 **Service Layer**:
 - **seasonsService**: Season CRUD operations, get active season, end/create seasons
-- **playerSeasonStatsService**: Initialize players for seasons, update stats, get leaderboards
-- **matchesService**: Season-aware match recording with dual updates (global + season stats)
+- **playerSeasonStatsService**: Initialize players for seasons, get computed statistics, get leaderboards
+- **matchesService**: Season-aware match recording (statistics automatically computed from views)
 
 **State Management**:
 - **SeasonContext**: Manages current season, loads seasons on group change
@@ -134,7 +139,7 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **Reset rankings**: Each season starts fresh at 1200 ELO
 - **Manual season management**: Group owners explicitly create/end seasons
 - **Full historical access**: All past seasons remain queryable
-- **Backwards compatibility**: Global player stats maintained alongside season stats
+- **Computed statistics**: All stats derived from match history (single source of truth)
 - **Season scoping**: Matches filtered by current season in UI
 
 ### Supabase Integration
@@ -150,10 +155,13 @@ This ensures consistent code quality and prevents regressions from reaching prod
 3. **Season Selection**: Group seasons → SeasonContext → Current season (persisted to localStorage per group)
 4. **Game Data**: Service layer → useGameLogic → UI components (filtered by current season)
 5. **Match Recording**:
-   - Records match in active season
-   - Updates both player global stats (backwards compat) and player_season_stats
+   - Records match in active season with pre/post rankings for each player
+   - Statistics automatically computed from match history via database views
    - Uses season-specific rankings for ELO calculations
-6. **Real-time**: Supabase subscriptions (planned) → Context updates
+6. **Statistics Retrieval**:
+   - Queries database views (`player_stats_computed`, `player_season_stats_computed`)
+   - Rankings computed on-demand from chronological match replay
+7. **Real-time**: Supabase subscriptions (planned) → Context updates
 
 ### Key Implementation Details
 
@@ -162,7 +170,10 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - Season-based data isolation with independent rankings per season
 - ELO ranking system with asymmetric K-factors (K_WINNER=35, K_LOSER=29) for slight inflation
 - Rankings clamped between 800-2400, all seasons start at 1200
-- Dual stats tracking: global player stats (backwards compat) + per-season stats
+- **Statistics computed from matches**: Single source of truth eliminates synchronization issues
+  - Database views aggregate wins/losses/goals from matches table
+  - PostgreSQL functions replay match history chronologically to compute rankings
+  - No aggregated stats stored in players or player_season_stats tables
 - Season lifecycle: Only one active season per group, group owners control season transitions
 
 ## Production Deployment
