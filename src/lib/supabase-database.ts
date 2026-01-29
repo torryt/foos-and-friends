@@ -117,14 +117,12 @@ const dbMatchToMatch = async (
 }
 
 // Transform app player to database format for insert
+// Note: Stats fields (ranking, matches_played, wins, losses) are NOT included
+// because they are computed from match history via the player_stats_computed view
 const playerToDbInsert = (
   player: Omit<Player, 'id' | 'createdAt' | 'updatedAt'>,
-): Omit<DbPlayer, 'id' | 'created_at' | 'updated_at'> => ({
+): { name: string; avatar: string; department: string; group_id: string; created_by: string } => ({
   name: player.name,
-  ranking: player.ranking,
-  matches_played: player.matchesPlayed,
-  wins: player.wins,
-  losses: player.losses,
   avatar: player.avatar,
   department: player.department,
   group_id: player.groupId ?? '',
@@ -380,8 +378,9 @@ export class SupabaseDatabase implements Database {
 
   async getPlayersByGroup(groupId: string): Promise<DatabaseListResult<Player>> {
     try {
+      // Read from computed view for stats derived from match history
       const { data, error } = await supabase
-        .from('players')
+        .from('player_stats_computed')
         .select('*')
         .eq('group_id', groupId)
         .order('ranking', { ascending: false })
@@ -399,7 +398,12 @@ export class SupabaseDatabase implements Database {
 
   async getPlayerById(playerId: string): Promise<DatabaseResult<Player>> {
     try {
-      const { data, error } = await supabase.from('players').select('*').eq('id', playerId).single()
+      // Read from computed view for stats derived from match history
+      const { data, error } = await supabase
+        .from('player_stats_computed')
+        .select('*')
+        .eq('id', playerId)
+        .single()
 
       if (error) {
         return { data: null, error: error.message }
@@ -415,10 +419,22 @@ export class SupabaseDatabase implements Database {
     player: Omit<Player, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<DatabaseResult<Player>> {
     try {
-      const { data, error } = await supabase
+      // Insert into players table (stats not included - they're computed)
+      const { data: insertData, error: insertError } = await supabase
         .from('players')
         .insert(playerToDbInsert(player))
-        .select()
+        .select('id')
+        .single()
+
+      if (insertError) {
+        return { data: null, error: insertError.message }
+      }
+
+      // Read from computed view to get the full player with computed stats
+      const { data, error } = await supabase
+        .from('player_stats_computed')
+        .select('*')
+        .eq('id', insertData.id)
         .single()
 
       if (error) {
@@ -433,20 +449,32 @@ export class SupabaseDatabase implements Database {
 
   async updatePlayer(playerId: string, updates: Partial<Player>): Promise<DatabaseResult<Player>> {
     try {
+      // Only allow profile updates (name, avatar, department)
+      // Stats (ranking, matchesPlayed, wins, losses) are computed from match history
       const dbUpdates: Record<string, unknown> = {}
       if (updates.name !== undefined) dbUpdates.name = updates.name
-      if (updates.ranking !== undefined) dbUpdates.ranking = updates.ranking
-      if (updates.matchesPlayed !== undefined) dbUpdates.matches_played = updates.matchesPlayed
-      if (updates.wins !== undefined) dbUpdates.wins = updates.wins
-      if (updates.losses !== undefined) dbUpdates.losses = updates.losses
       if (updates.avatar !== undefined) dbUpdates.avatar = updates.avatar
       if (updates.department !== undefined) dbUpdates.department = updates.department
 
-      const { data, error } = await supabase
+      // If no valid updates, just return current player
+      if (Object.keys(dbUpdates).length === 0) {
+        return this.getPlayerById(playerId)
+      }
+
+      const { error: updateError } = await supabase
         .from('players')
         .update(dbUpdates)
         .eq('id', playerId)
-        .select()
+
+      if (updateError) {
+        return { data: null, error: updateError.message }
+      }
+
+      // Read from computed view to get updated player with computed stats
+      const { data, error } = await supabase
+        .from('player_stats_computed')
+        .select('*')
+        .eq('id', playerId)
         .single()
 
       if (error) {
@@ -462,11 +490,26 @@ export class SupabaseDatabase implements Database {
   async updateMultiplePlayers(
     updates: Array<{ id: string } & Partial<Player>>,
   ): Promise<{ data?: Player[]; error?: string }> {
+    // DEPRECATED: Stats are now computed from match history.
+    // This method now only handles profile updates (name, avatar, department).
+    // Stats updates (ranking, matchesPlayed, wins, losses) are ignored.
     try {
       const updatedPlayers: Player[] = []
       for (const update of updates) {
         const { id, ...playerUpdates } = update
-        const result = await this.updatePlayer(id, playerUpdates)
+        // Filter to only profile updates
+        const profileUpdates: Partial<Player> = {}
+        if (playerUpdates.name !== undefined) profileUpdates.name = playerUpdates.name
+        if (playerUpdates.avatar !== undefined) profileUpdates.avatar = playerUpdates.avatar
+        if (playerUpdates.department !== undefined)
+          profileUpdates.department = playerUpdates.department
+
+        // If only stats updates were requested, just fetch current player
+        const result =
+          Object.keys(profileUpdates).length > 0
+            ? await this.updatePlayer(id, profileUpdates)
+            : await this.getPlayerById(id)
+
         if (result.error) {
           return { error: result.error }
         }
@@ -816,8 +859,9 @@ export class SupabaseDatabase implements Database {
     seasonId: string,
   ): Promise<DatabaseResult<PlayerSeasonStats>> {
     try {
+      // Read from computed view for stats derived from match history
       const { data, error } = await supabase
-        .from('player_season_stats')
+        .from('player_season_stats_computed')
         .select('*')
         .eq('player_id', playerId)
         .eq('season_id', seasonId)
@@ -838,8 +882,9 @@ export class SupabaseDatabase implements Database {
 
   async getSeasonLeaderboard(seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>> {
     try {
+      // Read from computed view for stats derived from match history
       const { data, error } = await supabase
-        .from('player_season_stats')
+        .from('player_season_stats_computed')
         .select('*')
         .eq('season_id', seasonId)
         .order('ranking', { ascending: false })
@@ -863,19 +908,26 @@ export class SupabaseDatabase implements Database {
     seasonId: string,
   ): Promise<DatabaseResult<PlayerSeasonStats>> {
     try {
-      const { data, error } = await supabase
+      // Insert relationship record only (stats are computed from match history)
+      const { data: insertData, error: insertError } = await supabase
         .from('player_season_stats')
         .insert({
           player_id: playerId,
           season_id: seasonId,
-          ranking: 1200,
-          matches_played: 0,
-          wins: 0,
-          losses: 0,
-          goals_for: 0,
-          goals_against: 0,
+          // Stats fields are nullable and will be computed via the view
         })
-        .select()
+        .select('id')
+        .single()
+
+      if (insertError) {
+        return { data: null, error: insertError.message }
+      }
+
+      // Read from computed view to get the full stats
+      const { data, error } = await supabase
+        .from('player_season_stats_computed')
+        .select('*')
+        .eq('id', insertData.id)
         .single()
 
       if (error) {
@@ -894,60 +946,33 @@ export class SupabaseDatabase implements Database {
   async updatePlayerSeasonStats(
     playerId: string,
     seasonId: string,
-    updates: Partial<PlayerSeasonStats>,
+    _updates: Partial<PlayerSeasonStats>,
   ): Promise<DatabaseResult<PlayerSeasonStats>> {
-    try {
-      // Convert camelCase updates to snake_case for database
-      const dbUpdates: Partial<DbPlayerSeasonStats> = {}
-      if (updates.ranking !== undefined) dbUpdates.ranking = updates.ranking
-      if (updates.matchesPlayed !== undefined) dbUpdates.matches_played = updates.matchesPlayed
-      if (updates.wins !== undefined) dbUpdates.wins = updates.wins
-      if (updates.losses !== undefined) dbUpdates.losses = updates.losses
-      if (updates.goalsFor !== undefined) dbUpdates.goals_for = updates.goalsFor
-      if (updates.goalsAgainst !== undefined) dbUpdates.goals_against = updates.goalsAgainst
-
-      const { data, error } = await supabase
-        .from('player_season_stats')
-        .update(dbUpdates)
-        .eq('player_id', playerId)
-        .eq('season_id', seasonId)
-        .select()
-        .single()
-
-      if (error) {
-        return { data: null, error: error.message }
-      }
-
-      return { data: dbPlayerSeasonStatsToPlayerSeasonStats(data), error: null }
-    } catch (err) {
-      return {
-        data: null,
-        error: err instanceof Error ? err.message : 'Failed to update player season stats',
-      }
-    }
+    // DEPRECATED: Stats are now computed from match history.
+    // This method now just returns the current computed stats.
+    return this.getPlayerSeasonStats(playerId, seasonId)
   }
 
   async updateMultiplePlayerSeasonStats(
     updates: Array<{ playerId: string; seasonId: string } & Partial<PlayerSeasonStats>>,
   ): Promise<{ data?: PlayerSeasonStats[]; error?: string }> {
+    // DEPRECATED: Stats are now computed from match history.
+    // This method now just returns the current computed stats for each player.
     try {
       const results = await Promise.all(
-        updates.map((update) =>
-          this.updatePlayerSeasonStats(update.playerId, update.seasonId, update),
-        ),
+        updates.map((update) => this.getPlayerSeasonStats(update.playerId, update.seasonId)),
       )
 
-      // Check if any updates failed
-      const failedUpdate = results.find((result) => result.error)
-      if (failedUpdate) {
-        return { error: failedUpdate.error || 'Failed to update some player season stats' }
+      const failedResult = results.find((result) => result.error)
+      if (failedResult) {
+        return { error: failedResult.error || 'Failed to fetch player season stats' }
       }
 
       const data = results.map((result) => result.data).filter(Boolean) as PlayerSeasonStats[]
       return { data }
     } catch (err) {
       return {
-        error: err instanceof Error ? err.message : 'Failed to update multiple player season stats',
+        error: err instanceof Error ? err.message : 'Failed to fetch player season stats',
       }
     }
   }
