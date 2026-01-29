@@ -109,7 +109,10 @@ COMMENT ON FUNCTION compute_player_global_ranking IS 'Computes player global ran
 -- ===== 4. CREATE COMPUTED STATS VIEWS =====
 
 -- View for player_season_stats_computed (replaces player_season_stats for reads)
-CREATE OR REPLACE VIEW player_season_stats_computed AS
+-- Using security_invoker to respect RLS policies of underlying tables
+CREATE OR REPLACE VIEW player_season_stats_computed
+WITH (security_invoker = true)
+AS
 SELECT
   pss.id,
   pss.player_id,
@@ -161,7 +164,10 @@ LEFT JOIN LATERAL (
 COMMENT ON VIEW player_season_stats_computed IS 'Computed player season statistics from match history';
 
 -- View for player_stats_computed (replaces players table stats for reads)
-CREATE OR REPLACE VIEW player_stats_computed AS
+-- Using security_invoker to respect RLS policies of underlying tables
+CREATE OR REPLACE VIEW player_stats_computed
+WITH (security_invoker = true)
+AS
 SELECT
   p.id,
   p.name,

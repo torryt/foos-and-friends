@@ -1,6 +1,9 @@
 import type { Database } from '@/lib/database'
 import { database } from '@/lib/supabase-database'
-import type { Match, Player, PlayerSeasonStats } from '@/types'
+import type { Match, Player } from '@/types'
+
+// Default ranking for new players or players with no matches in a season
+const DEFAULT_RANKING = 1200
 
 class MatchesService {
   private db: Database
@@ -28,6 +31,15 @@ class MatchesService {
   async getMatchesBySeason(seasonId: string): Promise<{ data: Match[]; error?: string }> {
     const result = await this.db.getMatchesBySeason(seasonId)
     return { data: result.data, error: result.error ?? undefined }
+  }
+
+  // Helper to get a player's current ranking in a season
+  // Returns DEFAULT_RANKING (1200) if player has no matches in this season yet
+  private async getPlayerSeasonRanking(playerId: string, seasonId: string): Promise<number> {
+    const { playerSeasonStatsService } = await import('./playerSeasonStatsService')
+    const result = await playerSeasonStatsService.getPlayerSeasonStats(playerId, seasonId)
+    // If player has no matches in this season, they won't be in the view - use default
+    return result.data?.ranking ?? DEFAULT_RANKING
   }
 
   // Add a new match
@@ -70,26 +82,20 @@ class MatchesService {
 
     const [team1Player1, team1Player2, team2Player1, team2Player2] = players
 
-    // Get or initialize season stats for all players (needed for pre-game rankings)
-    const { playerSeasonStatsService } = await import('./playerSeasonStatsService')
-    const seasonStatsResults = await Promise.all([
-      playerSeasonStatsService.initializePlayerForSeason(team1Player1Id, seasonId),
-      playerSeasonStatsService.initializePlayerForSeason(team1Player2Id, seasonId),
-      playerSeasonStatsService.initializePlayerForSeason(team2Player1Id, seasonId),
-      playerSeasonStatsService.initializePlayerForSeason(team2Player2Id, seasonId),
-    ])
+    // Get current season rankings for all players
+    // Players with no matches in this season yet will get DEFAULT_RANKING (1200)
+    const [team1Player1Ranking, team1Player2Ranking, team2Player1Ranking, team2Player2Ranking] =
+      await Promise.all([
+        this.getPlayerSeasonRanking(team1Player1Id, seasonId),
+        this.getPlayerSeasonRanking(team1Player2Id, seasonId),
+        this.getPlayerSeasonRanking(team2Player1Id, seasonId),
+        this.getPlayerSeasonRanking(team2Player2Id, seasonId),
+      ])
 
-    const seasonStats = seasonStatsResults.map((r) => r.data).filter(Boolean) as PlayerSeasonStats[]
-    if (seasonStats.length !== 4) {
-      return { data: null, error: 'Failed to initialize player season stats' }
-    }
-
-    const [team1Player1Stats, team1Player2Stats, team2Player1Stats, team2Player2Stats] = seasonStats
-
-    // Determine winner and calculate new rankings using season stats
+    // Determine winner and calculate new rankings
     const team1Won = score1 > score2
-    const team1Ranking = (team1Player1Stats.ranking + team1Player2Stats.ranking) / 2
-    const team2Ranking = (team2Player1Stats.ranking + team2Player2Stats.ranking) / 2
+    const team1AvgRanking = (team1Player1Ranking + team1Player2Ranking) / 2
+    const team2AvgRanking = (team2Player1Ranking + team2Player2Ranking) / 2
 
     // ELO Configuration - Asymmetric K-factors for slight inflation
     const K_FACTOR_WINNER = 35 // Winners get more points (+9% vs standard K=32)
@@ -111,10 +117,10 @@ class MatchesService {
 
     // Calculate new rankings for all players
     const newRankings = {
-      [team1Player1.id]: calculateNewRanking(team1Player1Stats.ranking, team2Ranking, team1Won),
-      [team1Player2.id]: calculateNewRanking(team1Player2Stats.ranking, team2Ranking, team1Won),
-      [team2Player1.id]: calculateNewRanking(team2Player1Stats.ranking, team1Ranking, !team1Won),
-      [team2Player2.id]: calculateNewRanking(team2Player2Stats.ranking, team1Ranking, !team1Won),
+      [team1Player1.id]: calculateNewRanking(team1Player1Ranking, team2AvgRanking, team1Won),
+      [team1Player2.id]: calculateNewRanking(team1Player2Ranking, team2AvgRanking, team1Won),
+      [team2Player1.id]: calculateNewRanking(team2Player1Ranking, team1AvgRanking, !team1Won),
+      [team2Player2.id]: calculateNewRanking(team2Player2Ranking, team1AvgRanking, !team1Won),
     }
 
     try {
@@ -131,13 +137,13 @@ class MatchesService {
         score2,
         recordedBy,
         {
-          team1Player1PreRanking: team1Player1Stats.ranking,
+          team1Player1PreRanking: team1Player1Ranking,
           team1Player1PostRanking: newRankings[team1Player1.id],
-          team1Player2PreRanking: team1Player2Stats.ranking,
+          team1Player2PreRanking: team1Player2Ranking,
           team1Player2PostRanking: newRankings[team1Player2.id],
-          team2Player1PreRanking: team2Player1Stats.ranking,
+          team2Player1PreRanking: team2Player1Ranking,
           team2Player1PostRanking: newRankings[team2Player1.id],
-          team2Player2PreRanking: team2Player2Stats.ranking,
+          team2Player2PreRanking: team2Player2Ranking,
           team2Player2PostRanking: newRankings[team2Player2.id],
         },
       )

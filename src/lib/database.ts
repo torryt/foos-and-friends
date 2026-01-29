@@ -122,22 +122,10 @@ export interface Database {
     newSeasonDescription?: string,
   ): Promise<DatabaseResult<SeasonCreationRpcResult>>
 
-  // Player season stats operations
+  // Player season stats operations (read-only, computed from matches)
   getPlayerSeasonStats(
     playerId: string,
     seasonId: string,
   ): Promise<DatabaseResult<PlayerSeasonStats>>
   getSeasonLeaderboard(seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>>
-  initializePlayerForSeason(
-    playerId: string,
-    seasonId: string,
-  ): Promise<DatabaseResult<PlayerSeasonStats>>
-  updatePlayerSeasonStats(
-    playerId: string,
-    seasonId: string,
-    updates: Partial<PlayerSeasonStats>,
-  ): Promise<DatabaseResult<PlayerSeasonStats>>
-  updateMultiplePlayerSeasonStats(
-    updates: Array<{ playerId: string; seasonId: string } & Partial<PlayerSeasonStats>>,
-  ): Promise<{ data?: PlayerSeasonStats[]; error?: string }>
 }
