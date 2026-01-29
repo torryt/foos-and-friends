@@ -4,20 +4,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Common Commands
 
-- **Development**: `npm run dev` - Start development server with Vite HMR
-- **Build**: `npm run build` - TypeScript compilation + Vite production build
-- **Type Check**: `npm run typecheck` - Run TypeScript compiler in check mode
-- **Lint**: `npm run lint` - Check code with Biome linter
-- **Lint Fix**: `npm run lint:fix` - Auto-fix linting issues with Biome
-- **Format**: `npm run format` - Format code with Biome
-- **Test**: `npm run test` - Run tests in watch mode with Vitest
-- **Test Run**: `npm run test:run` - Run all tests once
-- **Test UI**: `npm run test:ui` - Run tests with UI interface
-- **Test Coverage**: `npm run test:coverage` - Run tests with coverage report
+- **Development**: `pnpm dev:foosball` / `pnpm dev:padel` - Start development server with Vite HMR
+- **Build**: `pnpm build` - TypeScript compilation + Vite production build for all apps
+- **Build Specific**: `pnpm build:foosball` / `pnpm build:padel` - Build individual apps
+- **Type Check**: `pnpm typecheck` - Run TypeScript compiler in check mode for all packages
+- **Lint**: `pnpm lint` - Check code with Biome linter
+- **Lint Fix**: `pnpm lint:fix` - Auto-fix linting issues with Biome
+- **Format**: `pnpm format` - Format code with Biome
+- **Test**: `pnpm test` - Run tests in watch mode with Vitest
+- **Test Run**: `pnpm test:run` - Run all tests once
+- **Test Coverage**: `pnpm test:coverage` - Run tests with coverage report
 
 ## Architecture Overview
 
-This is a React + TypeScript foosball ranking application built with Vite. The app tracks players, matches, and calculates ELO-based rankings for office foosball games with Supabase backend integration.
+This is a pnpm workspaces monorepo containing multiple React + TypeScript sports ranking applications built with Vite. The apps track players, matches, and calculate ELO-based rankings with Supabase backend integration.
+
+### Monorepo Structure
+
+```
+foos-and-friends/
+├── packages/
+│   └── shared/                  # Shared backend layer (@foos/shared)
+│       ├── src/
+│       │   ├── lib/             # database.ts, supabase-database.ts, supabase.ts
+│       │   ├── services/        # All services (players, matches, groups, seasons)
+│       │   ├── types/           # TypeScript interfaces
+│       │   ├── utils/           # matchmaking.ts, streakCalculations.ts
+│       │   ├── constants/       # avatars.ts
+│       │   └── test/            # Test utilities
+│       └── package.json
+│
+├── apps/
+│   ├── foosball/                # Foosball ranking app (@foos/foosball)
+│   │   ├── src/
+│   │   │   ├── components/      # React components
+│   │   │   ├── routes/          # TanStack Router routes
+│   │   │   ├── hooks/           # Custom React hooks
+│   │   │   ├── contexts/        # React Context providers
+│   │   │   └── lib/init.ts      # App-specific service initialization
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   │
+│   └── padel/                   # Padel ranking app (@foos/padel)
+│       ├── src/                 # Same structure as foosball
+│       ├── package.json
+│       └── vite.config.ts
+│
+├── database/                    # SQL migrations (shared)
+├── package.json                 # Workspace root
+└── pnpm-workspace.yaml          # Workspace configuration
+```
 
 ### Core Architecture
 
@@ -26,6 +62,14 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - **Tailwind CSS** with custom styling for UI components
 - **Component-based architecture** with clear separation of concerns
 - **Custom hooks** and React Context for state management
+- **pnpm workspaces** for monorepo management
+
+### Multi-Sport Support
+
+- **sport_type column** on `friend_groups` table distinguishes foosball vs padel groups
+- Each app filters groups by its sport type (configured in GroupContext)
+- Shared user accounts across both sports
+- Same database, complete data isolation per sport
 
 ### Authentication & Groups
 
@@ -43,21 +87,26 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 
 ### Key Components Structure
 
+Shared package (`packages/shared/`):
+- `src/lib/database.ts` - Database interface abstraction
+- `src/lib/supabase-database.ts` - Supabase implementation
+- `src/lib/supabase.ts` - Supabase client initialization
+- `src/services/` - Service layer for data operations
+- `src/types/index.ts` - TypeScript interfaces for all entities
+- `src/utils/` - ELO calculations, matchmaking, streak calculations
+
+App-specific (`apps/foosball/` or `apps/padel/`):
 - `src/App.tsx` - Main app component with authentication, group, and season contexts
 - `src/hooks/useAuth.ts` - Authentication logic with Supabase
-- `src/contexts/GroupContext.tsx` - Group management and state
+- `src/contexts/GroupContext.tsx` - Group management and state (sport-type filtered)
 - `src/contexts/SeasonContext.tsx` - Season management and state
 - `src/hooks/useGameLogic.ts` - Season-aware game logic with ELO calculations
-- `src/services/` - Service layer for data operations (players, matches, groups, seasons)
-  - `seasonsService.ts` - Season CRUD operations
-  - `playerSeasonStatsService.ts` - Per-season player statistics
-  - `matchesService.ts` - Season-aware match recording with dual stats updates
-- `src/types/index.ts` - TypeScript interfaces for all entities
+- `src/lib/init.ts` - Service initialization with environment variables
 - `src/components/` - Reusable UI components including auth and group management
 
 ### Database Schema
 
-- **friend_groups** - Private groups with invite codes and ownership
+- **friend_groups** - Private groups with invite codes, ownership, and sport_type
 - **group_memberships** - User membership in groups with roles
 - **seasons** - Competitive seasons with start/end dates (one active per group)
 - **players** - Group-scoped player profiles with global rankings (for backwards compatibility)
@@ -70,35 +119,43 @@ This is a React + TypeScript foosball ranking application built with Vite. The a
 - **Biome** for code formatting and linting (configured for 2-space indents, single quotes)
 - **Tailwind CSS v4** with PostCSS for styling
 - Custom gradient backgrounds and responsive design
+- Foosball: Blue theme (#3b82f6), Padel: Green theme (#10b981)
 
 ### TypeScript Configuration
 
 - Strict TypeScript setup with separate configs for app (`tsconfig.app.json`) and build tools (`tsconfig.node.json`)
-- Path aliases configured with `@/` pointing to `src/`
+- Path aliases configured with `@/` pointing to app's `src/` and `@foos/shared` for shared package
 
 ### Testing
 
 - **Vitest** with React Testing Library for unit and component tests
-- Custom test utilities in `src/test/test-utils.tsx` with context providers
-- Component tests in `src/components/__tests__/`
-- Hook tests in `src/hooks/__tests__/`
+- Custom test utilities in `packages/shared/src/test/test-utils.tsx` with context providers
+- Component tests in `apps/*/src/components/__tests__/`
+- Hook tests in `apps/*/src/hooks/__tests__/`
 
 ## Development Workflow
 
 ### Getting Started
 
-1. **Environment Setup**: Create `.env.local` with Supabase credentials
+1. **Environment Setup**: Create `.env.local` files in each app with Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 2. **Database Setup**: Execute `/database/00_complete_reset.sql` in Supabase SQL Editor if using Supabase
-3. **Development**: Run `npm run dev` to start the development server
+3. **Install Dependencies**: Run `pnpm install` at the root
+4. **Development**:
+   - Foosball: `pnpm dev:foosball` (runs on port 5173)
+   - Padel: `pnpm dev:padel` (runs on port 5174)
 
 ### Quality Assurance Requirements
 
 **IMPORTANT**: After implementing every feature or fix of a non-trivial size, run the following commands and fix any issues:
 
-1. `npm run lint` - Check code with Biome linter
-2. `npm run test:run` - Run all tests once
-3. `npm run format` - Format code with Biome
-4. `npm run typecheck` - Ensure TypeScript compliance
+1. `pnpm lint` - Check code with Biome linter
+2. `pnpm test:run` - Run all tests once
+3. `pnpm format` - Format code with Biome
+4. `pnpm typecheck` - Ensure TypeScript compliance
 
 This ensures consistent code quality and prevents regressions from reaching production.
 
@@ -110,6 +167,7 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **Production**: Always use migrations for production database changes to preserve data
 - **RLS Policies**: Designed to work with public JS client without circular dependencies
 - **Seasons Migration**: `/database/migrations/008_add_seasons.sql` creates seasons infrastructure and migrates existing data to "Season 1"
+- **Sport Type Migration**: `/database/migrations/014_add_sport_type.sql` adds sport_type column for multi-sport support
 
 ### Seasons Feature Architecture
 
@@ -146,7 +204,7 @@ This ensures consistent code quality and prevents regressions from reaching prod
 ### Data Flow
 
 1. **Authentication**: Magic link → Supabase session → AuthContext
-2. **Group Selection**: User groups → GroupContext → Current group
+2. **Group Selection**: User groups (filtered by sport_type) → GroupContext → Current group
 3. **Season Selection**: Group seasons → SeasonContext → Current season (persisted to localStorage per group)
 4. **Game Data**: Service layer → useGameLogic → UI components (filtered by current season)
 5. **Match Recording**:
@@ -160,6 +218,7 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - All data operations go through service layer for consistent data handling
 - Group-based data scoping ensures privacy and security
 - Season-based data isolation with independent rankings per season
+- Sport-type filtering isolates foosball and padel groups per app
 - ELO ranking system with asymmetric K-factors (K_WINNER=35, K_LOSER=29) for slight inflation
 - Rankings clamped between 800-2400, all seasons start at 1200
 - Dual stats tracking: global player stats (backwards compat) + per-season stats
