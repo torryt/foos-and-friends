@@ -192,9 +192,9 @@ export const GroupSelector = ({
                             onLeaveGroup?.(group.id)
                             setIsOpen(false)
                           }}
-                          className="w-full text-left px-6 py-2 rounded-md bg-orange-50 hover:bg-orange-100 transition-colors flex items-center gap-3 text-sm font-medium text-orange-700"
+                          className="w-full text-left px-6 py-2 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors flex items-center gap-3 text-sm font-medium text-blue-700"
                         >
-                          <LogOut size={14} className="text-orange-500" />
+                          <LogOut size={14} className="text-blue-500" />
                           Leave Group
                         </button>
                       )}

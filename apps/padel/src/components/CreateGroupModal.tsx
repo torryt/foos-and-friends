@@ -133,7 +133,7 @@ export const CreateGroupModal = ({ isOpen, onClose }: CreateGroupModalProps) => 
               <li>• You'll become the group owner</li>
               <li>• A unique invite code will be generated</li>
               <li>• Share the code with friends to invite them</li>
-              <li>• Start tracking foosball matches together!</li>
+              <li>• Start tracking padel matches together!</li>
             </ul>
           </div>
 

@@ -335,7 +335,7 @@ describe('PlayerRecentMatches', () => {
   })
 
   describe('Position and teammate display', () => {
-    it('displays correct position icons for attacker', () => {
+    it('displays correct position icons for left position', () => {
       render(
         <PlayerRecentMatches
           playerId="player1"
@@ -345,12 +345,12 @@ describe('PlayerRecentMatches', () => {
         />,
       )
 
-      // Player1 is in team1[0], so should be an attacker (Sword icon)
-      const swordIcons = document.querySelectorAll('svg.text-orange-500')
-      expect(swordIcons.length).toBeGreaterThan(0)
+      // Player1 is in team1[0], so should be left position (ArrowLeft icon)
+      const leftIcons = document.querySelectorAll('svg.text-emerald-500')
+      expect(leftIcons.length).toBeGreaterThan(0)
     })
 
-    it('displays correct position icons for defender', () => {
+    it('displays correct position icons for right position', () => {
       render(
         <PlayerRecentMatches
           playerId="player2"
@@ -360,9 +360,9 @@ describe('PlayerRecentMatches', () => {
         />,
       )
 
-      // Player2 is in team1[1], so should be a defender (Shield icon)
-      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
-      expect(shieldIcons.length).toBeGreaterThan(0)
+      // Player2 is in team1[1], so should be right position (ArrowRight icon)
+      const rightIcons = document.querySelectorAll('svg.text-blue-500')
+      expect(rightIcons.length).toBeGreaterThan(0)
     })
 
     it('displays correct teammate', () => {

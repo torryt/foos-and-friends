@@ -77,7 +77,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
         <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full my-8 flex flex-col max-h-[calc(100vh-4rem)]">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-red-500">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-indigo-500">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <Calendar size={24} />
@@ -146,7 +146,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                       value={newSeasonName}
                       onChange={(e) => setNewSeasonName(e.target.value)}
                       placeholder="e.g., Spring 2024, Season 2"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       disabled={isCreating}
                     />
                   </div>
@@ -164,7 +164,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                       onChange={(e) => setNewSeasonDescription(e.target.value)}
                       placeholder="Add a description for this season..."
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                       disabled={isCreating}
                     />
                   </div>
@@ -186,7 +186,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                   <button
                     type="submit"
                     disabled={isCreating || !newSeasonName.trim()}
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isCreating ? (
                       <>

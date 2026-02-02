@@ -224,7 +224,7 @@ const PlayerRankings = ({
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <Trophy className="text-orange-500" />
+              <Trophy className="text-blue-500" />
               Friend Rankings
             </h2>
             <p className="text-sm text-slate-600">See how you stack up against your friends!</p>

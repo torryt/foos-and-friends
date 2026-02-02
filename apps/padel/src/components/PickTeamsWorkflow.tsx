@@ -320,7 +320,7 @@ export const PickTeamsWorkflow = ({
                     {team1Swapped
                       ? matchmakingResult.team1.defender.name
                       : matchmakingResult.team1.attacker.name}{' '}
-                    (A)
+                    (L)
                   </span>
                   <div className="flex justify-center">
                     <button
@@ -336,7 +336,7 @@ export const PickTeamsWorkflow = ({
                     {team1Swapped
                       ? matchmakingResult.team1.attacker.name
                       : matchmakingResult.team1.defender.name}{' '}
-                    (D)
+                    (R)
                   </span>
                 </div>
               </div>
@@ -348,7 +348,7 @@ export const PickTeamsWorkflow = ({
                     {team2Swapped
                       ? matchmakingResult.team2.defender.name
                       : matchmakingResult.team2.attacker.name}{' '}
-                    (A)
+                    (L)
                   </span>
                   <div className="flex justify-center">
                     <button
@@ -364,7 +364,7 @@ export const PickTeamsWorkflow = ({
                     {team2Swapped
                       ? matchmakingResult.team2.attacker.name
                       : matchmakingResult.team2.defender.name}{' '}
-                    (D)
+                    (R)
                   </span>
                 </div>
               </div>

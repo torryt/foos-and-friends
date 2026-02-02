@@ -51,21 +51,21 @@ export const LeaveGroupConfirmationModal = ({
       <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
           {/* Header */}
-          <div className="bg-orange-50 border-b border-orange-200 px-6 py-4">
+          <div className="bg-blue-50 border-b border-blue-200 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                  <LogOut className="text-orange-600" size={20} />
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <LogOut className="text-blue-600" size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-orange-900">Leave Group</h2>
-                  <p className="text-sm text-orange-700">"{group.name}"</p>
+                  <h2 className="text-lg font-bold text-blue-900">Leave Group</h2>
+                  <p className="text-sm text-blue-700">"{group.name}"</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="text-orange-400 hover:text-orange-600 transition-colors"
+                className="text-blue-400 hover:text-blue-600 transition-colors"
                 disabled={isLeaving}
               >
                 <X size={20} />
@@ -76,16 +76,16 @@ export const LeaveGroupConfirmationModal = ({
           {/* Content */}
           <div className="px-6 py-6">
             <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <AlertTriangle className="text-orange-500 flex-shrink-0 mt-0.5" size={20} />
+              <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <AlertTriangle className="text-blue-500 flex-shrink-0 mt-0.5" size={20} />
                 <div>
-                  <h3 className="font-semibold text-orange-900 mb-2">
+                  <h3 className="font-semibold text-blue-900 mb-2">
                     Are you sure you want to leave this group?
                   </h3>
-                  <p className="text-orange-800 text-sm mb-3">
+                  <p className="text-blue-800 text-sm mb-3">
                     When you leave "{group.name}", you will:
                   </p>
-                  <ul className="text-orange-800 text-sm space-y-1">
+                  <ul className="text-blue-800 text-sm space-y-1">
                     <li>• Lose access to the group's matches and rankings</li>
                     <li>• Need a new invite to rejoin the group</li>
                     <li>• No longer receive group notifications</li>
@@ -131,7 +131,7 @@ export const LeaveGroupConfirmationModal = ({
                   type="button"
                   onClick={handleLeave}
                   disabled={isLeaving}
-                  className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isLeaving ? (
                     <>

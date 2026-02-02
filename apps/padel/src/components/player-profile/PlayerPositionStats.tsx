@@ -1,5 +1,5 @@
 import { cn } from '@foos/shared'
-import { Shield, Sword } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 
 interface PositionStats {
@@ -37,8 +37,8 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Sword className="w-4 h-4 text-orange-500" />
-            <span className="text-sm font-medium text-gray-700">Attacker</span>
+            <ArrowLeft className="w-4 h-4 text-emerald-500" />
+            <span className="text-sm font-medium text-gray-700">Left</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-gray-900">
@@ -52,8 +52,8 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
 
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium text-gray-700">Defender</span>
+            <ArrowRight className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-medium text-gray-700">Right</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-gray-900">
@@ -73,16 +73,19 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <Sword
-              className={cn('w-4 h-4', attackPercentage > 50 ? 'text-orange-600' : 'text-gray-400')}
+            <ArrowLeft
+              className={cn(
+                'w-4 h-4',
+                attackPercentage > 50 ? 'text-emerald-600' : 'text-gray-400',
+              )}
             />
-            <span className="text-sm text-gray-600">Attack</span>
+            <span className="text-sm text-gray-600">Left</span>
             <span className="text-sm font-bold text-gray-900">{attackPercentage}%</span>
           </div>
           <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
             <div className="flex h-full">
               <div
-                className="bg-orange-500 transition-all duration-300"
+                className="bg-emerald-500 transition-all duration-300"
                 style={{ width: `${attackPercentage}%` }}
               />
               <div
@@ -93,8 +96,8 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
           </div>
           <div className="flex items-center gap-1">
             <span className="text-sm font-bold text-gray-900">{defensePercentage}%</span>
-            <span className="text-sm text-gray-600">Defense</span>
-            <Shield
+            <span className="text-sm text-gray-600">Right</span>
+            <ArrowRight
               className={cn('w-4 h-4', defensePercentage > 50 ? 'text-blue-600' : 'text-gray-400')}
             />
           </div>

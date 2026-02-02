@@ -124,7 +124,7 @@ function InvitePageComponent() {
           <button
             type="button"
             onClick={() => navigate({ to: '/' })}
-            className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-colors"
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-colors"
           >
             Go to App
           </button>
@@ -138,7 +138,7 @@ function InvitePageComponent() {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50 text-center">
-          <Loader className="animate-spin mx-auto mb-4 text-orange-500" size={48} />
+          <Loader className="animate-spin mx-auto mb-4 text-blue-500" size={48} />
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Checking Membership</h1>
           <p className="text-gray-600">Please wait while we check your membership status...</p>
         </div>
@@ -158,7 +158,7 @@ function InvitePageComponent() {
             You've successfully joined the group. Redirecting to the app...
           </p>
           <div className="flex items-center justify-center">
-            <Loader className="animate-spin text-orange-500" size={24} />
+            <Loader className="animate-spin text-blue-500" size={24} />
           </div>
         </div>
       </div>
@@ -169,12 +169,12 @@ function InvitePageComponent() {
     <div className="flex items-center justify-center min-h-[60vh] p-4">
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="text-orange-600" size={32} />
+          <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="text-blue-600" size={32} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">You're Invited!</h1>
           <p className="text-gray-600">
-            {groupInfo?.name ? `Join "${groupInfo.name}"` : 'Join this foosball group'} and start
+            {groupInfo?.name ? `Join "${groupInfo.name}"` : 'Join this padel group'} and start
             competing with friends.
           </p>
           {groupInfo?.description && (
@@ -196,7 +196,7 @@ function InvitePageComponent() {
             type="button"
             onClick={handleJoinGroup}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

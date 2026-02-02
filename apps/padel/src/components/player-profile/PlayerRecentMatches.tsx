@@ -1,7 +1,7 @@
 import type { Match, Player } from '@foos/shared'
 import { cn, scrollToTop } from '@foos/shared'
 import { Link } from '@tanstack/react-router'
-import { ArrowUpDown, Calendar, Shield, Sword } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpDown, Calendar } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -82,7 +82,7 @@ export function PlayerRecentMatches({
     <Card className="p-4 bg-white/80 backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-orange-500" />
+          <Calendar className="w-5 h-5 text-blue-500" />
           Recent Matches
         </h3>
         <div className="flex items-center gap-2">
@@ -148,9 +148,9 @@ export function PlayerRecentMatches({
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                         <div className="flex items-center justify-center sm:justify-start gap-2">
                           {position === 'attacker' ? (
-                            <Sword className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                            <ArrowLeft className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                           ) : (
-                            <Shield className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                            <ArrowRight className="w-4 h-4 text-blue-500 flex-shrink-0" />
                           )}
                           <span className="text-sm font-medium text-gray-900">
                             with{' '}
@@ -158,7 +158,7 @@ export function PlayerRecentMatches({
                               <Link
                                 to="/players/$playerId"
                                 params={{ playerId: teammate.id }}
-                                className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
                                 onClick={() => scrollToTop()}
                               >
                                 {teammate.name}
@@ -177,7 +177,7 @@ export function PlayerRecentMatches({
                                   <Link
                                     to="/players/$playerId"
                                     params={{ playerId: opponent.id }}
-                                    className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                    className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
                                     onClick={() => scrollToTop()}
                                   >
                                     {opponent.name}

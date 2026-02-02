@@ -174,10 +174,8 @@ const PlayerManagementModal = ({
                       />
                     </div>
 
-                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-xl border border-orange-200/50">
-                      <div className="text-sm font-semibold text-orange-800 mb-2">
-                        Choose Avatar
-                      </div>
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-xl border border-blue-200/50">
+                      <div className="text-sm font-semibold text-blue-800 mb-2">Choose Avatar</div>
                       <div className="grid grid-cols-5 gap-1.5 max-h-40 overflow-y-auto overflow-x-hidden p-1">
                         {AVAILABLE_AVATARS.map((avatar) => (
                           <button
@@ -185,9 +183,9 @@ const PlayerManagementModal = ({
                             type="button"
                             onClick={() => setEditingPlayer({ ...editingPlayer, avatar })}
                             disabled={isLoading}
-                            className={`text-2xl p-1.5 rounded-lg hover:bg-orange-100 transition-colors flex items-center justify-center aspect-square ${
+                            className={`text-2xl p-1.5 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center aspect-square ${
                               editingPlayer.avatar === avatar
-                                ? 'bg-orange-200 ring-2 ring-orange-400 ring-offset-1'
+                                ? 'bg-blue-200 ring-2 ring-blue-400 ring-offset-1'
                                 : 'bg-white/60'
                             } disabled:opacity-50`}
                           >

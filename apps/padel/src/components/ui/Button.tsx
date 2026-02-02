@@ -17,7 +17,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'disabled:pointer-events-none disabled:opacity-50',
           {
             default:
-              'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600',
+              'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600',
             outline: 'border border-gray-300 bg-white hover:bg-gray-50',
             ghost: 'hover:bg-gray-100',
           }[variant],

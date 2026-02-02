@@ -63,7 +63,7 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                   to="/players/$playerId"
                   params={{ playerId: relationship.playerId }}
                   onClick={scrollToTop}
-                  className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
+                  className="font-medium text-gray-900 truncate hover:text-blue-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-blue-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-sm"
                   aria-label={`View profile for ${relationship.playerName}`}
                 >
                   {relationship.playerName}
@@ -169,7 +169,7 @@ export function PlayerRelationshipStats({
     <Card className="p-4 bg-white/80 backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <Users className="w-5 h-5 text-orange-500" />
+          <Users className="w-5 h-5 text-blue-500" />
           Relationships
         </h3>
 

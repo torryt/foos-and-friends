@@ -85,7 +85,7 @@ export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEn
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Target className="text-orange-500" size={24} />
+            <Target className="text-blue-500" size={24} />
             Add Match
           </h2>
           <button
@@ -100,12 +100,12 @@ export const MatchEntryModal = ({ players, matches, addMatch, onClose }: MatchEn
         <div className="space-y-3">
           {/* Archived Season Warning */}
           {isArchived && (
-            <div className="bg-gradient-to-r from-orange-100 to-red-100 border border-orange-300 rounded-xl p-4 mb-4">
+            <div className="bg-gradient-to-r from-blue-100 to-indigo-100 border border-blue-300 rounded-xl p-4 mb-4">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="text-orange-600 flex-shrink-0 mt-0.5" size={20} />
+                <AlertTriangle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
                 <div>
-                  <h3 className="font-semibold text-orange-900 mb-1">Archived Season</h3>
-                  <p className="text-sm text-orange-800">
+                  <h3 className="font-semibold text-blue-900 mb-1">Archived Season</h3>
+                  <p className="text-sm text-blue-800">
                     You're viewing {currentSeason?.name || 'an archived season'}. Matches can only
                     be recorded in the active season. Please switch to the active season to record
                     new matches.

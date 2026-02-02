@@ -89,7 +89,7 @@ describe('MatchHistory', () => {
 
       expect(screen.getByText('Recent Games')).toBeInTheDocument()
       expect(
-        screen.getByText('No games recorded yet. Tap + to record your first foos battle!'),
+        screen.getByText('No games recorded yet. Tap + to record your first padel match!'),
       ).toBeInTheDocument()
     })
 
@@ -374,13 +374,13 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check for sword icons (attackers) - should have orange color
-      const swordIcons = document.querySelectorAll('svg.text-orange-500')
-      expect(swordIcons.length).toBe(2) // 2 attackers (one per team)
+      // Check for left position icons - should have emerald color
+      const leftIcons = document.querySelectorAll('svg.text-emerald-500')
+      expect(leftIcons.length).toBe(2) // 2 left positions (one per team)
 
-      // Check for shield icons (defenders) - should have blue color
-      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
-      expect(shieldIcons.length).toBe(2) // 2 defenders (one per team)
+      // Check for right position icons - should have blue color
+      const rightIcons = document.querySelectorAll('svg.text-blue-500')
+      expect(rightIcons.length).toBe(2) // 2 right positions (one per team)
     })
 
     it('shows correct position assignments in teams', () => {
@@ -438,12 +438,12 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Should have 4 attackers (2 per match) and 4 defenders (2 per match)
-      const swordIcons = document.querySelectorAll('svg.text-orange-500')
-      expect(swordIcons.length).toBe(4) // 4 attackers total
+      // Should have 4 left positions (2 per match) and 4 right positions (2 per match)
+      const leftIcons = document.querySelectorAll('svg.text-emerald-500')
+      expect(leftIcons.length).toBe(4) // 4 left positions total
 
-      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
-      expect(shieldIcons.length).toBe(4) // 4 defenders total
+      const rightIcons = document.querySelectorAll('svg.text-blue-500')
+      expect(rightIcons.length).toBe(4) // 4 right positions total
     })
 
     it('handles player click events with position context', async () => {

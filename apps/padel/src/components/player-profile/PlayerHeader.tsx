@@ -39,7 +39,7 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
   }
 
   return (
-    <Card className="p-6 bg-gradient-to-r from-orange-50 to-amber-50">
+    <Card className="p-6 bg-gradient-to-r from-blue-50 to-amber-50">
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="text-6xl">{player.avatar}</div>
         <div className="flex-1 text-center sm:text-left">
@@ -66,7 +66,7 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
                         onClick={() => setEditedAvatar(emoji)}
                         className={`p-1.5 text-2xl rounded-lg flex items-center justify-center aspect-square transition-all ${
                           editedAvatar === emoji
-                            ? 'bg-orange-100 ring-2 ring-orange-500 ring-offset-1'
+                            ? 'bg-blue-100 ring-2 ring-blue-500 ring-offset-1'
                             : 'hover:bg-gray-50'
                         }`}
                       >
@@ -94,7 +94,7 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
                 Member since {new Date(player.createdAt || Date.now()).toLocaleDateString()}
               </p>
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
-                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                   {player.ranking} ELO
                 </span>
               </div>

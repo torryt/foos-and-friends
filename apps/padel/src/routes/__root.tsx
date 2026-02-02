@@ -12,7 +12,7 @@ interface MyRouterContext {
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-100">
       <RootComponent />
       <ToastContainer />
       <TanStackRouterDevtools />

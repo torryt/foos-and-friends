@@ -52,14 +52,14 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-white/90 to-orange-50/90 backdrop-blur-sm shadow-sm border-b border-white/20 sticky top-0 z-40">
+      <div className="bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-sm shadow-sm border-b border-white/20 sticky top-0 z-40">
         <div className="container mx-auto max-w-6xl">
           <div className="px-4 py-3">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center gap-2">
-                  <Zap className="text-orange-500" size={20} />
-                  Foos & Friends
+                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
+                  <Zap className="text-blue-500" size={20} />
+                  Padelmigos
                 </h1>
                 <p className="text-xs md:text-sm text-slate-600">Play. Compete. Connect.</p>
               </div>

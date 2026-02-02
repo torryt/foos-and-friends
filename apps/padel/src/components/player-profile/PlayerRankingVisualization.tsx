@@ -62,7 +62,7 @@ export function PlayerRankingVisualization({
             onClick={() => setShowRankingChart(!showRankingChart)}
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
           >
-            <ChartLine className="w-5 h-5 text-orange-500" />
+            <ChartLine className="w-5 h-5 text-blue-500" />
             <h3 className="font-semibold">Ranking History</h3>
             {showRankingChart ? (
               <ChevronUp className="w-4 h-4" />

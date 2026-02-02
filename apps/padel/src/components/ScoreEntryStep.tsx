@@ -73,7 +73,7 @@ export const ScoreEntryStep = ({
         </div>
 
         <div className="text-center mb-6">
-          <Target className="mx-auto text-orange-500 mb-2" size={24} />
+          <Target className="mx-auto text-blue-500 mb-2" size={24} />
           <h2 className="text-lg font-bold text-gray-900">{title}</h2>
           <p className="text-sm text-gray-600">Enter the final score of the match</p>
         </div>
@@ -84,7 +84,7 @@ export const ScoreEntryStep = ({
             <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
               <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
               <div className="grid grid-cols-3 items-center text-blue-800">
-                <span className="text-left">{teams.team1.attacker.name} (A)</span>
+                <span className="text-left">{teams.team1.attacker.name} (L)</span>
                 <div className="flex justify-center">
                   {onSwapTeam1 && (
                     <button
@@ -98,13 +98,13 @@ export const ScoreEntryStep = ({
                     </button>
                   )}
                 </div>
-                <span className="text-right">{teams.team1.defender.name} (D)</span>
+                <span className="text-right">{teams.team1.defender.name} (R)</span>
               </div>
             </div>
             <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
               <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
               <div className="grid grid-cols-3 items-center text-purple-800">
-                <span className="text-left">{teams.team2.attacker.name} (A)</span>
+                <span className="text-left">{teams.team2.attacker.name} (L)</span>
                 <div className="flex justify-center">
                   {onSwapTeam2 && (
                     <button
@@ -118,7 +118,7 @@ export const ScoreEntryStep = ({
                     </button>
                   )}
                 </div>
-                <span className="text-right">{teams.team2.defender.name} (D)</span>
+                <span className="text-right">{teams.team2.defender.name} (R)</span>
               </div>
             </div>
           </div>
@@ -126,8 +126,8 @@ export const ScoreEntryStep = ({
 
         {/* Score Input */}
         <div className="mb-6">
-          <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-            <div className="font-medium text-orange-800 text-sm mb-3">Final Score</div>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <div className="font-medium text-blue-800 text-sm mb-3">Final Score</div>
             <div className="grid grid-cols-3 gap-3 items-center">
               <div>
                 <label htmlFor={team1Id} className="block text-xs text-gray-600 mb-1">
@@ -144,10 +144,10 @@ export const ScoreEntryStep = ({
                   onChange={(e) => handleScoreChange(e.target.value, setScore1)}
                   disabled={isSubmitting}
                   placeholder="0"
-                  className="w-full p-3 border border-orange-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full p-3 border border-blue-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
-              <div className="text-center font-bold text-orange-800 text-lg">VS</div>
+              <div className="text-center font-bold text-blue-800 text-lg">VS</div>
               <div>
                 <label htmlFor={team2Id} className="block text-xs text-gray-600 mb-1">
                   Team 2
@@ -163,11 +163,11 @@ export const ScoreEntryStep = ({
                   onChange={(e) => handleScoreChange(e.target.value, setScore2)}
                   disabled={isSubmitting}
                   placeholder="0"
-                  className="w-full p-3 border border-orange-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full p-3 border border-blue-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-blue-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
-            <p className="text-xs text-orange-600 mt-2 text-center">
+            <p className="text-xs text-blue-600 mt-2 text-center">
               Games are typically played to 10 points
             </p>
           </div>
@@ -177,7 +177,7 @@ export const ScoreEntryStep = ({
           type="button"
           onClick={handleSubmit}
           disabled={!isValid || isSubmitting || !isOnline}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           title={!isOnline ? 'Cannot register score while offline' : undefined}
         >
           {!isOnline ? (

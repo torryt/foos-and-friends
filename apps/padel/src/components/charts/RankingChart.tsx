@@ -26,7 +26,7 @@ const CustomTooltip = ({ active, payload }: any) => {
       return (
         <div className="bg-white p-2 rounded shadow-lg border border-gray-200">
           <p className="text-xs font-medium text-gray-900">Starting Ranking</p>
-          <p className="text-sm font-bold text-orange-600">{data.ranking} pts</p>
+          <p className="text-sm font-bold text-blue-600">{data.ranking} pts</p>
         </div>
       )
     }
@@ -34,7 +34,7 @@ const CustomTooltip = ({ active, payload }: any) => {
       <div className="bg-white p-2 rounded shadow-lg border border-gray-200">
         <p className="text-xs font-medium text-gray-900">Match #{data.matchNumber}</p>
         <p className="text-xs text-gray-500">{data.date}</p>
-        <p className="text-sm font-bold text-orange-600">{data.ranking} pts</p>
+        <p className="text-sm font-bold text-blue-600">{data.ranking} pts</p>
         {data.result && (
           <p
             className={cn(
@@ -139,8 +139,8 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
           <AreaChart data={allChartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
             <defs>
               <linearGradient id={`colorRanking-${chartId}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#fb923c" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#fb923c" stopOpacity={0.1} />
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -156,7 +156,7 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
             <Area
               type="monotone"
               dataKey="ranking"
-              stroke="#fb923c"
+              stroke="#3b82f6"
               strokeWidth={2}
               fillOpacity={1}
               fill={`url(#colorRanking-${chartId})`}

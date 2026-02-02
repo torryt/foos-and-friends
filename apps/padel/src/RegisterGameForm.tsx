@@ -1,18 +1,13 @@
 import type { Match, Player } from '@foos/shared'
+import { calculatePositionPreferences, findBestMatchup, findRareMatchup } from '@foos/shared'
 import {
-  calculatePositionPreferences,
-  findBestMatchup,
-  findRareMatchup,
-  formatTeamAssignment,
-} from '@foos/shared'
-import {
+  ArrowLeft,
+  ArrowRight,
   Brain,
   CloudOff,
   Loader2,
-  Shield,
   Shuffle,
   Sparkles,
-  Sword,
   Target,
   Users,
   X,
@@ -203,7 +198,7 @@ const RegisterGameForm = ({
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-4 w-full max-w-sm shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Target className="text-orange-500" size={20} />
+            <Target className="text-blue-500" size={20} />
             Record Match
           </h3>
           <button
@@ -337,7 +332,7 @@ const RegisterGameForm = ({
                     Generated Matchup ({Math.round(matchmakingResult.confidence * 100)}% confidence)
                   </div>
                   <div className="text-xs text-gray-600 whitespace-pre-line">
-                    {formatTeamAssignment(matchmakingResult)}
+                    {`Team 1: ${matchmakingResult.team1.attacker.name} (L) + ${matchmakingResult.team1.defender.name} (R)\nTeam 2: ${matchmakingResult.team2.attacker.name} (L) + ${matchmakingResult.team2.defender.name} (R)\nRanking difference: ${matchmakingResult.rankingDifference}, Confidence: ${Math.round(matchmakingResult.confidence * 100)}%`}
                   </div>
                 </div>
               )}
@@ -352,15 +347,15 @@ const RegisterGameForm = ({
             <div className="space-y-2">
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Sword className="text-orange-500" size={16} />
+                  <ArrowLeft className="text-emerald-500" size={16} />
                 </div>
                 <select
                   value={team1Player1Id}
                   onChange={(e) => setTeam1Player1Id(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-8 p-2 border border-emerald-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select Attacker</option>
+                  <option value="">Select Left</option>
                   {getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id]).map(
                     (p) => (
                       <option key={p.id} value={p.id}>
@@ -372,7 +367,7 @@ const RegisterGameForm = ({
               </div>
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Shield className="text-blue-500" size={16} />
+                  <ArrowRight className="text-blue-500" size={16} />
                 </div>
                 <select
                   value={team1Player2Id}
@@ -380,7 +375,7 @@ const RegisterGameForm = ({
                   disabled={isSubmitting}
                   className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select Defender</option>
+                  <option value="">Select Right</option>
                   {getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id]).map(
                     (p) => (
                       <option key={p.id} value={p.id}>
@@ -401,15 +396,15 @@ const RegisterGameForm = ({
             <div className="space-y-2">
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Sword className="text-orange-500" size={16} />
+                  <ArrowLeft className="text-emerald-500" size={16} />
                 </div>
                 <select
                   value={team2Player1Id}
                   onChange={(e) => setTeam2Player1Id(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-8 p-2 border border-emerald-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select Attacker</option>
+                  <option value="">Select Left</option>
                   {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id]).map(
                     (p) => (
                       <option key={p.id} value={p.id}>
@@ -421,7 +416,7 @@ const RegisterGameForm = ({
               </div>
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Shield className="text-blue-500" size={16} />
+                  <ArrowRight className="text-blue-500" size={16} />
                 </div>
                 <select
                   value={team2Player2Id}
@@ -429,7 +424,7 @@ const RegisterGameForm = ({
                   disabled={isSubmitting}
                   className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select Defender</option>
+                  <option value="">Select Right</option>
                   {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id]).map(
                     (p) => (
                       <option key={p.id} value={p.id}>
@@ -442,8 +437,8 @@ const RegisterGameForm = ({
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-orange-50 to-red-50 p-3 rounded-xl border border-orange-200/50">
-            <div className="block text-sm font-semibold text-orange-800 mb-2">Final Score</div>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-xl border border-blue-200/50">
+            <div className="block text-sm font-semibold text-blue-800 mb-2">Final Score</div>
             <div className="grid grid-cols-3 gap-2 items-center">
               <input
                 type="number"
@@ -461,9 +456,9 @@ const RegisterGameForm = ({
                 }}
                 disabled={isSubmitting}
                 placeholder="0"
-                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-blue-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <div className="text-center font-bold text-orange-800">VS</div>
+              <div className="text-center font-bold text-blue-800">VS</div>
               <input
                 type="number"
                 inputMode="numeric"
@@ -480,10 +475,10 @@ const RegisterGameForm = ({
                 }}
                 disabled={isSubmitting}
                 placeholder="0"
-                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-blue-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
-            <p className="text-xs text-orange-600 mt-1 text-center">
+            <p className="text-xs text-blue-600 mt-1 text-center">
               Games are typically played to 10 points
             </p>
           </div>
@@ -502,7 +497,7 @@ const RegisterGameForm = ({
               score2 === '' ||
               new Set([team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id]).size !== 4
             }
-            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-indigo-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             title={!isOnline ? 'Cannot record matches while offline' : undefined}
           >
             {!isOnline ? (

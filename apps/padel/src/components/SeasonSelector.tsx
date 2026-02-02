@@ -33,7 +33,7 @@ export const SeasonSelector = () => {
           id={seasonSelectId}
           value={currentSeason.id}
           onChange={(e) => switchSeason(e.target.value)}
-          className="bg-white/80 px-2 md:px-3 py-1.5 md:py-2 rounded-lg border border-white/50 hover:bg-white transition-colors text-xs md:text-sm text-gray-700 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          className="bg-white/80 px-2 md:px-3 py-1.5 md:py-2 rounded-lg border border-white/50 hover:bg-white transition-colors text-xs md:text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           {seasons.map((season) => (
             <option key={season.id} value={season.id}>
@@ -56,7 +56,7 @@ export const SeasonSelector = () => {
         </button>
 
         {!currentSeason.isActive && (
-          <span className="text-xs text-orange-600" title="Viewing archived season">
+          <span className="text-xs text-blue-600" title="Viewing archived season">
             📦
           </span>
         )}

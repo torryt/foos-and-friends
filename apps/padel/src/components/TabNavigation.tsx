@@ -11,7 +11,7 @@ const TabNavigation = () => {
             to="/"
             className={`flex-1 md:flex-none md:px-8 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
               location.pathname === '/'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md'
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
                 : 'bg-white/60 text-slate-700 hover:bg-white border border-white/50'
             }`}
           >
@@ -22,7 +22,7 @@ const TabNavigation = () => {
             to="/matches"
             className={`flex-1 md:flex-none md:px-8 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
               location.pathname === '/matches'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md'
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
                 : 'bg-white/60 text-slate-700 hover:bg-white border border-white/50'
             }`}
           >

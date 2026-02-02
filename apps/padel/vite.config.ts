@@ -16,7 +16,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg'],
       manifest: {
-        name: 'Padel & Friends',
+        name: 'Padelmigos',
         short_name: 'Padel',
         description: 'Track your padel rankings',
         theme_color: '#10b981',

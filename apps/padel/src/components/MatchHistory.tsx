@@ -128,9 +128,9 @@ const MatchHistory = ({
     <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
       {/* Archived Season Indicator */}
       {isArchived && (
-        <div className="bg-gradient-to-r from-orange-100 to-amber-100 border-b border-orange-200 px-4 py-2 flex items-center gap-2">
-          <Calendar size={16} className="text-orange-600" />
-          <span className="text-sm font-medium text-orange-800">
+        <div className="bg-gradient-to-r from-blue-100 to-indigo-100 border-b border-blue-200 px-4 py-2 flex items-center gap-2">
+          <Calendar size={16} className="text-blue-600" />
+          <span className="text-sm font-medium text-blue-800">
             Viewing archived season: {currentSeason.name} ({currentSeason.startDate} -{' '}
             {currentSeason.endDate || 'Unknown'})
           </span>
@@ -148,7 +148,7 @@ const MatchHistory = ({
                 ? `Match history for ${selectedPlayerData.name}`
                 : isArchived
                   ? `Historical matches from ${currentSeason?.name || 'archived season'}`
-                  : 'Latest foos battles with friends'}
+                  : 'Latest padel matches with friends'}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -163,7 +163,7 @@ const MatchHistory = ({
             <button
               type="button"
               onClick={onAddMatch}
-              className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-2 rounded-lg hover:from-orange-600 hover:to-red-700"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-2 rounded-lg hover:from-blue-600 hover:to-indigo-700"
             >
               <Plus size={16} />
             </button>
@@ -225,10 +225,10 @@ const MatchHistory = ({
 
       <div className="p-4">
         {filteredMatches.length === 0 ? (
-          <Alert className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200/50">
-            <Target className="h-4 w-4 text-orange-500" />
+          <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200/50">
+            <Target className="h-4 w-4 text-blue-500" />
             <AlertDescription className="text-slate-600 font-medium text-sm">
-              No games recorded yet. Tap + to record your first foos battle!
+              No games recorded yet. Tap + to record your first padel match!
             </AlertDescription>
           </Alert>
         ) : (
