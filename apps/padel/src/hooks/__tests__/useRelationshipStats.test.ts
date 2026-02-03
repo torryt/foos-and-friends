@@ -644,6 +644,77 @@ describe('useRelationshipStats', () => {
     expect(result.current.easiestOpponent).toBeNull()
   })
 
+  it('should not show topTeammate when all teammates have 0 wins', () => {
+    const matches: Match[] = [
+      // Alice + Bob: 0 wins, 3 losses (0% win rate)
+      createMatch(
+        'match1',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        2,
+        5,
+      ),
+      createMatch(
+        'match2',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        1,
+        5,
+      ),
+      createMatch(
+        'match3',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        3,
+        5,
+      ),
+    ]
+
+    const { result } = renderHook(() => useRelationshipStats('player1', matches, mockPlayers))
+
+    // Should have Bob as teammate but NOT as "Best Partner" since 0 wins
+    expect(result.current.teammates).toHaveLength(1)
+    expect(result.current.teammates[0].playerId).toBe('player2')
+    expect(result.current.teammates[0].wins).toBe(0)
+    expect(result.current.topTeammate).toBeNull() // No best partner with 0 wins
+  })
+
+  it('should not show worstTeammate when all teammates have 0 losses', () => {
+    const matches: Match[] = [
+      // Alice + Bob: 3 wins, 0 losses (100% win rate)
+      createMatch(
+        'match1',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        5,
+        2,
+      ),
+      createMatch(
+        'match2',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        5,
+        1,
+      ),
+      createMatch(
+        'match3',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        5,
+        3,
+      ),
+    ]
+
+    const { result } = renderHook(() => useRelationshipStats('player1', matches, mockPlayers))
+
+    // Should have Bob as teammate and as "Best Partner"
+    expect(result.current.teammates).toHaveLength(1)
+    expect(result.current.teammates[0].playerId).toBe('player2')
+    expect(result.current.teammates[0].losses).toBe(0)
+    expect(result.current.topTeammate?.playerId).toBe('player2') // Best partner with 100% win rate
+    expect(result.current.worstTeammate).toBeNull() // No worst teammate with 0 losses
+  })
+
   it('should sort teammates and opponents by games played descending', () => {
     const matches: Match[] = [
       // Alice + Bob: 1 game

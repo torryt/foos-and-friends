@@ -189,16 +189,20 @@ export const useRelationshipStats = (
     const qualifiedTeammates = teammates.filter((t) => t.gamesPlayed >= minGamesForStats)
     const qualifiedOpponents = opponents.filter((o) => o.gamesPlayed >= minGamesForStats)
 
+    // Only show "Best Partner" if they have at least 1 win together
+    const teammatesWithWins = qualifiedTeammates.filter((t) => t.wins > 0)
     const topTeammate =
-      qualifiedTeammates.length > 0
-        ? qualifiedTeammates.reduce((best, current) =>
+      teammatesWithWins.length > 0
+        ? teammatesWithWins.reduce((best, current) =>
             current.winRate > best.winRate ? current : best,
           )
         : null
 
+    // Only show "Worst Teammate" if they have at least 1 loss together
+    const teammatesWithLosses = qualifiedTeammates.filter((t) => t.losses > 0)
     const worstTeammate =
-      qualifiedTeammates.length > 0
-        ? qualifiedTeammates.reduce((worst, current) =>
+      teammatesWithLosses.length > 0
+        ? teammatesWithLosses.reduce((worst, current) =>
             current.winRate < worst.winRate ? current : worst,
           )
         : null
