@@ -55,7 +55,7 @@ export const AuthForm = () => {
   return (
     <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Welcome to Foos & Friends</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Welcome to Padelmigos</h2>
         <p className="text-gray-600 mt-2">Sign in with your email to continue</p>
       </div>
 

@@ -12,6 +12,7 @@ DROP FUNCTION IF EXISTS create_friend_group(text, text);
 DROP FUNCTION IF EXISTS join_group_by_invite_code(text, uuid);
 DROP FUNCTION IF EXISTS update_group_visibility();
 DROP FUNCTION IF EXISTS generate_invite_code();
+DROP FUNCTION IF EXISTS generate_unique_invite_code();
 
 -- Drop all policies by disabling RLS and dropping tables
 DROP TABLE IF EXISTS matches CASCADE;
@@ -35,6 +36,40 @@ BEGIN
   RETURN result;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Create function to generate unique invite codes (checks for collisions)
+CREATE OR REPLACE FUNCTION generate_unique_invite_code()
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  chars text := 'abcdefghijklmnopqrstuvwxyz0123456789';
+  result text := '';
+  i integer;
+  max_attempts integer := 100;
+  attempt integer := 0;
+BEGIN
+  LOOP
+    -- Generate 8-character code
+    result := '';
+    FOR i IN 1..8 LOOP
+      result := result || substr(chars, floor(random() * length(chars) + 1)::integer, 1);
+    END LOOP;
+
+    -- Check if code is unique
+    IF NOT EXISTS (SELECT 1 FROM friend_groups WHERE invite_code = result) THEN
+      RETURN result;
+    END IF;
+
+    attempt := attempt + 1;
+    IF attempt >= max_attempts THEN
+      RAISE EXCEPTION 'Could not generate unique invite code after % attempts', max_attempts;
+    END IF;
+  END LOOP;
+END;
+$$;
 
 -- 1. Create Friend Groups Table
 CREATE TABLE friend_groups (
