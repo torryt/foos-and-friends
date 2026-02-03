@@ -186,7 +186,7 @@ function PlayerProfile() {
         <Card className="p-4 bg-white/80 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Goals (Avg)</p>
+              <p className="text-sm text-gray-500">Points (Avg)</p>
               <p className="text-2xl font-bold text-gray-900">
                 {playerStats.avgGoalsScored} - {playerStats.avgGoalsConceded}
               </p>

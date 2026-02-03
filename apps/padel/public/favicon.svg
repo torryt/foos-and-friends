@@ -1,3 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- Tennis ball circle -->
+  <circle cx="12" cy="12" r="10" fill="#c4f034" stroke="#9ab326" stroke-width="1"/>
+  <!-- Tennis ball seams -->
+  <path d="M 2 12 Q 7 6, 12 6 Q 17 6, 22 12" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M 2 12 Q 7 18, 12 18 Q 17 18, 22 12" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
 </svg>

@@ -82,7 +82,7 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
             {player.goalDifference > 0 ? '+' : ''}
             {player.goalDifference}
           </span>
-          <div className="text-xs text-slate-600 mt-1">Goal diff</div>
+          <div className="text-xs text-slate-600 mt-1">Point diff</div>
         </>
       )}
       {sortBy === 'winRate' && (
@@ -111,7 +111,7 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
 
 const SORT_OPTIONS = [
   { value: 'elo' as const, label: 'ELO Ranking' },
-  { value: 'goalDifference' as const, label: 'Goal Difference' },
+  { value: 'goalDifference' as const, label: 'Point Difference' },
   { value: 'winRate' as const, label: 'Win Rate' },
 ]
 

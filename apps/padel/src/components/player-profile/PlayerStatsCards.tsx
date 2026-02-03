@@ -54,17 +54,17 @@ export function PlayerStatsCards({
         </div>
       </Card>
 
-      {/* Goal Difference Card */}
+      {/* Point Difference Card */}
       <Card className="p-4 bg-white/80 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Goal Difference</p>
+            <p className="text-sm text-gray-500">Point Difference</p>
             <p className="text-2xl font-bold text-gray-900">
               {goalDifference > 0 ? '+' : ''}
               {goalDifference}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              {goalsFor} GF - {goalsAgainst} GA
+              {goalsFor} PF - {goalsAgainst} PA
             </p>
           </div>
           <div

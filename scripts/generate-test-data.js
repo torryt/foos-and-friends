@@ -14,9 +14,10 @@ const DEFAULT_CONFIG = {
   players: 30,
   matches: 100,
   groupName: 'Generated Champions',
-  groupDescription: 'Auto-generated foosball group with realistic test data',
+  groupDescription: 'Auto-generated group with realistic test data',
   months: 12,
   locale: 'en',
+  sportType: 'foosball',
 }
 
 const DEPARTMENTS = ['Engineering', 'Product', 'Design', 'Marketing', 'Sales', 'Operations']
@@ -88,6 +89,14 @@ function parseArgs() {
         case 'locale':
           config.locale = value || DEFAULT_CONFIG.locale
           break
+        case 'sport-type':
+          if (value === 'foosball' || value === 'padel') {
+            config.sportType = value
+          } else {
+            console.error('❌ Error: --sport-type must be "foosball" or "padel"')
+            process.exit(1)
+          }
+          break
       }
     }
   }
@@ -110,9 +119,9 @@ function parseArgs() {
 
 function showHelp() {
   console.log(`
-🏓 Foosball Test Data Generator
+🏓 Game Tracker Test Data Generator
 
-Generate realistic SQL test data for foosball groups with configurable parameters.
+Generate realistic SQL test data for foosball or padel groups with configurable parameters.
 
 Usage:
   npm run generate -- --user-id=<UUID> [options]
@@ -127,9 +136,11 @@ Optional Parameters:
   --group-description=<string>  Group description
   --months=<number>        Time span for matches in months (default: 12)
   --locale=<string>        Faker locale for names (default: "en")
+  --sport-type=<string>    Sport type: "foosball" or "padel" (default: "foosball")
 
 Examples:
   npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460"
+  npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460" --sport-type=padel --group-name="Padel Pros"
   npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460" --players=50 --matches=200
   npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460" --group-name="Office Champions" --months=6
   `)
@@ -167,23 +178,21 @@ function generatePlayer(groupId, userId) {
   return {
     id: randomUUID(),
     name,
-    ranking: rating,
-    matches_played: 0,
-    wins: 0,
-    losses: 0,
     avatar,
     department,
     group_id: groupId,
     created_by: userId,
+    // Rating is used for match generation but not stored (computed from matches)
+    _initialRating: rating,
   }
 }
 
 // Generate matches with realistic ELO progression
-function generateMatches(players, groupId, userId, config) {
+function generateMatches(players, groupId, seasonId, userId, config) {
   const matches = []
   const playerStats = players.map((p) => ({
     id: p.id,
-    rating: p.ranking,
+    rating: p._initialRating,
     matches: 0,
     wins: 0,
     losses: 0,
@@ -258,6 +267,7 @@ function generateMatches(players, groupId, userId, config) {
     matches.push({
       id: randomUUID(),
       group_id: groupId,
+      season_id: seasonId,
       team1_player1_id: team1Players[0].id,
       team1_player2_id: team1Players[1].id,
       team2_player1_id: team2Players[0].id,
@@ -279,29 +289,30 @@ function generateMatches(players, groupId, userId, config) {
     })
   }
 
-  // Update player stats
+  // Store final stats for summary (not stored in DB, computed from matches)
   players.forEach((player) => {
     const stats = playerStats.find((s) => s.id === player.id)
-    player.ranking = stats.rating
-    player.matches_played = stats.matches
-    player.wins = stats.wins
-    player.losses = stats.losses
+    player._finalRating = stats.rating
+    player._matchesPlayed = stats.matches
   })
 
   return matches
 }
 
 // Generate SQL output
-function generateSQL(config, groupId, players, matches) {
-  const inviteCode = faker.string.alphanumeric({ length: 8, casing: 'upper' })
+function generateSQL(config, groupId, seasonId, players, matches) {
+  const inviteCode = faker.string.alphanumeric({ length: 8, casing: 'lower' })
   const now = new Date().toISOString()
   const groupCreatedAt = new Date()
   groupCreatedAt.setMonth(groupCreatedAt.getMonth() - config.months)
 
-  let sql = `-- Generated Test Data for Foosball Group
+  const sportEmoji = config.sportType === 'padel' ? '🎾' : '🏓'
+
+  let sql = `-- Generated Test Data for ${config.sportType.charAt(0).toUpperCase() + config.sportType.slice(1)} Group
 -- Generated on: ${new Date().toLocaleString()}
 -- Configuration: ${config.players} players, ${config.matches} matches over ${config.months} months
 -- User ID: ${config.userId}
+-- Sport Type: ${config.sportType}
 
 `
 
@@ -316,6 +327,7 @@ INSERT INTO friend_groups (
     created_by,
     is_active,
     max_members,
+    sport_type,
     created_at,
     updated_at
 ) VALUES (
@@ -327,6 +339,7 @@ INSERT INTO friend_groups (
     '${config.userId}'::uuid,
     true,
     50,
+    '${config.sportType}',
     '${groupCreatedAt.toISOString()}',
     '${now}'
 ) ON CONFLICT (id) DO NOTHING;
@@ -353,19 +366,43 @@ INSERT INTO group_memberships (
     NULL,
     '${groupCreatedAt.toISOString()}',
     '${groupCreatedAt.toISOString()}'
+) ON CONFLICT (group_id, user_id) DO NOTHING;
+
+`
+
+  // Generate season
+  sql += `-- Create initial season
+INSERT INTO seasons (
+    id,
+    group_id,
+    name,
+    description,
+    season_number,
+    start_date,
+    is_active,
+    created_by,
+    created_at,
+    updated_at
+) VALUES (
+    '${seasonId}'::uuid,
+    '${groupId}'::uuid,
+    'Season 1',
+    'Initial season with generated test data',
+    1,
+    '${groupCreatedAt.toISOString().split('T')[0]}',
+    true,
+    '${config.userId}'::uuid,
+    '${groupCreatedAt.toISOString()}',
+    '${now}'
 ) ON CONFLICT (id) DO NOTHING;
 
 `
 
-  // Generate players
+  // Generate players (stats are computed from matches, not stored)
   sql += `-- Create players
 INSERT INTO players (
     id,
     name,
-    ranking,
-    matches_played,
-    wins,
-    losses,
     avatar,
     department,
     group_id,
@@ -377,7 +414,7 @@ INSERT INTO players (
   const playerValues = players.map((player) => {
     const createdAt = new Date(groupCreatedAt)
     createdAt.setDate(createdAt.getDate() + Math.floor(Math.random() * 30))
-    return `    ('${player.id}'::uuid, '${player.name.replace(/'/g, "''")}', ${player.ranking}, ${player.matches_played}, ${player.wins}, ${player.losses}, '${player.avatar}', '${player.department}', '${groupId}'::uuid, '${config.userId}'::uuid, '${createdAt.toISOString()}', '${now}')`
+    return `    ('${player.id}'::uuid, '${player.name.replace(/'/g, "''")}', '${player.avatar}', '${player.department}', '${groupId}'::uuid, '${config.userId}'::uuid, '${createdAt.toISOString()}', '${now}')`
   })
 
   sql += `${playerValues.join(',\n')}\nON CONFLICT (id) DO NOTHING;\n\n`
@@ -388,6 +425,7 @@ INSERT INTO players (
 INSERT INTO matches (
     id,
     group_id,
+    season_id,
     team1_player1_id,
     team1_player2_id,
     team2_player1_id,
@@ -410,7 +448,7 @@ INSERT INTO matches (
 
     const matchValues = matches.map(
       (match) =>
-        `    ('${match.id}'::uuid, '${match.group_id}'::uuid, '${match.team1_player1_id}'::uuid, '${match.team1_player2_id}'::uuid, '${match.team2_player1_id}'::uuid, '${match.team2_player2_id}'::uuid, ${match.team1_score}, ${match.team2_score}, '${match.match_date}', '${match.match_time}', '${match.recorded_by}'::uuid, '${match.created_at}', ${match.team1_player1_pre_ranking}, ${match.team1_player1_post_ranking}, ${match.team1_player2_pre_ranking}, ${match.team1_player2_post_ranking}, ${match.team2_player1_pre_ranking}, ${match.team2_player1_post_ranking}, ${match.team2_player2_pre_ranking}, ${match.team2_player2_post_ranking})`,
+        `    ('${match.id}'::uuid, '${match.group_id}'::uuid, '${match.season_id}'::uuid, '${match.team1_player1_id}'::uuid, '${match.team1_player2_id}'::uuid, '${match.team2_player1_id}'::uuid, '${match.team2_player2_id}'::uuid, ${match.team1_score}, ${match.team2_score}, '${match.match_date}', '${match.match_time}', '${match.recorded_by}'::uuid, '${match.created_at}', ${match.team1_player1_pre_ranking}, ${match.team1_player1_post_ranking}, ${match.team1_player2_pre_ranking}, ${match.team1_player2_post_ranking}, ${match.team2_player1_pre_ranking}, ${match.team2_player1_post_ranking}, ${match.team2_player2_pre_ranking}, ${match.team2_player2_post_ranking})`,
     )
 
     sql += `${matchValues.join(',\n')}\nON CONFLICT (id) DO NOTHING;\n\n`
@@ -420,9 +458,11 @@ INSERT INTO matches (
   sql += `-- Summary
 DO $$
 BEGIN
-    RAISE NOTICE 'Test data generated successfully!';
+    RAISE NOTICE '${sportEmoji} Test data generated successfully!';
     RAISE NOTICE 'Group: ${config.groupName} (ID: ${groupId})';
+    RAISE NOTICE 'Sport: ${config.sportType}';
     RAISE NOTICE 'Invite Code: ${inviteCode}';
+    RAISE NOTICE 'Season ID: ${seasonId}';
     RAISE NOTICE 'Players: ${config.players} with realistic ELO distribution';
     RAISE NOTICE 'Matches: ${config.matches} over ${config.months} months';
     RAISE NOTICE 'All data created by user: ${config.userId}';
@@ -439,9 +479,12 @@ function main() {
     // Set faker locale (newer Faker.js API)
     faker.locale = config.locale
 
-    console.log('🏓 Generating foosball test data...')
+    const sportEmoji = config.sportType === 'padel' ? '🎾' : '🏓'
+
+    console.log(`${sportEmoji} Generating ${config.sportType} test data...`)
     console.log(`📊 Configuration:`)
     console.log(`   User ID: ${config.userId}`)
+    console.log(`   Sport Type: ${config.sportType}`)
     console.log(`   Players: ${config.players}`)
     console.log(`   Matches: ${config.matches}`)
     console.log(`   Group: "${config.groupName}"`)
@@ -450,6 +493,7 @@ function main() {
     console.log()
 
     const groupId = randomUUID()
+    const seasonId = randomUUID()
 
     // Generate data
     console.log('👥 Generating players...')
@@ -458,14 +502,14 @@ function main() {
     )
 
     console.log('⚽ Generating matches with ELO progression...')
-    const matches = generateMatches(players, groupId, config.userId, config)
+    const matches = generateMatches(players, groupId, seasonId, config.userId, config)
 
     console.log('📝 Generating SQL...')
-    const sql = generateSQL(config, groupId, players, matches)
+    const sql = generateSQL(config, groupId, seasonId, players, matches)
 
     // Write output
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
-    const filename = `foosball-test-data-${timestamp}.sql`
+    const filename = `${config.sportType}-test-data-${timestamp}.sql`
     const outputPath = join(__dirname, 'output', filename)
 
     writeFileSync(outputPath, sql, 'utf8')
@@ -475,15 +519,15 @@ function main() {
     console.log()
     console.log('📈 Statistics:')
 
-    // Calculate some stats
-    const avgRating = Math.round(players.reduce((sum, p) => sum + p.ranking, 0) / players.length)
-    const minRating = Math.min(...players.map((p) => p.ranking))
-    const maxRating = Math.max(...players.map((p) => p.ranking))
-    const totalMatches = players.reduce((sum, p) => sum + p.matches_played, 0)
+    // Calculate some stats (from computed values during generation)
+    const avgRating = Math.round(players.reduce((sum, p) => sum + (p._finalRating || p._initialRating), 0) / players.length)
+    const minRating = Math.min(...players.map((p) => p._finalRating || p._initialRating))
+    const maxRating = Math.max(...players.map((p) => p._finalRating || p._initialRating))
+    const totalMatches = players.reduce((sum, p) => sum + (p._matchesPlayed || 0), 0)
 
     console.log(`   Average ELO: ${avgRating}`)
     console.log(`   ELO Range: ${minRating} - ${maxRating}`)
-    console.log(`   Total match entries: ${totalMatches}`)
+    console.log(`   Total match participations: ${totalMatches}`)
     console.log(`   Matches per player (avg): ${Math.round(totalMatches / config.players)}`)
   } catch (error) {
     console.error('❌ Error:', error.message)
