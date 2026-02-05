@@ -1,35 +1,6 @@
 import type { AuthUser } from '@foos/shared'
-import { LogOut, User, Users } from 'lucide-react'
+import { Crown, LogOut, User, Users } from 'lucide-react'
 import { useState } from 'react'
-
-// Tennis ball icon component
-const TennisBall = ({ size = 20, className = '' }: { size?: number; className?: string }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    className={className}
-    aria-hidden="true"
-  >
-    <circle cx="12" cy="12" r="10" fill="#c4f034" stroke="#9ab326" strokeWidth="1" />
-    <path
-      d="M 2 12 Q 7 6, 12 6 Q 17 6, 22 12"
-      fill="none"
-      stroke="white"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M 2 12 Q 7 18, 12 18 Q 17 18, 22 12"
-      fill="none"
-      stroke="white"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-)
-
 import { useGroupContext } from '@/contexts/GroupContext'
 import { ConnectionStatus } from './ConnectionStatus'
 import { CreateGroupModal } from './CreateGroupModal'
@@ -81,14 +52,14 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-sm shadow-sm border-b border-white/20 sticky top-0 z-40">
+      <div className="bg-gradient-to-r from-white/90 to-purple-50/90 backdrop-blur-sm shadow-sm border-b border-white/20 sticky top-0 z-40">
         <div className="container mx-auto max-w-6xl">
           <div className="px-4 py-3">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
-                  <TennisBall size={20} />
-                  Padelmigos
+                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-[#832161] to-[#DA4167] bg-clip-text text-transparent flex items-center gap-2">
+                  <Crown className="text-[#832161]" size={20} />
+                  Chess & Friends
                 </h1>
                 <p className="text-xs md:text-sm text-slate-600">Play. Compete. Connect.</p>
               </div>

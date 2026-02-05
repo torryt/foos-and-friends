@@ -2,7 +2,7 @@
 export type PlayerPosition = 'attacker' | 'defender'
 
 // Sport type for multi-sport support
-export type SportType = 'foosball' | 'padel'
+export type SportType = 'foosball' | 'padel' | 'chess'
 
 // Updated Player interface for Supabase integration
 export interface Player {
