@@ -126,7 +126,7 @@ describe('MatchHistory', () => {
 
       // Check winner/loser labels (Alice won since score1 > score2)
       expect(screen.getByText('Winner')).toBeInTheDocument()
-      expect(screen.getByText('Player 2')).toBeInTheDocument()
+      expect(screen.getByText('Black ♚')).toBeInTheDocument()
     })
 
     it('displays individual player ranking changes', () => {
@@ -189,7 +189,7 @@ describe('MatchHistory', () => {
 
       // Check winner label (Bob won since score2 > score1)
       expect(screen.getByText('Winner')).toBeInTheDocument()
-      expect(screen.getByText('Player 1')).toBeInTheDocument()
+      expect(screen.getByText('White ♔')).toBeInTheDocument()
 
       // Check that no ranking change data is displayed
       expect(screen.queryByText('→')).not.toBeInTheDocument()

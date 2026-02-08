@@ -1,5 +1,5 @@
 import type { Player } from '@foos/shared'
-import { ArrowLeft, CloudOff, Crown, Loader2, User, X } from 'lucide-react'
+import { ArrowLeft, CloudOff, Crown, Loader2, X } from 'lucide-react'
 import { useState } from 'react'
 import { PlayerCombobox } from '@/components/ui/PlayerCombobox'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
@@ -116,13 +116,13 @@ export const Manual1v1Workflow = ({
               className={`w-full rounded-lg p-4 border-2 transition-all ${
                 winnerId === player1Id
                   ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
-                  : 'border-blue-200 bg-blue-50 hover:border-blue-400'
+                  : 'border-amber-200 bg-amber-50 hover:border-amber-400'
               } disabled:opacity-50`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-blue-800">
+                <div className="flex items-center gap-2 text-amber-800">
                   <span className="text-lg">{p1?.avatar}</span>
-                  <span className="font-medium">{p1?.name}</span>
+                  <span className="font-medium">{p1?.name} (White ♔)</span>
                 </div>
                 {winnerId === player1Id && <Crown className="text-green-600" size={20} />}
               </div>
@@ -137,13 +137,13 @@ export const Manual1v1Workflow = ({
               className={`w-full rounded-lg p-4 border-2 transition-all ${
                 winnerId === player2Id
                   ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
-                  : 'border-purple-200 bg-purple-50 hover:border-purple-400'
+                  : 'border-slate-300 bg-slate-100 hover:border-slate-400'
               } disabled:opacity-50`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-purple-800">
+                <div className="flex items-center gap-2 text-slate-800">
                   <span className="text-lg">{p2?.avatar}</span>
-                  <span className="font-medium">{p2?.name}</span>
+                  <span className="font-medium">{p2?.name} (Black ♚)</span>
                 </div>
                 {winnerId === player2Id && <Crown className="text-green-600" size={20} />}
               </div>
@@ -210,18 +210,18 @@ export const Manual1v1Workflow = ({
         </div>
 
         <div className="space-y-6">
-          {/* Player 1 */}
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+          {/* White */}
+          <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
             <div className="flex items-center gap-2 mb-3">
-              <User className="text-blue-600" size={18} />
-              <h3 className="font-semibold text-blue-900">Player 1</h3>
+              <span className="text-lg">♔</span>
+              <h3 className="font-semibold text-amber-900">White</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player2Id])}
               value={player1Id}
               onChange={setPlayer1Id}
               placeholder="Select Player"
-              className="border-blue-300 focus:ring-2 focus:ring-blue-500"
+              className="border-amber-300 focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
@@ -232,18 +232,18 @@ export const Manual1v1Workflow = ({
             </div>
           </div>
 
-          {/* Player 2 */}
-          <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+          {/* Black */}
+          <div className="bg-slate-100 rounded-xl p-4 border border-slate-300">
             <div className="flex items-center gap-2 mb-3">
-              <User className="text-purple-600" size={18} />
-              <h3 className="font-semibold text-purple-900">Player 2</h3>
+              <span className="text-lg">♚</span>
+              <h3 className="font-semibold text-slate-900">Black</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player1Id])}
               value={player2Id}
               onChange={setPlayer2Id}
               placeholder="Select Player"
-              className="border-purple-300 focus:ring-2 focus:ring-purple-500"
+              className="border-slate-400 focus:ring-2 focus:ring-slate-500"
             />
           </div>
         </div>

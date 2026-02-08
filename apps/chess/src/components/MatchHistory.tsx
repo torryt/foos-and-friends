@@ -252,19 +252,21 @@ const MatchHistory = ({
                     className={`text-center p-2 rounded-lg border ${
                       match.score1 > match.score2
                         ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
-                        : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200/50'
+                        : 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200/50'
                     }`}
                   >
                     <div
-                      className={`font-bold mb-1 text-xs ${match.score1 > match.score2 ? 'text-green-800' : 'text-blue-800'}`}
+                      className={`font-bold mb-1 text-xs ${match.score1 > match.score2 ? 'text-green-800' : 'text-amber-800'}`}
                     >
-                      {match.score1 > match.score2 ? 'Winner' : 'Player 1'}
+                      {match.score1 > match.score2 ? 'Winner' : 'White ♔'}
                     </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team1[0]}
                         match={match}
-                        teamColor={match.score1 > match.score2 ? 'text-green-700' : 'text-blue-700'}
+                        teamColor={
+                          match.score1 > match.score2 ? 'text-green-700' : 'text-amber-700'
+                        }
                         onPlayerClick={onPlayerClick}
                       />
                     </div>
@@ -273,7 +275,7 @@ const MatchHistory = ({
                   <div className="text-center order-first sm:order-none">
                     <Crown
                       className={`mx-auto mb-1 ${
-                        match.score1 > match.score2 ? 'text-green-500' : 'text-purple-500'
+                        match.score1 > match.score2 ? 'text-green-500' : 'text-slate-500'
                       }`}
                       size={24}
                     />
@@ -287,20 +289,20 @@ const MatchHistory = ({
                     className={`text-center p-2 rounded-lg border ${
                       match.score2 > match.score1
                         ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
-                        : 'bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200/50'
+                        : 'bg-gradient-to-br from-slate-100 to-slate-50 border-slate-300/50'
                     }`}
                   >
                     <div
-                      className={`font-bold mb-1 text-xs ${match.score2 > match.score1 ? 'text-green-800' : 'text-purple-800'}`}
+                      className={`font-bold mb-1 text-xs ${match.score2 > match.score1 ? 'text-green-800' : 'text-slate-800'}`}
                     >
-                      {match.score2 > match.score1 ? 'Winner' : 'Player 2'}
+                      {match.score2 > match.score1 ? 'Winner' : 'Black ♚'}
                     </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team2[0]}
                         match={match}
                         teamColor={
-                          match.score2 > match.score1 ? 'text-green-700' : 'text-purple-700'
+                          match.score2 > match.score1 ? 'text-green-700' : 'text-slate-700'
                         }
                         onPlayerClick={onPlayerClick}
                       />

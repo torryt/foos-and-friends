@@ -1,16 +1,18 @@
-import type { Match, PlayerPosition } from '@foos/shared'
+import type { Match } from '@foos/shared'
 import { useMemo } from 'react'
 
+type ChessColor = 'white' | 'black'
+
 interface PositionStats {
-  gamesAsAttacker: number
-  gamesAsDefender: number
-  winsAsAttacker: number
-  winsAsDefender: number
-  lossesAsAttacker: number
-  lossesAsDefender: number
-  winRateAsAttacker: number
-  winRateAsDefender: number
-  preferredPosition: PlayerPosition | null
+  gamesAsWhite: number
+  gamesAsBlack: number
+  winsAsWhite: number
+  winsAsBlack: number
+  lossesAsWhite: number
+  lossesAsBlack: number
+  winRateAsWhite: number
+  winRateAsBlack: number
+  preferredColor: ChessColor | null
 }
 
 export const usePositionStats = (playerId: string, matches: Match[]): PositionStats => {
@@ -24,71 +26,67 @@ export const usePositionStats = (playerId: string, matches: Match[]): PositionSt
       )
     })
 
-    let gamesAsAttacker = 0
-    let gamesAsDefender = 0
-    let winsAsAttacker = 0
-    let winsAsDefender = 0
-    let lossesAsAttacker = 0
-    let lossesAsDefender = 0
+    let gamesAsWhite = 0
+    let gamesAsBlack = 0
+    let winsAsWhite = 0
+    let winsAsBlack = 0
+    let lossesAsWhite = 0
+    let lossesAsBlack = 0
 
     for (const match of playerMatches) {
       const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
-      const wasAttacker = wasInTeam1
-        ? match.team1[0].id === playerId
-        : match.team2[0].id === playerId
+      const wasWhite = wasInTeam1 ? match.team1[0].id === playerId : match.team2[0].id === playerId
       const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
 
-      if (wasAttacker) {
-        gamesAsAttacker++
+      if (wasWhite) {
+        gamesAsWhite++
         if (won) {
-          winsAsAttacker++
+          winsAsWhite++
         } else {
-          lossesAsAttacker++
+          lossesAsWhite++
         }
       } else {
-        gamesAsDefender++
+        gamesAsBlack++
         if (won) {
-          winsAsDefender++
+          winsAsBlack++
         } else {
-          lossesAsDefender++
+          lossesAsBlack++
         }
       }
     }
 
-    const winRateAsAttacker =
-      gamesAsAttacker > 0 ? Math.round((winsAsAttacker / gamesAsAttacker) * 100) : 0
-    const winRateAsDefender =
-      gamesAsDefender > 0 ? Math.round((winsAsDefender / gamesAsDefender) * 100) : 0
+    const winRateAsWhite = gamesAsWhite > 0 ? Math.round((winsAsWhite / gamesAsWhite) * 100) : 0
+    const winRateAsBlack = gamesAsBlack > 0 ? Math.round((winsAsBlack / gamesAsBlack) * 100) : 0
 
-    let preferredPosition: PlayerPosition | null = null
-    if (gamesAsAttacker > 0 || gamesAsDefender > 0) {
-      if (gamesAsAttacker > gamesAsDefender) {
-        preferredPosition = 'attacker'
-      } else if (gamesAsDefender > gamesAsAttacker) {
-        preferredPosition = 'defender'
+    let preferredColor: ChessColor | null = null
+    if (gamesAsWhite > 0 || gamesAsBlack > 0) {
+      if (gamesAsWhite > gamesAsBlack) {
+        preferredColor = 'white'
+      } else if (gamesAsBlack > gamesAsWhite) {
+        preferredColor = 'black'
       } else {
         // If equal games, choose based on win rate
-        if (winRateAsAttacker > winRateAsDefender) {
-          preferredPosition = 'attacker'
-        } else if (winRateAsDefender > winRateAsAttacker) {
-          preferredPosition = 'defender'
+        if (winRateAsWhite > winRateAsBlack) {
+          preferredColor = 'white'
+        } else if (winRateAsBlack > winRateAsWhite) {
+          preferredColor = 'black'
         } else {
-          // Default to attacker if everything is equal
-          preferredPosition = 'attacker'
+          // Default to white if everything is equal
+          preferredColor = 'white'
         }
       }
     }
 
     return {
-      gamesAsAttacker,
-      gamesAsDefender,
-      winsAsAttacker,
-      winsAsDefender,
-      lossesAsAttacker,
-      lossesAsDefender,
-      winRateAsAttacker,
-      winRateAsDefender,
-      preferredPosition,
+      gamesAsWhite,
+      gamesAsBlack,
+      winsAsWhite,
+      winsAsBlack,
+      lossesAsWhite,
+      lossesAsBlack,
+      winRateAsWhite,
+      winRateAsBlack,
+      preferredColor,
     }
   }, [playerId, matches])
 }

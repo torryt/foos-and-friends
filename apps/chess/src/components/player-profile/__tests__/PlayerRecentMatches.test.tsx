@@ -334,8 +334,8 @@ describe('PlayerRecentMatches', () => {
     })
   })
 
-  describe('Position and teammate display', () => {
-    it('displays correct position icons for attacker', () => {
+  describe('Color and teammate display', () => {
+    it('displays white chess piece for white player', () => {
       render(
         <PlayerRecentMatches
           playerId="player1"
@@ -345,12 +345,13 @@ describe('PlayerRecentMatches', () => {
         />,
       )
 
-      // Player1 is in team1[0], so should be an attacker (Sword icon)
-      const swordIcons = document.querySelectorAll('svg.text-orange-500')
-      expect(swordIcons.length).toBeGreaterThan(0)
+      // Player1 is in team1[0], so should be White (♔)
+      const whiteIndicator = screen.getByTitle('Played as White')
+      expect(whiteIndicator).toBeInTheDocument()
+      expect(whiteIndicator).toHaveTextContent('♔')
     })
 
-    it('displays correct position icons for defender', () => {
+    it('displays black chess piece for black player', () => {
       render(
         <PlayerRecentMatches
           playerId="player2"
@@ -360,9 +361,10 @@ describe('PlayerRecentMatches', () => {
         />,
       )
 
-      // Player2 is in team1[1], so should be a defender (Shield icon)
-      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
-      expect(shieldIcons.length).toBeGreaterThan(0)
+      // Player2 is in team1[1], so should be Black (♚)
+      const blackIndicator = screen.getByTitle('Played as Black')
+      expect(blackIndicator).toBeInTheDocument()
+      expect(blackIndicator).toHaveTextContent('♚')
     })
 
     it('displays correct teammate', () => {

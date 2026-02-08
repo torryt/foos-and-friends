@@ -42,133 +42,133 @@ describe('usePositionStats', () => {
     const { result } = renderHook(() => usePositionStats('1', []))
 
     expect(result.current).toEqual({
-      gamesAsAttacker: 0,
-      gamesAsDefender: 0,
-      winsAsAttacker: 0,
-      winsAsDefender: 0,
-      lossesAsAttacker: 0,
-      lossesAsDefender: 0,
-      winRateAsAttacker: 0,
-      winRateAsDefender: 0,
-      preferredPosition: null,
+      gamesAsWhite: 0,
+      gamesAsBlack: 0,
+      winsAsWhite: 0,
+      winsAsBlack: 0,
+      lossesAsWhite: 0,
+      lossesAsBlack: 0,
+      winRateAsWhite: 0,
+      winRateAsBlack: 0,
+      preferredColor: null,
     })
   })
 
-  test('calculates stats when player only plays as attacker', () => {
+  test('calculates stats when player only plays as white', () => {
     const matches = [
-      // Player 1 is attacker (team1[0]) and wins
+      // Player 1 is white (team1[0]) and wins
       createMatch('1', player1, player2, player3, player4, 10, 5),
-      // Player 1 is attacker (team2[0]) and loses
+      // Player 1 is white (team2[0]) and loses
       createMatch('2', player3, player4, player1, player2, 10, 8),
-      // Player 1 is attacker (team1[0]) and wins
+      // Player 1 is white (team1[0]) and wins
       createMatch('3', player1, player2, player3, player4, 10, 7),
     ]
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
     expect(result.current).toEqual({
-      gamesAsAttacker: 3,
-      gamesAsDefender: 0,
-      winsAsAttacker: 2,
-      winsAsDefender: 0,
-      lossesAsAttacker: 1,
-      lossesAsDefender: 0,
-      winRateAsAttacker: 67,
-      winRateAsDefender: 0,
-      preferredPosition: 'attacker',
+      gamesAsWhite: 3,
+      gamesAsBlack: 0,
+      winsAsWhite: 2,
+      winsAsBlack: 0,
+      lossesAsWhite: 1,
+      lossesAsBlack: 0,
+      winRateAsWhite: 67,
+      winRateAsBlack: 0,
+      preferredColor: 'white',
     })
   })
 
-  test('calculates stats when player only plays as defender', () => {
+  test('calculates stats when player only plays as black', () => {
     const matches = [
-      // Player 1 is defender (team1[1]) and wins
+      // Player 1 is black (team1[1]) and wins
       createMatch('1', player2, player1, player3, player4, 10, 5),
-      // Player 1 is defender (team2[1]) and loses (team2 score 8 < team1 score 10)
+      // Player 1 is black (team2[1]) and loses (team2 score 8 < team1 score 10)
       createMatch('2', player3, player4, player2, player1, 10, 8),
-      // Player 1 is defender (team1[1]) and loses
+      // Player 1 is black (team1[1]) and loses
       createMatch('3', player2, player1, player3, player4, 5, 10),
     ]
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
     expect(result.current).toEqual({
-      gamesAsAttacker: 0,
-      gamesAsDefender: 3,
-      winsAsAttacker: 0,
-      winsAsDefender: 1, // Only first match is a win
-      lossesAsAttacker: 0,
-      lossesAsDefender: 2, // Second and third matches are losses
-      winRateAsAttacker: 0,
-      winRateAsDefender: 33, // 1/3 = 33.33 rounded to 33
-      preferredPosition: 'defender',
+      gamesAsWhite: 0,
+      gamesAsBlack: 3,
+      winsAsWhite: 0,
+      winsAsBlack: 1, // Only first match is a win
+      lossesAsWhite: 0,
+      lossesAsBlack: 2, // Second and third matches are losses
+      winRateAsWhite: 0,
+      winRateAsBlack: 33, // 1/3 = 33.33 rounded to 33
+      preferredColor: 'black',
     })
   })
 
-  test('calculates mixed position stats', () => {
+  test('calculates mixed color stats', () => {
     const matches = [
-      // Player 1 as attacker (team1[0]) - wins (10 > 5)
+      // Player 1 as white (team1[0]) - wins (10 > 5)
       createMatch('1', player1, player2, player3, player4, 10, 5),
-      // Player 1 as defender (team1[1]) - wins (10 > 3)
+      // Player 1 as black (team1[1]) - wins (10 > 3)
       createMatch('2', player2, player1, player3, player4, 10, 3),
-      // Player 1 as attacker (team2[0]) - loses (team2 score 8 < team1 score 10)
+      // Player 1 as white (team2[0]) - loses (team2 score 8 < team1 score 10)
       createMatch('3', player3, player4, player1, player2, 10, 8),
-      // Player 1 as defender (team2[1]) - loses (team2 score 7 < team1 score 10)
+      // Player 1 as black (team2[1]) - loses (team2 score 7 < team1 score 10)
       createMatch('4', player3, player4, player2, player1, 10, 7),
-      // Player 1 as attacker (team1[0]) - wins (10 > 6)
+      // Player 1 as white (team1[0]) - wins (10 > 6)
       createMatch('5', player1, player2, player3, player4, 10, 6),
     ]
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
     expect(result.current).toEqual({
-      gamesAsAttacker: 3,
-      gamesAsDefender: 2,
-      winsAsAttacker: 2, // Matches 1 and 5 are wins
-      winsAsDefender: 1, // Match 2 is a win
-      lossesAsAttacker: 1, // Match 3 is a loss
-      lossesAsDefender: 1, // Match 4 is a loss
-      winRateAsAttacker: 67, // 2/3 = 66.67 rounded to 67
-      winRateAsDefender: 50, // 1/2 = 50
-      preferredPosition: 'attacker', // More games as attacker
+      gamesAsWhite: 3,
+      gamesAsBlack: 2,
+      winsAsWhite: 2, // Matches 1 and 5 are wins
+      winsAsBlack: 1, // Match 2 is a win
+      lossesAsWhite: 1, // Match 3 is a loss
+      lossesAsBlack: 1, // Match 4 is a loss
+      winRateAsWhite: 67, // 2/3 = 66.67 rounded to 67
+      winRateAsBlack: 50, // 1/2 = 50
+      preferredColor: 'white', // More games as white
     })
   })
 
-  test('determines preferred position when equal games but different win rates', () => {
+  test('determines preferred color when equal games but different win rates', () => {
     const matches = [
-      // Player 1 as attacker - wins
+      // Player 1 as white - wins
       createMatch('1', player1, player2, player3, player4, 10, 5),
-      // Player 1 as attacker - loses
+      // Player 1 as white - loses
       createMatch('2', player1, player2, player3, player4, 5, 10),
-      // Player 1 as defender - wins
+      // Player 1 as black - wins
       createMatch('3', player2, player1, player3, player4, 10, 3),
-      // Player 1 as defender - wins
+      // Player 1 as black - wins
       createMatch('4', player2, player1, player3, player4, 10, 4),
     ]
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
-    expect(result.current.gamesAsAttacker).toBe(2)
-    expect(result.current.gamesAsDefender).toBe(2)
-    expect(result.current.winRateAsAttacker).toBe(50) // 1/2
-    expect(result.current.winRateAsDefender).toBe(100) // 2/2
-    expect(result.current.preferredPosition).toBe('defender') // Better win rate
+    expect(result.current.gamesAsWhite).toBe(2)
+    expect(result.current.gamesAsBlack).toBe(2)
+    expect(result.current.winRateAsWhite).toBe(50) // 1/2
+    expect(result.current.winRateAsBlack).toBe(100) // 2/2
+    expect(result.current.preferredColor).toBe('black') // Better win rate
   })
 
-  test('defaults to attacker when everything is equal', () => {
+  test('defaults to white when everything is equal', () => {
     const matches = [
-      // Player 1 as attacker - wins
+      // Player 1 as white - wins
       createMatch('1', player1, player2, player3, player4, 10, 5),
-      // Player 1 as defender - wins
+      // Player 1 as black - wins
       createMatch('2', player2, player1, player3, player4, 10, 3),
     ]
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
-    expect(result.current.gamesAsAttacker).toBe(1)
-    expect(result.current.gamesAsDefender).toBe(1)
-    expect(result.current.winRateAsAttacker).toBe(100)
-    expect(result.current.winRateAsDefender).toBe(100)
-    expect(result.current.preferredPosition).toBe('attacker') // Default when equal
+    expect(result.current.gamesAsWhite).toBe(1)
+    expect(result.current.gamesAsBlack).toBe(1)
+    expect(result.current.winRateAsWhite).toBe(100)
+    expect(result.current.winRateAsBlack).toBe(100)
+    expect(result.current.preferredColor).toBe('white') // Default when equal
   })
 
   test('ignores matches where player does not participate', () => {
@@ -186,40 +186,40 @@ describe('usePositionStats', () => {
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
-    expect(result.current.gamesAsAttacker).toBe(1)
-    expect(result.current.gamesAsDefender).toBe(1)
-    expect(result.current.winsAsAttacker).toBe(1)
-    expect(result.current.winsAsDefender).toBe(1)
+    expect(result.current.gamesAsWhite).toBe(1)
+    expect(result.current.gamesAsBlack).toBe(1)
+    expect(result.current.winsAsWhite).toBe(1)
+    expect(result.current.winsAsBlack).toBe(1)
   })
 
   test('handles perfect win rates correctly', () => {
     const matches = [
-      // Player 1 as attacker - wins
+      // Player 1 as white - wins
       createMatch('1', player1, player2, player3, player4, 10, 5),
-      // Player 1 as attacker - wins
+      // Player 1 as white - wins
       createMatch('2', player1, player2, player3, player4, 10, 3),
     ]
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
-    expect(result.current.winRateAsAttacker).toBe(100)
-    expect(result.current.winRateAsDefender).toBe(0)
-    expect(result.current.lossesAsAttacker).toBe(0)
-    expect(result.current.lossesAsDefender).toBe(0)
+    expect(result.current.winRateAsWhite).toBe(100)
+    expect(result.current.winRateAsBlack).toBe(0)
+    expect(result.current.lossesAsWhite).toBe(0)
+    expect(result.current.lossesAsBlack).toBe(0)
   })
 
   test('handles perfect loss rates correctly', () => {
     const matches = [
-      // Player 1 as defender - loses
+      // Player 1 as black - loses
       createMatch('1', player2, player1, player3, player4, 5, 10),
-      // Player 1 as defender - loses
+      // Player 1 as black - loses
       createMatch('2', player2, player1, player3, player4, 3, 10),
     ]
 
     const { result } = renderHook(() => usePositionStats('1', matches))
 
-    expect(result.current.winRateAsDefender).toBe(0)
-    expect(result.current.winsAsDefender).toBe(0)
-    expect(result.current.lossesAsDefender).toBe(2)
+    expect(result.current.winRateAsBlack).toBe(0)
+    expect(result.current.winsAsBlack).toBe(0)
+    expect(result.current.lossesAsBlack).toBe(2)
   })
 })

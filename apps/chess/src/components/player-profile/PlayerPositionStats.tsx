@@ -1,17 +1,16 @@
 import { cn } from '@foos/shared'
-import { Shield, Sword } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 
 interface PositionStats {
-  gamesAsAttacker: number
-  gamesAsDefender: number
-  winsAsAttacker: number
-  winsAsDefender: number
-  lossesAsAttacker: number
-  lossesAsDefender: number
-  winRateAsAttacker: number
-  winRateAsDefender: number
-  preferredPosition: string | null
+  gamesAsWhite: number
+  gamesAsBlack: number
+  winsAsWhite: number
+  winsAsBlack: number
+  lossesAsWhite: number
+  lossesAsBlack: number
+  winRateAsWhite: number
+  winRateAsBlack: number
+  preferredColor: string | null
 }
 
 interface PlayerPositionStatsProps {
@@ -19,84 +18,79 @@ interface PlayerPositionStatsProps {
 }
 
 export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps) {
-  const attackPercentage =
-    positionStats.gamesAsAttacker + positionStats.gamesAsDefender > 0
+  const whitePercentage =
+    positionStats.gamesAsWhite + positionStats.gamesAsBlack > 0
       ? Math.round(
-          (positionStats.gamesAsAttacker /
-            (positionStats.gamesAsAttacker + positionStats.gamesAsDefender)) *
+          (positionStats.gamesAsWhite / (positionStats.gamesAsWhite + positionStats.gamesAsBlack)) *
             100,
         )
       : 50
-  const defensePercentage = 100 - attackPercentage
+  const blackPercentage = 100 - whitePercentage
 
   return (
     <Card className="p-4 bg-white/80 backdrop-blur-sm">
-      <h3 className="font-semibold text-gray-900 mb-4">Position Performance</h3>
+      <h3 className="font-semibold text-gray-900 mb-4">Color Performance</h3>
 
-      {/* Position breakdown */}
+      {/* Color breakdown */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Sword className="w-4 h-4 text-orange-500" />
-            <span className="text-sm font-medium text-gray-700">Attacker</span>
+            <span className="text-base">♔</span>
+            <span className="text-sm font-medium text-gray-700">White</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-gray-900">
-              {positionStats.winsAsAttacker}W - {positionStats.lossesAsAttacker}L
+              {positionStats.winsAsWhite}W - {positionStats.lossesAsWhite}L
             </span>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {positionStats.winRateAsAttacker}% win rate
-          </div>
+          <div className="text-xs text-gray-500 mt-1">{positionStats.winRateAsWhite}% win rate</div>
         </div>
 
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium text-gray-700">Defender</span>
+            <span className="text-base">♚</span>
+            <span className="text-sm font-medium text-gray-700">Black</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-gray-900">
-              {positionStats.winsAsDefender}W - {positionStats.lossesAsDefender}L
+              {positionStats.winsAsBlack}W - {positionStats.lossesAsBlack}L
             </span>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {positionStats.winRateAsDefender}% win rate
-          </div>
+          <div className="text-xs text-gray-500 mt-1">{positionStats.winRateAsBlack}% win rate</div>
         </div>
       </div>
 
-      {/* Preferred position indicator */}
+      {/* Preferred color indicator */}
       <div className="border-t pt-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Position Preference</span>
+          <span className="text-sm font-medium text-gray-700">Color Preference</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <Sword
-              className={cn('w-4 h-4', attackPercentage > 50 ? 'text-orange-600' : 'text-gray-400')}
-            />
-            <span className="text-sm text-gray-600">Attack</span>
-            <span className="text-sm font-bold text-gray-900">{attackPercentage}%</span>
+            <span className={cn('text-base', whitePercentage > 50 ? 'opacity-100' : 'opacity-40')}>
+              ♔
+            </span>
+            <span className="text-sm text-gray-600">White</span>
+            <span className="text-sm font-bold text-gray-900">{whitePercentage}%</span>
           </div>
           <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
             <div className="flex h-full">
               <div
-                className="bg-orange-500 transition-all duration-300"
-                style={{ width: `${attackPercentage}%` }}
+                className="bg-amber-400 transition-all duration-300"
+                style={{ width: `${whitePercentage}%` }}
               />
               <div
-                className="bg-blue-500 transition-all duration-300"
-                style={{ width: `${defensePercentage}%` }}
+                className="bg-slate-700 transition-all duration-300"
+                style={{ width: `${blackPercentage}%` }}
               />
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-sm font-bold text-gray-900">{defensePercentage}%</span>
-            <span className="text-sm text-gray-600">Defense</span>
-            <Shield
-              className={cn('w-4 h-4', defensePercentage > 50 ? 'text-blue-600' : 'text-gray-400')}
-            />
+            <span className="text-sm font-bold text-gray-900">{blackPercentage}%</span>
+            <span className="text-sm text-gray-600">Black</span>
+            <span className={cn('text-base', blackPercentage > 50 ? 'opacity-100' : 'opacity-40')}>
+              ♚
+            </span>
           </div>
         </div>
       </div>

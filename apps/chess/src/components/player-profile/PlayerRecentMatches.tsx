@@ -1,7 +1,7 @@
 import type { Match, Player } from '@foos/shared'
 import { cn, scrollToTop } from '@foos/shared'
 import { Link } from '@tanstack/react-router'
-import { ArrowUpDown, Calendar, Shield, Sword } from 'lucide-react'
+import { ArrowUpDown, Calendar } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -39,12 +39,11 @@ export function PlayerRecentMatches({
       return sortNewestFirst ? timeB - timeA : timeA - timeB
     })
 
-  const getPlayerPosition = (match: Match, playerId: string) => {
-    // For now, determine position based on player index
-    // Team1[0] and Team2[0] are attackers, Team1[1] and Team2[1] are defenders
-    if (match.team1[0].id === playerId || match.team2[0].id === playerId) return 'attacker'
-    if (match.team1[1]?.id === playerId || match.team2[1]?.id === playerId) return 'defender'
-    return 'attacker'
+  const getPlayerColor = (match: Match, playerId: string) => {
+    // Team1[0] and Team2[0] are White, Team1[1] and Team2[1] are Black
+    if (match.team1[0].id === playerId || match.team2[0].id === playerId) return 'white'
+    if (match.team1[1]?.id === playerId || match.team2[1]?.id === playerId) return 'black'
+    return 'white'
   }
 
   const getTeammate = (match: Match, playerId: string) => {
@@ -119,7 +118,7 @@ export function PlayerRecentMatches({
         ) : (
           playerMatches.map((match) => {
             const won = didWin(match, playerId)
-            const position = getPlayerPosition(match, playerId)
+            const color = getPlayerColor(match, playerId)
             const teammate = getTeammate(match, playerId)
             const opponents = getOpponents(match, playerId)
             // const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
@@ -150,11 +149,12 @@ export function PlayerRecentMatches({
                       {/* Main match info */}
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                         <div className="flex items-center justify-center sm:justify-start gap-2">
-                          {position === 'attacker' ? (
-                            <Sword className="w-4 h-4 text-orange-500 flex-shrink-0" />
-                          ) : (
-                            <Shield className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                          )}
+                          <span
+                            className="text-sm flex-shrink-0"
+                            title={color === 'white' ? 'Played as White' : 'Played as Black'}
+                          >
+                            {color === 'white' ? '♔' : '♚'}
+                          </span>
                           <span className="text-sm font-medium text-gray-900">
                             with{' '}
                             {teammate ? (
