@@ -6,11 +6,15 @@ ALTER TABLE friend_groups DROP CONSTRAINT IF EXISTS friend_groups_sport_type_che
 ALTER TABLE friend_groups ADD CONSTRAINT friend_groups_sport_type_check
   CHECK (sport_type IN ('foosball', 'padel', 'chess'));
 
+-- Drop the incorrect 3-param overload created by the previous version of this migration
+DROP FUNCTION IF EXISTS create_group_with_membership(text, text, text);
+
 -- Update the create_group_with_membership function to accept chess as a sport type
 CREATE OR REPLACE FUNCTION create_group_with_membership(
   group_name text,
   group_description text DEFAULT NULL,
-  group_sport_type text DEFAULT 'foosball'
+  group_sport_type text DEFAULT 'foosball',
+  group_supported_match_types text[] DEFAULT ARRAY['2v2']
 )
 RETURNS json
 LANGUAGE plpgsql
@@ -23,7 +27,6 @@ DECLARE
   current_user_id uuid;
   new_season_id uuid;
 BEGIN
-  -- Get the current authenticated user
   current_user_id := auth.uid();
 
   IF current_user_id IS NULL THEN
@@ -35,12 +38,23 @@ BEGIN
     RETURN json_build_object('success', false, 'error', 'Invalid sport type. Must be foosball, padel, or chess');
   END IF;
 
-  -- Generate a unique invite code
+  -- Validate match types
+  IF NOT (group_supported_match_types <@ ARRAY['1v1', '2v2']
+          AND array_length(group_supported_match_types, 1) > 0) THEN
+    RETURN json_build_object('success', false, 'error', 'Invalid match types');
+  END IF;
+
   new_invite_code := generate_unique_invite_code();
 
-  -- Create the group with sport_type
-  INSERT INTO friend_groups (name, description, invite_code, owner_id, created_by, sport_type)
-  VALUES (group_name, group_description, new_invite_code, current_user_id, current_user_id, group_sport_type)
+  -- Create the group with sport_type and supported_match_types
+  INSERT INTO friend_groups (
+    name, description, invite_code, owner_id, created_by,
+    sport_type, supported_match_types
+  )
+  VALUES (
+    group_name, group_description, new_invite_code, current_user_id,
+    current_user_id, group_sport_type, group_supported_match_types
+  )
   RETURNING id INTO new_group_id;
 
   -- Create membership for the creator as owner
