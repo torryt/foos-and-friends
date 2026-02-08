@@ -9,9 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as MatchesRouteImport } from './routes/matches'
-import { Route as InviteRouteImport } from './routes/invite'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InviteRouteImport } from './routes/invite'
+import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
 
 const MatchesRoute = MatchesRouteImport.update({
