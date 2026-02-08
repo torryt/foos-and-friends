@@ -1,4 +1,4 @@
-import type { Match, Player, PlayerSeasonStats } from '@foos/shared'
+import type { Match, MatchType, Player, PlayerSeasonStats } from '@foos/shared'
 import { getRandomAvatar } from '@foos/shared'
 import { useEffect, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
@@ -16,6 +16,9 @@ export const useGameLogic = () => {
   const { currentGroup } = useGroupContext()
   const { currentSeason } = useSeasonContext()
   const { user } = useAuth()
+
+  // Determine which match types the current group supports
+  const supportedMatchTypes: MatchType[] = currentGroup?.supportedMatchTypes || ['2v2']
 
   // Load data when group or season changes
   useEffect(() => {
@@ -106,10 +109,11 @@ export const useGameLogic = () => {
   }
 
   const addMatch = async (
+    matchType: MatchType,
     team1Player1Id: string,
-    team1Player2Id: string,
+    team1Player2Id: string | null,
     team2Player1Id: string,
-    team2Player2Id: string,
+    team2Player2Id: string | null,
     score1: string,
     score2: string,
   ): Promise<{ success: boolean; error?: string }> => {
@@ -121,6 +125,7 @@ export const useGameLogic = () => {
       const result = await matchesService.addMatch(
         currentGroup.id,
         currentSeason.id,
+        matchType,
         team1Player1Id,
         team1Player2Id,
         team2Player1Id,
@@ -222,6 +227,7 @@ export const useGameLogic = () => {
     players,
     seasonStats,
     matches,
+    supportedMatchTypes,
     loading,
     error,
     addPlayer,

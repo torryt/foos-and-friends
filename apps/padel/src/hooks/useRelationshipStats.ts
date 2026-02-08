@@ -33,9 +33,9 @@ export const useRelationshipStats = (
       .filter((match) => {
         return (
           match.team1[0].id === playerId ||
-          match.team1[1].id === playerId ||
+          match.team1[1]?.id === playerId ||
           match.team2[0].id === playerId ||
-          match.team2[1].id === playerId
+          match.team2[1]?.id === playerId
         )
       })
       .sort((a, b) => {
@@ -71,23 +71,24 @@ export const useRelationshipStats = (
 
     // Process each match
     for (const match of playerMatches) {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
+      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
       const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
       const goalDiff = wasInTeam1 ? match.score1 - match.score2 : match.score2 - match.score1
 
       // Get teammate
-      let teammateId: string
+      let teammateId: string | undefined
       if (match.team1[0].id === playerId) {
-        teammateId = match.team1[1].id
-      } else if (match.team1[1].id === playerId) {
+        teammateId = match.team1[1]?.id
+      } else if (match.team1[1]?.id === playerId) {
         teammateId = match.team1[0].id
       } else if (match.team2[0].id === playerId) {
-        teammateId = match.team2[1].id
+        teammateId = match.team2[1]?.id
       } else {
         teammateId = match.team2[0].id
       }
 
       // Update teammate stats
+      if (!teammateId) continue
       if (!teammateStats.has(teammateId)) {
         teammateStats.set(teammateId, {
           gamesPlayed: 0,
@@ -112,6 +113,7 @@ export const useRelationshipStats = (
       // Get opponents
       const opponentTeam = wasInTeam1 ? match.team2 : match.team1
       for (const opponent of opponentTeam) {
+        if (!opponent) continue
         if (!opponentStats.has(opponent.id)) {
           opponentStats.set(opponent.id, {
             gamesPlayed: 0,

@@ -18,9 +18,9 @@ export const usePositionStats = (playerId: string, matches: Match[]): PositionSt
     const playerMatches = matches.filter((match) => {
       return (
         match.team1[0].id === playerId ||
-        match.team1[1].id === playerId ||
+        match.team1[1]?.id === playerId ||
         match.team2[0].id === playerId ||
-        match.team2[1].id === playerId
+        match.team2[1]?.id === playerId
       )
     })
 
@@ -32,7 +32,7 @@ export const usePositionStats = (playerId: string, matches: Match[]): PositionSt
     let lossesAsDefender = 0
 
     for (const match of playerMatches) {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
+      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
       const wasAttacker = wasInTeam1
         ? match.team1[0].id === playerId
         : match.team2[0].id === playerId

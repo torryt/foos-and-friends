@@ -27,9 +27,9 @@ export function PlayerRecentMatches({
     .filter((match) => {
       return (
         match.team1[0].id === playerId ||
-        match.team1[1].id === playerId ||
+        match.team1[1]?.id === playerId ||
         match.team2[0].id === playerId ||
-        match.team2[1].id === playerId
+        match.team2[1]?.id === playerId
       )
     })
     .sort((a, b) => {
@@ -43,24 +43,24 @@ export function PlayerRecentMatches({
     // For now, determine position based on player index
     // Team1[0] and Team2[0] are attackers, Team1[1] and Team2[1] are defenders
     if (match.team1[0].id === playerId || match.team2[0].id === playerId) return 'attacker'
-    if (match.team1[1].id === playerId || match.team2[1].id === playerId) return 'defender'
+    if (match.team1[1]?.id === playerId || match.team2[1]?.id === playerId) return 'defender'
     return 'attacker'
   }
 
   const getTeammate = (match: Match, playerId: string) => {
     if (match.team1[0].id === playerId) {
-      const teammateId = match.team1[1].id
-      return players.find((p) => p.id === teammateId)
+      const teammateId = match.team1[1]?.id
+      return teammateId ? players.find((p) => p.id === teammateId) : null
     }
-    if (match.team1[1].id === playerId) {
+    if (match.team1[1]?.id === playerId) {
       const teammateId = match.team1[0].id
       return players.find((p) => p.id === teammateId)
     }
     if (match.team2[0].id === playerId) {
-      const teammateId = match.team2[1].id
-      return players.find((p) => p.id === teammateId)
+      const teammateId = match.team2[1]?.id
+      return teammateId ? players.find((p) => p.id === teammateId) : null
     }
-    if (match.team2[1].id === playerId) {
+    if (match.team2[1]?.id === playerId) {
       const teammateId = match.team2[0].id
       return players.find((p) => p.id === teammateId)
     }
@@ -68,13 +68,16 @@ export function PlayerRecentMatches({
   }
 
   const getOpponents = (match: Match, playerId: string) => {
-    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
+    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
     const opponentTeam = wasInTeam1 ? match.team2 : match.team1
-    return opponentTeam.map((p) => players.find((player) => player.id === p.id)).filter(Boolean)
+    return opponentTeam
+      .filter((p): p is NonNullable<typeof p> => p !== null)
+      .map((p) => players.find((player) => player.id === p.id))
+      .filter(Boolean)
   }
 
   const didWin = (match: Match, playerId: string) => {
-    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
+    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
     return wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
   }
 

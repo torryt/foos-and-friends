@@ -82,9 +82,9 @@ const RegisterGameForm = ({
       const playerMatches = matches.filter((match) => {
         return (
           match.team1[0].id === player.id ||
-          match.team1[1].id === player.id ||
+          match.team1[1]?.id === player.id ||
           match.team2[0].id === player.id ||
-          match.team2[1].id === player.id
+          match.team2[1]?.id === player.id
         )
       })
 
@@ -94,7 +94,7 @@ const RegisterGameForm = ({
       let winsAsDefender = 0
 
       for (const match of playerMatches) {
-        const wasInTeam1 = match.team1[0].id === player.id || match.team1[1].id === player.id
+        const wasInTeam1 = match.team1[0].id === player.id || match.team1[1]?.id === player.id
         const wasAttacker = wasInTeam1
           ? match.team1[0].id === player.id
           : match.team2[0].id === player.id

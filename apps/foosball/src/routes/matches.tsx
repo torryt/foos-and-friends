@@ -18,7 +18,7 @@ function Matches() {
   const { playerId } = Route.useSearch()
   const navigate = useNavigate()
   const [showRecordMatch, setShowRecordMatch] = useState(false)
-  const { players, matches, addMatch } = useGameLogic()
+  const { players, matches, supportedMatchTypes, addMatch } = useGameLogic()
 
   const handlePlayerClick = (playerId: string) => {
     navigate({
@@ -41,6 +41,7 @@ function Matches() {
         <MatchEntryModal
           players={players}
           matches={matches}
+          supportedMatchTypes={supportedMatchTypes}
           addMatch={addMatch}
           onClose={() => setShowRecordMatch(false)}
         />

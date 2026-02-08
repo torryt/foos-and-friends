@@ -110,9 +110,9 @@ const MatchHistory = ({
   const playerInMatch = (match: Match, playerId: string): boolean => {
     return (
       match.team1[0].id === playerId ||
-      match.team1[1].id === playerId ||
+      match.team1[1]?.id === playerId ||
       match.team2[0].id === playerId ||
-      match.team2[1].id === playerId
+      match.team2[1]?.id === playerId
     )
   }
 
@@ -250,40 +250,47 @@ const MatchHistory = ({
 
                 <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
                   <div className="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-2 rounded-lg border border-blue-200/50">
-                    <div className="font-bold text-blue-800 mb-1 text-xs">Team 1</div>
+                    <div className="font-bold text-blue-800 mb-1 text-xs">
+                      {match.matchType === '1v1' ? 'Player 1' : 'Team 1'}
+                    </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team1[0]}
                         match={match}
                         teamColor="text-blue-700"
-                        position="attacker"
+                        position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
                         onPlayerClick={onPlayerClick}
                       />
-                      <PlayerWithStats
-                        player={match.team1[1]}
-                        match={match}
-                        teamColor="text-blue-700"
-                        position="defender"
-                        onPlayerClick={onPlayerClick}
-                      />
-                    </div>
-                    <div className="text-xs bg-blue-100 text-blue-600 px-1 py-0.5 rounded-full mt-1">
-                      {match.playerStats ? (
-                        <>
-                          Pre-Avg:{' '}
-                          {Math.round(
-                            (getPlayerStats(match, match.team1[0].id)?.preGameRanking ||
-                              match.team1[0].ranking) +
-                              (getPlayerStats(match, match.team1[1].id)?.preGameRanking ||
-                                match.team1[1].ranking),
-                          ) / 2}
-                        </>
-                      ) : (
-                        <>
-                          Avg: {Math.round((match.team1[0].ranking + match.team1[1].ranking) / 2)}
-                        </>
+                      {match.team1[1] && (
+                        <PlayerWithStats
+                          player={match.team1[1]}
+                          match={match}
+                          teamColor="text-blue-700"
+                          position="defender"
+                          onPlayerClick={onPlayerClick}
+                        />
                       )}
                     </div>
+                    {match.team1[1] && (
+                      <div className="text-xs bg-blue-100 text-blue-600 px-1 py-0.5 rounded-full mt-1">
+                        {match.playerStats ? (
+                          <>
+                            Pre-Avg:{' '}
+                            {Math.round(
+                              ((getPlayerStats(match, match.team1[0].id)?.preGameRanking ||
+                                match.team1[0].ranking) +
+                                (getPlayerStats(match, match.team1[1].id)?.preGameRanking ||
+                                  match.team1[1].ranking)) /
+                                2,
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            Avg: {Math.round((match.team1[0].ranking + match.team1[1].ranking) / 2)}
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-center order-first sm:order-none">
@@ -302,47 +309,58 @@ const MatchHistory = ({
                   </div>
 
                   <div className="text-center bg-gradient-to-br from-purple-50 to-violet-50 p-2 rounded-lg border border-purple-200/50">
-                    <div className="font-bold text-purple-800 mb-1 text-xs">Team 2</div>
+                    <div className="font-bold text-purple-800 mb-1 text-xs">
+                      {match.matchType === '1v1' ? 'Player 2' : 'Team 2'}
+                    </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team2[0]}
                         match={match}
                         teamColor="text-purple-700"
-                        position="attacker"
+                        position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
                         onPlayerClick={onPlayerClick}
                       />
-                      <PlayerWithStats
-                        player={match.team2[1]}
-                        match={match}
-                        teamColor="text-purple-700"
-                        position="defender"
-                        onPlayerClick={onPlayerClick}
-                      />
-                    </div>
-                    <div className="text-xs bg-purple-100 text-purple-600 px-1 py-0.5 rounded-full mt-1">
-                      {match.playerStats ? (
-                        <>
-                          Pre-Avg:{' '}
-                          {Math.round(
-                            (getPlayerStats(match, match.team2[0].id)?.preGameRanking ||
-                              match.team2[0].ranking) +
-                              (getPlayerStats(match, match.team2[1].id)?.preGameRanking ||
-                                match.team2[1].ranking),
-                          ) / 2}
-                        </>
-                      ) : (
-                        <>
-                          Avg: {Math.round((match.team2[0].ranking + match.team2[1].ranking) / 2)}
-                        </>
+                      {match.team2[1] && (
+                        <PlayerWithStats
+                          player={match.team2[1]}
+                          match={match}
+                          teamColor="text-purple-700"
+                          position="defender"
+                          onPlayerClick={onPlayerClick}
+                        />
                       )}
                     </div>
+                    {match.team2[1] && (
+                      <div className="text-xs bg-purple-100 text-purple-600 px-1 py-0.5 rounded-full mt-1">
+                        {match.playerStats ? (
+                          <>
+                            Pre-Avg:{' '}
+                            {Math.round(
+                              ((getPlayerStats(match, match.team2[0].id)?.preGameRanking ||
+                                match.team2[0].ranking) +
+                                (getPlayerStats(match, match.team2[1].id)?.preGameRanking ||
+                                  match.team2[1].ranking)) /
+                                2,
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            Avg: {Math.round((match.team2[0].ranking + match.team2[1].ranking) / 2)}
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {match.score1 !== match.score2 && (
                   <div className="mt-2 text-center">
                     <span className="text-xs font-medium text-green-600">
-                      🎉 Team {match.score1 > match.score2 ? '1' : '2'} wins! Great game, friends!
+                      🎉{' '}
+                      {match.matchType === '1v1'
+                        ? `${match.score1 > match.score2 ? match.team1[0].name : match.team2[0].name} wins!`
+                        : `Team ${match.score1 > match.score2 ? '1' : '2'} wins!`}{' '}
+                      Great game, friends!
                     </span>
                   </div>
                 )}

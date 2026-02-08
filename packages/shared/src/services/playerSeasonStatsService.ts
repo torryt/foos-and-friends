@@ -1,5 +1,5 @@
 import type { Database } from '../lib/database.ts'
-import type { PlayerSeasonStats } from '../types/index.ts'
+import type { MatchType, PlayerSeasonStats } from '../types/index.ts'
 
 export class PlayerSeasonStatsService {
   private db: Database
@@ -13,16 +13,18 @@ export class PlayerSeasonStatsService {
   async getPlayerSeasonStats(
     playerId: string,
     seasonId: string,
+    matchType?: MatchType,
   ): Promise<{ data: PlayerSeasonStats | null; error?: string }> {
-    const result = await this.db.getPlayerSeasonStats(playerId, seasonId)
+    const result = await this.db.getPlayerSeasonStats(playerId, seasonId, matchType)
     return { data: result.data, error: result.error ?? undefined }
   }
 
   // Get season leaderboard (all players who have played in this season)
   async getSeasonLeaderboard(
     seasonId: string,
+    matchType?: MatchType,
   ): Promise<{ data: PlayerSeasonStats[]; error?: string }> {
-    const result = await this.db.getSeasonLeaderboard(seasonId)
+    const result = await this.db.getSeasonLeaderboard(seasonId, matchType)
     return { data: result.data, error: result.error ?? undefined }
   }
 

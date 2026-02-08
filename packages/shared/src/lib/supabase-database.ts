@@ -6,6 +6,7 @@ import type {
   FriendGroup,
   GroupMembership,
   Match,
+  MatchType,
   Player,
   PlayerMatchStats,
   PlayerSeasonStats,
@@ -45,19 +46,32 @@ const dbMatchToMatch = async (
   dbMatch: DbMatch,
   playersById: Map<string, Player>,
 ): Promise<Match> => {
-  const team1Player1 = playersById.get(dbMatch.team1_player1_id)
-  const team1Player2 = playersById.get(dbMatch.team1_player2_id)
-  const team2Player1 = playersById.get(dbMatch.team2_player1_id)
-  const team2Player2 = playersById.get(dbMatch.team2_player2_id)
+  const is1v1 = (dbMatch.match_type ?? '2v2') === '1v1'
 
-  if (!team1Player1 || !team1Player2 || !team2Player1 || !team2Player2) {
-    throw new Error('Could not find all players for match')
+  const team1Player1 = playersById.get(dbMatch.team1_player1_id)
+  const team2Player1 = playersById.get(dbMatch.team2_player1_id)
+
+  if (!team1Player1 || !team2Player1) {
+    throw new Error('Could not find required players for match')
+  }
+
+  // For 1v1 matches, player2 columns are null
+  const team1Player2 = dbMatch.team1_player2_id
+    ? playersById.get(dbMatch.team1_player2_id) ?? null
+    : null
+  const team2Player2 = dbMatch.team2_player2_id
+    ? playersById.get(dbMatch.team2_player2_id) ?? null
+    : null
+
+  // Validate 2v2 matches have all players
+  if (!is1v1 && (!team1Player2 || !team2Player2)) {
+    throw new Error('2v2 match missing required players')
   }
 
   // Transform ranking data if available
   const playerStats: PlayerMatchStats[] = []
 
-  // Add stats for each player if ranking data exists
+  // Always include team1_player1 and team2_player1
   if (
     dbMatch.team1_player1_pre_ranking !== undefined &&
     dbMatch.team1_player1_post_ranking !== undefined
@@ -66,17 +80,6 @@ const dbMatchToMatch = async (
       playerId: dbMatch.team1_player1_id,
       preGameRanking: dbMatch.team1_player1_pre_ranking,
       postGameRanking: dbMatch.team1_player1_post_ranking,
-    })
-  }
-
-  if (
-    dbMatch.team1_player2_pre_ranking !== undefined &&
-    dbMatch.team1_player2_post_ranking !== undefined
-  ) {
-    playerStats.push({
-      playerId: dbMatch.team1_player2_id,
-      preGameRanking: dbMatch.team1_player2_pre_ranking,
-      postGameRanking: dbMatch.team1_player2_post_ranking,
     })
   }
 
@@ -91,19 +94,36 @@ const dbMatchToMatch = async (
     })
   }
 
-  if (
-    dbMatch.team2_player2_pre_ranking !== undefined &&
-    dbMatch.team2_player2_post_ranking !== undefined
-  ) {
-    playerStats.push({
-      playerId: dbMatch.team2_player2_id,
-      preGameRanking: dbMatch.team2_player2_pre_ranking,
-      postGameRanking: dbMatch.team2_player2_post_ranking,
-    })
+  // Include player2 stats only for 2v2 matches
+  if (!is1v1) {
+    if (
+      dbMatch.team1_player2_pre_ranking != null &&
+      dbMatch.team1_player2_post_ranking != null &&
+      dbMatch.team1_player2_id
+    ) {
+      playerStats.push({
+        playerId: dbMatch.team1_player2_id,
+        preGameRanking: dbMatch.team1_player2_pre_ranking,
+        postGameRanking: dbMatch.team1_player2_post_ranking,
+      })
+    }
+
+    if (
+      dbMatch.team2_player2_pre_ranking != null &&
+      dbMatch.team2_player2_post_ranking != null &&
+      dbMatch.team2_player2_id
+    ) {
+      playerStats.push({
+        playerId: dbMatch.team2_player2_id,
+        preGameRanking: dbMatch.team2_player2_pre_ranking,
+        postGameRanking: dbMatch.team2_player2_post_ranking,
+      })
+    }
   }
 
   return {
     id: dbMatch.id,
+    matchType: dbMatch.match_type ?? '2v2',
     team1: [team1Player1, team1Player2],
     team2: [team2Player1, team2Player2],
     score1: dbMatch.team1_score,
@@ -205,6 +225,7 @@ export class SupabaseDatabase implements Database {
         playerCount: group.player_count?.[0]?.count || 0,
         isOwner: group.owner_id === userId,
         sportType: group.sport_type as SportType,
+        supportedMatchTypes: (group.supported_match_types as MatchType[]) || ['2v2'],
       }))
 
       return { data: groups, error: null }
@@ -239,6 +260,7 @@ export class SupabaseDatabase implements Database {
         createdAt: data.created_at,
         updatedAt: data.updated_at,
         sportType: data.sport_type as SportType,
+        supportedMatchTypes: (data.supported_match_types as MatchType[]) || ['2v2'],
       }
 
       return { data: group, error: null }
@@ -276,6 +298,7 @@ export class SupabaseDatabase implements Database {
         updatedAt: groupData.updated_at,
         playerCount: 0, // We don't need the actual count for invite preview
         sportType: groupData.sport_type as SportType,
+        supportedMatchTypes: (groupData.supported_match_types as MatchType[]) || ['2v2'],
       }
 
       return { data: group, error: null }
@@ -291,6 +314,7 @@ export class SupabaseDatabase implements Database {
     name: string,
     description?: string,
     sportType: SportType = 'foosball',
+    supportedMatchTypes: MatchType[] = ['2v2'],
   ): Promise<DatabaseResult<GroupCreationRpcResult>> {
     try {
       const supabase = getSupabase()
@@ -298,6 +322,7 @@ export class SupabaseDatabase implements Database {
         group_name: name,
         group_description: description || null,
         group_sport_type: sportType,
+        group_supported_match_types: supportedMatchTypes,
       })
 
       if (error) {
@@ -590,9 +615,9 @@ export class SupabaseDatabase implements Database {
       const playerIds = new Set<string>()
       matchData.forEach((match) => {
         playerIds.add(match.team1_player1_id)
-        playerIds.add(match.team1_player2_id)
+        if (match.team1_player2_id) playerIds.add(match.team1_player2_id)
         playerIds.add(match.team2_player1_id)
-        playerIds.add(match.team2_player2_id)
+        if (match.team2_player2_id) playerIds.add(match.team2_player2_id)
       })
 
       // Fetch all players in one query, filtered by group
@@ -650,7 +675,7 @@ export class SupabaseDatabase implements Database {
         matchData.team1_player2_id,
         matchData.team2_player1_id,
         matchData.team2_player2_id,
-      ]
+      ].filter(Boolean) as string[]
 
       const { data: playersData, error: playersError } = await supabase
         .from('players')
@@ -679,22 +704,23 @@ export class SupabaseDatabase implements Database {
   async recordMatch(
     groupId: string,
     seasonId: string,
+    matchType: MatchType,
     team1Player1Id: string,
-    team1Player2Id: string,
+    team1Player2Id: string | null,
     team2Player1Id: string,
-    team2Player2Id: string,
+    team2Player2Id: string | null,
     score1: number,
     score2: number,
     recordedBy: string,
     rankingData: {
       team1Player1PreRanking: number
       team1Player1PostRanking: number
-      team1Player2PreRanking: number
-      team1Player2PostRanking: number
+      team1Player2PreRanking?: number | null
+      team1Player2PostRanking?: number | null
       team2Player1PreRanking: number
       team2Player1PostRanking: number
-      team2Player2PreRanking: number
-      team2Player2PostRanking: number
+      team2Player2PreRanking?: number | null
+      team2Player2PostRanking?: number | null
     },
   ): Promise<DatabaseResult<Match>> {
     try {
@@ -708,6 +734,7 @@ export class SupabaseDatabase implements Database {
         .insert({
           group_id: groupId,
           season_id: seasonId,
+          match_type: matchType,
           team1_player1_id: team1Player1Id,
           team1_player2_id: team1Player2Id,
           team2_player1_id: team2Player1Id,
@@ -720,12 +747,12 @@ export class SupabaseDatabase implements Database {
           // Add ranking data
           team1_player1_pre_ranking: rankingData.team1Player1PreRanking,
           team1_player1_post_ranking: rankingData.team1Player1PostRanking,
-          team1_player2_pre_ranking: rankingData.team1Player2PreRanking,
-          team1_player2_post_ranking: rankingData.team1Player2PostRanking,
+          team1_player2_pre_ranking: rankingData.team1Player2PreRanking ?? null,
+          team1_player2_post_ranking: rankingData.team1Player2PostRanking ?? null,
           team2_player1_pre_ranking: rankingData.team2Player1PreRanking,
           team2_player1_post_ranking: rankingData.team2Player1PostRanking,
-          team2_player2_pre_ranking: rankingData.team2Player2PreRanking,
-          team2_player2_post_ranking: rankingData.team2Player2PostRanking,
+          team2_player2_pre_ranking: rankingData.team2Player2PreRanking ?? null,
+          team2_player2_post_ranking: rankingData.team2Player2PostRanking ?? null,
         })
         .select()
         .single()
@@ -828,15 +855,24 @@ export class SupabaseDatabase implements Database {
     }
   }
 
-  async getMatchesBySeason(seasonId: string): Promise<DatabaseListResult<Match>> {
+  async getMatchesBySeason(
+    seasonId: string,
+    matchType?: MatchType,
+  ): Promise<DatabaseListResult<Match>> {
     try {
       const supabase = getSupabase()
-      const { data: matchesData, error: matchesError } = await supabase
+      let query = supabase
         .from('matches')
         .select('*')
         .eq('season_id', seasonId)
         .order('match_date', { ascending: false })
         .order('match_time', { ascending: false })
+
+      if (matchType) {
+        query = query.eq('match_type', matchType)
+      }
+
+      const { data: matchesData, error: matchesError } = await query
 
       if (matchesError) {
         return { data: [], error: matchesError.message }
@@ -853,9 +889,9 @@ export class SupabaseDatabase implements Database {
       const playerIds = new Set<string>()
       matchesData.forEach((match) => {
         playerIds.add(match.team1_player1_id)
-        playerIds.add(match.team1_player2_id)
+        if (match.team1_player2_id) playerIds.add(match.team1_player2_id)
         playerIds.add(match.team2_player1_id)
-        playerIds.add(match.team2_player2_id)
+        if (match.team2_player2_id) playerIds.add(match.team2_player2_id)
       })
 
       // Fetch all players, filtered by group
@@ -894,12 +930,19 @@ export class SupabaseDatabase implements Database {
   async getPlayerSeasonStats(
     playerId: string,
     seasonId: string,
+    matchType?: MatchType,
   ): Promise<DatabaseResult<PlayerSeasonStats>> {
     try {
       const supabase = getSupabase()
-      // Read from computed view for stats derived from match history
+      // Use match-type-specific view if specified, otherwise use combined view
+      const viewName = matchType === '1v1'
+        ? 'player_season_stats_1v1_computed'
+        : matchType === '2v2'
+          ? 'player_season_stats_2v2_computed'
+          : 'player_season_stats_computed'
+
       const { data, error } = await supabase
-        .from('player_season_stats_computed')
+        .from(viewName)
         .select('*')
         .eq('player_id', playerId)
         .eq('season_id', seasonId)
@@ -918,12 +961,21 @@ export class SupabaseDatabase implements Database {
     }
   }
 
-  async getSeasonLeaderboard(seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>> {
+  async getSeasonLeaderboard(
+    seasonId: string,
+    matchType?: MatchType,
+  ): Promise<DatabaseListResult<PlayerSeasonStats>> {
     try {
       const supabase = getSupabase()
-      // Read from computed view for stats derived from match history
+      // Use match-type-specific view if specified, otherwise use combined view
+      const viewName = matchType === '1v1'
+        ? 'player_season_stats_1v1_computed'
+        : matchType === '2v2'
+          ? 'player_season_stats_2v2_computed'
+          : 'player_season_stats_computed'
+
       const { data, error } = await supabase
-        .from('player_season_stats_computed')
+        .from(viewName)
         .select('*')
         .eq('season_id', seasonId)
         .order('ranking', { ascending: false })

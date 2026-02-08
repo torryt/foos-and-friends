@@ -2,6 +2,7 @@ import type {
   FriendGroup,
   GroupMembership,
   Match,
+  MatchType,
   Player,
   PlayerSeasonStats,
   Season,
@@ -67,6 +68,7 @@ export interface Database {
     name: string,
     description?: string,
     sportType?: SportType,
+    supportedMatchTypes?: MatchType[],
   ): Promise<DatabaseResult<GroupCreationRpcResult>>
   joinGroupByInvite(
     inviteCode: string,
@@ -92,27 +94,28 @@ export interface Database {
 
   // Match operations
   getMatchesByGroup(groupId: string): Promise<DatabaseListResult<Match>>
-  getMatchesBySeason(seasonId: string): Promise<DatabaseListResult<Match>>
+  getMatchesBySeason(seasonId: string, matchType?: MatchType): Promise<DatabaseListResult<Match>>
   getMatchById(matchId: string): Promise<DatabaseResult<Match>>
   recordMatch(
     groupId: string,
     seasonId: string,
+    matchType: MatchType,
     team1Player1Id: string,
-    team1Player2Id: string,
+    team1Player2Id: string | null,
     team2Player1Id: string,
-    team2Player2Id: string,
+    team2Player2Id: string | null,
     score1: number,
     score2: number,
     recordedBy: string,
     rankingData: {
       team1Player1PreRanking: number
       team1Player1PostRanking: number
-      team1Player2PreRanking: number
-      team1Player2PostRanking: number
+      team1Player2PreRanking?: number | null
+      team1Player2PostRanking?: number | null
       team2Player1PreRanking: number
       team2Player1PostRanking: number
-      team2Player2PreRanking: number
-      team2Player2PostRanking: number
+      team2Player2PreRanking?: number | null
+      team2Player2PostRanking?: number | null
     },
   ): Promise<DatabaseResult<Match>>
 
@@ -130,6 +133,10 @@ export interface Database {
   getPlayerSeasonStats(
     playerId: string,
     seasonId: string,
+    matchType?: MatchType,
   ): Promise<DatabaseResult<PlayerSeasonStats>>
-  getSeasonLeaderboard(seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>>
+  getSeasonLeaderboard(
+    seasonId: string,
+    matchType?: MatchType,
+  ): Promise<DatabaseListResult<PlayerSeasonStats>>
 }

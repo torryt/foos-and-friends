@@ -4,6 +4,9 @@ export type PlayerPosition = 'attacker' | 'defender'
 // Sport type for multi-sport support
 export type SportType = 'foosball' | 'padel'
 
+// Match type for 1v1 or 2v2 support
+export type MatchType = '1v1' | '2v2'
+
 // Updated Player interface for Supabase integration
 export interface Player {
   id: string // Changed from number to string for Supabase UUID
@@ -65,8 +68,9 @@ export const addRankingChange = (stats: PlayerMatchStats): PlayerStatsWithChange
 // Updated Match interface for Supabase integration
 export interface Match {
   id: string // Changed from number to string for Supabase UUID
-  team1: [Player, Player]
-  team2: [Player, Player]
+  matchType: MatchType // 1v1 or 2v2
+  team1: [Player, Player | null] // Second player null for 1v1
+  team2: [Player, Player | null] // Second player null for 1v1
   score1: number // Maps to team1_score in DB
   score2: number // Maps to team2_score in DB
   date: string
@@ -83,10 +87,11 @@ export interface DbMatch {
   id: string
   group_id: string
   season_id: string
+  match_type: MatchType
   team1_player1_id: string
-  team1_player2_id: string
+  team1_player2_id: string | null // Nullable for 1v1
   team2_player1_id: string
-  team2_player2_id: string
+  team2_player2_id: string | null // Nullable for 1v1
   team1_score: number
   team2_score: number
   match_date: string
@@ -96,12 +101,12 @@ export interface DbMatch {
   // Historical rankings (ranking changes calculated as post - pre)
   team1_player1_pre_ranking?: number
   team1_player1_post_ranking?: number
-  team1_player2_pre_ranking?: number
-  team1_player2_post_ranking?: number
+  team1_player2_pre_ranking?: number | null
+  team1_player2_post_ranking?: number | null
   team2_player1_pre_ranking?: number
   team2_player1_post_ranking?: number
-  team2_player2_pre_ranking?: number
-  team2_player2_post_ranking?: number
+  team2_player2_pre_ranking?: number | null
+  team2_player2_post_ranking?: number | null
 }
 
 // New types for group functionality
@@ -119,6 +124,7 @@ export interface FriendGroup {
   playerCount?: number
   isOwner?: boolean // Added for client-side group owner detection
   sportType?: SportType // Added for multi-sport support
+  supportedMatchTypes: MatchType[] // Which match types this group supports
 }
 
 export interface GroupMembership {

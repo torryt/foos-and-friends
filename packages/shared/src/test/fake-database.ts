@@ -12,6 +12,7 @@ import type {
   FriendGroup,
   GroupMembership,
   Match,
+  MatchType,
   Player,
   PlayerSeasonStats,
   Season,
@@ -98,6 +99,7 @@ export class FakeDatabase implements Database {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       sportType,
+      supportedMatchTypes: ['2v2'],
     }
 
     this.groups.push(group)
@@ -371,10 +373,11 @@ export class FakeDatabase implements Database {
   async recordMatch(
     _groupId: string,
     _seasonId: string,
+    _matchType: MatchType,
     _team1Player1Id: string,
-    _team1Player2Id: string,
+    _team1Player2Id: string | null,
     _team2Player1Id: string,
-    _team2Player2Id: string,
+    _team2Player2Id: string | null,
     _score1: number,
     _score2: number,
     _recordedBy: string,

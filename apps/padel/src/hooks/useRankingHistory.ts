@@ -39,9 +39,9 @@ export function useRankingHistory(
           .filter(
             (match) =>
               match.team1[0].id === id ||
-              match.team1[1].id === id ||
+              match.team1[1]?.id === id ||
               match.team2[0].id === id ||
-              match.team2[1].id === id,
+              match.team2[1]?.id === id,
           )
           .reverse() // Reverse to get oldest first for chronological order
 
@@ -61,7 +61,7 @@ export function useRankingHistory(
 
         // Build ranking history
         playerMatches.forEach((match, index) => {
-          const wasInTeam1 = match.team1[0].id === id || match.team1[1].id === id
+          const wasInTeam1 = match.team1[0].id === id || match.team1[1]?.id === id
           const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
 
           // Get ranking from playerStats if available

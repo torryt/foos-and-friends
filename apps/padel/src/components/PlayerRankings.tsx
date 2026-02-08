@@ -160,13 +160,13 @@ const PlayerRankings = ({
         const playerMatches = matches.filter(
           (match) =>
             match.team1[0].id === player.id ||
-            match.team1[1].id === player.id ||
+            match.team1[1]?.id === player.id ||
             match.team2[0].id === player.id ||
-            match.team2[1].id === player.id,
+            match.team2[1]?.id === player.id,
         )
 
         goalDifference = playerMatches.reduce((diff, match) => {
-          const wasInTeam1 = match.team1[0].id === player.id || match.team1[1].id === player.id
+          const wasInTeam1 = match.team1[0].id === player.id || match.team1[1]?.id === player.id
           const goalsForMatch = wasInTeam1 ? match.score1 : match.score2
           const goalsAgainstMatch = wasInTeam1 ? match.score2 : match.score1
           return diff + (goalsForMatch - goalsAgainstMatch)

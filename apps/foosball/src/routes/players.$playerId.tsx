@@ -48,9 +48,9 @@ function PlayerProfile() {
       .filter((match) => {
         return (
           match.team1[0].id === playerId ||
-          match.team1[1].id === playerId ||
+          match.team1[1]?.id === playerId ||
           match.team2[0].id === playerId ||
-          match.team2[1].id === playerId
+          match.team2[1]?.id === playerId
         )
       })
       .sort((a, b) => {
@@ -63,7 +63,7 @@ function PlayerProfile() {
     // Recent form (last 5 matches)
     const recentMatches = playerMatches.slice(-5)
     const recentForm = recentMatches.map((match) => {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
+      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
       const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
       return won ? 'W' : 'L'
     })
@@ -76,12 +76,12 @@ function PlayerProfile() {
 
     // Goals statistics
     const totalGoalsScored = playerMatches.reduce((sum, match) => {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
+      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
       return sum + (wasInTeam1 ? match.score1 : match.score2)
     }, 0)
 
     const totalGoalsConceded = playerMatches.reduce((sum, match) => {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
+      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
       return sum + (wasInTeam1 ? match.score2 : match.score1)
     }, 0)
 

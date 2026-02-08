@@ -15,7 +15,7 @@ function Index() {
   const [showAddPlayer, setShowAddPlayer] = useState(false)
   const [showRecordMatch, setShowRecordMatch] = useState(false)
 
-  const { players, seasonStats, matches, addPlayer, addMatch } = useGameLogic()
+  const { players, seasonStats, matches, supportedMatchTypes, addPlayer, addMatch } = useGameLogic()
 
   const handlePlayerCardClick = (playerId: string) => {
     navigate({
@@ -48,6 +48,7 @@ function Index() {
         <MatchEntryModal
           players={players}
           matches={matches}
+          supportedMatchTypes={supportedMatchTypes}
           addMatch={addMatch}
           onClose={() => setShowRecordMatch(false)}
         />

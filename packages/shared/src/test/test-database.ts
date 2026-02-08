@@ -39,6 +39,7 @@ export function createStandardTestScenario() {
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     sportType: 'foosball',
+    supportedMatchTypes: ['2v2'],
   }
 
   const memberships = [

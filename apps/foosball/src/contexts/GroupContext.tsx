@@ -159,6 +159,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           updatedAt: new Date().toISOString(),
           isOwner: true,
           playerCount: 0,
+          supportedMatchTypes: ['2v2'],
         }
 
         // Set the new group as current immediately
@@ -207,6 +208,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           updatedAt: new Date().toISOString(),
           isOwner: false,
           playerCount: 0,
+          supportedMatchTypes: ['2v2'],
         }
 
         // Set the joined group as current immediately

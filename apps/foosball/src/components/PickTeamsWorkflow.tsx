@@ -88,9 +88,9 @@ export const PickTeamsWorkflow = ({
         const playerMatches = matches.filter((match) => {
           return (
             match.team1[0].id === player.id ||
-            match.team1[1].id === player.id ||
+            match.team1[1]?.id === player.id ||
             match.team2[0].id === player.id ||
-            match.team2[1].id === player.id
+            match.team2[1]?.id === player.id
           )
         })
 
@@ -100,7 +100,10 @@ export const PickTeamsWorkflow = ({
         let winsAsDefender = 0
 
         for (const match of playerMatches) {
-          const wasInTeam1 = match.team1[0].id === player.id || match.team1[1].id === player.id
+          // Skip 1v1 matches for position preference calculations
+          if (match.matchType === '1v1') continue
+
+          const wasInTeam1 = match.team1[0].id === player.id || match.team1[1]?.id === player.id
           const wasAttacker = wasInTeam1
             ? match.team1[0].id === player.id
             : match.team2[0].id === player.id

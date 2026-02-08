@@ -333,10 +333,10 @@ export const calculateTeammateFrequency = (
   let gamesAsSameTeam = 0
 
   for (const match of matches) {
-    const player1InTeam1 = match.team1[0].id === player1Id || match.team1[1].id === player1Id
-    const player2InTeam1 = match.team1[0].id === player2Id || match.team1[1].id === player2Id
-    const player1InTeam2 = match.team2[0].id === player1Id || match.team2[1].id === player1Id
-    const player2InTeam2 = match.team2[0].id === player2Id || match.team2[1].id === player2Id
+    const player1InTeam1 = match.team1[0].id === player1Id || match.team1[1]?.id === player1Id
+    const player2InTeam1 = match.team1[0].id === player2Id || match.team1[1]?.id === player2Id
+    const player1InTeam2 = match.team2[0].id === player1Id || match.team2[1]?.id === player1Id
+    const player2InTeam2 = match.team2[0].id === player2Id || match.team2[1]?.id === player2Id
 
     // Check if they were on the same team
     if ((player1InTeam1 && player2InTeam1) || (player1InTeam2 && player2InTeam2)) {

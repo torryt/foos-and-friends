@@ -23,8 +23,8 @@ export function calculateStreaks(playerId: string, matches: Match[]): StreakData
 
   // Calculate current streak (most recent matches)
   for (const match of matches) {
-    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
-    const wasInTeam2 = match.team2[0].id === playerId || match.team2[1].id === playerId
+    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+    const wasInTeam2 = match.team2[0].id === playerId || match.team2[1]?.id === playerId
 
     // Skip matches where player was not involved
     if (!wasInTeam1 && !wasInTeam2) {
@@ -45,8 +45,8 @@ export function calculateStreaks(playerId: string, matches: Match[]): StreakData
 
   // Calculate best and worst streaks from all matches
   for (const match of matches) {
-    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
-    const wasInTeam2 = match.team2[0].id === playerId || match.team2[1].id === playerId
+    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+    const wasInTeam2 = match.team2[0].id === playerId || match.team2[1]?.id === playerId
 
     // Skip matches where player was not involved
     if (!wasInTeam1 && !wasInTeam2) {

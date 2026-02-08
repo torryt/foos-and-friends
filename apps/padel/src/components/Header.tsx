@@ -29,6 +29,7 @@ const TennisBall = ({ size = 20, className = '' }: { size?: number; className?: 
     />
   </svg>
 )
+
 import { useGroupContext } from '@/contexts/GroupContext'
 import { ConnectionStatus } from './ConnectionStatus'
 import { CreateGroupModal } from './CreateGroupModal'
