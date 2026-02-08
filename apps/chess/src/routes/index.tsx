@@ -34,7 +34,6 @@ function Index() {
       <PlayerRankings
         players={players}
         seasonStats={seasonStats}
-        matches={matches}
         onPlayerClick={handlePlayerCardClick}
       />
 

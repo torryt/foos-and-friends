@@ -9,7 +9,6 @@ export interface RelationshipStats {
   wins: number
   losses: number
   winRate: number
-  goalDifference: number
   recentForm: ('W' | 'L')[] // Last 5 games: 'W' or 'L'
 }
 
@@ -53,7 +52,6 @@ export const useRelationshipStats = (
         gamesPlayed: number
         wins: number
         losses: number
-        goalDifference: number
         recentGames: { won: boolean; match: Match }[]
       }
     >()
@@ -64,7 +62,6 @@ export const useRelationshipStats = (
         gamesPlayed: number
         wins: number
         losses: number
-        goalDifference: number
         recentGames: { won: boolean; match: Match }[]
       }
     >()
@@ -73,7 +70,6 @@ export const useRelationshipStats = (
     for (const match of playerMatches) {
       const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
       const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
-      const goalDiff = wasInTeam1 ? match.score1 - match.score2 : match.score2 - match.score1
 
       // Get teammate
       let teammateId: string | undefined
@@ -94,14 +90,12 @@ export const useRelationshipStats = (
           gamesPlayed: 0,
           wins: 0,
           losses: 0,
-          goalDifference: 0,
           recentGames: [],
         })
       }
       const teammateData = teammateStats.get(teammateId)
       if (teammateData) {
         teammateData.gamesPlayed++
-        teammateData.goalDifference += goalDiff
         teammateData.recentGames.push({ won, match })
         if (won) {
           teammateData.wins++
@@ -119,14 +113,12 @@ export const useRelationshipStats = (
             gamesPlayed: 0,
             wins: 0,
             losses: 0,
-            goalDifference: 0,
             recentGames: [],
           })
         }
         const opponentData = opponentStats.get(opponent.id)
         if (opponentData) {
           opponentData.gamesPlayed++
-          opponentData.goalDifference += goalDiff
           opponentData.recentGames.push({ won, match })
           if (won) {
             opponentData.wins++
@@ -155,7 +147,6 @@ export const useRelationshipStats = (
           wins: stats.wins,
           losses: stats.losses,
           winRate: stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0,
-          goalDifference: stats.goalDifference,
           recentForm,
         }
       })
@@ -179,7 +170,6 @@ export const useRelationshipStats = (
           wins: stats.wins,
           losses: stats.losses,
           winRate: stats.gamesPlayed > 0 ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0,
-          goalDifference: stats.goalDifference,
           recentForm,
         }
       })

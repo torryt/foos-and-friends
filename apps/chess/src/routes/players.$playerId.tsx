@@ -1,6 +1,6 @@
 import { calculateStreaks, scrollToTop } from '@foos/shared'
 import { createFileRoute } from '@tanstack/react-router'
-import { Calendar, Target } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { PlayerHeader } from '@/components/player-profile/PlayerHeader'
 import { PlayerPositionStats } from '@/components/player-profile/PlayerPositionStats'
@@ -74,22 +74,6 @@ function PlayerProfile() {
       playerMatches,
     )
 
-    // Goals statistics
-    const totalGoalsScored = playerMatches.reduce((sum, match) => {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
-      return sum + (wasInTeam1 ? match.score1 : match.score2)
-    }, 0)
-
-    const totalGoalsConceded = playerMatches.reduce((sum, match) => {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
-      return sum + (wasInTeam1 ? match.score2 : match.score1)
-    }, 0)
-
-    const avgGoalsScored =
-      playerMatches.length > 0 ? (totalGoalsScored / playerMatches.length).toFixed(1) : '0'
-    const avgGoalsConceded =
-      playerMatches.length > 0 ? (totalGoalsConceded / playerMatches.length).toFixed(1) : '0'
-
     // Get ranking history from player stats
     const rankingHistory: number[] = []
     for (const match of playerMatches) {
@@ -113,11 +97,6 @@ function PlayerProfile() {
       streakType,
       bestStreak,
       worstStreak,
-      avgGoalsScored,
-      avgGoalsConceded,
-      totalGoalsScored,
-      totalGoalsConceded,
-      goalDifference: totalGoalsScored - totalGoalsConceded,
       highestRanking,
       lowestRanking,
       playerMatches,
@@ -172,9 +151,6 @@ function PlayerProfile() {
         winRate={winRate}
         wins={player.wins}
         losses={player.losses}
-        goalDifference={playerStats.goalDifference}
-        goalsFor={playerStats.totalGoalsScored}
-        goalsAgainst={playerStats.totalGoalsConceded}
         currentStreak={playerStats.currentStreak}
         streakType={playerStats.streakType}
         bestStreak={playerStats.bestStreak}
@@ -182,34 +158,15 @@ function PlayerProfile() {
       />
 
       {/* Additional Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4 bg-white/80 backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Goals (Avg)</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {playerStats.avgGoalsScored} - {playerStats.avgGoalsConceded}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Diff: {playerStats.goalDifference > 0 ? '+' : ''}
-                {playerStats.goalDifference}
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-              <Target className="w-6 h-6 text-blue-600" />
-            </div>
+      <Card className="p-4 bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center space-x-3">
+          <Calendar className="w-5 h-5 text-gray-400" />
+          <div>
+            <p className="text-sm text-gray-500">Total Matches</p>
+            <p className="text-lg font-semibold text-gray-900">{player.matchesPlayed}</p>
           </div>
-        </Card>
-        <Card className="p-4 bg-white/80 backdrop-blur-sm">
-          <div className="flex items-center space-x-3">
-            <Calendar className="w-5 h-5 text-gray-400" />
-            <div>
-              <p className="text-sm text-gray-500">Total Matches</p>
-              <p className="text-lg font-semibold text-gray-900">{player.matchesPlayed}</p>
-            </div>
-          </div>
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       {/* Relationship Statistics */}
       <PlayerRelationshipStats playerId={playerId} players={players} matches={matches} />

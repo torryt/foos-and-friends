@@ -203,35 +203,6 @@ describe('useRelationshipStats', () => {
     expect(bobStats?.gamesPlayed).toBe(1)
   })
 
-  it('should calculate goal difference correctly', () => {
-    const matches: Match[] = [
-      // Alice + Bob vs Charlie + Diana: 5-3 (Alice gets +2 goal diff)
-      createMatch(
-        'match1',
-        [mockPlayers[0], mockPlayers[1]],
-        [mockPlayers[2], mockPlayers[3]],
-        5,
-        3,
-      ),
-      // Alice + Bob vs Charlie + Diana: 2-5 (Alice gets -3 goal diff)
-      createMatch(
-        'match2',
-        [mockPlayers[0], mockPlayers[1]],
-        [mockPlayers[2], mockPlayers[3]],
-        2,
-        5,
-      ),
-    ]
-
-    const { result } = renderHook(() => useRelationshipStats('player1', matches, mockPlayers))
-
-    const bobTeammate = result.current.teammates.find((t) => t.playerId === 'player2')
-    expect(bobTeammate?.goalDifference).toBe(-1) // +2 - 3 = -1
-
-    const charlieOpponent = result.current.opponents.find((o) => o.playerId === 'player3')
-    expect(charlieOpponent?.goalDifference).toBe(-1) // +2 - 3 = -1
-  })
-
   it('should calculate recent form correctly', () => {
     const matches: Match[] = [
       createMatch(

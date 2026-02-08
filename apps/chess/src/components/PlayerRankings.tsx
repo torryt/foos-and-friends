@@ -1,18 +1,16 @@
-import type { Match, Player, PlayerSeasonStats } from '@foos/shared'
+import type { Player, PlayerSeasonStats } from '@foos/shared'
 import { ArrowUpDown, ChevronDown, Medal, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
-type SortOption = 'elo' | 'goalDifference' | 'winRate'
+type SortOption = 'elo' | 'winRate'
 
 interface PlayerRankingsProps {
   players: Player[]
   seasonStats?: PlayerSeasonStats[]
-  matches?: Match[]
   onPlayerClick?: (playerId: string) => void
 }
 
 interface PlayerWithStats extends Player {
-  goalDifference: number
   winRate: number
 }
 
@@ -64,27 +62,6 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
           </div>
         </>
       )}
-      {sortBy === 'goalDifference' && (
-        <>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold ${
-              player.goalDifference > 10
-                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
-                : player.goalDifference > 5
-                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
-                  : player.goalDifference > 0
-                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
-                    : player.goalDifference >= -5
-                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
-                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
-            }`}
-          >
-            {player.goalDifference > 0 ? '+' : ''}
-            {player.goalDifference}
-          </span>
-          <div className="text-xs text-slate-600 mt-1">Goal diff</div>
-        </>
-      )}
       {sortBy === 'winRate' && (
         <>
           <span
@@ -111,16 +88,10 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
 
 const SORT_OPTIONS = [
   { value: 'elo' as const, label: 'ELO Ranking' },
-  { value: 'goalDifference' as const, label: 'Goal Difference' },
   { value: 'winRate' as const, label: 'Win Rate' },
 ]
 
-const PlayerRankings = ({
-  players,
-  seasonStats,
-  matches = [],
-  onPlayerClick,
-}: PlayerRankingsProps) => {
+const PlayerRankings = ({ players, seasonStats, onPlayerClick }: PlayerRankingsProps) => {
   const [sortBy, setSortBy] = useState<SortOption>('elo')
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
@@ -148,30 +119,6 @@ const PlayerRankings = ({
       const wins = seasonStat?.wins ?? player.wins
       const losses = seasonStat?.losses ?? player.losses
       const matchesPlayed = seasonStat?.matchesPlayed ?? player.matchesPlayed
-      const goalsFor = seasonStat?.goalsFor ?? 0
-      const goalsAgainst = seasonStat?.goalsAgainst ?? 0
-
-      // Calculate goal difference (use season stats if available, otherwise calculate from matches)
-      let goalDifference: number
-      if (seasonStat) {
-        goalDifference = goalsFor - goalsAgainst
-      } else {
-        // Fallback: calculate from matches
-        const playerMatches = matches.filter(
-          (match) =>
-            match.team1[0].id === player.id ||
-            match.team1[1]?.id === player.id ||
-            match.team2[0].id === player.id ||
-            match.team2[1]?.id === player.id,
-        )
-
-        goalDifference = playerMatches.reduce((diff, match) => {
-          const wasInTeam1 = match.team1[0].id === player.id || match.team1[1]?.id === player.id
-          const goalsForMatch = wasInTeam1 ? match.score1 : match.score2
-          const goalsAgainstMatch = wasInTeam1 ? match.score2 : match.score1
-          return diff + (goalsForMatch - goalsAgainstMatch)
-        }, 0)
-      }
 
       const winRate = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0
 
@@ -181,11 +128,10 @@ const PlayerRankings = ({
         wins,
         losses,
         matchesPlayed,
-        goalDifference,
         winRate,
       }
     })
-  }, [players, seasonStats, matches])
+  }, [players, seasonStats])
 
   // Sort players based on selected criteria
   const sortedPlayers = useMemo(() => {
@@ -194,14 +140,6 @@ const PlayerRankings = ({
     switch (sortBy) {
       case 'elo':
         return sorted.sort((a, b) => b.ranking - a.ranking)
-      case 'goalDifference':
-        return sorted.sort((a, b) => {
-          // Sort by goal difference first, then by ELO as tiebreaker
-          if (b.goalDifference !== a.goalDifference) {
-            return b.goalDifference - a.goalDifference
-          }
-          return b.ranking - a.ranking
-        })
       case 'winRate':
         return sorted.sort((a, b) => {
           // Sort by win rate first, then by matches played, then by ELO

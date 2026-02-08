@@ -86,17 +86,6 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                   <span className="flex-shrink-0">
                     {relationship.wins}W-{relationship.losses}L
                   </span>
-                  {relationship.goalDifference !== 0 && (
-                    <span
-                      className={cn(
-                        'flex-shrink-0',
-                        relationship.goalDifference > 0 ? 'text-green-600' : 'text-red-600',
-                      )}
-                    >
-                      {relationship.goalDifference > 0 ? '+' : ''}
-                      {relationship.goalDifference}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>

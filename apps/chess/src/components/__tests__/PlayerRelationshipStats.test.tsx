@@ -87,7 +87,6 @@ const createMockRelationshipData = () => ({
       wins: 3,
       losses: 2,
       winRate: 60,
-      goalDifference: 4,
       recentForm: ['W', 'L', 'W', 'W', 'L'] as ('W' | 'L')[],
     },
     {
@@ -98,7 +97,6 @@ const createMockRelationshipData = () => ({
       wins: 3,
       losses: 0,
       winRate: 100,
-      goalDifference: 8,
       recentForm: ['W', 'W', 'W'] as ('W' | 'L')[],
     },
   ],
@@ -111,7 +109,6 @@ const createMockRelationshipData = () => ({
       wins: 2,
       losses: 2,
       winRate: 50,
-      goalDifference: -1,
       recentForm: ['W', 'L', 'W', 'L'] as ('W' | 'L')[],
     },
   ],
@@ -205,13 +202,11 @@ describe('PlayerRelationshipStats', () => {
     expect(screen.getByText('5 games')).toBeInTheDocument()
     expect(screen.getByText('3W-2L')).toBeInTheDocument()
     expect(screen.getByText('60%')).toBeInTheDocument()
-    expect(screen.getByText('+4')).toBeInTheDocument()
 
     // Check Charlie's stats
     expect(screen.getByText('3 games')).toBeInTheDocument()
     expect(screen.getByText('3W-0L')).toBeInTheDocument()
     expect(screen.getByText('100%')).toBeInTheDocument()
-    expect(screen.getByText('+8')).toBeInTheDocument()
   })
 
   it('should display recent form indicators', async () => {
@@ -278,7 +273,6 @@ describe('PlayerRelationshipStats', () => {
       wins: i,
       losses: 1,
       winRate: Math.round((i / (i + 1)) * 100),
-      goalDifference: 0,
       recentForm: ['W'] as ('W' | 'L')[],
     }))
 
@@ -309,7 +303,6 @@ describe('PlayerRelationshipStats', () => {
       wins: i,
       losses: 1,
       winRate: Math.round((i / (i + 1)) * 100),
-      goalDifference: 0,
       recentForm: ['W'] as ('W' | 'L')[],
     }))
 
@@ -347,34 +340,5 @@ describe('PlayerRelationshipStats', () => {
 
     expect(screen.getByText('1')).toBeInTheDocument()
     expect(screen.getByText('2')).toBeInTheDocument()
-  })
-
-  it('should handle negative goal difference correctly', async () => {
-    const { useRelationshipStats } = vi.mocked(await import('@/hooks/useRelationshipStats'))
-
-    const dataWithNegativeGoalDiff = {
-      ...createMockRelationshipData(),
-      teammates: [
-        {
-          playerId: 'player2',
-          playerName: 'Bob',
-          playerAvatar: '👨',
-          gamesPlayed: 3,
-          wins: 1,
-          losses: 2,
-          winRate: 33,
-          goalDifference: -5,
-          recentForm: ['L', 'L', 'W'] as ('W' | 'L')[],
-        },
-      ],
-    }
-
-    useRelationshipStats.mockReturnValue(dataWithNegativeGoalDiff)
-
-    render(
-      <PlayerRelationshipStats playerId="player1" players={mockPlayers} matches={mockMatches} />,
-    )
-
-    expect(screen.getByText('-5')).toBeInTheDocument()
   })
 })

@@ -1,6 +1,16 @@
 import type { Match, Player, PlayerMatchStats } from '@foos/shared'
 import { calculateRankingChange } from '@foos/shared'
-import { Calendar, Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
+import {
+  Calendar,
+  Clock,
+  Crown,
+  Filter,
+  Plus,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  X,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useSeasonContext } from '@/contexts/SeasonContext'
@@ -238,54 +248,65 @@ const MatchHistory = ({
                 </div>
 
                 <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
-                  <div className="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-2 rounded-lg border border-blue-200/50">
-                    <div className="font-bold text-blue-800 mb-1 text-xs">Player 1</div>
+                  <div
+                    className={`text-center p-2 rounded-lg border ${
+                      match.score1 > match.score2
+                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
+                        : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200/50'
+                    }`}
+                  >
+                    <div
+                      className={`font-bold mb-1 text-xs ${match.score1 > match.score2 ? 'text-green-800' : 'text-blue-800'}`}
+                    >
+                      {match.score1 > match.score2 ? 'Winner' : 'Player 1'}
+                    </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team1[0]}
                         match={match}
-                        teamColor="text-blue-700"
+                        teamColor={match.score1 > match.score2 ? 'text-green-700' : 'text-blue-700'}
                         onPlayerClick={onPlayerClick}
                       />
                     </div>
                   </div>
 
                   <div className="text-center order-first sm:order-none">
-                    <div
-                      className={`text-2xl font-bold mb-1 ${
-                        match.score1 > match.score2
-                          ? 'text-green-600'
-                          : match.score2 > match.score1
-                            ? 'text-red-600'
-                            : 'text-slate-600'
+                    <Crown
+                      className={`mx-auto mb-1 ${
+                        match.score1 > match.score2 ? 'text-green-500' : 'text-purple-500'
                       }`}
-                    >
-                      {match.score1} - {match.score2}
+                      size={24}
+                    />
+                    <div className="text-xs font-medium text-green-600">
+                      {match.score1 > match.score2 ? match.team1[0].name : match.team2[0].name}{' '}
+                      wins!
                     </div>
-                    <div className="text-xs text-slate-500">Final Score</div>
                   </div>
 
-                  <div className="text-center bg-gradient-to-br from-purple-50 to-violet-50 p-2 rounded-lg border border-purple-200/50">
-                    <div className="font-bold text-purple-800 mb-1 text-xs">Player 2</div>
+                  <div
+                    className={`text-center p-2 rounded-lg border ${
+                      match.score2 > match.score1
+                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
+                        : 'bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200/50'
+                    }`}
+                  >
+                    <div
+                      className={`font-bold mb-1 text-xs ${match.score2 > match.score1 ? 'text-green-800' : 'text-purple-800'}`}
+                    >
+                      {match.score2 > match.score1 ? 'Winner' : 'Player 2'}
+                    </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team2[0]}
                         match={match}
-                        teamColor="text-purple-700"
+                        teamColor={
+                          match.score2 > match.score1 ? 'text-green-700' : 'text-purple-700'
+                        }
                         onPlayerClick={onPlayerClick}
                       />
                     </div>
                   </div>
                 </div>
-
-                {match.score1 !== match.score2 && (
-                  <div className="mt-2 text-center">
-                    <span className="text-xs font-medium text-green-600">
-                      {`${match.score1 > match.score2 ? match.team1[0].name : match.team2[0].name} wins!`}{' '}
-                      Great game, friends!
-                    </span>
-                  </div>
-                )}
               </div>
             ))}
           </div>

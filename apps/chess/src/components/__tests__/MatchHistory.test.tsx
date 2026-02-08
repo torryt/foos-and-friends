@@ -119,14 +119,13 @@ describe('MatchHistory', () => {
 
       // Check match details
       expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
-      expect(screen.getByText('3 - 1')).toBeInTheDocument()
 
       // Check player names
       expect(screen.getByText('Alice')).toBeInTheDocument()
       expect(screen.getByText('Bob')).toBeInTheDocument()
 
-      // Check 1v1 labels
-      expect(screen.getByText('Player 1')).toBeInTheDocument()
+      // Check winner/loser labels (Alice won since score1 > score2)
+      expect(screen.getByText('Winner')).toBeInTheDocument()
       expect(screen.getByText('Player 2')).toBeInTheDocument()
     })
 
@@ -187,7 +186,10 @@ describe('MatchHistory', () => {
 
       // Check match details
       expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
-      expect(screen.getByText('1 - 3')).toBeInTheDocument()
+
+      // Check winner label (Bob won since score2 > score1)
+      expect(screen.getByText('Winner')).toBeInTheDocument()
+      expect(screen.getByText('Player 1')).toBeInTheDocument()
 
       // Check that no ranking change data is displayed
       expect(screen.queryByText('→')).not.toBeInTheDocument()
@@ -238,8 +240,10 @@ describe('MatchHistory', () => {
       // Check both matches are rendered
       expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
       expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
-      expect(screen.getByText('3 - 1')).toBeInTheDocument()
-      expect(screen.getByText('2 - 3')).toBeInTheDocument()
+
+      // Check winner labels are shown
+      const winners = screen.getAllByText('Winner')
+      expect(winners).toHaveLength(2)
     })
   })
 
@@ -250,8 +254,8 @@ describe('MatchHistory', () => {
         matchType: '1v1',
         team1: [mockPlayer1, null],
         team2: [mockPlayer2, null],
-        score1: 2,
-        score2: 2,
+        score1: 1,
+        score2: 0,
         date: '2024-01-15',
         time: '14:30',
         groupId: 'group1',
@@ -276,8 +280,8 @@ describe('MatchHistory', () => {
       // Check that zero changes are displayed
       expect(screen.getAllByText('0')).toHaveLength(2)
 
-      // Check that tie game doesn't show winner
-      expect(screen.queryByText(/wins!/)).not.toBeInTheDocument()
+      // Winner label should be shown
+      expect(screen.getByText('Winner')).toBeInTheDocument()
     })
   })
 
