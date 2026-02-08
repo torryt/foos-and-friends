@@ -6,9 +6,11 @@
   "scripts": {
     "dev:foosball": "pnpm --filter @foos/foosball dev",
     "dev:padel": "pnpm --filter @foos/padel dev",
+    "dev:chess": "pnpm --filter @foos/chess dev",
     "build": "pnpm -r build",
     "build:foosball": "pnpm --filter @foos/foosball build",
     "build:padel": "pnpm --filter @foos/padel build",
+    "build:chess": "pnpm --filter @foos/chess build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
     "lint:fix": "pnpm -r lint:fix",
