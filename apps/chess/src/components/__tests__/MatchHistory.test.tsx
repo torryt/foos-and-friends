@@ -124,8 +124,8 @@ describe('MatchHistory', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument()
       expect(screen.getByText('Bob')).toBeInTheDocument()
 
-      // Check winner/loser labels (Alice won since score1 > score2)
-      expect(screen.getByText('Winner')).toBeInTheDocument()
+      // Check White/Black labels are always shown
+      expect(screen.getByText('White ♔')).toBeInTheDocument()
       expect(screen.getByText('Black ♚')).toBeInTheDocument()
     })
 
@@ -187,9 +187,9 @@ describe('MatchHistory', () => {
       // Check match details
       expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
 
-      // Check winner label (Bob won since score2 > score1)
-      expect(screen.getByText('Winner')).toBeInTheDocument()
+      // Check White/Black labels are always shown
       expect(screen.getByText('White ♔')).toBeInTheDocument()
+      expect(screen.getByText('Black ♚')).toBeInTheDocument()
 
       // Check that no ranking change data is displayed
       expect(screen.queryByText('→')).not.toBeInTheDocument()
@@ -241,9 +241,11 @@ describe('MatchHistory', () => {
       expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
       expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
 
-      // Check winner labels are shown
-      const winners = screen.getAllByText('Winner')
-      expect(winners).toHaveLength(2)
+      // Check White/Black labels are shown for both matches
+      const whiteLabels = screen.getAllByText('White ♔')
+      expect(whiteLabels).toHaveLength(2)
+      const blackLabels = screen.getAllByText('Black ♚')
+      expect(blackLabels).toHaveLength(2)
     })
   })
 
@@ -280,8 +282,9 @@ describe('MatchHistory', () => {
       // Check that zero changes are displayed
       expect(screen.getAllByText('0')).toHaveLength(2)
 
-      // Winner label should be shown
-      expect(screen.getByText('Winner')).toBeInTheDocument()
+      // White/Black labels should be shown
+      expect(screen.getByText('White ♔')).toBeInTheDocument()
+      expect(screen.getByText('Black ♚')).toBeInTheDocument()
     })
   })
 
