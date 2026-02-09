@@ -86,32 +86,31 @@ export const SeasonProvider = ({ children }: SeasonProviderProps) => {
       } else {
         setSeasons(result.data)
 
-        // Try to restore saved season, otherwise use active season, otherwise set first season
-        setCurrentSeason((current) => {
-          if (!current && result.data.length > 0) {
-            // Try to restore the previously selected season
-            const storedSeasonId = getStoredSeasonId(currentGroup.id)
-            if (storedSeasonId) {
-              const storedSeason = result.data.find((s) => s.id === storedSeasonId)
-              if (storedSeason) {
-                return storedSeason
-              } else {
-                // Stored season no longer exists, clean up localStorage
-                removeStoredSeasonId(currentGroup.id)
-              }
+        // Always select a season from the fetched data.
+        // This ensures we pick a valid season for the current group,
+        // even if a previous group's season was still set.
+        if (result.data.length > 0) {
+          // Try to restore the previously selected season
+          const storedSeasonId = getStoredSeasonId(currentGroup.id)
+          if (storedSeasonId) {
+            const storedSeason = result.data.find((s) => s.id === storedSeasonId)
+            if (storedSeason) {
+              setCurrentSeason(storedSeason)
+            } else {
+              // Stored season no longer exists, clean up localStorage
+              removeStoredSeasonId(currentGroup.id)
+              // Try to find the active season
+              const activeSeason = result.data.find((s) => s.isActive)
+              setCurrentSeason(activeSeason || result.data[0])
             }
-
+          } else {
             // Try to find the active season
             const activeSeason = result.data.find((s) => s.isActive)
-            if (activeSeason) {
-              return activeSeason
-            }
-
-            // Fall back to most recent season (first in list)
-            return result.data[0]
+            setCurrentSeason(activeSeason || result.data[0])
           }
-          return current
-        })
+        } else {
+          setCurrentSeason(null)
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load seasons')
@@ -177,6 +176,11 @@ export const SeasonProvider = ({ children }: SeasonProviderProps) => {
   // Load seasons when group changes
   useEffect(() => {
     if (currentGroup) {
+      // Immediately clear stale season state from previous group
+      // before async fetch begins, preventing cross-group data bleed
+      setCurrentSeason(null)
+      setSeasons([])
+      setError(null)
       refreshSeasons()
     } else {
       // Clear state when no group is selected

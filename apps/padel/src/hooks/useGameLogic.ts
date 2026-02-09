@@ -24,13 +24,23 @@ export const useGameLogic = () => {
   useEffect(() => {
     if (!currentGroup || !currentSeason || !user) {
       setPlayers([])
+      setSeasonStats([])
       setMatches([])
       return
     }
 
+    // Track whether this effect has been superseded by a newer one.
+    // If the group/season changes while we're fetching, the cleanup
+    // function sets stale=true so we discard the response.
+    let stale = false
+
     const loadGroupData = async () => {
       setLoading(true)
       setError(null)
+      // Immediately clear previous group's data to prevent stale display
+      setPlayers([])
+      setSeasonStats([])
+      setMatches([])
 
       try {
         // Load players, season stats, and matches for the current group and season
@@ -39,6 +49,9 @@ export const useGameLogic = () => {
           playerSeasonStatsService.getSeasonLeaderboard(currentSeason.id),
           matchesService.getMatchesBySeason(currentSeason.id),
         ])
+
+        // Discard results if group/season changed during fetch
+        if (stale) return
 
         if (playersResult.error) {
           setError(`Failed to load players: ${playersResult.error}`)
@@ -61,16 +74,23 @@ export const useGameLogic = () => {
           setMatches(matchesResult.data)
         }
       } catch (err) {
+        if (stale) return
         setError(err instanceof Error ? err.message : 'Failed to load group data')
         setPlayers([])
         setSeasonStats([])
         setMatches([])
       } finally {
-        setLoading(false)
+        if (!stale) {
+          setLoading(false)
+        }
       }
     }
 
     loadGroupData()
+
+    return () => {
+      stale = true
+    }
   }, [currentGroup, currentSeason, user])
 
   const addPlayer = async (
