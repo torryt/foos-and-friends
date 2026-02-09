@@ -1,6 +1,6 @@
-# Foosball Test Data Generator 🏓
+# Test Data Generator
 
-Generate realistic SQL test data for foosball groups with configurable parameters using Faker.js.
+Generate realistic SQL test data for sport groups (foosball, padel, chess) with configurable parameters using Faker.js.
 
 ## Features
 
@@ -78,7 +78,7 @@ Generated files are named: `foosball-test-data-YYYY-MM-DDTHH-MM-SS.sql`
 - **ELO Ratings**: Normal distribution (mean: 1100, std dev: 150) clamped to 800-1600
 
 ### Matches
-- **Team Selection**: Random 4-player combinations for each match
+- **Team Selection**: Random player combinations for each match (4 players for 2v2, 2 players for 1v1)
 - **Scores**: Realistic score distributions favoring closer games (8-10, 9-10) over blowouts
 - **ELO Updates**: Proper ELO calculation with K-factor 32, ratings clamped to 800-2400
 - **Timing**: Distributed over specified months with realistic times (12:00-17:59)

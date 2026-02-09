@@ -6,13 +6,15 @@ A pnpm workspaces monorepo containing React + TypeScript sports ranking applicat
 
 - **Foosball** (`apps/foosball`) - Office foosball ranking tracker
 - **Padel** (`apps/padel`) - Padel tennis ranking tracker
+- **Chess** (`apps/chess`) - Chess ranking tracker
 
-Both apps share the same backend infrastructure and user accounts, but maintain separate groups and data per sport.
+All apps share the same backend infrastructure and user accounts, but maintain separate groups and data per sport.
 
 ## Features
 
 - **Private Friend Groups** - Invite-only groups with shareable codes and data isolation
-- **ELO Rankings** - Sophisticated 2v2 team ranking system (K-factor 32, 800-2400 range)
+- **ELO Rankings** - Sophisticated ranking system supporting both 1v1 and 2v2 matches
+- **1v1 & 2v2 Support** - Flexible match types per group (configurable per sport)
 - **Match Tracking** - Record games with team compositions and automatic rating updates
 - **Competitive Seasons** - Independent rankings per season with historical data
 - **Skill Tiers** - 5 ranking tiers with color-coded badges (Beginner to Master)
@@ -38,7 +40,7 @@ Both apps share the same backend infrastructure and user accounts, but maintain 
    ```
 
 2. **Environment setup**
-   Create `.env.local` in each app directory (`apps/foosball/` and `apps/padel/`):
+   Create `.env.local` in each app directory (`apps/foosball/`, `apps/padel/`, and `apps/chess/`):
    ```
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -51,11 +53,15 @@ Both apps share the same backend infrastructure and user accounts, but maintain 
 
    # Padel app (port 5174)
    pnpm dev:padel
+
+   # Chess app (port 5175)
+   pnpm dev:chess
    ```
 
 4. **Open in browser**
    - Foosball: http://localhost:5173
    - Padel: http://localhost:5174
+   - Chess: http://localhost:5175
 
 ### Database Setup (Supabase Mode)
 
@@ -73,11 +79,13 @@ Both apps share the same backend infrastructure and user accounts, but maintain 
 # Development
 pnpm dev:foosball       # Start foosball dev server
 pnpm dev:padel          # Start padel dev server
+pnpm dev:chess          # Start chess dev server
 
 # Building & Testing
 pnpm build              # Build all apps
 pnpm build:foosball     # Build foosball app
 pnpm build:padel        # Build padel app
+pnpm build:chess        # Build chess app
 pnpm typecheck          # Run TypeScript compiler check
 pnpm test               # Run tests in watch mode
 pnpm test:run           # Run all tests once
@@ -116,8 +124,11 @@ foos-and-friends/
 │   │   ├── package.json
 │   │   └── vite.config.ts
 │   │
-│   └── padel/               # Padel app (@foos/padel)
-│       └── ...              # Same structure as foosball
+│   ├── padel/               # Padel app (@foos/padel)
+│   │   └── ...              # Same structure as foosball
+│   │
+│   └── chess/               # Chess app (@foos/chess)
+│       └── ...              # Same structure as foosball (1v1 only)
 │
 ├── database/                # SQL migrations
 │   ├── 00_drop_and_create.sql
@@ -141,10 +152,17 @@ foos-and-friends/
 - **pnpm workspaces** for monorepo management
 
 ### Multi-Sport Architecture
-- **Shared database** with `sport_type` column on `friend_groups` table
-- Each app filters groups by its sport type (foosball or padel)
-- **Shared user accounts** across both sports
+- **Shared database** with `sport_type` column on `friend_groups` table (`foosball`, `padel`, `chess`)
+- Each app filters groups by its sport type
+- **Shared user accounts** across all sports
 - **Complete data isolation** per sport via GroupContext filtering
+
+### Match Types (1v1 & 2v2)
+- **Configurable per group** via `supported_match_types` column on `friend_groups`
+- **1v1 matches**: Direct player vs player ELO calculations
+- **2v2 matches**: Team-based ELO with averaged team ratings
+- **Separate rankings**: 1v1 and 2v2 rankings tracked independently per season via computed views
+- **Chess** defaults to 1v1 only; foosball and padel support both
 
 ### Authentication & Groups
 - **Magic Link Authentication** - Passwordless login via email
@@ -156,7 +174,7 @@ foos-and-friends/
 2. **Group Selection**: User groups (filtered by sport_type) → GroupContext → Current group
 3. **Season Selection**: Group seasons → SeasonContext → Current season
 4. **Game Logic**: Service layer → useGameLogic → UI components
-5. **Rankings**: ELO calculations with automatic updates
+5. **Rankings**: ELO calculations with automatic updates (separate 1v1/2v2 rankings)
 
 ### Key Components
 
@@ -164,20 +182,26 @@ foos-and-friends/
 - `lib/database.ts` - Database interface abstraction
 - `lib/supabase-database.ts` - Supabase implementation
 - `services/*` - Business logic (players, matches, groups, seasons)
-- `types/index.ts` - TypeScript interfaces
+- `types/index.ts` - TypeScript interfaces (includes `MatchType`, `SportType`)
 
 **App-Specific**
 - `App.tsx` - Main component with context providers
 - `contexts/GroupContext.tsx` - Group management (sport-type filtered)
 - `hooks/useGameLogic.ts` - Game operations with ELO calculations
+- `components/Manual1v1Workflow.tsx` - 1v1 match recording UI
+- `components/MatchEntryModal.tsx` - Match type selection and recording
 - `lib/init.ts` - Service initialization with environment variables
 
 ## ELO Ranking System
 
 ### How It Works
-- **K-factor**: 32 (medium volatility)
+- **K-factor**: Asymmetric (K_WINNER=35, K_LOSER=29) for slight ranking inflation
 - **Starting Rating**: 1200 (intermediate level)
 - **Rating Bounds**: 800 minimum, 2400 maximum
+
+### 1v1 ELO
+- Direct player vs player rating comparison
+- Each player's rating updated based on opponent's rating
 
 ### Team ELO (2v2)
 - Team Rating = Average of both players' ratings
@@ -203,6 +227,11 @@ foos-and-friends/
 ### Cloudflare Pages (Padel)
 - **Build command**: `pnpm install && pnpm build:padel`
 - **Build output**: `apps/padel/dist`
+- **Root directory**: (empty - repo root)
+
+### Cloudflare Pages (Chess)
+- **Build command**: `pnpm install && pnpm build:chess`
+- **Build output**: `apps/chess/dist`
 - **Root directory**: (empty - repo root)
 
 See `docs/DEPLOYMENT.md` for complete deployment guide.
