@@ -7,18 +7,22 @@ This document outlines security best practices for the Foos & Friends invite flo
 ## Current Authentication Configuration
 
 **Supabase Auth Redirect URLs:**
-- Production: `https://foos-and-friends.pages.dev/*`  
-- Development: `http://localhost:5173/*`
+- Foosball Production: `https://foos-and-friends.pages.dev/*`
+- Padel Production: `https://padel-and-friends.pages.dev/*`
+- Chess Production: `https://chess-and-friends.pages.dev/*`
+- Development (Foosball): `http://localhost:5173/*`
+- Development (Padel): `http://localhost:5174/*`
+- Development (Chess): `http://localhost:5175/*`
 
 ## Invite Flow Architecture
 
 ### Current Flow
 1. User clicks invite link: `/invite?code=ABC123`
 2. Unauthenticated user clicks "Sign Up & Join" → navigates to `/?code=ABC123`
-3. AuthForm detects `code=ABC123` in URL and constructs redirect: `https://foos-and-friends.pages.dev/?invite=ABC123`
+3. AuthForm detects `code=ABC123` in URL and constructs redirect: `https://<app>.pages.dev/?invite=ABC123`
 4. Magic link email includes the redirect URL with invite parameter
-5. User clicks magic link → lands on `/?invite=ABC123`
-6. GroupContext auto-joins user to the invited group
+5. User clicks magic link → lands on `/?invite=ABC123` on the appropriate app domain
+6. GroupContext auto-joins user to the invited group (scoped by sport type)
 
 ## Security Considerations & Best Practices
 
@@ -29,7 +33,11 @@ This document outlines security best practices for the Foos & Friends invite flo
 **Current Configuration:**
 ```
 https://foos-and-friends.pages.dev/*
+https://padel-and-friends.pages.dev/*
+https://chess-and-friends.pages.dev/*
 http://localhost:5173/*
+http://localhost:5174/*
+http://localhost:5175/*
 ```
 
 **Alternative (More Restrictive):**
@@ -37,9 +45,21 @@ http://localhost:5173/*
 https://foos-and-friends.pages.dev/
 https://foos-and-friends.pages.dev/invite
 https://foos-and-friends.pages.dev/?invite=*
+https://padel-and-friends.pages.dev/
+https://padel-and-friends.pages.dev/invite
+https://padel-and-friends.pages.dev/?invite=*
+https://chess-and-friends.pages.dev/
+https://chess-and-friends.pages.dev/invite
+https://chess-and-friends.pages.dev/?invite=*
 http://localhost:5173/
-http://localhost:5173/invite  
+http://localhost:5173/invite
 http://localhost:5173/?invite=*
+http://localhost:5174/
+http://localhost:5174/invite
+http://localhost:5174/?invite=*
+http://localhost:5175/
+http://localhost:5175/invite
+http://localhost:5175/?invite=*
 ```
 
 ### 2. **Invite Code Security**
@@ -131,5 +151,5 @@ Regular security reviews and staying updated with best practices will help maint
 
 ---
 
-**Last Updated:** September 2025  
+**Last Updated:** February 2026  
 **Review Schedule:** Quarterly security review recommended
