@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Common Commands
 
-- **Development**: `pnpm dev:foosball` / `pnpm dev:padel` - Start development server with Vite HMR
+- **Development**: `pnpm dev:foosball` / `pnpm dev:padel` / `pnpm dev:chess` - Start development server with Vite HMR
 - **Build**: `pnpm build` - TypeScript compilation + Vite production build for all apps
-- **Build Specific**: `pnpm build:foosball` / `pnpm build:padel` - Build individual apps
+- **Build Specific**: `pnpm build:foosball` / `pnpm build:padel` / `pnpm build:chess` - Build individual apps
 - **Type Check**: `pnpm typecheck` - Run TypeScript compiler in check mode for all packages
 - **Lint**: `pnpm lint` - Check code with Biome linter
 - **Lint Fix**: `pnpm lint:fix` - Auto-fix linting issues with Biome
@@ -45,8 +45,13 @@ foos-and-friends/
 │   │   ├── package.json
 │   │   └── vite.config.ts
 │   │
-│   └── padel/                   # Padel ranking app (@foos/padel)
-│       ├── src/                 # Same structure as foosball
+│   ├── padel/                   # Padel ranking app (@foos/padel)
+│   │   ├── src/                 # Same structure as foosball
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   │
+│   └── chess/                   # Chess ranking app (@foos/chess)
+│       ├── src/                 # Same structure as foosball (1v1 only)
 │       ├── package.json
 │       └── vite.config.ts
 │
@@ -66,10 +71,20 @@ foos-and-friends/
 
 ### Multi-Sport Support
 
-- **sport_type column** on `friend_groups` table distinguishes foosball vs padel groups
+- **sport_type column** on `friend_groups` table distinguishes foosball, padel, and chess groups
+- `SportType = 'foosball' | 'padel' | 'chess'` defined in shared types
 - Each app filters groups by its sport type (configured in GroupContext)
-- Shared user accounts across both sports
+- Shared user accounts across all sports
 - Same database, complete data isolation per sport
+
+### Match Types (1v1 & 2v2)
+
+- **`MatchType = '1v1' | '2v2'`** defined in shared types
+- **`supported_match_types`** column on `friend_groups` determines which match types a group supports
+- **1v1 matches**: `team1_player2_id` and `team2_player2_id` are `null`; direct player-vs-player ELO
+- **2v2 matches**: All four player columns populated; team-averaged ELO
+- **Separate computed views**: `player_season_stats_1v1_computed` and `player_season_stats_2v2_computed` for independent rankings
+- **Chess** defaults to `['1v1']` only; foosball and padel default to `['2v2']` but can support both
 
 ### Authentication & Groups
 
@@ -92,26 +107,30 @@ Shared package (`packages/shared/`):
 - `src/lib/supabase-database.ts` - Supabase implementation
 - `src/lib/supabase.ts` - Supabase client initialization
 - `src/services/` - Service layer for data operations
-- `src/types/index.ts` - TypeScript interfaces for all entities
+- `src/types/index.ts` - TypeScript interfaces for all entities (includes `MatchType`, `SportType`)
 - `src/utils/` - ELO calculations, matchmaking, streak calculations
 
-App-specific (`apps/foosball/` or `apps/padel/`):
+App-specific (`apps/foosball/`, `apps/padel/`, or `apps/chess/`):
 - `src/App.tsx` - Main app component with authentication, group, and season contexts
 - `src/hooks/useAuth.ts` - Authentication logic with Supabase
 - `src/contexts/GroupContext.tsx` - Group management and state (sport-type filtered)
 - `src/contexts/SeasonContext.tsx` - Season management and state
 - `src/hooks/useGameLogic.ts` - Season-aware game logic with ELO calculations
+- `src/components/Manual1v1Workflow.tsx` - 1v1 match recording workflow
+- `src/components/MatchEntryModal.tsx` - Match type selection (1v1/2v2) and recording
 - `src/lib/init.ts` - Service initialization with environment variables
 - `src/components/` - Reusable UI components including auth and group management
 
 ### Database Schema
 
-- **friend_groups** - Private groups with invite codes, ownership, and sport_type
+- **friend_groups** - Private groups with invite codes, ownership, sport_type, and supported_match_types
 - **group_memberships** - User membership in groups with roles
 - **seasons** - Competitive seasons with start/end dates (one active per group)
-- **players** - Group-scoped player profiles with global rankings (for backwards compatibility)
-- **player_season_stats** - Per-season statistics (ranking, wins, losses, goals)
-- **matches** - Match records with team compositions, scores, and season association
+- **players** - Group-scoped player profiles
+- **player_season_stats** - Per-season statistics (ranking, wins, losses, goals) - computed from match history
+- **player_season_stats_1v1_computed** - Computed view for 1v1 rankings per season
+- **player_season_stats_2v2_computed** - Computed view for 2v2 rankings per season (default)
+- **matches** - Match records with team compositions, scores, season association, and match_type (`1v1` or `2v2`)
 - **Row Level Security** policies ensure complete data isolation between groups
 
 ### Styling
@@ -119,7 +138,7 @@ App-specific (`apps/foosball/` or `apps/padel/`):
 - **Biome** for code formatting and linting (configured for 2-space indents, single quotes)
 - **Tailwind CSS v4** with PostCSS for styling
 - Custom gradient backgrounds and responsive design
-- Foosball: Blue theme (#3b82f6), Padel: Green theme (#10b981)
+- Foosball: Blue theme (#3b82f6), Padel: Green theme (#10b981), Chess: Purple theme (#832161)
 
 ### TypeScript Configuration
 
@@ -142,11 +161,12 @@ App-specific (`apps/foosball/` or `apps/padel/`):
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
-2. **Database Setup**: Execute `/database/00_complete_reset.sql` in Supabase SQL Editor if using Supabase
+2. **Database Setup**: Execute `/database/00_drop_and_create.sql` in Supabase SQL Editor if using Supabase
 3. **Install Dependencies**: Run `pnpm install` at the root
 4. **Development**:
    - Foosball: `pnpm dev:foosball` (runs on port 5173)
    - Padel: `pnpm dev:padel` (runs on port 5174)
+   - Chess: `pnpm dev:chess` (runs on port 5175)
 
 ### Quality Assurance Requirements
 
@@ -168,6 +188,8 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **RLS Policies**: Designed to work with public JS client without circular dependencies
 - **Seasons Migration**: `/database/migrations/008_add_seasons.sql` creates seasons infrastructure and migrates existing data to "Season 1"
 - **Sport Type Migration**: `/database/migrations/014_add_sport_type.sql` adds sport_type column for multi-sport support
+- **Match Type Migration**: `/database/migrations/016_add_match_type_support.sql` adds 1v1/2v2 match type support, computed stats views, and supported_match_types on groups
+- **Chess Migration**: `/database/migrations/017_add_chess_sport_type.sql` adds chess as a valid sport_type
 
 ### Seasons Feature Architecture
 
@@ -180,8 +202,8 @@ This ensures consistent code quality and prevents regressions from reaching prod
 
 **Service Layer**:
 - **seasonsService**: Season CRUD operations, get active season, end/create seasons
-- **playerSeasonStatsService**: Initialize players for seasons, update stats, get leaderboards
-- **matchesService**: Season-aware match recording with dual updates (global + season stats)
+- **playerSeasonStatsService**: Initialize players for seasons, update stats, get leaderboards (supports matchType filtering)
+- **matchesService**: Season-aware match recording with support for both 1v1 and 2v2 match types
 
 **State Management**:
 - **SeasonContext**: Manages current season, loads seasons on group change
@@ -192,8 +214,8 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **Reset rankings**: Each season starts fresh at 1200 ELO
 - **Manual season management**: Group owners explicitly create/end seasons
 - **Full historical access**: All past seasons remain queryable
-- **Backwards compatibility**: Global player stats maintained alongside season stats
 - **Season scoping**: Matches filtered by current season in UI
+- **Independent 1v1/2v2 rankings**: Separate computed views per match type per season
 
 ### Supabase Integration
 
@@ -206,11 +228,12 @@ This ensures consistent code quality and prevents regressions from reaching prod
 1. **Authentication**: Magic link → Supabase session → AuthContext
 2. **Group Selection**: User groups (filtered by sport_type) → GroupContext → Current group
 3. **Season Selection**: Group seasons → SeasonContext → Current season (persisted to localStorage per group)
-4. **Game Data**: Service layer → useGameLogic → UI components (filtered by current season)
+4. **Game Data**: Service layer → useGameLogic → UI components (filtered by current season and match type)
 5. **Match Recording**:
-   - Records match in active season
-   - Updates both player global stats (backwards compat) and player_season_stats
-   - Uses season-specific rankings for ELO calculations
+   - User selects match type (1v1 or 2v2) based on group's supported_match_types
+   - Records match in active season with match_type
+   - ELO calculated using match-type-specific rankings (1v1 or 2v2)
+   - Rankings updated in computed views automatically
 6. **Real-time**: Supabase subscriptions (planned) → Context updates
 
 ### Key Implementation Details
@@ -218,10 +241,11 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - All data operations go through service layer for consistent data handling
 - Group-based data scoping ensures privacy and security
 - Season-based data isolation with independent rankings per season
-- Sport-type filtering isolates foosball and padel groups per app
+- Sport-type filtering isolates foosball, padel, and chess groups per app
 - ELO ranking system with asymmetric K-factors (K_WINNER=35, K_LOSER=29) for slight inflation
 - Rankings clamped between 800-2400, all seasons start at 1200
-- Dual stats tracking: global player stats (backwards compat) + per-season stats
+- Match type support: 1v1 (direct player vs player) and 2v2 (team-based)
+- Separate computed views for 1v1 and 2v2 rankings per season
 - Season lifecycle: Only one active season per group, group owners control season transitions
 
 ## Production Deployment

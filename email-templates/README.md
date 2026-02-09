@@ -1,5 +1,5 @@
 # Supabase Email Templates
-This repository contains customized email templates for Supabase authentication emails, designed to be used for both a foosball game tracking app and a padel game tracking app. The templates include confirmation emails, magic link emails, and password recovery emails.
+This repository contains customized email templates for Supabase authentication emails, designed to be used for all three sport tracking apps: foosball, padel, and chess. The templates include confirmation emails, magic link emails, and password recovery emails.
 
 ## Implementation Instructions
 
@@ -28,4 +28,4 @@ Supabase provides these variables for email templates:
 - **Mobile-friendly**: Responsive design that works on all devices
 - **Accessibility**: High contrast ratios and semantic HTML
 - **Security**: Clear security notes and expiration information
-- **Branding**: Uses generic "Game Tracker" name that applies to both foosball and padel apps
+- **Branding**: Uses generic "Game Tracker" name that applies to all three apps (foosball, padel, chess)

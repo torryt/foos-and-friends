@@ -4,16 +4,36 @@
 
 ### 1. Deploy to Cloudflare Pages
 
-1. **Connect Repository**
-   - Go to [Cloudflare Pages](https://pages.cloudflare.com/)
-   - Click "Connect to Git" → Select your repository
-   
+Each app is deployed as a separate Cloudflare Pages project.
+
+#### Foosball App
+1. **Create Cloudflare Pages project** for foosball
 2. **Configure Build Settings**
    ```
-   Build command: npm run build
-   Build output directory: dist
+   Build command: pnpm install && pnpm build:foosball
+   Build output directory: apps/foosball/dist
    Root directory: (leave blank)
    ```
+
+#### Padel App
+1. **Create Cloudflare Pages project** for padel
+2. **Configure Build Settings**
+   ```
+   Build command: pnpm install && pnpm build:padel
+   Build output directory: apps/padel/dist
+   Root directory: (leave blank)
+   ```
+
+#### Chess App
+1. **Create Cloudflare Pages project** for chess
+2. **Configure Build Settings**
+   ```
+   Build command: pnpm install && pnpm build:chess
+   Build output directory: apps/chess/dist
+   Root directory: (leave blank)
+   ```
+
+#### For each app project:
 
 3. **Add Environment Variables**
    - Navigate to Settings → Environment variables
