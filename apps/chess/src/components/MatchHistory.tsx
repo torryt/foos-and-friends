@@ -105,6 +105,14 @@ const MatchHistory = ({
     }
   }, [initialSelectedPlayer])
 
+  // Reset player filter when the player list changes (e.g., group switch)
+  // to prevent filtering by a player ID from the previous group
+  useEffect(() => {
+    if (selectedPlayer && players.length > 0 && !players.some((p) => p.id === selectedPlayer)) {
+      setSelectedPlayer(null)
+    }
+  }, [players, selectedPlayer])
+
   // Helper function to check if a player participated in a match
   const playerInMatch = (match: Match, playerId: string): boolean => {
     return (
