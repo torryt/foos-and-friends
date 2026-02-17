@@ -88,7 +88,7 @@ export function PlayerStatsCards({
           <div>
             <p className="text-sm text-gray-500">Current Streak</p>
             <p className="text-2xl font-bold text-gray-900">
-              {currentStreak} {streakType === 'win' ? 'Wins' : 'Losses'}
+              {streakType === 'win' ? `${currentStreak} Wins` : 'None'}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Best: {bestStreak}W | Worst: {worstStreak}L
@@ -97,7 +97,7 @@ export function PlayerStatsCards({
           <div
             className={cn(
               'p-3 rounded-full',
-              streakType === 'win' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600',
+              streakType === 'win' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600',
             )}
           >
             {streakType === 'win' ? (

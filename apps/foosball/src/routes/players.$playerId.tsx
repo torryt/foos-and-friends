@@ -69,9 +69,10 @@ function PlayerProfile() {
     })
 
     // Calculate win/loss streaks using utility function
+    // calculateStreaks expects matches ordered from most recent to oldest
     const { currentStreak, streakType, bestStreak, worstStreak } = calculateStreaks(
       playerId,
-      playerMatches,
+      [...playerMatches].reverse(),
     )
 
     // Goals statistics
