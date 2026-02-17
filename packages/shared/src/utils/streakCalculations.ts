@@ -10,7 +10,7 @@ export interface StreakData {
 /**
  * Calculates streak statistics for a player based on their match history
  * @param playerId - The ID of the player
- * @param matches - Array of matches, ordered from most recent to oldest
+ * @param matches - Array of matches, ordered from oldest to most recent
  * @returns Object containing current streak, streak type, best win streak, and worst loss streak
  */
 export function calculateStreaks(playerId: string, matches: Match[]): StreakData {
@@ -21,8 +21,8 @@ export function calculateStreaks(playerId: string, matches: Match[]): StreakData
   let tempWinStreak = 0
   let tempLossStreak = 0
 
-  // Calculate current streak (most recent matches)
-  for (const match of matches) {
+  // Calculate current streak (most recent matches, iterate from newest to oldest)
+  for (const match of [...matches].reverse()) {
     const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
     const wasInTeam2 = match.team2[0].id === playerId || match.team2[1]?.id === playerId
 
