@@ -11,6 +11,7 @@ export interface SavedMatchup {
 
 const STORAGE_KEY_PREFIX = 'foosball_saved_matchups'
 const EXPIRY_HOURS = 48
+const MAX_MATCHUPS = 5
 
 export class SavedMatchupsService {
   private getStorageKey(groupId: string): string {
@@ -43,8 +44,8 @@ export class SavedMatchupsService {
     const existing = this.getAllMatchups(groupId)
     const updated = [matchup, ...existing]
 
-    // Keep only the 10 most recent matchups
-    const trimmed = updated.slice(0, 10)
+    // Keep only the most recent matchups (buffer size)
+    const trimmed = updated.slice(0, MAX_MATCHUPS)
 
     storage.setItem(this.getStorageKey(groupId), JSON.stringify(trimmed))
     return matchup

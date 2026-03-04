@@ -74,8 +74,6 @@ export const UseMatchupWorkflow = ({
 
     if (result.success) {
       toast().success('Match added successfully!')
-      // Optionally delete the used matchup
-      savedMatchupsService.deleteMatchup(selectedMatchup.id, groupId)
       onSuccess()
     } else {
       toast().error(result.error || 'Failed to add match')
