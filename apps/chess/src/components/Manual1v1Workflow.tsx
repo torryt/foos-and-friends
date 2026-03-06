@@ -1,5 +1,5 @@
 import type { Player } from '@foos/shared'
-import { ArrowLeft, CloudOff, Crown, Loader2, X } from 'lucide-react'
+import { ArrowLeft, CloudOff, Crown, Loader2, Minus, X } from 'lucide-react'
 import { useState } from 'react'
 import { PlayerCombobox } from '@/components/ui/PlayerCombobox'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
@@ -30,7 +30,7 @@ export const Manual1v1Workflow = ({
   const [step, setStep] = useState<Step>('selection')
   const [player1Id, setPlayer1Id] = useState('')
   const [player2Id, setPlayer2Id] = useState('')
-  const [winnerId, setWinnerId] = useState<string | null>(null)
+  const [winnerId, setWinnerId] = useState<string | 'draw' | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const { isOnline } = useOfflineStatus()
@@ -54,9 +54,9 @@ export const Manual1v1Workflow = ({
 
     setIsSubmitting(true)
     try {
-      // Winner gets score 1, loser gets score 0
-      const score1 = winnerId === player1Id ? '1' : '0'
-      const score2 = winnerId === player2Id ? '1' : '0'
+      // Draw: both get score 1 (equal scores). Winner gets 1, loser gets 0.
+      const score1 = winnerId === 'draw' ? '1' : winnerId === player1Id ? '1' : '0'
+      const score2 = winnerId === 'draw' ? '1' : winnerId === player2Id ? '1' : '0'
       const result = await addMatch(player1Id, player2Id, score1, score2)
       if (result.success) {
         toast().success('Match added successfully!')
@@ -103,11 +103,11 @@ export const Manual1v1Workflow = ({
 
           <div className="text-center mb-6">
             <Crown className="mx-auto text-orange-500 mb-2" size={24} />
-            <h2 className="text-lg font-bold text-gray-900">Who Won?</h2>
-            <p className="text-sm text-gray-600">Select the winner of this match</p>
+            <h2 className="text-lg font-bold text-gray-900">Resultat?</h2>
+            <p className="text-sm text-gray-600">Velg vinner eller remis</p>
           </div>
 
-          {/* Winner Selection */}
+          {/* Result Selection */}
           <div className="mb-6 space-y-3">
             <button
               type="button"
@@ -122,13 +122,34 @@ export const Manual1v1Workflow = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-amber-800">
                   <span className="text-lg">{p1?.avatar}</span>
-                  <span className="font-medium">{p1?.name} (White ♔)</span>
+                  <span className="font-medium">{p1?.name} (Hvit ♔)</span>
                 </div>
                 {winnerId === player1Id && <Crown className="text-green-600" size={20} />}
               </div>
             </button>
 
-            <div className="text-center font-bold text-gray-600">VS</div>
+            <button
+              type="button"
+              onClick={() => setWinnerId('draw')}
+              disabled={isSubmitting}
+              className={`w-full rounded-lg p-3 border-2 transition-all ${
+                winnerId === 'draw'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                  : 'border-gray-200 bg-gray-50 hover:border-gray-400'
+              } disabled:opacity-50`}
+            >
+              <div className="flex items-center justify-center gap-2 text-gray-700">
+                <Minus
+                  size={16}
+                  className={winnerId === 'draw' ? 'text-blue-600' : 'text-gray-500'}
+                />
+                <span className="font-semibold text-sm">½ Remis ½</span>
+                <Minus
+                  size={16}
+                  className={winnerId === 'draw' ? 'text-blue-600' : 'text-gray-500'}
+                />
+              </div>
+            </button>
 
             <button
               type="button"
@@ -143,7 +164,7 @@ export const Manual1v1Workflow = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-800">
                   <span className="text-lg">{p2?.avatar}</span>
-                  <span className="font-medium">{p2?.name} (Black ♚)</span>
+                  <span className="font-medium">{p2?.name} (Svart ♚)</span>
                 </div>
                 {winnerId === player2Id && <Crown className="text-green-600" size={20} />}
               </div>
@@ -173,9 +194,7 @@ export const Manual1v1Workflow = ({
           </button>
 
           {!winnerId && (
-            <p className="text-sm text-gray-500 text-center mt-2">
-              Tap on the winner to select them
-            </p>
+            <p className="text-sm text-gray-500 text-center mt-2">Velg vinner eller remis</p>
           )}
         </div>
       </div>
@@ -214,7 +233,7 @@ export const Manual1v1Workflow = ({
           <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">♔</span>
-              <h3 className="font-semibold text-amber-900">White</h3>
+              <h3 className="font-semibold text-amber-900">Hvit</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player2Id])}
@@ -236,7 +255,7 @@ export const Manual1v1Workflow = ({
           <div className="bg-slate-100 rounded-xl p-4 border border-slate-300">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">♚</span>
-              <h3 className="font-semibold text-slate-900">Black</h3>
+              <h3 className="font-semibold text-slate-900">Svart</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player1Id])}
