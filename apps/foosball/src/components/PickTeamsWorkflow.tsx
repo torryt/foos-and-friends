@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 import { ScoreEntryStep } from './ScoreEntryStep'
 
 interface PickTeamsWorkflowProps {
@@ -272,8 +273,8 @@ export const PickTeamsWorkflow = ({
 
   if (step === 'result' && matchmakingResult) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100">
+      <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+        <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <button
               type="button"
@@ -407,14 +408,14 @@ export const PickTeamsWorkflow = ({
             </button>
           </div>
         </div>
-      </div>
+      </ModalOrBottomDrawer>
     )
   }
 
   // Selection step
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 max-h-[95vh] overflow-y-auto">
+    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100 max-h-[95vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
@@ -553,6 +554,6 @@ export const PickTeamsWorkflow = ({
           </p>
         )}
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }

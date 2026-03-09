@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { PlayerCombobox } from '@/components/ui/PlayerCombobox'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
 import { useToast } from '@/hooks/useToast'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 
 interface Manual1v1WorkflowProps {
   players: Player[]
@@ -76,8 +77,8 @@ export const Manual1v1Workflow = ({
     const p2 = getPlayer(player2Id)
 
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100">
+      <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+        <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
           <div className="flex justify-between items-center mb-6">
             <button
               type="button"
@@ -197,14 +198,14 @@ export const Manual1v1Workflow = ({
             <p className="text-sm text-gray-500 text-center mt-2">Select winner or draw</p>
           )}
         </div>
-      </div>
+      </ModalOrBottomDrawer>
     )
   }
 
   // Selection step
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 max-h-[85vh] overflow-y-auto">
+    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100 max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
@@ -284,6 +285,6 @@ export const Manual1v1Workflow = ({
           )}
         </div>
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }

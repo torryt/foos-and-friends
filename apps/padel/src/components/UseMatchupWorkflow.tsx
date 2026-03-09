@@ -3,6 +3,7 @@ import { savedMatchupsService } from '@foos/shared'
 import { ArrowLeft, Brain, Clock, Sparkles, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 import { ScoreEntryStep } from './ScoreEntryStep'
 
 interface UseMatchupWorkflowProps {
@@ -118,8 +119,8 @@ export const UseMatchupWorkflow = ({
 
   // Selection step
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 max-h-[85vh] overflow-y-auto">
+    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100 max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
@@ -232,6 +233,6 @@ export const UseMatchupWorkflow = ({
           </div>
         )}
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }

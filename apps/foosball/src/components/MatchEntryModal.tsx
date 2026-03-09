@@ -6,6 +6,7 @@ import { useGroupContext } from '@/contexts/GroupContext'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 import { Manual1v1Workflow } from './Manual1v1Workflow'
 import { ManualTeamsWorkflow } from './ManualTeamsWorkflow'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 import { PickTeamsWorkflow } from './PickTeamsWorkflow'
 import { UseMatchupWorkflow } from './UseMatchupWorkflow'
 
@@ -121,8 +122,8 @@ export const MatchEntryModal = ({
 
   // Entry mode - show match type toggle and workflow options
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100">
+    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <Target className="text-orange-500" size={24} />
@@ -319,6 +320,6 @@ export const MatchEntryModal = ({
           </div>
         )}
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }
