@@ -2,6 +2,7 @@ import { AVAILABLE_AVATARS } from '@foos/shared'
 import { CloudOff, Loader, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 
 interface AddPlayerModalProps {
   isOpen: boolean
@@ -15,8 +16,6 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { isOnline } = useOfflineStatus()
-
-  if (!isOpen) return null
 
   const handleSubmit = async () => {
     if (!newPlayer.trim()) {
@@ -60,8 +59,8 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-4 w-full max-w-sm shadow-2xl border border-white/20">
+    <ModalOrBottomDrawer isOpen={isOpen} onClose={handleClose} className="sm:max-w-sm">
+      <div className="bg-gradient-to-br from-white to-blue-50 p-4 w-full shadow-2xl border border-white/20">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <Users className="text-blue-500" size={20} />
@@ -144,7 +143,7 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
           </button>
         </div>
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }
 

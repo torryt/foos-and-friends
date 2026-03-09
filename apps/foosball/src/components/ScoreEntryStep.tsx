@@ -2,6 +2,7 @@ import type { TeamAssignment } from '@foos/shared'
 import { ArrowLeft, ArrowLeftRight, CloudOff, Loader2, Target, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 
 interface ScoreEntryStepProps {
   teams: TeamAssignment
@@ -50,8 +51,8 @@ export const ScoreEntryStep = ({
   const isValid = score1 !== '' && score2 !== ''
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100">
+    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
@@ -201,6 +202,6 @@ export const ScoreEntryStep = ({
           </p>
         )}
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }

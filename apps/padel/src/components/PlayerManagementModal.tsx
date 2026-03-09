@@ -4,6 +4,7 @@ import { CloudOff, Edit, Loader, Settings, Trash2, Users, X } from 'lucide-react
 import { useState } from 'react'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
 import { useToast } from '@/hooks/useToast'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 
 interface PlayerManagementModalProps {
   isOpen: boolean
@@ -38,8 +39,6 @@ const PlayerManagementModal = ({
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
   const { isOnline } = useOfflineStatus()
-
-  if (!isOpen) return null
 
   const handleStartEdit = (player: Player) => {
     setEditingPlayer({
@@ -129,8 +128,8 @@ const PlayerManagementModal = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-6 w-full max-w-2xl shadow-2xl border border-white/20 max-h-[90vh] overflow-hidden flex flex-col">
+    <ModalOrBottomDrawer isOpen={isOpen} onClose={handleClose} className="sm:max-w-2xl">
+      <div className="bg-gradient-to-br from-white to-blue-50 p-6 w-full shadow-2xl border border-white/20 max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <Settings className="text-blue-500" size={24} />
@@ -292,7 +291,7 @@ const PlayerManagementModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }
 

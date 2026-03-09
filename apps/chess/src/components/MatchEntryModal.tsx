@@ -3,6 +3,7 @@ import { AlertTriangle, Target, User, X } from 'lucide-react'
 import { useState } from 'react'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 import { Manual1v1Workflow } from './Manual1v1Workflow'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 
 interface MatchEntryModalProps {
   players: Player[]
@@ -54,8 +55,8 @@ export const MatchEntryModal = ({ players, addMatch, onClose }: MatchEntryModalP
 
   // Entry mode - show 1v1 workflow option
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100">
+    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <Target className="text-[#832161]" size={24} />
@@ -113,6 +114,6 @@ export const MatchEntryModal = ({ players, addMatch, onClose }: MatchEntryModalP
           </button>
         </div>
       </div>
-    </div>
+    </ModalOrBottomDrawer>
   )
 }
