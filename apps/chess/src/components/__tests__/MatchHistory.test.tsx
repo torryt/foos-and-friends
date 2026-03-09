@@ -125,8 +125,8 @@ describe('MatchHistory', () => {
       expect(screen.getByText('Bob')).toBeInTheDocument()
 
       // Check winner/loser labels (Alice won since score1 > score2)
-      expect(screen.getByText('Vinner')).toBeInTheDocument()
-      expect(screen.getByText('Svart ♚')).toBeInTheDocument()
+      expect(screen.getByText('Winner')).toBeInTheDocument()
+      expect(screen.getByText('Black ♚')).toBeInTheDocument()
     })
 
     it('displays individual player ranking changes', () => {
@@ -188,8 +188,8 @@ describe('MatchHistory', () => {
       expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
 
       // Check winner label (Bob won since score2 > score1)
-      expect(screen.getByText('Vinner')).toBeInTheDocument()
-      expect(screen.getByText('Hvit ♔')).toBeInTheDocument()
+      expect(screen.getByText('Winner')).toBeInTheDocument()
+      expect(screen.getByText('White ♔')).toBeInTheDocument()
 
       // Check that no ranking change data is displayed
       expect(screen.queryByText('→')).not.toBeInTheDocument()
@@ -242,7 +242,7 @@ describe('MatchHistory', () => {
       expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
 
       // Check winner labels are shown
-      const winners = screen.getAllByText('Vinner')
+      const winners = screen.getAllByText('Winner')
       expect(winners).toHaveLength(2)
     })
   })
@@ -281,7 +281,7 @@ describe('MatchHistory', () => {
       expect(screen.getAllByText('0')).toHaveLength(2)
 
       // Winner label should be shown
-      expect(screen.getByText('Vinner')).toBeInTheDocument()
+      expect(screen.getByText('Winner')).toBeInTheDocument()
     })
   })
 

@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -103,6 +103,7 @@ foos-and-friends/
 ### Key Components Structure
 
 Shared package (`packages/shared/`):
+
 - `src/lib/database.ts` - Database interface abstraction
 - `src/lib/supabase-database.ts` - Supabase implementation
 - `src/lib/supabase.ts` - Supabase client initialization
@@ -111,6 +112,7 @@ Shared package (`packages/shared/`):
 - `src/utils/` - ELO calculations, matchmaking, streak calculations
 
 App-specific (`apps/foosball/`, `apps/padel/`, or `apps/chess/`):
+
 - `src/App.tsx` - Main app component with authentication, group, and season contexts
 - `src/hooks/useAuth.ts` - Authentication logic with Supabase
 - `src/contexts/GroupContext.tsx` - Group management and state (sport-type filtered)
@@ -194,6 +196,7 @@ This ensures consistent code quality and prevents regressions from reaching prod
 ### Seasons Feature Architecture
 
 **Database Layer** (`/database/migrations/008_add_seasons.sql`):
+
 - **seasons** table: Tracks competitive periods with start/end dates, one active per group
 - **player_season_stats** table: Per-season statistics (ranking starts at 1200, wins, losses, goals)
 - **matches.season_id**: Foreign key associating each match with a season
@@ -201,16 +204,19 @@ This ensures consistent code quality and prevents regressions from reaching prod
 - **Data migration**: Automatically creates "Season 1" for existing groups and associates all existing matches
 
 **Service Layer**:
+
 - **seasonsService**: Season CRUD operations, get active season, end/create seasons
 - **playerSeasonStatsService**: Initialize players for seasons, update stats, get leaderboards (supports matchType filtering)
 - **matchesService**: Season-aware match recording with support for both 1v1 and 2v2 match types
 
 **State Management**:
+
 - **SeasonContext**: Manages current season, loads seasons on group change
 - **localStorage**: Persists selected season per group (key: `selectedSeasonId_{groupId}`)
 - **Auto-selection**: Defaults to active season, falls back to most recent
 
 **Key Design Decisions**:
+
 - **Reset rankings**: Each season starts fresh at 1200 ELO
 - **Manual season management**: Group owners explicitly create/end seasons
 - **Full historical access**: All past seasons remain queryable
@@ -253,12 +259,14 @@ This ensures consistent code quality and prevents regressions from reaching prod
 ### Hosting Strategy
 
 **Phase 1 (Current)**: Static deployment with free tier
+
 - **Frontend**: Cloudflare Pages (free, excellent EU coverage)
 - **Backend**: Supabase (existing setup)
 - **Email**: Brevo SMTP (free tier, EU-focused, GDPR compliant)
 - **Cost**: €0/month
 
 **Phase 2 (Future Service Layer)**: Add backend services when needed
+
 - **API Services**: Railway ($5/month) for best DX, or Render ($7/month) for EU regions
 - **Deployment**: Seamless transition from static to full-stack
 - **Cost**: €5-7/month

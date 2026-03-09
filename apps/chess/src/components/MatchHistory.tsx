@@ -278,7 +278,7 @@ const MatchHistory = ({
                                   : 'text-amber-800'
                             }`}
                           >
-                            {isDraw ? 'Remis' : match.score1 > match.score2 ? 'Vinner' : 'Hvit ♔'}
+                            {isDraw ? 'Draw' : match.score1 > match.score2 ? 'Winner' : 'White ♔'}
                           </div>
                           <div className="space-y-1">
                             <PlayerWithStats
@@ -302,7 +302,7 @@ const MatchHistory = ({
                               <div className="mx-auto mb-1 text-xl font-bold text-blue-500">
                                 ½-½
                               </div>
-                              <div className="text-xs font-medium text-blue-600">Remis</div>
+                              <div className="text-xs font-medium text-blue-600">Draw</div>
                             </>
                           ) : (
                             <>
@@ -316,7 +316,7 @@ const MatchHistory = ({
                                 {match.score1 > match.score2
                                   ? match.team1[0].name
                                   : match.team2[0].name}{' '}
-                                vinner!
+                                wins!
                               </div>
                             </>
                           )}
@@ -340,7 +340,7 @@ const MatchHistory = ({
                                   : 'text-slate-800'
                             }`}
                           >
-                            {isDraw ? 'Remis' : match.score2 > match.score1 ? 'Vinner' : 'Svart ♚'}
+                            {isDraw ? 'Draw' : match.score2 > match.score1 ? 'Winner' : 'Black ♚'}
                           </div>
                           <div className="space-y-1">
                             <PlayerWithStats

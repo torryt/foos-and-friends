@@ -103,8 +103,8 @@ export const Manual1v1Workflow = ({
 
           <div className="text-center mb-6">
             <Crown className="mx-auto text-orange-500 mb-2" size={24} />
-            <h2 className="text-lg font-bold text-gray-900">Resultat?</h2>
-            <p className="text-sm text-gray-600">Velg vinner eller remis</p>
+            <h2 className="text-lg font-bold text-gray-900">Result?</h2>
+            <p className="text-sm text-gray-600">Select winner or draw</p>
           </div>
 
           {/* Result Selection */}
@@ -122,7 +122,7 @@ export const Manual1v1Workflow = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-amber-800">
                   <span className="text-lg">{p1?.avatar}</span>
-                  <span className="font-medium">{p1?.name} (Hvit ♔)</span>
+                  <span className="font-medium">{p1?.name} (White ♔)</span>
                 </div>
                 {winnerId === player1Id && <Crown className="text-green-600" size={20} />}
               </div>
@@ -143,7 +143,7 @@ export const Manual1v1Workflow = ({
                   size={16}
                   className={winnerId === 'draw' ? 'text-blue-600' : 'text-gray-500'}
                 />
-                <span className="font-semibold text-sm">½ Remis ½</span>
+                <span className="font-semibold text-sm">½ Draw ½</span>
                 <Minus
                   size={16}
                   className={winnerId === 'draw' ? 'text-blue-600' : 'text-gray-500'}
@@ -164,7 +164,7 @@ export const Manual1v1Workflow = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-800">
                   <span className="text-lg">{p2?.avatar}</span>
-                  <span className="font-medium">{p2?.name} (Svart ♚)</span>
+                  <span className="font-medium">{p2?.name} (Black ♚)</span>
                 </div>
                 {winnerId === player2Id && <Crown className="text-green-600" size={20} />}
               </div>
@@ -194,7 +194,7 @@ export const Manual1v1Workflow = ({
           </button>
 
           {!winnerId && (
-            <p className="text-sm text-gray-500 text-center mt-2">Velg vinner eller remis</p>
+            <p className="text-sm text-gray-500 text-center mt-2">Select winner or draw</p>
           )}
         </div>
       </div>
@@ -233,7 +233,7 @@ export const Manual1v1Workflow = ({
           <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">♔</span>
-              <h3 className="font-semibold text-amber-900">Hvit</h3>
+              <h3 className="font-semibold text-amber-900">White</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player2Id])}
@@ -255,7 +255,7 @@ export const Manual1v1Workflow = ({
           <div className="bg-slate-100 rounded-xl p-4 border border-slate-300">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">♚</span>
-              <h3 className="font-semibold text-slate-900">Svart</h3>
+              <h3 className="font-semibold text-slate-900">Black</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player1Id])}
