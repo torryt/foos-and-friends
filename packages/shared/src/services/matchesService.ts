@@ -7,17 +7,20 @@ const DEFAULT_RANKING = 1200
 // ELO Configuration - Asymmetric K-factors for slight inflation
 const K_FACTOR_WINNER = 35 // Winners get more points (+9% vs standard K=32)
 const K_FACTOR_LOSER = 29 // Losers lose fewer points (-9% vs standard K=32)
+const K_FACTOR_DRAW = 32 // Standard ELO K-factor for draws (remis)
 // Net result: ~3-8 points inflation per match while maintaining competitive balance
+
+type MatchResult = 'win' | 'loss' | 'draw'
 
 // Calculate new ranking using inflationary ELO system
 const calculateNewRanking = (
   playerRanking: number,
   opponentRanking: number,
-  isWinner: boolean,
+  result: MatchResult,
 ) => {
-  const K = isWinner ? K_FACTOR_WINNER : K_FACTOR_LOSER
+  const K = result === 'win' ? K_FACTOR_WINNER : result === 'loss' ? K_FACTOR_LOSER : K_FACTOR_DRAW
   const expectedScore = 1 / (1 + 10 ** ((opponentRanking - playerRanking) / 400))
-  const actualScore = isWinner ? 1 : 0
+  const actualScore = result === 'win' ? 1 : result === 'draw' ? 0.5 : 0
   const newRanking = playerRanking + K * (actualScore - expectedScore)
   return Math.max(800, Math.min(2400, Math.round(newRanking)))
 }
@@ -136,7 +139,10 @@ export class MatchesService {
       playerIds.map((id) => this.getPlayerSeasonRanking(id, seasonId, matchType)),
     )
 
+    const isDraw = score1 === score2
     const team1Won = score1 > score2
+    const team1Result: MatchResult = isDraw ? 'draw' : team1Won ? 'win' : 'loss'
+    const team2Result: MatchResult = isDraw ? 'draw' : team1Won ? 'loss' : 'win'
 
     let rankingData: {
       team1Player1PreRanking: number
@@ -158,13 +164,13 @@ export class MatchesService {
         team1Player1PostRanking: calculateNewRanking(
           team1Player1Ranking,
           team2Player1Ranking,
-          team1Won,
+          team1Result,
         ),
         team2Player1PreRanking: team2Player1Ranking,
         team2Player1PostRanking: calculateNewRanking(
           team2Player1Ranking,
           team1Player1Ranking,
-          !team1Won,
+          team2Result,
         ),
       }
     } else {
@@ -179,25 +185,25 @@ export class MatchesService {
         team1Player1PostRanking: calculateNewRanking(
           team1Player1Ranking,
           team2AvgRanking,
-          team1Won,
+          team1Result,
         ),
         team1Player2PreRanking: team1Player2Ranking,
         team1Player2PostRanking: calculateNewRanking(
           team1Player2Ranking,
           team2AvgRanking,
-          team1Won,
+          team1Result,
         ),
         team2Player1PreRanking: team2Player1Ranking,
         team2Player1PostRanking: calculateNewRanking(
           team2Player1Ranking,
           team1AvgRanking,
-          !team1Won,
+          team2Result,
         ),
         team2Player2PreRanking: team2Player2Ranking,
         team2Player2PostRanking: calculateNewRanking(
           team2Player2Ranking,
           team1AvgRanking,
-          !team1Won,
+          team2Result,
         ),
       }
     }

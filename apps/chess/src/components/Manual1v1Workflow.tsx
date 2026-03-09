@@ -1,5 +1,5 @@
 import type { Player } from '@foos/shared'
-import { ArrowLeft, CloudOff, Crown, Loader2, X } from 'lucide-react'
+import { ArrowLeft, CloudOff, Crown, Loader2, Minus, X } from 'lucide-react'
 import { useState } from 'react'
 import { PlayerCombobox } from '@/components/ui/PlayerCombobox'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
@@ -30,7 +30,7 @@ export const Manual1v1Workflow = ({
   const [step, setStep] = useState<Step>('selection')
   const [player1Id, setPlayer1Id] = useState('')
   const [player2Id, setPlayer2Id] = useState('')
-  const [winnerId, setWinnerId] = useState<string | null>(null)
+  const [winnerId, setWinnerId] = useState<string | 'draw' | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const { isOnline } = useOfflineStatus()
@@ -54,9 +54,9 @@ export const Manual1v1Workflow = ({
 
     setIsSubmitting(true)
     try {
-      // Winner gets score 1, loser gets score 0
-      const score1 = winnerId === player1Id ? '1' : '0'
-      const score2 = winnerId === player2Id ? '1' : '0'
+      // Draw: both get score 1 (equal scores). Winner gets 1, loser gets 0.
+      const score1 = winnerId === 'draw' ? '1' : winnerId === player1Id ? '1' : '0'
+      const score2 = winnerId === 'draw' ? '1' : winnerId === player2Id ? '1' : '0'
       const result = await addMatch(player1Id, player2Id, score1, score2)
       if (result.success) {
         toast().success('Match added successfully!')
@@ -103,11 +103,11 @@ export const Manual1v1Workflow = ({
 
           <div className="text-center mb-6">
             <Crown className="mx-auto text-orange-500 mb-2" size={24} />
-            <h2 className="text-lg font-bold text-gray-900">Who Won?</h2>
-            <p className="text-sm text-gray-600">Select the winner of this match</p>
+            <h2 className="text-lg font-bold text-gray-900">Result?</h2>
+            <p className="text-sm text-gray-600">Select winner or draw</p>
           </div>
 
-          {/* Winner Selection */}
+          {/* Result Selection */}
           <div className="mb-6 space-y-3">
             <button
               type="button"
@@ -128,7 +128,28 @@ export const Manual1v1Workflow = ({
               </div>
             </button>
 
-            <div className="text-center font-bold text-gray-600">VS</div>
+            <button
+              type="button"
+              onClick={() => setWinnerId('draw')}
+              disabled={isSubmitting}
+              className={`w-full rounded-lg p-3 border-2 transition-all ${
+                winnerId === 'draw'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                  : 'border-gray-200 bg-gray-50 hover:border-gray-400'
+              } disabled:opacity-50`}
+            >
+              <div className="flex items-center justify-center gap-2 text-gray-700">
+                <Minus
+                  size={16}
+                  className={winnerId === 'draw' ? 'text-blue-600' : 'text-gray-500'}
+                />
+                <span className="font-semibold text-sm">½ Draw ½</span>
+                <Minus
+                  size={16}
+                  className={winnerId === 'draw' ? 'text-blue-600' : 'text-gray-500'}
+                />
+              </div>
+            </button>
 
             <button
               type="button"
@@ -173,9 +194,7 @@ export const Manual1v1Workflow = ({
           </button>
 
           {!winnerId && (
-            <p className="text-sm text-gray-500 text-center mt-2">
-              Tap on the winner to select them
-            </p>
+            <p className="text-sm text-gray-500 text-center mt-2">Select winner or draw</p>
           )}
         </div>
       </div>

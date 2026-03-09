@@ -256,66 +256,110 @@ const MatchHistory = ({
                 </div>
 
                 <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
-                  <div
-                    className={`text-center p-2 rounded-lg border ${
-                      match.score1 > match.score2
-                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
-                        : 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200/50'
-                    }`}
-                  >
-                    <div
-                      className={`font-bold mb-1 text-xs ${match.score1 > match.score2 ? 'text-green-800' : 'text-amber-800'}`}
-                    >
-                      {match.score1 > match.score2 ? 'Winner' : 'White ♔'}
-                    </div>
-                    <div className="space-y-1">
-                      <PlayerWithStats
-                        player={match.team1[0]}
-                        match={match}
-                        teamColor={
-                          match.score1 > match.score2 ? 'text-green-700' : 'text-amber-700'
-                        }
-                        onPlayerClick={onPlayerClick}
-                      />
-                    </div>
-                  </div>
+                  {(() => {
+                    const isDraw = match.score1 === match.score2
+                    return (
+                      <>
+                        <div
+                          className={`text-center p-2 rounded-lg border ${
+                            isDraw
+                              ? 'bg-gradient-to-br from-blue-50 to-slate-50 border-blue-200/50'
+                              : match.score1 > match.score2
+                                ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
+                                : 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200/50'
+                          }`}
+                        >
+                          <div
+                            className={`font-bold mb-1 text-xs ${
+                              isDraw
+                                ? 'text-blue-800'
+                                : match.score1 > match.score2
+                                  ? 'text-green-800'
+                                  : 'text-amber-800'
+                            }`}
+                          >
+                            {isDraw ? 'Draw' : match.score1 > match.score2 ? 'Winner' : 'White ♔'}
+                          </div>
+                          <div className="space-y-1">
+                            <PlayerWithStats
+                              player={match.team1[0]}
+                              match={match}
+                              teamColor={
+                                isDraw
+                                  ? 'text-blue-700'
+                                  : match.score1 > match.score2
+                                    ? 'text-green-700'
+                                    : 'text-amber-700'
+                              }
+                              onPlayerClick={onPlayerClick}
+                            />
+                          </div>
+                        </div>
 
-                  <div className="text-center order-first sm:order-none">
-                    <Crown
-                      className={`mx-auto mb-1 ${
-                        match.score1 > match.score2 ? 'text-green-500' : 'text-slate-500'
-                      }`}
-                      size={24}
-                    />
-                    <div className="text-xs font-medium text-green-600">
-                      {match.score1 > match.score2 ? match.team1[0].name : match.team2[0].name}{' '}
-                      wins!
-                    </div>
-                  </div>
+                        <div className="text-center order-first sm:order-none">
+                          {isDraw ? (
+                            <>
+                              <div className="mx-auto mb-1 text-xl font-bold text-blue-500">
+                                ½-½
+                              </div>
+                              <div className="text-xs font-medium text-blue-600">Draw</div>
+                            </>
+                          ) : (
+                            <>
+                              <Crown
+                                className={`mx-auto mb-1 ${
+                                  match.score1 > match.score2 ? 'text-green-500' : 'text-slate-500'
+                                }`}
+                                size={24}
+                              />
+                              <div className="text-xs font-medium text-green-600">
+                                {match.score1 > match.score2
+                                  ? match.team1[0].name
+                                  : match.team2[0].name}{' '}
+                                wins!
+                              </div>
+                            </>
+                          )}
+                        </div>
 
-                  <div
-                    className={`text-center p-2 rounded-lg border ${
-                      match.score2 > match.score1
-                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
-                        : 'bg-gradient-to-br from-slate-100 to-slate-50 border-slate-300/50'
-                    }`}
-                  >
-                    <div
-                      className={`font-bold mb-1 text-xs ${match.score2 > match.score1 ? 'text-green-800' : 'text-slate-800'}`}
-                    >
-                      {match.score2 > match.score1 ? 'Winner' : 'Black ♚'}
-                    </div>
-                    <div className="space-y-1">
-                      <PlayerWithStats
-                        player={match.team2[0]}
-                        match={match}
-                        teamColor={
-                          match.score2 > match.score1 ? 'text-green-700' : 'text-slate-700'
-                        }
-                        onPlayerClick={onPlayerClick}
-                      />
-                    </div>
-                  </div>
+                        <div
+                          className={`text-center p-2 rounded-lg border ${
+                            isDraw
+                              ? 'bg-gradient-to-br from-blue-50 to-slate-50 border-blue-200/50'
+                              : match.score2 > match.score1
+                                ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
+                                : 'bg-gradient-to-br from-slate-100 to-slate-50 border-slate-300/50'
+                          }`}
+                        >
+                          <div
+                            className={`font-bold mb-1 text-xs ${
+                              isDraw
+                                ? 'text-blue-800'
+                                : match.score2 > match.score1
+                                  ? 'text-green-800'
+                                  : 'text-slate-800'
+                            }`}
+                          >
+                            {isDraw ? 'Draw' : match.score2 > match.score1 ? 'Winner' : 'Black ♚'}
+                          </div>
+                          <div className="space-y-1">
+                            <PlayerWithStats
+                              player={match.team2[0]}
+                              match={match}
+                              teamColor={
+                                isDraw
+                                  ? 'text-blue-700'
+                                  : match.score2 > match.score1
+                                    ? 'text-green-700'
+                                    : 'text-slate-700'
+                              }
+                              onPlayerClick={onPlayerClick}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )
+                  })()}
                 </div>
               </div>
             ))}

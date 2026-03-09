@@ -875,7 +875,7 @@ describe('SeasonManagement', () => {
 - [x] Biome linter passes
 - [x] Code formatted
 - [x] FakeDatabase test stubs added
-- [x] Documentation updated (CLAUDE.md)
+- [x] Documentation updated (AGENTS.md)
 
 ### Deployment Steps
 
@@ -1034,7 +1034,7 @@ describe('SeasonManagement', () => {
 - `src/hooks/useGameLogic.ts` - Season-aware game logic
 - `src/App.tsx` - SeasonProvider integration
 - `src/test/fake-database.ts` - Test stubs
-- `CLAUDE.md` - Documentation
+- `AGENTS.md` - Documentation
 
 ### Database Functions
 - `end_season_and_create_new()` - RPC function in migration
@@ -1081,7 +1081,7 @@ describe('SeasonManagement', () => {
 
 For questions about this implementation:
 - Review code comments in service files
-- Check `CLAUDE.md` for architecture overview
+- Check `AGENTS.md` for architecture overview
 - Read database migration for schema details
 - See this document for complete context
 
