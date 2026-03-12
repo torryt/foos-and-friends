@@ -85,13 +85,13 @@ export const Manual1v1Workflow = ({
 
     return (
       <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-        <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
+        <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)]">
           <div className="flex justify-between items-center mb-6">
             <button
               type="button"
               onClick={() => setStep('selection')}
               disabled={isSubmitting}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors disabled:opacity-50"
             >
               <ArrowLeft size={20} />
               <span>Back</span>
@@ -100,29 +100,29 @@ export const Manual1v1Workflow = ({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 disabled:opacity-50"
+              className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover disabled:opacity-50"
             >
               <X size={20} />
             </button>
           </div>
 
           <div className="text-center mb-6">
-            <Target className="mx-auto text-orange-500 mb-2" size={24} />
-            <h2 className="text-lg font-bold text-gray-900">Enter Score</h2>
-            <p className="text-sm text-gray-600">Enter the final score of the 1v1 match</p>
+            <Target className="mx-auto text-[var(--th-sport-primary)] mb-2" size={24} />
+            <h2 className="text-lg font-bold text-primary">Enter Score</h2>
+            <p className="text-sm text-secondary">Enter the final score of the 1v1 match</p>
           </div>
 
           {/* Players Display */}
           <div className="mb-6 space-y-3">
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <div className="flex items-center gap-2 text-blue-800">
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="flex items-center gap-2 text-[var(--th-accent)]">
                 <span className="text-lg">{p1?.avatar}</span>
                 <span className="font-medium">{p1?.name}</span>
               </div>
             </div>
-            <div className="text-center font-bold text-gray-600">VS</div>
-            <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-              <div className="flex items-center gap-2 text-purple-800">
+            <div className="text-center font-bold text-secondary">VS</div>
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="flex items-center gap-2 text-[var(--th-sport-primary)]">
                 <span className="text-lg">{p2?.avatar}</span>
                 <span className="font-medium">{p2?.name}</span>
               </div>
@@ -131,11 +131,11 @@ export const Manual1v1Workflow = ({
 
           {/* Score Input */}
           <div className="mb-6">
-            <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-              <div className="font-medium text-orange-800 text-sm mb-3">Final Score</div>
+            <div className="bg-accent-subtle rounded-[var(--th-radius-lg)] p-4 border border-[var(--th-border)]">
+              <div className="font-medium text-primary text-sm mb-3">Final Score</div>
               <div className="grid grid-cols-3 gap-3 items-center">
                 <div>
-                  <label htmlFor={score1InputId} className="block text-xs text-gray-600 mb-1">
+                  <label htmlFor={score1InputId} className="block text-xs text-secondary mb-1">
                     {p1?.name}
                   </label>
                   <input
@@ -149,12 +149,12 @@ export const Manual1v1Workflow = ({
                     onChange={(e) => handleScoreChange(e.target.value, setScore1)}
                     disabled={isSubmitting}
                     placeholder="0"
-                    className="w-full p-3 border border-orange-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full p-3 border border-[var(--th-border)] rounded-[var(--th-radius-md)] bg-card text-center font-semibold text-lg focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
-                <div className="text-center font-bold text-orange-800 text-lg">VS</div>
+                <div className="text-center font-bold text-primary text-lg">VS</div>
                 <div>
-                  <label htmlFor={score2InputId} className="block text-xs text-gray-600 mb-1">
+                  <label htmlFor={score2InputId} className="block text-xs text-secondary mb-1">
                     {p2?.name}
                   </label>
                   <input
@@ -168,11 +168,11 @@ export const Manual1v1Workflow = ({
                     onChange={(e) => handleScoreChange(e.target.value, setScore2)}
                     disabled={isSubmitting}
                     placeholder="0"
-                    className="w-full p-3 border border-orange-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full p-3 border border-[var(--th-border)] rounded-[var(--th-radius-md)] bg-card text-center font-semibold text-lg focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
-              <p className="text-xs text-orange-600 mt-2 text-center">
+              <p className="text-xs text-secondary mt-2 text-center">
                 Games are typically played to 10 points
               </p>
             </div>
@@ -182,7 +182,7 @@ export const Manual1v1Workflow = ({
             type="button"
             onClick={handleSubmit}
             disabled={!isScoreValid || isSubmitting || !isOnline}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             title={!isOnline ? 'Cannot register score while offline' : undefined}
           >
             {!isOnline ? (
@@ -201,7 +201,7 @@ export const Manual1v1Workflow = ({
           </button>
 
           {!isScoreValid && (
-            <p className="text-sm text-red-600 text-center mt-2">
+            <p className="text-sm text-[var(--th-loss)] text-center mt-2">
               Please enter scores for both players
             </p>
           )}
@@ -213,12 +213,12 @@ export const Manual1v1Workflow = ({
   // Selection step
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100 max-h-[85vh] overflow-y-auto">
+      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)] max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
           >
             <ArrowLeft size={20} />
             <span>Back</span>
@@ -226,52 +226,52 @@ export const Manual1v1Workflow = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
           >
             <X size={20} />
           </button>
         </div>
 
         <div className="text-center mb-6">
-          <h2 className="text-lg font-bold text-gray-900">1v1 Match</h2>
-          <p className="text-sm text-gray-600">Select two players for a head-to-head match</p>
+          <h2 className="text-lg font-bold text-primary">1v1 Match</h2>
+          <p className="text-sm text-secondary">Select two players for a head-to-head match</p>
         </div>
 
         <div className="space-y-6">
           {/* Player 1 */}
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
             <div className="flex items-center gap-2 mb-3">
-              <User className="text-blue-600" size={18} />
-              <h3 className="font-semibold text-blue-900">Player 1</h3>
+              <User className="text-[var(--th-accent)]" size={18} />
+              <h3 className="font-semibold text-primary">Player 1</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player2Id])}
               value={player1Id}
               onChange={setPlayer1Id}
               placeholder="Select Player"
-              className="border-blue-300 focus:ring-2 focus:ring-blue-500"
+              className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-accent)]"
             />
           </div>
 
           {/* VS Divider */}
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full border-4 border-white shadow-md">
-              <span className="font-bold text-gray-600">VS</span>
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-card-hover rounded-full border-4 border-[var(--th-border)] shadow-md">
+              <span className="font-bold text-secondary">VS</span>
             </div>
           </div>
 
           {/* Player 2 */}
-          <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
             <div className="flex items-center gap-2 mb-3">
-              <User className="text-purple-600" size={18} />
-              <h3 className="font-semibold text-purple-900">Player 2</h3>
+              <User className="text-[var(--th-sport-primary)]" size={18} />
+              <h3 className="font-semibold text-primary">Player 2</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player1Id])}
               value={player2Id}
               onChange={setPlayer2Id}
               placeholder="Select Player"
-              className="border-purple-300 focus:ring-2 focus:ring-purple-500"
+              className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-sport-primary)]"
             />
           </div>
         </div>
@@ -281,13 +281,13 @@ export const Manual1v1Workflow = ({
             type="button"
             onClick={handleContinueToScore}
             disabled={!isSelectionValid}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Register Score
           </button>
 
           {!isSelectionValid && player1Id !== '' && player2Id !== '' && (
-            <p className="text-sm text-red-600 text-center mt-2">
+            <p className="text-sm text-[var(--th-loss)] text-center mt-2">
               Please select two different players
             </p>
           )}

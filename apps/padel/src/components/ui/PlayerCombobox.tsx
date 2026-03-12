@@ -44,7 +44,7 @@ export function PlayerCombobox({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className={cn('w-full justify-between font-normal', !value && 'text-gray-500', className)}
+          className={cn('w-full justify-between font-normal', !value && 'text-muted', className)}
         >
           <span className="flex items-center gap-2 truncate">
             {position === 'attacker' && <Sword className="text-orange-500 shrink-0" size={16} />}
@@ -84,7 +84,7 @@ export function PlayerCombobox({
                   <span className="flex items-center gap-2">
                     <span>{player.avatar}</span>
                     <span>{player.name}</span>
-                    <span className="text-gray-500">({player.ranking})</span>
+                    <span className="text-muted">({player.ranking})</span>
                   </span>
                 </CommandItem>
               ))}

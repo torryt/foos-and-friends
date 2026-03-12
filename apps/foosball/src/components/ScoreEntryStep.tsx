@@ -52,13 +52,13 @@ export const ScoreEntryStep = ({
 
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
+      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)]">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
             onClick={onBack}
             disabled={isSubmitting}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors disabled:opacity-50"
           >
             <ArrowLeft size={20} />
             <span>Back</span>
@@ -67,24 +67,24 @@ export const ScoreEntryStep = ({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 disabled:opacity-50"
+            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover disabled:opacity-50"
           >
             <X size={20} />
           </button>
         </div>
 
         <div className="text-center mb-6">
-          <Target className="mx-auto text-orange-500 mb-2" size={24} />
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-          <p className="text-sm text-gray-600">Enter the final score of the match</p>
+          <Target className="mx-auto text-[var(--th-sport-primary)] mb-2" size={24} />
+          <h2 className="text-lg font-bold text-primary">{title}</h2>
+          <p className="text-sm text-secondary">Enter the final score of the match</p>
         </div>
 
         {/* Teams Display */}
         <div className="mb-6">
           <div className="space-y-3">
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-              <div className="grid grid-cols-3 items-center text-blue-800">
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="font-medium text-[var(--th-accent)] text-sm mb-1">Team 1</div>
+              <div className="grid grid-cols-3 items-center text-primary">
                 <span className="text-left">{teams.team1.attacker.name} (A)</span>
                 <div className="flex justify-center">
                   {onSwapTeam1 && (
@@ -92,7 +92,7 @@ export const ScoreEntryStep = ({
                       type="button"
                       onClick={onSwapTeam1}
                       disabled={isSubmitting}
-                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
+                      className="p-1.5 text-[var(--th-accent)] hover:text-primary hover:bg-card-hover rounded transition-colors disabled:opacity-50"
                       title="Swap positions for Team 1"
                     >
                       <ArrowLeftRight size={18} />
@@ -102,9 +102,9 @@ export const ScoreEntryStep = ({
                 <span className="text-right">{teams.team1.defender.name} (D)</span>
               </div>
             </div>
-            <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-              <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-              <div className="grid grid-cols-3 items-center text-purple-800">
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="font-medium text-[var(--th-sport-primary)] text-sm mb-1">Team 2</div>
+              <div className="grid grid-cols-3 items-center text-primary">
                 <span className="text-left">{teams.team2.attacker.name} (A)</span>
                 <div className="flex justify-center">
                   {onSwapTeam2 && (
@@ -112,7 +112,7 @@ export const ScoreEntryStep = ({
                       type="button"
                       onClick={onSwapTeam2}
                       disabled={isSubmitting}
-                      className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
+                      className="p-1.5 text-[var(--th-sport-primary)] hover:text-primary hover:bg-card-hover rounded transition-colors disabled:opacity-50"
                       title="Swap positions for Team 2"
                     >
                       <ArrowLeftRight size={18} />
@@ -127,11 +127,11 @@ export const ScoreEntryStep = ({
 
         {/* Score Input */}
         <div className="mb-6">
-          <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-            <div className="font-medium text-orange-800 text-sm mb-3">Final Score</div>
+          <div className="bg-accent-subtle rounded-[var(--th-radius-lg)] p-4 border border-[var(--th-border)]">
+            <div className="font-medium text-primary text-sm mb-3">Final Score</div>
             <div className="grid grid-cols-3 gap-3 items-center">
               <div>
-                <label htmlFor={team1Id} className="block text-xs text-gray-600 mb-1">
+                <label htmlFor={team1Id} className="block text-xs text-secondary mb-1">
                   Team 1
                 </label>
                 <input
@@ -145,12 +145,12 @@ export const ScoreEntryStep = ({
                   onChange={(e) => handleScoreChange(e.target.value, setScore1)}
                   disabled={isSubmitting}
                   placeholder="0"
-                  className="w-full p-3 border border-orange-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full p-3 border border-[var(--th-border)] rounded-[var(--th-radius-md)] bg-card text-center font-semibold text-lg focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
-              <div className="text-center font-bold text-orange-800 text-lg">VS</div>
+              <div className="text-center font-bold text-primary text-lg">VS</div>
               <div>
-                <label htmlFor={team2Id} className="block text-xs text-gray-600 mb-1">
+                <label htmlFor={team2Id} className="block text-xs text-secondary mb-1">
                   Team 2
                 </label>
                 <input
@@ -164,11 +164,11 @@ export const ScoreEntryStep = ({
                   onChange={(e) => handleScoreChange(e.target.value, setScore2)}
                   disabled={isSubmitting}
                   placeholder="0"
-                  className="w-full p-3 border border-orange-200 rounded-lg bg-white text-center font-semibold text-lg focus:ring-2 focus:ring-orange-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full p-3 border border-[var(--th-border)] rounded-[var(--th-radius-md)] bg-card text-center font-semibold text-lg focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
-            <p className="text-xs text-orange-600 mt-2 text-center">
+            <p className="text-xs text-secondary mt-2 text-center">
               Games are typically played to 10 points
             </p>
           </div>
@@ -178,7 +178,7 @@ export const ScoreEntryStep = ({
           type="button"
           onClick={handleSubmit}
           disabled={!isValid || isSubmitting || !isOnline}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           title={!isOnline ? 'Cannot register score while offline' : undefined}
         >
           {!isOnline ? (
@@ -197,7 +197,7 @@ export const ScoreEntryStep = ({
         </button>
 
         {!isValid && (
-          <p className="text-sm text-red-600 text-center mt-2">
+          <p className="text-sm text-[var(--th-loss)] text-center mt-2">
             Please enter scores for both teams
           </p>
         )}

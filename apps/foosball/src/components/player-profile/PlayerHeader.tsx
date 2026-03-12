@@ -39,7 +39,7 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
   }
 
   return (
-    <Card className="p-6 bg-gradient-to-r from-orange-50 to-amber-50">
+    <Card className="p-6 bg-accent-subtle">
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <div className="text-6xl">{player.avatar}</div>
         <div className="flex-1 text-center sm:text-left">
@@ -57,7 +57,7 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
               </div>
               <div>
                 <Label>Avatar</Label>
-                <div className="mt-1 border border-gray-200 rounded-lg p-2 bg-white">
+                <div className="mt-1 border border-[var(--th-border)] rounded-lg p-2 bg-card">
                   <div className="grid grid-cols-6 gap-1.5 max-h-48 overflow-y-auto overflow-x-hidden">
                     {AVAILABLE_AVATARS.map((emoji) => (
                       <button
@@ -66,8 +66,8 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
                         onClick={() => setEditedAvatar(emoji)}
                         className={`p-1.5 text-2xl rounded-lg flex items-center justify-center aspect-square transition-all ${
                           editedAvatar === emoji
-                            ? 'bg-orange-100 ring-2 ring-orange-500 ring-offset-1'
-                            : 'hover:bg-gray-50'
+                            ? 'bg-accent-subtle ring-2 ring-[var(--th-sport-primary)] ring-offset-1'
+                            : 'hover:bg-card-hover'
                         }`}
                       >
                         {emoji}
@@ -89,12 +89,12 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
             </div>
           ) : (
             <>
-              <h1 className="text-3xl font-bold text-gray-900">{player.name}</h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <h1 className="text-3xl font-bold text-primary">{player.name}</h1>
+              <p className="text-sm text-muted mt-1">
                 Member since {new Date(player.createdAt || Date.now()).toLocaleDateString()}
               </p>
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
-                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-accent-subtle text-[var(--th-sport-primary)] rounded-full text-sm font-medium">
                   {player.ranking} ELO
                 </span>
               </div>

@@ -30,12 +30,12 @@ export function PlayerStatsCards({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Win Rate Card */}
-      <Card className="p-4 bg-white/80 backdrop-blur-sm">
+      <Card className="p-4 bg-card backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Win Rate</p>
-            <p className="text-2xl font-bold text-gray-900">{winRate}%</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-sm text-muted">Win Rate</p>
+            <p className="text-2xl font-bold text-primary">{winRate}%</p>
+            <p className="text-xs text-muted mt-1">
               {wins}W - {losses}L
             </p>
           </div>
@@ -43,10 +43,10 @@ export function PlayerStatsCards({
             className={cn(
               'p-3 rounded-full',
               winRate >= 60
-                ? 'bg-green-100 text-green-600'
+                ? 'bg-card-hover text-[var(--th-win)]'
                 : winRate >= 40
-                  ? 'bg-yellow-100 text-yellow-600'
-                  : 'bg-red-100 text-red-600',
+                  ? 'bg-card-hover text-[var(--th-draw)]'
+                  : 'bg-card-hover text-[var(--th-loss)]',
             )}
           >
             <Trophy className="w-6 h-6" />
@@ -55,15 +55,15 @@ export function PlayerStatsCards({
       </Card>
 
       {/* Goal Difference Card */}
-      <Card className="p-4 bg-white/80 backdrop-blur-sm">
+      <Card className="p-4 bg-card backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Goal Difference</p>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-sm text-muted">Goal Difference</p>
+            <p className="text-2xl font-bold text-primary">
               {goalDifference > 0 ? '+' : ''}
               {goalDifference}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted mt-1">
               {goalsFor} GF - {goalsAgainst} GA
             </p>
           </div>
@@ -71,10 +71,10 @@ export function PlayerStatsCards({
             className={cn(
               'p-3 rounded-full',
               goalDifference > 0
-                ? 'bg-green-100 text-green-600'
+                ? 'bg-card-hover text-[var(--th-win)]'
                 : goalDifference === 0
-                  ? 'bg-gray-100 text-gray-600'
-                  : 'bg-red-100 text-red-600',
+                  ? 'bg-card-hover text-secondary'
+                  : 'bg-card-hover text-[var(--th-loss)]',
             )}
           >
             <Target className="w-6 h-6" />
@@ -83,21 +83,23 @@ export function PlayerStatsCards({
       </Card>
 
       {/* Current Streak Card */}
-      <Card className="p-4 bg-white/80 backdrop-blur-sm">
+      <Card className="p-4 bg-card backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Current Streak</p>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-sm text-muted">Current Streak</p>
+            <p className="text-2xl font-bold text-primary">
               {currentStreak} {streakType === 'win' ? 'Wins' : 'Losses'}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted mt-1">
               Best: {bestStreak}W | Worst: {worstStreak}L
             </p>
           </div>
           <div
             className={cn(
               'p-3 rounded-full',
-              streakType === 'win' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600',
+              streakType === 'win'
+                ? 'bg-card-hover text-[var(--th-win)]'
+                : 'bg-card-hover text-[var(--th-loss)]',
             )}
           >
             {streakType === 'win' ? (

@@ -274,7 +274,7 @@ export const PickTeamsWorkflow = ({
   if (step === 'result' && matchmakingResult) {
     return (
       <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-        <div className="bg-white p-6 w-full shadow-2xl border border-gray-100">
+        <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)]">
           <div className="flex justify-between items-center mb-6">
             <button
               type="button"
@@ -288,7 +288,7 @@ export const PickTeamsWorkflow = ({
                 setTeam2Swapped(false)
                 setStep('selection')
               }}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
             >
               <ArrowLeft size={20} />
               <span>Back</span>
@@ -296,30 +296,30 @@ export const PickTeamsWorkflow = ({
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+              className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
             >
               <X size={20} />
             </button>
           </div>
 
           <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent-subtle text-[var(--th-win)] rounded-full text-sm font-medium mb-3 border border-[var(--th-border)]">
               <Check size={16} />
               Teams Generated
             </div>
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-primary">
               {matchmakingMode === 'balanced' ? 'Balanced' : 'Rare'} Matchup
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-secondary">
               {Math.round(matchmakingResult.confidence * 100)}% confidence
             </p>
           </div>
 
-          <div className="bg-gray-50 rounded-xl p-4 mb-6">
+          <div className="bg-card-hover rounded-[var(--th-radius-lg)] p-4 mb-6">
             <div className="space-y-3">
-              <div className="bg-blue-100 rounded-lg p-3">
-                <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-                <div className="grid grid-cols-3 items-center text-blue-800">
+              <div className="bg-card rounded-lg p-3 border border-[var(--th-border)]">
+                <div className="font-medium text-[var(--th-accent)] text-sm mb-1">Team 1</div>
+                <div className="grid grid-cols-3 items-center text-primary">
                   <span className="text-left">
                     {team1Swapped
                       ? matchmakingResult.team1.defender.name
@@ -330,7 +330,7 @@ export const PickTeamsWorkflow = ({
                     <button
                       type="button"
                       onClick={() => handleSwapTeam(1)}
-                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors"
+                      className="p-1.5 text-[var(--th-accent)] hover:text-primary hover:bg-card-hover rounded transition-colors"
                       title="Swap positions for Team 1"
                     >
                       <ArrowLeftRight size={18} />
@@ -344,10 +344,12 @@ export const PickTeamsWorkflow = ({
                   </span>
                 </div>
               </div>
-              <div className="text-center font-bold text-gray-600">VS</div>
-              <div className="bg-purple-100 rounded-lg p-3">
-                <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-                <div className="grid grid-cols-3 items-center text-purple-800">
+              <div className="text-center font-bold text-secondary">VS</div>
+              <div className="bg-card rounded-lg p-3 border border-[var(--th-border)]">
+                <div className="font-medium text-[var(--th-sport-primary)] text-sm mb-1">
+                  Team 2
+                </div>
+                <div className="grid grid-cols-3 items-center text-primary">
                   <span className="text-left">
                     {team2Swapped
                       ? matchmakingResult.team2.defender.name
@@ -358,7 +360,7 @@ export const PickTeamsWorkflow = ({
                     <button
                       type="button"
                       onClick={() => handleSwapTeam(2)}
-                      className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors"
+                      className="p-1.5 text-[var(--th-sport-primary)] hover:text-primary hover:bg-card-hover rounded transition-colors"
                       title="Swap positions for Team 2"
                     >
                       <ArrowLeftRight size={18} />
@@ -373,8 +375,8 @@ export const PickTeamsWorkflow = ({
                 </div>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <span className="text-xs text-gray-600">
+            <div className="mt-3 pt-3 border-t border-[var(--th-border)]">
+              <span className="text-xs text-secondary">
                 Ranking diff: {matchmakingResult.rankingDifference} pts
               </span>
             </div>
@@ -384,7 +386,7 @@ export const PickTeamsWorkflow = ({
             <button
               type="button"
               onClick={handleContinueToScore}
-              className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold transition-colors"
+              className="bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold transition-colors"
             >
               Register Score
             </button>
@@ -401,7 +403,7 @@ export const PickTeamsWorkflow = ({
                 setTeam2Swapped(false)
                 setStep('selection')
               }}
-              className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2 border border-[var(--th-border)] text-primary hover:bg-card-hover rounded-[var(--th-radius-md)] transition-colors"
             >
               <Shuffle size={16} />
               Regenerate
@@ -415,12 +417,12 @@ export const PickTeamsWorkflow = ({
   // Selection step
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100 max-h-[95vh] overflow-y-auto">
+      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)] max-h-[95vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
           >
             <ArrowLeft size={20} />
             <span>Back</span>
@@ -428,27 +430,27 @@ export const PickTeamsWorkflow = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
           >
             <X size={20} />
           </button>
         </div>
 
         <div className="text-center mb-6">
-          <h2 className="text-lg font-bold text-gray-900">Pick Teams Smartly</h2>
-          <p className="text-sm text-gray-600">Select players and matchmaking style</p>
+          <h2 className="text-lg font-bold text-primary">Pick Teams Smartly</h2>
+          <p className="text-sm text-secondary">Select players and matchmaking style</p>
         </div>
 
         {/* Matchmaking Mode Toggle */}
         <div className="mb-6">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-card-hover rounded-[var(--th-radius-md)] p-1">
             <button
               type="button"
               onClick={() => setMatchmakingMode('rare')}
               className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 matchmakingMode === 'rare'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-card text-primary shadow-sm'
+                  : 'text-secondary hover:text-primary'
               }`}
             >
               <Sparkles size={14} />
@@ -459,15 +461,15 @@ export const PickTeamsWorkflow = ({
               onClick={() => setMatchmakingMode('balanced')}
               className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 matchmakingMode === 'balanced'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-card text-primary shadow-sm'
+                  : 'text-secondary hover:text-primary'
               }`}
             >
               <Brain size={14} />
               Balanced
             </button>
           </div>
-          <p className="text-xs text-gray-600 mt-2 text-center">
+          <p className="text-xs text-secondary mt-2 text-center">
             {matchmakingMode === 'balanced'
               ? 'Creates evenly matched teams based on rankings'
               : 'Pairs players who rarely team up together'}
@@ -478,8 +480,8 @@ export const PickTeamsWorkflow = ({
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Users className="text-gray-500" size={16} />
-              <span className="font-medium text-gray-900">
+              <Users className="text-muted" size={16} />
+              <span className="font-medium text-primary">
                 Player Pool ({selectedPlayerPool.length})
               </span>
             </div>
@@ -488,7 +490,7 @@ export const PickTeamsWorkflow = ({
                 type="button"
                 onClick={selectAllPlayers}
                 disabled={selectedPlayerPool.length === players.length}
-                className="text-xs text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-xs text-[var(--th-sport-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Select All
               </button>
@@ -496,7 +498,7 @@ export const PickTeamsWorkflow = ({
                 type="button"
                 onClick={clearAllPlayers}
                 disabled={selectedPlayerPool.length === 0}
-                className="text-xs text-gray-600 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="text-xs text-secondary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Clear All
               </button>
@@ -510,19 +512,19 @@ export const PickTeamsWorkflow = ({
               .map((player) => (
                 <label
                   key={player.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-[var(--th-radius-md)] bg-card-hover hover:bg-card-hover cursor-pointer transition-colors"
                 >
                   <input
                     type="checkbox"
                     checked={selectedPlayerPool.includes(player.id)}
                     onChange={() => handlePlayerPoolToggle(player.id)}
                     disabled={false}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+                    className="rounded border-[var(--th-border)] text-[var(--th-sport-primary)] focus:ring-[var(--th-sport-primary)] disabled:opacity-50"
                   />
                   <span className="text-lg">{player.avatar}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900 truncate">{player.name}</div>
-                    <div className="text-sm text-gray-500">{player.ranking} pts</div>
+                    <div className="font-medium text-primary truncate">{player.name}</div>
+                    <div className="text-sm text-muted">{player.ranking} pts</div>
                   </div>
                 </label>
               ))}
@@ -533,7 +535,7 @@ export const PickTeamsWorkflow = ({
           type="button"
           onClick={handleGenerateMatchup}
           disabled={isGenerating || selectedPlayerPool.length < 4}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isGenerating ? (
             <>
@@ -549,7 +551,7 @@ export const PickTeamsWorkflow = ({
         </button>
 
         {selectedPlayerPool.length < 4 && (
-          <p className="text-sm text-red-600 text-center mt-2">
+          <p className="text-sm text-[var(--th-loss)] text-center mt-2">
             Select 4 or more players to generate teams
           </p>
         )}

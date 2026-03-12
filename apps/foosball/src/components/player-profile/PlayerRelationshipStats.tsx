@@ -24,13 +24,21 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
   const getBadgeInfo = (badge: string | null) => {
     switch (badge) {
       case 'best':
-        return { icon: Crown, text: 'Best Partner', color: 'text-yellow-600 bg-yellow-100' }
+        return { icon: Crown, text: 'Best Partner', color: 'text-[var(--th-draw)] bg-card-hover' }
       case 'worst':
-        return { icon: TrendingDown, text: 'Needs Work', color: 'text-red-600 bg-red-100' }
+        return {
+          icon: TrendingDown,
+          text: 'Needs Work',
+          color: 'text-[var(--th-loss)] bg-card-hover',
+        }
       case 'rival':
-        return { icon: Shield, text: 'Biggest Rival', color: 'text-purple-600 bg-purple-100' }
+        return { icon: Shield, text: 'Biggest Rival', color: 'text-[var(--th-draw)] bg-card-hover' }
       case 'easy':
-        return { icon: TrendingUp, text: 'Favorite Opponent', color: 'text-green-600 bg-green-100' }
+        return {
+          icon: TrendingUp,
+          text: 'Favorite Opponent',
+          color: 'text-[var(--th-win)] bg-card-hover',
+        }
       default:
         return null
     }
@@ -39,18 +47,18 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
   const badgeInfo = getBadgeInfo(badge || null)
   const winRateColor =
     relationship.winRate >= 70
-      ? 'text-green-700 bg-green-50'
+      ? 'text-[var(--th-win)] bg-card-hover'
       : relationship.winRate >= 50
-        ? 'text-blue-700 bg-blue-50'
+        ? 'text-[var(--th-accent)] bg-card-hover'
         : relationship.winRate >= 30
-          ? 'text-orange-700 bg-orange-50'
-          : 'text-red-700 bg-red-50'
+          ? 'text-[var(--th-draw)] bg-card-hover'
+          : 'text-[var(--th-loss)] bg-card-hover'
 
   return (
-    <div className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+    <div className="p-3 bg-card-hover rounded-lg hover:bg-card-hover transition-colors">
       <div className="flex items-start gap-3">
         {rank && (
-          <div className="w-6 h-6 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+          <div className="w-6 h-6 flex-shrink-0 rounded-full bg-[var(--th-border)] flex items-center justify-center text-xs font-bold text-secondary">
             {rank}
           </div>
         )}
@@ -63,7 +71,7 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                   to="/players/$playerId"
                   params={{ playerId: relationship.playerId }}
                   onClick={scrollToTop}
-                  className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
+                  className="font-medium text-primary truncate hover:text-[var(--th-sport-primary)] transition-colors underline decoration-dotted decoration-muted hover:decoration-[var(--th-sport-primary)] hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:ring-offset-1 rounded-sm"
                   aria-label={`View profile for ${relationship.playerName}`}
                 >
                   {relationship.playerName}
@@ -80,7 +88,7 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                   </div>
                 )}
               </div>
-              <div className="text-sm text-gray-500 mt-1">
+              <div className="text-sm text-muted mt-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="flex-shrink-0">{relationship.gamesPlayed} games</span>
                   <span className="flex-shrink-0">
@@ -90,7 +98,9 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                     <span
                       className={cn(
                         'flex-shrink-0',
-                        relationship.goalDifference > 0 ? 'text-green-600' : 'text-red-600',
+                        relationship.goalDifference > 0
+                          ? 'text-[var(--th-win)]'
+                          : 'text-[var(--th-loss)]',
                       )}
                     >
                       {relationship.goalDifference > 0 ? '+' : ''}
@@ -146,11 +156,11 @@ export function PlayerRelationshipStats({
 
   if (relationshipData.teammates.length === 0 && relationshipData.opponents.length === 0) {
     return (
-      <Card className="p-4 bg-white/80 backdrop-blur-sm">
+      <Card className="p-4 bg-card backdrop-blur-sm">
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
-            <Users className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">No match history available</p>
+            <Users className="w-12 h-12 text-muted mx-auto mb-2" />
+            <p className="text-sm text-muted">No match history available</p>
           </div>
         </div>
       </Card>
@@ -166,23 +176,23 @@ export function PlayerRelationshipStats({
     : relationshipData.opponents.slice(0, 5)
 
   return (
-    <Card className="p-4 bg-white/80 backdrop-blur-sm">
+    <Card className="p-4 bg-card backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <Users className="w-5 h-5 text-orange-500" />
+        <h3 className="font-semibold text-primary flex items-center gap-2">
+          <Users className="w-5 h-5 text-[var(--th-sport-primary)]" />
           Relationships
         </h3>
 
         {/* Tab switcher */}
-        <div className="flex bg-gray-100 rounded-lg p-1">
+        <div className="flex bg-card-hover rounded-lg p-1">
           <button
             type="button"
             onClick={() => setActiveTab('teammates')}
             className={cn(
               'px-3 py-1 rounded-md text-sm font-medium transition-colors',
               activeTab === 'teammates'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700',
+                ? 'bg-card text-primary shadow-sm'
+                : 'text-muted hover:text-primary',
             )}
           >
             Teammates ({relationshipData.teammates.length})
@@ -193,8 +203,8 @@ export function PlayerRelationshipStats({
             className={cn(
               'px-3 py-1 rounded-md text-sm font-medium transition-colors',
               activeTab === 'opponents'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700',
+                ? 'bg-card text-primary shadow-sm'
+                : 'text-muted hover:text-primary',
             )}
           >
             Opponents ({relationshipData.opponents.length})
@@ -304,10 +314,10 @@ export function PlayerRelationshipStats({
 
       {/* Summary stats at bottom */}
       {(relationshipData.topTeammate || relationshipData.biggestRival) && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-[var(--th-border)]">
           <div className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0 text-sm">
             {relationshipData.topTeammate && (
-              <div className="flex items-center gap-2 text-green-600">
+              <div className="flex items-center gap-2 text-[var(--th-win)]">
                 <Crown className="w-4 h-4 flex-shrink-0" />
                 <span className="min-w-0">
                   <span className="hidden sm:inline">Best with </span>
@@ -320,7 +330,7 @@ export function PlayerRelationshipStats({
               </div>
             )}
             {relationshipData.biggestRival && (
-              <div className="flex items-center gap-2 text-purple-600">
+              <div className="flex items-center gap-2 text-[var(--th-accent)]">
                 <Shield className="w-4 h-4 flex-shrink-0" />
                 <span className="min-w-0">
                   <span className="hidden sm:inline">Most played vs </span>

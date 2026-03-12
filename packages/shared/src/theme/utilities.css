@@ -1,0 +1,23 @@
+/* Custom utility classes for common theme patterns */
+
+.bg-sport-gradient {
+  background-image: linear-gradient(to right, var(--th-sport-from), var(--th-sport-to));
+}
+
+.bg-sport-gradient-hover {
+  background-image: linear-gradient(to right, var(--th-sport-hover-from), var(--th-sport-hover-to));
+}
+
+.text-sport-gradient {
+  background-image: linear-gradient(to right, var(--th-sport-from), var(--th-sport-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Body base styles — prevents flash of unstyled content */
+body {
+  background-color: var(--th-bg-page);
+  color: var(--th-text-primary);
+  font-family: var(--th-font-body);
+}

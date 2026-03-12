@@ -22,92 +22,91 @@ interface PlayerCardProps {
   sortBy: SortOption
 }
 
-const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
-  <>
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-2">
-        {index === 0 && <Trophy className="text-yellow-500" size={16} />}
-        {index === 1 && <Medal className="text-gray-400" size={14} />}
-        {index === 2 && <Medal className="text-amber-600" size={14} />}
-        <span className="font-bold text-slate-700 text-sm w-6">{index + 1}</span>
-      </div>
-      <span className="text-2xl">{player.avatar}</span>
-      <div>
-        <div className="font-semibold text-slate-800 text-sm">{player.name}</div>
-        <div className="text-xs text-slate-500">
-          {player.wins}W - {player.losses}L ({player.matchesPlayed} total)
+const getTier = (sortBy: SortOption, player: PlayerWithStats): number => {
+  if (sortBy === 'elo') {
+    if (player.ranking >= 1800) return 1
+    if (player.ranking >= 1600) return 2
+    if (player.ranking >= 1400) return 3
+    if (player.ranking >= 1200) return 4
+    return 5
+  }
+  if (sortBy === 'goalDifference') {
+    if (player.goalDifference > 10) return 1
+    if (player.goalDifference > 5) return 2
+    if (player.goalDifference > 0) return 3
+    if (player.goalDifference >= -5) return 4
+    return 5
+  }
+  // winRate
+  if (player.winRate >= 70) return 1
+  if (player.winRate >= 60) return 2
+  if (player.winRate >= 50) return 3
+  if (player.winRate >= 40) return 4
+  return 5
+}
+
+const TierBadge = ({ tier, children }: { tier: number; children: React.ReactNode }) => (
+  <span
+    className="px-2 py-1 rounded-full text-xs font-bold"
+    style={{
+      background: `var(--th-tier-${tier}-bg)`,
+      color: `var(--th-tier-${tier}-text)`,
+    }}
+  >
+    {children}
+  </span>
+)
+
+const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => {
+  const tier = getTier(sortBy, player)
+
+  return (
+    <>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {index === 0 && <Trophy className="text-[var(--th-draw)]" size={16} />}
+          {index === 1 && <Medal className="text-secondary" size={14} />}
+          {index === 2 && <Medal className="text-[var(--th-sport-primary)]" size={14} />}
+          <span className="font-bold text-primary text-sm w-6">{index + 1}</span>
+        </div>
+        <span className="text-2xl">{player.avatar}</span>
+        <div>
+          <div className="font-semibold text-primary text-sm">{player.name}</div>
+          <div className="text-xs text-muted">
+            {player.wins}W - {player.losses}L ({player.matchesPlayed} total)
+          </div>
         </div>
       </div>
-    </div>
-    <div className="text-right">
-      {sortBy === 'elo' && (
-        <>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold ${
-              player.ranking >= 1800
-                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
-                : player.ranking >= 1600
-                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
-                  : player.ranking >= 1400
-                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
-                    : player.ranking >= 1200
-                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
-                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
-            }`}
-          >
-            {player.ranking}
-          </span>
-          <div className="text-xs text-slate-600 mt-1">
-            {player.matchesPlayed > 0
-              ? `${Math.round((player.wins / player.matchesPlayed) * 100)}% win rate`
-              : 'No matches'}
-          </div>
-        </>
-      )}
-      {sortBy === 'goalDifference' && (
-        <>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold ${
-              player.goalDifference > 10
-                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
-                : player.goalDifference > 5
-                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
-                  : player.goalDifference > 0
-                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
-                    : player.goalDifference >= -5
-                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
-                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
-            }`}
-          >
-            {player.goalDifference > 0 ? '+' : ''}
-            {player.goalDifference}
-          </span>
-          <div className="text-xs text-slate-600 mt-1">Goal diff</div>
-        </>
-      )}
-      {sortBy === 'winRate' && (
-        <>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold ${
-              player.winRate >= 70
-                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
-                : player.winRate >= 60
-                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
-                  : player.winRate >= 50
-                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
-                    : player.winRate >= 40
-                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
-                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
-            }`}
-          >
-            {player.winRate}%
-          </span>
-          <div className="text-xs text-slate-600 mt-1">Win rate</div>
-        </>
-      )}
-    </div>
-  </>
-)
+      <div className="text-right">
+        {sortBy === 'elo' && (
+          <>
+            <TierBadge tier={tier}>{player.ranking}</TierBadge>
+            <div className="text-xs text-secondary mt-1">
+              {player.matchesPlayed > 0
+                ? `${Math.round((player.wins / player.matchesPlayed) * 100)}% win rate`
+                : 'No matches'}
+            </div>
+          </>
+        )}
+        {sortBy === 'goalDifference' && (
+          <>
+            <TierBadge tier={tier}>
+              {player.goalDifference > 0 ? '+' : ''}
+              {player.goalDifference}
+            </TierBadge>
+            <div className="text-xs text-secondary mt-1">Goal diff</div>
+          </>
+        )}
+        {sortBy === 'winRate' && (
+          <>
+            <TierBadge tier={tier}>{player.winRate}%</TierBadge>
+            <div className="text-xs text-secondary mt-1">Win rate</div>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
 
 const SORT_OPTIONS = [
   { value: 'elo' as const, label: 'ELO Ranking' },
@@ -219,21 +218,21 @@ const PlayerRankings = ({
   }, [playersWithStats, sortBy])
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
-      <div className="p-4 border-b border-slate-200/50">
+    <div className="bg-card backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
+      <div className="p-4 border-b border-[var(--th-border)]">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <Trophy className="text-orange-500" />
+            <h2 className="text-lg font-bold text-primary flex items-center gap-2">
+              <Trophy className="text-[var(--th-sport-primary)]" />
               Friend Rankings
             </h2>
-            <p className="text-sm text-slate-600">See how you stack up against your friends!</p>
+            <p className="text-sm text-secondary">See how you stack up against your friends!</p>
           </div>
           <div className="relative">
             <button
               type="button"
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-card border border-[var(--th-border)] rounded-lg text-sm font-medium text-primary hover:bg-card-hover flex items-center gap-1.5"
               aria-label={`Sort by ${SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label}`}
             >
               <span className="hidden sm:inline">
@@ -243,7 +242,7 @@ const PlayerRankings = ({
               <ChevronDown className="w-4 h-4 hidden sm:inline-block" />
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-1 w-44 bg-white rounded-lg shadow-lg border border-slate-200 z-10">
+              <div className="absolute right-0 mt-1 w-44 bg-card rounded-lg shadow-theme-card border border-[var(--th-border)] z-10">
                 {SORT_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -252,8 +251,8 @@ const PlayerRankings = ({
                       setSortBy(option.value)
                       setDropdownOpen(false)
                     }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 first:rounded-t-lg last:rounded-b-lg ${
-                      sortBy === option.value ? 'bg-slate-50 font-medium' : ''
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-card-hover first:rounded-t-lg last:rounded-b-lg ${
+                      sortBy === option.value ? 'bg-card-hover font-medium' : ''
                     }`}
                   >
                     {option.label}
@@ -272,7 +271,7 @@ const PlayerRankings = ({
               <button
                 key={player.id}
                 type="button"
-                className="w-full flex items-center justify-between bg-gradient-to-r from-white to-slate-50 p-3 rounded-lg border border-slate-200/50 cursor-pointer hover:from-blue-50 hover:to-slate-100 transition-colors text-left"
+                className="w-full flex items-center justify-between bg-card p-3 rounded-lg border border-[var(--th-border)] cursor-pointer hover:bg-card-hover transition-colors text-left"
                 onClick={() => onPlayerClick(player.id)}
                 aria-label={`View match history for ${player.name}`}
               >
@@ -281,7 +280,7 @@ const PlayerRankings = ({
             ) : (
               <div
                 key={player.id}
-                className="flex items-center justify-between bg-gradient-to-r from-white to-slate-50 p-3 rounded-lg border border-slate-200/50"
+                className="flex items-center justify-between bg-card p-3 rounded-lg border border-[var(--th-border)]"
               >
                 <PlayerCard player={player} index={index} sortBy={sortBy} />
               </div>

@@ -115,16 +115,16 @@ function InvitePageComponent() {
   if (!inviteCode) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50 text-center">
-          <AlertCircle className="mx-auto mb-4 text-red-500" size={48} />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Invite Link</h1>
-          <p className="text-gray-600 mb-6">
+        <div className="bg-card backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-[var(--th-border-subtle)] text-center">
+          <AlertCircle className="mx-auto mb-4 text-[var(--th-loss)]" size={48} />
+          <h1 className="text-2xl font-bold text-primary mb-4">Invalid Invite Link</h1>
+          <p className="text-secondary mb-6">
             This invite link appears to be invalid or incomplete.
           </p>
           <button
             type="button"
             onClick={() => navigate({ to: '/' })}
-            className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-colors"
+            className="bg-sport-gradient text-white px-6 py-3 rounded-lg font-semibold hover:bg-sport-gradient-hover transition-colors"
           >
             Go to App
           </button>
@@ -137,10 +137,10 @@ function InvitePageComponent() {
   if (checkingMembership && isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50 text-center">
-          <Loader className="animate-spin mx-auto mb-4 text-orange-500" size={48} />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Checking Membership</h1>
-          <p className="text-gray-600">Please wait while we check your membership status...</p>
+        <div className="bg-card backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-[var(--th-border-subtle)] text-center">
+          <Loader className="animate-spin mx-auto mb-4 text-[var(--th-sport-primary)]" size={48} />
+          <h1 className="text-2xl font-bold text-primary mb-4">Checking Membership</h1>
+          <p className="text-secondary">Please wait while we check your membership status...</p>
         </div>
       </div>
     )
@@ -149,16 +149,16 @@ function InvitePageComponent() {
   if (joined) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="text-green-600" size={32} />
+        <div className="bg-card backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-[var(--th-border-subtle)] text-center">
+          <div className="w-16 h-16 bg-card-hover rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="text-[var(--th-win)]" size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Welcome to {groupInfo?.name}!</h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-2xl font-bold text-primary mb-4">Welcome to {groupInfo?.name}!</h1>
+          <p className="text-secondary mb-6">
             You've successfully joined the group. Redirecting to the app...
           </p>
           <div className="flex items-center justify-center">
-            <Loader className="animate-spin text-orange-500" size={24} />
+            <Loader className="animate-spin text-[var(--th-sport-primary)]" size={24} />
           </div>
         </div>
       </div>
@@ -167,24 +167,24 @@ function InvitePageComponent() {
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-4">
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-white/50">
+      <div className="bg-card backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-[var(--th-border-subtle)]">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users className="text-orange-600" size={32} />
+          <div className="w-16 h-16 bg-card-hover rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="text-[var(--th-sport-primary)]" size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">You're Invited!</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold text-primary mb-2">You're Invited!</h1>
+          <p className="text-secondary">
             {groupInfo?.name ? `Join "${groupInfo.name}"` : 'Join this foosball group'} and start
             competing with friends.
           </p>
           {groupInfo?.description && (
-            <p className="text-sm text-gray-500 mt-2">{groupInfo.description}</p>
+            <p className="text-sm text-muted mt-2">{groupInfo.description}</p>
           )}
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 text-sm flex items-center gap-2">
+          <div className="mb-6 p-4 bg-card-hover border border-[var(--th-border)] rounded-lg">
+            <p className="text-primary text-sm flex items-center gap-2">
               <AlertCircle size={16} />
               {error}
             </p>
@@ -196,7 +196,7 @@ function InvitePageComponent() {
             type="button"
             onClick={handleJoinGroup}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-orange-600 hover:to-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-sport-gradient text-white px-6 py-3 rounded-lg font-semibold hover:bg-sport-gradient-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -212,10 +212,10 @@ function InvitePageComponent() {
           </button>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="mt-8 pt-6 border-t border-[var(--th-border)]">
           <div className="text-center">
-            <p className="text-xs text-gray-500 mb-2">Invite Code</p>
-            <code className="text-sm font-mono bg-gray-100 px-3 py-1 rounded">{inviteCode}</code>
+            <p className="text-xs text-muted mb-2">Invite Code</p>
+            <code className="text-sm font-mono bg-card-hover px-3 py-1 rounded">{inviteCode}</code>
           </div>
         </div>
       </div>

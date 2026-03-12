@@ -45,23 +45,23 @@ export const LeaveGroupConfirmationModal = ({
 
   return (
     <ModalOrBottomDrawer isOpen={isOpen} onClose={onClose} className="sm:max-w-md">
-      <div className="bg-white shadow-2xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-card shadow-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-orange-50 border-b border-orange-200 px-6 py-4">
+        <div className="bg-card-hover border-b border-[var(--th-border)] px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                <LogOut className="text-orange-600" size={20} />
+              <div className="w-10 h-10 bg-card-hover rounded-full flex items-center justify-center">
+                <LogOut className="text-[var(--th-draw)]" size={20} />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-orange-900">Leave Group</h2>
-                <p className="text-sm text-orange-700">"{group.name}"</p>
+                <h2 className="text-lg font-bold text-primary">Leave Group</h2>
+                <p className="text-sm text-secondary">"{group.name}"</p>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="text-orange-400 hover:text-orange-600 transition-colors"
+              className="text-muted hover:text-secondary transition-colors"
               disabled={isLeaving}
             >
               <X size={20} />
@@ -72,16 +72,16 @@ export const LeaveGroupConfirmationModal = ({
         {/* Content */}
         <div className="px-6 py-6">
           <div className="space-y-4">
-            <div className="flex items-start gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-              <AlertTriangle className="text-orange-500 flex-shrink-0 mt-0.5" size={20} />
+            <div className="flex items-start gap-3 p-4 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
+              <AlertTriangle className="text-[var(--th-draw)] flex-shrink-0 mt-0.5" size={20} />
               <div>
-                <h3 className="font-semibold text-orange-900 mb-2">
+                <h3 className="font-semibold text-primary mb-2">
                   Are you sure you want to leave this group?
                 </h3>
-                <p className="text-orange-800 text-sm mb-3">
+                <p className="text-secondary text-sm mb-3">
                   When you leave "{group.name}", you will:
                 </p>
-                <ul className="text-orange-800 text-sm space-y-1">
+                <ul className="text-secondary text-sm space-y-1">
                   <li>• Lose access to the group's matches and rankings</li>
                   <li>• Need a new invite to rejoin the group</li>
                   <li>• No longer receive group notifications</li>
@@ -89,9 +89,9 @@ export const LeaveGroupConfirmationModal = ({
               </div>
             </div>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Group Information:</h4>
-              <div className="text-sm text-gray-700 space-y-1">
+            <div className="bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)] p-4">
+              <h4 className="font-medium text-primary mb-2">Group Information:</h4>
+              <div className="text-sm text-primary space-y-1">
                 <div>
                   <strong>Name:</strong> {group.name}
                 </div>
@@ -109,8 +109,8 @@ export const LeaveGroupConfirmationModal = ({
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 text-sm">{error}</p>
+              <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
+                <p className="text-[var(--th-loss)] text-sm">{error}</p>
               </div>
             )}
 
@@ -119,7 +119,7 @@ export const LeaveGroupConfirmationModal = ({
                 type="button"
                 onClick={onClose}
                 disabled={isLeaving}
-                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-primary bg-card-hover hover:bg-card-hover rounded-[var(--th-radius-md)] transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -127,7 +127,7 @@ export const LeaveGroupConfirmationModal = ({
                 type="button"
                 onClick={handleLeave}
                 disabled={isLeaving}
-                className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-2 bg-[var(--th-draw)] hover:opacity-90 text-white rounded-[var(--th-radius-md)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isLeaving ? (
                   <>

@@ -27,12 +27,12 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
         {index === 0 && <Trophy className="text-yellow-500" size={16} />}
         {index === 1 && <Medal className="text-gray-400" size={14} />}
         {index === 2 && <Medal className="text-amber-600" size={14} />}
-        <span className="font-bold text-slate-700 text-sm w-6">{index + 1}</span>
+        <span className="font-bold text-primary text-sm w-6">{index + 1}</span>
       </div>
       <span className="text-2xl">{player.avatar}</span>
       <div>
-        <div className="font-semibold text-slate-800 text-sm">{player.name}</div>
-        <div className="text-xs text-slate-500">
+        <div className="font-semibold text-primary text-sm">{player.name}</div>
+        <div className="text-xs text-muted">
           {player.wins}W - {player.losses}L ({player.matchesPlayed} total)
         </div>
       </div>
@@ -55,7 +55,7 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
           >
             {player.ranking}
           </span>
-          <div className="text-xs text-slate-600 mt-1">
+          <div className="text-xs text-secondary mt-1">
             {player.matchesPlayed > 0
               ? `${Math.round((player.wins / player.matchesPlayed) * 100)}% win rate`
               : 'No matches'}
@@ -79,7 +79,7 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
           >
             {player.winRate}%
           </span>
-          <div className="text-xs text-slate-600 mt-1">Win rate</div>
+          <div className="text-xs text-secondary mt-1">Win rate</div>
         </>
       )}
     </div>
@@ -157,21 +157,21 @@ const PlayerRankings = ({ players, seasonStats, onPlayerClick }: PlayerRankingsP
   }, [playersWithStats, sortBy])
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
-      <div className="p-4 border-b border-slate-200/50">
+    <div className="bg-card backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
+      <div className="p-4 border-b border-[var(--th-border)]">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <Trophy className="text-orange-500" />
+            <h2 className="text-lg font-bold text-primary flex items-center gap-2">
+              <Trophy className="text-[var(--th-sport-primary)]" />
               Friend Rankings
             </h2>
-            <p className="text-sm text-slate-600">See how you stack up against your friends!</p>
+            <p className="text-sm text-secondary">See how you stack up against your friends!</p>
           </div>
           <div className="relative">
             <button
               type="button"
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-card border border-[var(--th-border)] rounded-[var(--th-radius-md)] text-sm font-medium text-primary hover:bg-card-hover flex items-center gap-1.5"
               aria-label={`Sort by ${SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label}`}
             >
               <span className="hidden sm:inline">
@@ -181,7 +181,7 @@ const PlayerRankings = ({ players, seasonStats, onPlayerClick }: PlayerRankingsP
               <ChevronDown className="w-4 h-4 hidden sm:inline-block" />
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-1 w-44 bg-white rounded-lg shadow-lg border border-slate-200 z-10">
+              <div className="absolute right-0 mt-1 w-44 bg-card rounded-[var(--th-radius-md)] shadow-theme-card border border-[var(--th-border)] z-10">
                 {SORT_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -190,8 +190,8 @@ const PlayerRankings = ({ players, seasonStats, onPlayerClick }: PlayerRankingsP
                       setSortBy(option.value)
                       setDropdownOpen(false)
                     }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 first:rounded-t-lg last:rounded-b-lg ${
-                      sortBy === option.value ? 'bg-slate-50 font-medium' : ''
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-card-hover first:rounded-t-lg last:rounded-b-lg ${
+                      sortBy === option.value ? 'bg-card-hover font-medium' : ''
                     }`}
                   >
                     {option.label}
@@ -210,7 +210,7 @@ const PlayerRankings = ({ players, seasonStats, onPlayerClick }: PlayerRankingsP
               <button
                 key={player.id}
                 type="button"
-                className="w-full flex items-center justify-between bg-gradient-to-r from-white to-slate-50 p-3 rounded-lg border border-slate-200/50 cursor-pointer hover:from-blue-50 hover:to-slate-100 transition-colors text-left"
+                className="w-full flex items-center justify-between bg-card p-3 rounded-[var(--th-radius-md)] border border-[var(--th-border)] cursor-pointer hover:bg-card-hover transition-colors text-left"
                 onClick={() => onPlayerClick(player.id)}
                 aria-label={`View match history for ${player.name}`}
               >
@@ -219,7 +219,7 @@ const PlayerRankings = ({ players, seasonStats, onPlayerClick }: PlayerRankingsP
             ) : (
               <div
                 key={player.id}
-                className="flex items-center justify-between bg-gradient-to-r from-white to-slate-50 p-3 rounded-lg border border-slate-200/50"
+                className="flex items-center justify-between bg-card p-3 rounded-[var(--th-radius-md)] border border-[var(--th-border)]"
               >
                 <PlayerCard player={player} index={index} sortBy={sortBy} />
               </div>

@@ -82,10 +82,10 @@ export function PlayerRecentMatches({
   }
 
   return (
-    <Card className="p-4 bg-white/80 backdrop-blur-sm">
+    <Card className="p-4 bg-card backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-orange-500" />
+        <h3 className="font-semibold text-primary flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-[var(--th-sport-primary)]" />
           Recent Matches
         </h3>
         <div className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export function PlayerRecentMatches({
 
       <div className="space-y-2 overflow-y-auto">
         {playerMatches.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-8">No matches played yet</p>
+          <p className="text-sm text-muted text-center py-8">No matches played yet</p>
         ) : (
           playerMatches.map((match) => {
             const won = didWin(match, playerId)
@@ -129,15 +129,15 @@ export function PlayerRecentMatches({
               <div
                 key={match.id}
                 className={cn(
-                  'p-3 rounded-lg border-l-4 bg-gray-50',
-                  won ? 'border-l-green-600' : 'border-l-red-400',
+                  'p-3 rounded-lg border-l-4 bg-card-hover',
+                  won ? 'border-l-[var(--th-win)]' : 'border-l-[var(--th-loss)]',
                 )}
               >
                 {/* Mobile-first layout: score on top, centered */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                   {/* Score - on top for mobile, right side for desktop */}
                   <div className="text-center sm:hidden">
-                    <div className="text-xl font-bold text-gray-900">{score}</div>
+                    <div className="text-xl font-bold text-primary">{score}</div>
                   </div>
 
                   {/* Main content - centered on mobile */}
@@ -151,17 +151,17 @@ export function PlayerRecentMatches({
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                         <div className="flex items-center justify-center sm:justify-start gap-2">
                           {position === 'attacker' ? (
-                            <Sword className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                            <Sword className="w-4 h-4 text-[var(--th-sport-primary)] flex-shrink-0" />
                           ) : (
-                            <Shield className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                            <Shield className="w-4 h-4 text-[var(--th-accent)] flex-shrink-0" />
                           )}
-                          <span className="text-sm font-medium text-gray-900">
+                          <span className="text-sm font-medium text-primary">
                             with{' '}
                             {teammate ? (
                               <Link
                                 to="/players/$playerId"
                                 params={{ playerId: teammate.id }}
-                                className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                className="text-[var(--th-sport-primary)] hover:opacity-90 hover:underline transition-colors"
                                 onClick={() => scrollToTop()}
                               >
                                 {teammate.name}
@@ -172,7 +172,7 @@ export function PlayerRecentMatches({
                           </span>
                         </div>
                         <div className="flex items-center justify-center sm:justify-start gap-1">
-                          <span className="text-xs text-gray-500">vs</span>
+                          <span className="text-xs text-muted">vs</span>
                           <div className="flex items-center gap-1">
                             {opponents.map((opponent, idx) => (
                               <span key={opponent?.id} className="text-xs">
@@ -180,16 +180,16 @@ export function PlayerRecentMatches({
                                   <Link
                                     to="/players/$playerId"
                                     params={{ playerId: opponent.id }}
-                                    className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                    className="text-[var(--th-sport-primary)] hover:opacity-90 hover:underline transition-colors"
                                     onClick={() => scrollToTop()}
                                   >
                                     {opponent.name}
                                   </Link>
                                 ) : (
-                                  <span className="text-gray-600">Unknown</span>
+                                  <span className="text-secondary">Unknown</span>
                                 )}
                                 {idx < opponents.length - 1 && (
-                                  <span className="text-gray-600">, </span>
+                                  <span className="text-secondary">, </span>
                                 )}
                               </span>
                             ))}
@@ -197,7 +197,7 @@ export function PlayerRecentMatches({
                         </div>
                       </div>
                       {/* Date */}
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-muted mt-1">
                         {new Date(match.date).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
@@ -208,7 +208,7 @@ export function PlayerRecentMatches({
 
                   {/* Score - hidden on mobile, shown on desktop */}
                   <div className="hidden sm:block text-right">
-                    <div className="text-lg font-bold text-gray-900">{score}</div>
+                    <div className="text-lg font-bold text-primary">{score}</div>
                   </div>
                 </div>
               </div>

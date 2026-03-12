@@ -1,0 +1,6 @@
+/* Theme system barrel import */
+@import "./tokens.css";
+@import "./themes.css";
+@import "./tailwind.css";
+@import "./effects.css";
+@import "./utilities.css";

@@ -12,7 +12,8 @@
     "./types": "./src/types/index.ts",
     "./utils/*": "./src/utils/*",
     "./constants/*": "./src/constants/*",
-    "./test/*": "./src/test/*"
+    "./test/*": "./src/test/*",
+    "./theme.css": "./src/theme/index.css"
   },
   "scripts": {
     "test": "vitest",
@@ -24,9 +25,13 @@
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.3.1"
   },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.8.0",
     "@types/node": "^24.5.2",
+    "@types/react": "^19.1.10",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
   }

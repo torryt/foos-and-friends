@@ -1,4 +1,4 @@
-import { cn } from '@foos/shared'
+import { cn, useChartTheme } from '@foos/shared'
 import React from 'react'
 import {
   CartesianGrid,
@@ -40,6 +40,7 @@ export function PlayerComparisonChart({
 }: PlayerComparisonChartProps) {
   const [isMobile, setIsMobile] = React.useState(false)
   const scrollRef = React.useRef<HTMLDivElement>(null)
+  const chartTheme = useChartTheme()
 
   React.useEffect(() => {
     const checkMobile = () => {
@@ -102,12 +103,12 @@ export function PlayerComparisonChart({
     return (
       <div
         className={cn(
-          'flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200',
+          'flex items-center justify-center bg-card-hover rounded-[var(--th-radius-md)] border border-[var(--th-border)]',
           className,
         )}
         style={{ height }}
       >
-        <p className="text-sm text-gray-500">Select players to compare</p>
+        <p className="text-sm text-muted">Select players to compare</p>
       </div>
     )
   }
@@ -118,8 +119,8 @@ export function PlayerComparisonChart({
     const { active, payload, label } = props
     if (active && payload && payload.length > 0) {
       return (
-        <div className="bg-white p-3 rounded shadow-lg border border-gray-200">
-          <p className="text-xs font-medium text-gray-900 mb-2">
+        <div className="bg-card p-3 rounded shadow-theme-card border border-[var(--th-border)]">
+          <p className="text-xs font-medium text-primary mb-2">
             {label === 0 ? 'Starting Rankings' : `After Match #${label}`}
           </p>
           {payload.map(
@@ -130,7 +131,7 @@ export function PlayerComparisonChart({
               return (
                 <div key={entry.dataKey} className="flex items-center gap-2 mb-1">
                   <span className="text-sm">{history.playerAvatar}</span>
-                  <span className="text-xs text-gray-600">{history.playerName}:</span>
+                  <span className="text-xs text-secondary">{history.playerName}:</span>
                   <span className="text-sm font-bold" style={{ color: entry.color }}>
                     {entry.value} pts
                   </span>
@@ -159,7 +160,7 @@ export function PlayerComparisonChart({
             <div key={entry.dataKey} className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
               <span className="text-sm">{history.playerAvatar}</span>
-              <span className="text-xs text-gray-600">{history.playerName}</span>
+              <span className="text-xs text-secondary">{history.playerName}</span>
             </div>
           )
         })}
@@ -181,7 +182,7 @@ export function PlayerComparisonChart({
     : ''
 
   return (
-    <div className={cn('bg-white rounded-lg p-4', className)}>
+    <div className={cn('bg-card rounded-[var(--th-radius-md)] p-4', className)}>
       {/* Legend stays outside scrollable area */}
       {showLegend && (
         <div className="mb-4">
@@ -209,12 +210,12 @@ export function PlayerComparisonChart({
         >
           <ResponsiveContainer width="100%" height={height}>
             <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} />
               <XAxis
                 dataKey="matchNumber"
                 tick={{ fontSize: 12 }}
                 tickLine={false}
-                axisLine={{ stroke: '#e5e7eb' }}
+                axisLine={{ stroke: chartTheme.border }}
                 tickFormatter={(value) => (value === 0 ? 'Start' : `#${value}`)}
               />
               <YAxis domain={yDomain} tick={false} tickLine={false} axisLine={false} width={0} />
@@ -227,7 +228,7 @@ export function PlayerComparisonChart({
                   dataKey={history.playerId}
                   stroke={CHART_COLORS[index % CHART_COLORS.length]}
                   strokeWidth={2}
-                  dot={{ r: 3, strokeWidth: 1, fill: '#fff' }}
+                  dot={{ r: 3, strokeWidth: 1, fill: chartTheme.bgCard }}
                   activeDot={{ r: 5 }}
                   name={history.playerName}
                   animationDuration={500}

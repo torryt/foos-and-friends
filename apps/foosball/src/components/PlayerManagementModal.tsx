@@ -129,25 +129,25 @@ const PlayerManagementModal = ({
 
   return (
     <ModalOrBottomDrawer isOpen={isOpen} onClose={handleClose} className="sm:max-w-2xl">
-      <div className="bg-gradient-to-br from-white to-blue-50 p-6 w-full shadow-2xl border border-white/20 max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border-subtle)] max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <Settings className="text-blue-500" size={24} />
+          <h3 className="text-xl font-bold text-primary flex items-center gap-2">
+            <Settings className="text-[var(--th-sport-primary)]" size={24} />
             Manage Players
           </h3>
           <button
             type="button"
             onClick={handleClose}
             disabled={isLoading}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-white/50 disabled:opacity-50"
+            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover disabled:opacity-50"
           >
             <X size={24} />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
-            <p className="text-red-800 text-sm">{error}</p>
+          <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)] mb-4">
+            <p className="text-[var(--th-loss)] text-sm">{error}</p>
           </div>
         )}
 
@@ -156,7 +156,7 @@ const PlayerManagementModal = ({
             {players.map((player) => (
               <div
                 key={player.id}
-                className="bg-white/60 border border-white/50 rounded-xl p-4 hover:bg-white/80 transition-colors"
+                className="bg-card border-[var(--th-border-subtle)] rounded-[var(--th-radius-lg)] p-4 hover:bg-card-hover transition-colors"
               >
                 {editingPlayer?.id === player.id ? (
                   <div className="space-y-4">
@@ -168,15 +168,13 @@ const PlayerManagementModal = ({
                         onChange={(e) =>
                           setEditingPlayer({ ...editingPlayer, name: e.target.value })
                         }
-                        className="flex-1 p-2 border border-blue-200 rounded-lg bg-white/80 focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+                        className="flex-1 p-2 border border-[var(--th-border)] rounded-[var(--th-radius-md)] bg-card focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent"
                         disabled={isLoading}
                       />
                     </div>
 
-                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-3 rounded-xl border border-orange-200/50">
-                      <div className="text-sm font-semibold text-orange-800 mb-2">
-                        Choose Avatar
-                      </div>
+                    <div className="bg-accent-subtle p-3 rounded-[var(--th-radius-lg)] border border-[var(--th-border)]">
+                      <div className="text-sm font-semibold text-primary mb-2">Choose Avatar</div>
                       <div className="grid grid-cols-5 gap-1.5 max-h-40 overflow-y-auto overflow-x-hidden p-1">
                         {AVAILABLE_AVATARS.map((avatar) => (
                           <button
@@ -184,10 +182,10 @@ const PlayerManagementModal = ({
                             type="button"
                             onClick={() => setEditingPlayer({ ...editingPlayer, avatar })}
                             disabled={isLoading}
-                            className={`text-2xl p-1.5 rounded-lg hover:bg-orange-100 transition-colors flex items-center justify-center aspect-square ${
+                            className={`text-2xl p-1.5 rounded-[var(--th-radius-md)] hover:bg-card-hover transition-colors flex items-center justify-center aspect-square ${
                               editingPlayer.avatar === avatar
-                                ? 'bg-orange-200 ring-2 ring-orange-400 ring-offset-1'
-                                : 'bg-white/60'
+                                ? 'bg-accent-subtle ring-2 ring-[var(--th-sport-primary)] ring-offset-1'
+                                : 'bg-card'
                             } disabled:opacity-50`}
                           >
                             {avatar}
@@ -201,7 +199,7 @@ const PlayerManagementModal = ({
                         type="button"
                         onClick={handleCancelEdit}
                         disabled={isLoading}
-                        className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50"
+                        className="px-3 py-1.5 text-sm text-secondary hover:bg-card-hover rounded-[var(--th-radius-md)] disabled:opacity-50"
                       >
                         Cancel
                       </button>
@@ -209,7 +207,7 @@ const PlayerManagementModal = ({
                         type="button"
                         onClick={handleSaveEdit}
                         disabled={isLoading || !editingPlayer.name.trim() || !isOnline}
-                        className="px-3 py-1.5 text-sm bg-blue-500 text-white hover:bg-blue-600 rounded-lg disabled:opacity-50 flex items-center gap-1"
+                        className="px-3 py-1.5 text-sm bg-[var(--th-sport-primary)] text-white hover:opacity-90 rounded-[var(--th-radius-md)] disabled:opacity-50 flex items-center gap-1"
                         title={!isOnline ? 'Cannot save changes while offline' : undefined}
                       >
                         {!isOnline ? (
@@ -233,8 +231,8 @@ const PlayerManagementModal = ({
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{player.avatar}</span>
                       <div>
-                        <div className="font-semibold text-slate-800">{player.name}</div>
-                        <div className="text-xs text-slate-500">
+                        <div className="font-semibold text-primary">{player.name}</div>
+                        <div className="text-xs text-muted">
                           ELO: {player.ranking} • {player.wins}W-{player.losses}L
                         </div>
                       </div>
@@ -246,7 +244,7 @@ const PlayerManagementModal = ({
                           type="button"
                           onClick={() => handleStartEdit(player)}
                           disabled={isLoading || !isOnline}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg disabled:opacity-50"
+                          className="p-2 text-[var(--th-sport-primary)] hover:bg-card-hover rounded-[var(--th-radius-md)] disabled:opacity-50"
                           title={!isOnline ? 'Cannot edit while offline' : 'Edit player'}
                         >
                           {!isOnline ? <CloudOff size={16} /> : <Edit size={16} />}
@@ -257,7 +255,7 @@ const PlayerManagementModal = ({
                           type="button"
                           onClick={() => handleDeletePlayer(player.id)}
                           disabled={isLoading || !isOnline}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg disabled:opacity-50"
+                          className="p-2 text-[var(--th-loss)] hover:bg-card-hover rounded-[var(--th-radius-md)] disabled:opacity-50"
                           title={
                             !isOnline
                               ? 'Cannot delete while offline'
@@ -274,7 +272,7 @@ const PlayerManagementModal = ({
             ))}
 
             {players.length === 0 && (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-muted">
                 <Users size={48} className="mx-auto mb-4 opacity-50" />
                 <p>No players in this group yet.</p>
               </div>
@@ -282,12 +280,12 @@ const PlayerManagementModal = ({
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-slate-200">
+        <div className="mt-4 pt-4 border-t border-[var(--th-border)]">
           <button
             type="button"
             onClick={handleClose}
             disabled={isLoading}
-            className="w-full py-2 text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50"
+            className="w-full py-2 text-secondary hover:bg-card-hover rounded-[var(--th-radius-md)] disabled:opacity-50"
           >
             Close
           </button>

@@ -76,23 +76,23 @@ export const DeleteGroupConfirmationModal = ({
 
   return (
     <ModalOrBottomDrawer isOpen={isOpen} onClose={onClose} className="sm:max-w-md">
-      <div className="bg-white shadow-2xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-card shadow-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-red-50 border-b border-red-200 px-6 py-4">
+        <div className="bg-card-hover border-b border-[var(--th-border)] px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <Trash2 className="text-red-600" size={20} />
+              <div className="w-10 h-10 bg-card-hover rounded-full flex items-center justify-center">
+                <Trash2 className="text-[var(--th-loss)]" size={20} />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-red-900">Delete Group</h2>
-                <p className="text-sm text-red-700">"{group.name}"</p>
+                <h2 className="text-lg font-bold text-primary">Delete Group</h2>
+                <p className="text-sm text-[var(--th-loss)]">"{group.name}"</p>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="text-red-400 hover:text-red-600 transition-colors"
+              className="text-muted hover:text-[var(--th-loss)] transition-colors"
               disabled={isDeleting}
             >
               <X size={20} />
@@ -104,14 +104,14 @@ export const DeleteGroupConfirmationModal = ({
         <div className="px-6 py-6">
           {step === ConfirmationStep.WARNING && (
             <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+              <div className="flex items-start gap-3 p-4 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
+                <AlertTriangle className="text-[var(--th-loss)] flex-shrink-0 mt-0.5" size={20} />
                 <div>
-                  <h3 className="font-semibold text-red-900 mb-2">This action cannot be undone!</h3>
-                  <p className="text-red-800 text-sm mb-3">
+                  <h3 className="font-semibold text-primary mb-2">This action cannot be undone!</h3>
+                  <p className="text-[var(--th-loss)] text-sm mb-3">
                     Deleting this group will permanently remove:
                   </p>
-                  <ul className="text-red-800 text-sm space-y-1">
+                  <ul className="text-[var(--th-loss)] text-sm space-y-1">
                     <li>• All players and their statistics</li>
                     <li>• All match history and rankings</li>
                     <li>• All group memberships</li>
@@ -120,9 +120,9 @@ export const DeleteGroupConfirmationModal = ({
                 </div>
               </div>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-2">Group Information:</h4>
-                <div className="text-sm text-gray-700 space-y-1">
+              <div className="bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)] p-4">
+                <h4 className="font-medium text-primary mb-2">Group Information:</h4>
+                <div className="text-sm text-primary space-y-1">
                   <div>
                     <strong>Name:</strong> {group.name}
                   </div>
@@ -146,7 +146,7 @@ export const DeleteGroupConfirmationModal = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-primary bg-card-hover hover:bg-card-hover rounded-[var(--th-radius-md)] transition-colors"
                 >
                   Cancel
                 </button>
@@ -154,7 +154,7 @@ export const DeleteGroupConfirmationModal = ({
                   type="button"
                   onClick={() => setStep(ConfirmationStep.TYPE_NAME)}
                   disabled={!canProceedFromWarning}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-[var(--th-loss)] hover:opacity-90 text-white rounded-[var(--th-radius-md)] transition-colors disabled:opacity-50"
                 >
                   Continue
                 </button>
@@ -165,8 +165,8 @@ export const DeleteGroupConfirmationModal = ({
           {step === ConfirmationStep.TYPE_NAME && (
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-red-900 mb-2">Type the group name to confirm:</h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <h3 className="font-semibold text-primary mb-2">Type the group name to confirm:</h3>
+                <p className="text-sm text-secondary mb-4">
                   Please type <strong>"{group.name}"</strong> to confirm deletion.
                 </p>
                 <input
@@ -174,13 +174,13 @@ export const DeleteGroupConfirmationModal = ({
                   value={typedName}
                   onChange={(e) => setTypedName(e.target.value)}
                   placeholder={group.name}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[var(--th-border)] rounded-[var(--th-radius-md)] focus:outline-none focus:ring-2 focus:ring-[var(--th-loss)] focus:border-transparent"
                 />
               </div>
 
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
-                  <p className="text-red-800 text-sm">{error}</p>
+                <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)] mb-4">
+                  <p className="text-primary text-sm">{error}</p>
                 </div>
               )}
 
@@ -189,7 +189,7 @@ export const DeleteGroupConfirmationModal = ({
                   type="button"
                   onClick={() => setStep(ConfirmationStep.WARNING)}
                   disabled={isDeleting}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-primary bg-card-hover hover:bg-card-hover rounded-[var(--th-radius-md)] transition-colors disabled:opacity-50"
                 >
                   Back
                 </button>
@@ -197,7 +197,7 @@ export const DeleteGroupConfirmationModal = ({
                   type="button"
                   onClick={handleDelete}
                   disabled={!canDeleteFromTypeName}
-                  className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-2 bg-[var(--th-loss)] hover:opacity-90 text-white rounded-[var(--th-radius-md)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isDeleting ? (
                     <>

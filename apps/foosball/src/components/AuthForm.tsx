@@ -53,15 +53,15 @@ export const AuthForm = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-md mx-auto mt-8 p-6 bg-card rounded-[var(--th-radius-md)] shadow-theme-card">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Welcome to Foos & Friends</h2>
-        <p className="text-gray-600 mt-2">Sign in with your email to continue</p>
+        <h2 className="text-2xl font-bold text-primary">Welcome to Foos & Friends</h2>
+        <p className="text-secondary mt-2">Sign in with your email to continue</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor={emailId} className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor={emailId} className="block text-sm font-medium text-primary mb-1">
             Email address
           </label>
           <input
@@ -70,7 +70,7 @@ export const AuthForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="your.email@company.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-[var(--th-border)] rounded-[var(--th-radius-md)] focus:outline-none focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent"
             disabled={isLoading}
             required
           />
@@ -79,7 +79,7 @@ export const AuthForm = () => {
         <button
           type="submit"
           disabled={isLoading || !email.trim()}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="w-full bg-[var(--th-sport-primary)] text-white py-2 px-4 rounded-[var(--th-radius-md)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
         >
           {isLoading ? (
             <span className="flex items-center justify-center">
@@ -114,19 +114,19 @@ export const AuthForm = () => {
       </form>
 
       {message && (
-        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-green-800 text-sm">{message}</p>
+        <div className="mt-4 p-4 bg-accent-subtle border border-[var(--th-border)] rounded-lg">
+          <p className="text-primary text-sm">{message}</p>
         </div>
       )}
 
       {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="mt-4 p-4 bg-card-hover border border-[var(--th-border)] rounded-lg">
+          <p className="text-primary text-sm">{error}</p>
         </div>
       )}
 
       <div className="mt-6 text-center">
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted">
           Secure passwordless authentication powered by magic links
         </p>
       </div>

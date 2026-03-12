@@ -38,7 +38,7 @@ const ToastItem = ({ toast }: ToastProps) => {
       <button
         type="button"
         onClick={() => dismissToast(toast.id)}
-        className="text-gray-400 hover:text-gray-600 transition-colors"
+        className="text-muted hover:text-secondary transition-colors"
       >
         <X size={16} />
       </button>

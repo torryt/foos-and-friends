@@ -12,14 +12,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-lg font-medium transition-colors',
+          'inline-flex items-center justify-center rounded-[var(--th-radius-md)] font-medium transition-colors',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           'disabled:pointer-events-none disabled:opacity-50',
           {
-            default:
-              'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600',
-            outline: 'border border-gray-300 bg-white hover:bg-gray-50',
-            ghost: 'hover:bg-gray-100',
+            default: 'bg-sport-gradient text-white hover:bg-sport-gradient-hover',
+            outline: 'border border-[var(--th-border)] bg-card hover:bg-card-hover',
+            ghost: 'hover:bg-card-hover',
           }[variant],
           {
             sm: 'min-h-8 py-1.5 px-3 text-sm',

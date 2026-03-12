@@ -61,8 +61,8 @@ export const GroupSelector = ({
 
   if (loading) {
     return (
-      <div className="bg-white/80 px-3 py-2 rounded-lg border border-white/50">
-        <div className="animate-pulse w-6 h-4 bg-gray-200 rounded" />
+      <div className="bg-card px-3 py-2 rounded-lg border border-[var(--th-border-subtle)]">
+        <div className="animate-pulse w-6 h-4 bg-card-hover rounded" />
       </div>
     )
   }
@@ -84,24 +84,24 @@ export const GroupSelector = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white/80 px-3 py-2 rounded-lg border border-white/50 hover:bg-white transition-colors flex items-center gap-2"
+        className="bg-card px-3 py-2 rounded-lg border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center gap-2"
         title={currentGroup ? `Current group: ${currentGroup.name}` : 'Select a group'}
       >
-        <Users size={16} className="text-gray-600" />
-        <span className="hidden sm:block text-sm font-medium text-gray-700 max-w-32 truncate">
+        <Users size={16} className="text-secondary" />
+        <span className="hidden sm:block text-sm font-medium text-primary max-w-32 truncate">
           {currentGroup ? currentGroup.name : 'Select Group'}
         </span>
         <ChevronDown
           size={14}
-          className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 min-w-80 z-20">
+        <div className="absolute top-full mt-1 right-0 bg-card rounded-[var(--th-radius-md)] shadow-theme-card border border-[var(--th-border)] min-w-80 z-20">
           <div className="p-2">
-            <div className="text-xs font-medium text-gray-500 px-3 py-2">Your Groups</div>
+            <div className="text-xs font-medium text-muted px-3 py-2">Your Groups</div>
 
             {userGroups.map((group) => {
               const isExpanded = expandedGroups.has(group.id)
@@ -113,18 +113,18 @@ export const GroupSelector = ({
                   <button
                     type="button"
                     onClick={() => toggleGroupExpansion(group.id)}
-                    className={`w-full text-left rounded-lg hover:bg-gray-50 transition-colors ${
-                      isCurrent ? 'bg-blue-50 border border-blue-200' : ''
+                    className={`w-full text-left rounded-lg hover:bg-card-hover transition-colors ${
+                      isCurrent ? 'bg-accent-subtle border border-[var(--th-border)]' : ''
                     }`}
                   >
                     <div className="px-3 py-2">
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900">{group.name}</div>
+                          <div className="font-medium text-primary">{group.name}</div>
                           <div className="flex items-center gap-1 mt-1">
-                            <span className="text-xs text-gray-400">Code: {group.inviteCode}</span>
+                            <span className="text-xs text-muted">Code: {group.inviteCode}</span>
                             {group.playerCount !== undefined && (
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs text-muted">
                                 • {group.playerCount} players
                               </span>
                             )}
@@ -132,12 +132,12 @@ export const GroupSelector = ({
                         </div>
                         <div className="flex items-center gap-2">
                           {isCurrent && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
+                            <div className="w-2 h-2 bg-[var(--th-sport-primary)] rounded-full flex-shrink-0" />
                           )}
                           {isExpanded ? (
-                            <ChevronUp size={16} className="text-gray-400" />
+                            <ChevronUp size={16} className="text-muted" />
                           ) : (
-                            <ChevronDown size={16} className="text-gray-400" />
+                            <ChevronDown size={16} className="text-muted" />
                           )}
                         </div>
                       </div>
@@ -152,9 +152,9 @@ export const GroupSelector = ({
                         <button
                           type="button"
                           onClick={() => handleSwitchToGroup(group.id)}
-                          className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-blue-700"
+                          className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-[var(--th-sport-primary)]"
                         >
-                          <Users size={14} className="text-blue-500" />
+                          <Users size={14} className="text-[var(--th-sport-primary)]" />
                           Switch to Group
                         </button>
                       )}
@@ -163,9 +163,9 @@ export const GroupSelector = ({
                       <button
                         type="button"
                         onClick={() => copyInviteLink(group.inviteCode, group.name)}
-                        className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700"
+                        className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-primary"
                       >
-                        <Clipboard size={14} className="text-gray-500" />
+                        <Clipboard size={14} className="text-muted" />
                         Copy Invite Link
                       </button>
 
@@ -177,9 +177,9 @@ export const GroupSelector = ({
                             onDeleteGroup?.(group.id)
                             setIsOpen(false)
                           }}
-                          className="w-full text-left px-6 py-2 rounded-md bg-red-50 hover:bg-red-100 transition-colors flex items-center gap-3 text-sm font-medium text-red-700"
+                          className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-[var(--th-loss)]"
                         >
-                          <Trash2 size={14} className="text-red-500" />
+                          <Trash2 size={14} className="text-[var(--th-loss)]" />
                           Delete Group
                         </button>
                       )}
@@ -192,9 +192,9 @@ export const GroupSelector = ({
                             onLeaveGroup?.(group.id)
                             setIsOpen(false)
                           }}
-                          className="w-full text-left px-6 py-2 rounded-md bg-orange-50 hover:bg-orange-100 transition-colors flex items-center gap-3 text-sm font-medium text-orange-700"
+                          className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-[var(--th-draw)]"
                         >
-                          <LogOut size={14} className="text-orange-500" />
+                          <LogOut size={14} className="text-[var(--th-draw)]" />
                           Leave Group
                         </button>
                       )}
@@ -204,16 +204,16 @@ export const GroupSelector = ({
               )
             })}
 
-            <div className="border-t border-gray-100 mt-2 pt-2">
+            <div className="border-t border-[var(--th-border)] mt-2 pt-2">
               <button
                 type="button"
                 onClick={() => {
                   onCreateGroup?.()
                   setIsOpen(false)
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium text-gray-700"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-card-hover transition-colors flex items-center gap-2 text-sm font-medium text-primary"
               >
-                <Plus size={16} className="text-gray-500" />
+                <Plus size={16} className="text-muted" />
                 Create New Group
               </button>
 
@@ -223,9 +223,9 @@ export const GroupSelector = ({
                   onJoinGroup?.()
                   setIsOpen(false)
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium text-gray-700"
+                className="w-full text-left px-3 py-2 rounded-lg hover:bg-card-hover transition-colors flex items-center gap-2 text-sm font-medium text-primary"
               >
-                <UserPlus size={16} className="text-gray-500" />
+                <UserPlus size={16} className="text-muted" />
                 Join Group
               </button>
             </div>

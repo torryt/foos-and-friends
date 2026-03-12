@@ -1,4 +1,4 @@
-import { cn } from '@foos/shared'
+import { cn, useChartTheme } from '@foos/shared'
 import React from 'react'
 import {
   Area,
@@ -19,27 +19,31 @@ interface RankingChartProps {
 
 // Custom tooltip component moved outside to avoid recreation
 // biome-ignore lint/suspicious/noExplicitAny: Recharts requires any for custom components
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload, chartTheme }: any) => {
   if (active && payload && payload[0]) {
     const data = payload[0].payload
     if (data.matchNumber === 0) {
       return (
-        <div className="bg-white p-2 rounded shadow-lg border border-gray-200">
-          <p className="text-xs font-medium text-gray-900">Starting Ranking</p>
-          <p className="text-sm font-bold text-orange-600">{data.ranking} pts</p>
+        <div className="bg-card p-2 rounded shadow-theme-card border border-[var(--th-border)]">
+          <p className="text-xs font-medium text-primary">Starting Ranking</p>
+          <p className="text-sm font-bold" style={{ color: chartTheme.sportPrimary }}>
+            {data.ranking} pts
+          </p>
         </div>
       )
     }
     return (
-      <div className="bg-white p-2 rounded shadow-lg border border-gray-200">
-        <p className="text-xs font-medium text-gray-900">Match #{data.matchNumber}</p>
-        <p className="text-xs text-gray-500">{data.date}</p>
-        <p className="text-sm font-bold text-orange-600">{data.ranking} pts</p>
+      <div className="bg-card p-2 rounded shadow-theme-card border border-[var(--th-border)]">
+        <p className="text-xs font-medium text-primary">Match #{data.matchNumber}</p>
+        <p className="text-xs text-muted">{data.date}</p>
+        <p className="text-sm font-bold" style={{ color: chartTheme.sportPrimary }}>
+          {data.ranking} pts
+        </p>
         {data.result && (
           <p
             className={cn(
               'text-xs font-medium mt-1',
-              data.result === 'win' ? 'text-green-600' : 'text-red-600',
+              data.result === 'win' ? 'text-[var(--th-win)]' : 'text-[var(--th-loss)]',
             )}
           >
             {data.result === 'win' ? '✓ Won' : '✗ Lost'} {data.score}
@@ -55,6 +59,7 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
   const chartId = React.useId()
   const [isMobile, setIsMobile] = React.useState(false)
   const scrollRef = React.useRef<HTMLDivElement>(null)
+  const chartTheme = useChartTheme()
 
   React.useEffect(() => {
     const checkMobile = () => {
@@ -101,12 +106,12 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
     return (
       <div
         className={cn(
-          'flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200',
+          'flex items-center justify-center bg-card-hover rounded-[var(--th-radius-md)] border border-[var(--th-border)]',
           className,
         )}
         style={{ height }}
       >
-        <p className="text-sm text-gray-500">No match history available</p>
+        <p className="text-sm text-muted">No match history available</p>
       </div>
     )
   }
@@ -118,13 +123,13 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
   const yDomain = [Math.max(800, minRanking - padding), Math.min(2400, maxRanking + padding)]
 
   const containerClass = needsScroll
-    ? 'overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 -webkit-overflow-scrolling-touch'
+    ? 'overflow-x-auto overflow-y-hidden scrollbar-thin -webkit-overflow-scrolling-touch'
     : ''
 
   return (
     <div
       ref={scrollRef}
-      className={cn('bg-white rounded-lg', containerClass, className)}
+      className={cn('bg-card rounded-[var(--th-radius-md)]', containerClass, className)}
       style={
         needsScroll ? { WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain' } : {}
       }
@@ -139,24 +144,24 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
           <AreaChart data={allChartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
             <defs>
               <linearGradient id={`colorRanking-${chartId}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#fb923c" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#fb923c" stopOpacity={0.1} />
+                <stop offset="5%" stopColor={chartTheme.sportPrimary} stopOpacity={0.8} />
+                <stop offset="95%" stopColor={chartTheme.sportPrimary} stopOpacity={0.1} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+            <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} />
             <XAxis
               dataKey="matchNumber"
               tick={{ fontSize: 12 }}
               tickLine={false}
-              axisLine={{ stroke: '#e5e7eb' }}
+              axisLine={{ stroke: chartTheme.border }}
               tickFormatter={(value) => (value === 0 ? '' : `#${value}`)}
             />
             <YAxis domain={yDomain} tick={false} tickLine={false} axisLine={false} width={0} />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip chartTheme={chartTheme} />} />
             <Area
               type="monotone"
               dataKey="ranking"
-              stroke="#fb923c"
+              stroke={chartTheme.sportPrimary}
               strokeWidth={2}
               fillOpacity={1}
               fill={`url(#colorRanking-${chartId})`}
@@ -167,7 +172,7 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
                 if (!cx || !cy || !payload || payload.matchNumber === 0) {
                   return <circle key={`dot-${index}`} cx={0} cy={0} r={0} fill="transparent" />
                 }
-                const color = payload.result === 'win' ? '#16a34a' : '#dc2626'
+                const color = payload.result === 'win' ? chartTheme.win : chartTheme.loss
                 return (
                   <circle
                     key={`dot-${index}`}
@@ -175,7 +180,7 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
                     cy={cy}
                     r={4}
                     fill={color}
-                    stroke="#fff"
+                    stroke={chartTheme.bgCard}
                     strokeWidth={2}
                   />
                 )

@@ -1,4 +1,4 @@
-import type { AuthUser } from '@foos/shared'
+import { type AuthUser, ThemeProvider } from '@foos/shared'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { useState } from 'react'
 import { CreateGroupModal } from '@/components/CreateGroupModal'
@@ -98,13 +98,15 @@ function App() {
   }
 
   return (
-    <ProtectedRoute>
-      <GroupProvider>
-        <SeasonProvider>
-          <AppContent user={user} onSignOut={handleSignOut} />
-        </SeasonProvider>
-      </GroupProvider>
-    </ProtectedRoute>
+    <ThemeProvider>
+      <ProtectedRoute>
+        <GroupProvider>
+          <SeasonProvider>
+            <AppContent user={user} onSignOut={handleSignOut} />
+          </SeasonProvider>
+        </GroupProvider>
+      </ProtectedRoute>
+    </ThemeProvider>
   )
 }
 

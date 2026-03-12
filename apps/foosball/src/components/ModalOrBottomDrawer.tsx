@@ -20,7 +20,7 @@ export const ModalOrBottomDrawer = ({
       {/* Backdrop */}
       <button
         type="button"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-[var(--th-bg-overlay)] backdrop-blur-sm"
         onClick={onClose}
         aria-label="Close"
         tabIndex={-1}

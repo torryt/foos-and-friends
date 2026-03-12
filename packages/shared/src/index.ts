@@ -1,5 +1,7 @@
 // Types
-export * from './types/index.ts'
+
+// Constants
+export { AVAILABLE_AVATARS, getRandomAvatar } from './constants/avatars.ts'
 
 // Database interfaces and implementations
 export * from './lib/database.ts'
@@ -8,33 +10,33 @@ export * from './lib/supabase-database.ts'
 export { cn, scrollToTop } from './lib/utils.ts'
 
 // Services
-export { GroupService, createGroupService } from './services/groupService.ts'
-export { PlayersService, createPlayersService } from './services/playersService.ts'
-export { MatchesService, createMatchesService } from './services/matchesService.ts'
-export { SeasonsService, createSeasonsService } from './services/seasonsService.ts'
+export { createGroupService, GroupService } from './services/groupService.ts'
+export { createMatchesService, MatchesService } from './services/matchesService.ts'
 export {
-  PlayerSeasonStatsService,
   createPlayerSeasonStatsService,
+  PlayerSeasonStatsService,
 } from './services/playerSeasonStatsService.ts'
+export { createPlayersService, PlayersService } from './services/playersService.ts'
 export {
+  type SavedMatchup,
   SavedMatchupsService,
   savedMatchupsService,
-  type SavedMatchup,
 } from './services/savedMatchupsService.ts'
-
-// Utils
-export * from './utils/matchmaking.ts'
-export * from './utils/streakCalculations.ts'
-
-// Constants
-export { AVAILABLE_AVATARS, getRandomAvatar } from './constants/avatars.ts'
-
+export { createSeasonsService, SeasonsService } from './services/seasonsService.ts'
 // Test utilities
 export { FakeDatabase } from './test/fake-database.ts'
 export {
-  createTestDatabase,
   createSeededTestDatabase,
   createStandardTestScenario,
+  createTestDatabase,
   createTestServices,
   type TestServices,
 } from './test/test-database.ts'
+// Theme
+export { type ThemeName, ThemeProvider, useTheme } from './theme/ThemeContext.tsx'
+export { ThemePicker } from './theme/ThemePicker.tsx'
+export { useChartTheme } from './theme/useChartTheme.ts'
+export * from './types/index.ts'
+// Utils
+export * from './utils/matchmaking.ts'
+export * from './utils/streakCalculations.ts'

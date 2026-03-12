@@ -57,10 +57,10 @@ const dbMatchToMatch = async (
 
   // For 1v1 matches, player2 columns are null
   const team1Player2 = dbMatch.team1_player2_id
-    ? playersById.get(dbMatch.team1_player2_id) ?? null
+    ? (playersById.get(dbMatch.team1_player2_id) ?? null)
     : null
   const team2Player2 = dbMatch.team2_player2_id
-    ? playersById.get(dbMatch.team2_player2_id) ?? null
+    ? (playersById.get(dbMatch.team2_player2_id) ?? null)
     : null
 
   // Validate 2v2 matches have all players
@@ -935,11 +935,12 @@ export class SupabaseDatabase implements Database {
     try {
       const supabase = getSupabase()
       // Use match-type-specific view if specified, otherwise use combined view
-      const viewName = matchType === '1v1'
-        ? 'player_season_stats_1v1_computed'
-        : matchType === '2v2'
-          ? 'player_season_stats_2v2_computed'
-          : 'player_season_stats_computed'
+      const viewName =
+        matchType === '1v1'
+          ? 'player_season_stats_1v1_computed'
+          : matchType === '2v2'
+            ? 'player_season_stats_2v2_computed'
+            : 'player_season_stats_computed'
 
       const { data, error } = await supabase
         .from(viewName)
@@ -968,11 +969,12 @@ export class SupabaseDatabase implements Database {
     try {
       const supabase = getSupabase()
       // Use match-type-specific view if specified, otherwise use combined view
-      const viewName = matchType === '1v1'
-        ? 'player_season_stats_1v1_computed'
-        : matchType === '2v2'
-          ? 'player_season_stats_2v2_computed'
-          : 'player_season_stats_computed'
+      const viewName =
+        matchType === '1v1'
+          ? 'player_season_stats_1v1_computed'
+          : matchType === '2v2'
+            ? 'player_season_stats_2v2_computed'
+            : 'player_season_stats_computed'
 
       const { data, error } = await supabase
         .from(viewName)
