@@ -118,13 +118,13 @@ export const UseMatchupWorkflow = ({
 
   // Selection step
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-100 max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-[var(--th-bg-overlay)] backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-2xl border border-[var(--th-border)] max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
           >
             <ArrowLeft size={20} />
             <span>Back</span>
@@ -132,15 +132,15 @@ export const UseMatchupWorkflow = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
           >
             <X size={20} />
           </button>
         </div>
 
         <div className="text-center mb-6">
-          <h2 className="text-lg font-bold text-gray-900">Use Previous Matchup</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="text-lg font-bold text-primary">Use Previous Matchup</h2>
+          <p className="text-sm text-secondary">
             {savedMatchups.length === 0
               ? 'No saved matchups available'
               : `Select from ${savedMatchups.length} saved matchup${savedMatchups.length === 1 ? '' : 's'}`}
@@ -149,15 +149,17 @@ export const UseMatchupWorkflow = ({
 
         {savedMatchups.length === 0 ? (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Clock className="text-gray-400" size={24} />
+            <div className="w-16 h-16 bg-card-hover rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="text-muted" size={24} />
             </div>
-            <h3 className="font-medium text-gray-900 mb-2">No Saved Matchups</h3>
-            <p className="text-sm text-gray-600 mb-4">Generate some teams first to see them here</p>
+            <h3 className="font-medium text-primary mb-2">No Saved Matchups</h3>
+            <p className="text-sm text-secondary mb-4">
+              Generate some teams first to see them here
+            </p>
             <button
               type="button"
               onClick={onBack}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-[var(--th-sport-primary)] hover:opacity-90 text-white rounded-[var(--th-radius-md)] transition-colors"
             >
               Pick Teams Smartly
             </button>
@@ -172,7 +174,7 @@ export const UseMatchupWorkflow = ({
                   type="button"
                   key={matchup.id}
                   onClick={() => handleSelectMatchup(matchup)}
-                  className="w-full text-left p-4 border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-colors group focus:ring-2 focus:ring-purple-300 focus:outline-none"
+                  className="w-full text-left p-4 border border-[var(--th-border)] rounded-[var(--th-radius-lg)] hover:border-purple-300 hover:bg-purple-50 transition-colors group focus:ring-2 focus:ring-purple-300 focus:outline-none"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
@@ -183,14 +185,12 @@ export const UseMatchupWorkflow = ({
                           ) : (
                             <Sparkles className="text-purple-500" size={14} />
                           )}
-                          <span className="text-xs font-medium text-gray-600">{summary.mode}</span>
+                          <span className="text-xs font-medium text-secondary">{summary.mode}</span>
                         </div>
-                        <span className="text-xs text-gray-500">
-                          {summary.confidence} confidence
-                        </span>
+                        <span className="text-xs text-muted">{summary.confidence} confidence</span>
                       </div>
 
-                      <div className="font-medium text-gray-900 text-sm mb-2">
+                      <div className="font-medium text-primary text-sm mb-2">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           {matchup.teams.team1.attacker.name} + {matchup.teams.team1.defender.name}
@@ -202,9 +202,9 @@ export const UseMatchupWorkflow = ({
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">{summary.timeAgo}</span>
+                        <span className="text-xs text-muted">{summary.timeAgo}</span>
                         {matchup.teams.rankingDifference > 0 && (
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted">
                             ±{matchup.teams.rankingDifference} pts
                           </span>
                         )}
@@ -214,7 +214,7 @@ export const UseMatchupWorkflow = ({
                     <button
                       type="button"
                       onClick={(e) => handleDeleteMatchup(matchup.id, e)}
-                      className="ml-3 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="ml-3 p-2 text-muted hover:text-red-600 hover:bg-red-50 rounded-[var(--th-radius-md)] transition-colors"
                       title="Delete matchup"
                     >
                       <Trash2 size={14} />
@@ -224,10 +224,8 @@ export const UseMatchupWorkflow = ({
               )
             })}
 
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center">
-                Matchups auto-expire after 48 hours
-              </p>
+            <div className="pt-4 border-t border-[var(--th-border)]">
+              <p className="text-xs text-muted text-center">Matchups auto-expire after 48 hours</p>
             </div>
           </div>
         )}

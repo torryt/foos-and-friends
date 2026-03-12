@@ -346,7 +346,7 @@ describe('PlayerRecentMatches', () => {
       )
 
       // Player1 is in team1[0], so should be an attacker (Sword icon)
-      const swordIcons = document.querySelectorAll('svg.text-orange-500')
+      const swordIcons = document.querySelectorAll('svg.text-\\[var\\(--th-sport-primary\\)\\]')
       expect(swordIcons.length).toBeGreaterThan(0)
     })
 
@@ -408,10 +408,10 @@ describe('PlayerRecentMatches', () => {
         />,
       )
 
-      // Should have green border for win - find the match card div with border classes
+      // Should have win border for win - find the match card div with border classes
       const matchCards = document.querySelectorAll('.border-l-4')
       expect(matchCards.length).toBe(1)
-      expect(matchCards[0]).toHaveClass('border-l-green-600')
+      expect(matchCards[0]).toHaveClass('border-l-[var(--th-win)]')
     })
 
     it('displays correct win/loss badge for losing match', () => {
@@ -424,10 +424,10 @@ describe('PlayerRecentMatches', () => {
         />,
       )
 
-      // Should have red border for loss - find the match card div with border classes
+      // Should have loss border for loss - find the match card div with border classes
       const matchCards = document.querySelectorAll('.border-l-4')
       expect(matchCards.length).toBe(1)
-      expect(matchCards[0]).toHaveClass('border-l-red-400')
+      expect(matchCards[0]).toHaveClass('border-l-[var(--th-loss)]')
     })
   })
 })

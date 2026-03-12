@@ -1,1 +1,28 @@
 @import "tailwindcss";
+@import "@foos/shared/theme.css";
+
+/* Chess sport colors per theme */
+:root,
+[data-theme="default"] {
+  --th-sport-from: #832161;
+  --th-sport-to: #da4167;
+  --th-sport-primary: #832161;
+  --th-sport-hover-from: #6e1b52;
+  --th-sport-hover-to: #c93558;
+}
+
+[data-theme="cleansport"] {
+  --th-sport-from: #0af0c0;
+  --th-sport-to: #832161;
+  --th-sport-primary: #0af0c0;
+  --th-sport-hover-from: #08d4a8;
+  --th-sport-hover-to: #6e1b52;
+}
+
+[data-theme="neonarcade"] {
+  --th-sport-from: #ffe600;
+  --th-sport-to: #ff2d7b;
+  --th-sport-primary: #ffe600;
+  --th-sport-hover-from: #e6cf00;
+  --th-sport-hover-to: #e0266b;
+}

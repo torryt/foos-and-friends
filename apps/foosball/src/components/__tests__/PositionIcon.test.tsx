@@ -8,9 +8,9 @@ describe('PositionIcon', () => {
 
       expect(container.firstChild).toHaveClass('flex', 'items-center', 'gap-1')
 
-      // Check that the icon has orange color class
+      // Check that the icon has sport-primary color class
       const icon = container.querySelector('svg')
-      expect(icon).toHaveClass('text-orange-500')
+      expect(icon).toHaveClass('text-[var(--th-sport-primary)]')
     })
 
     test('renders shield icon for defender position', () => {
@@ -51,7 +51,7 @@ describe('PositionIcon', () => {
       render(<PositionIcon position="attacker" showLabel={true} />)
 
       expect(screen.getByText('Attacker')).toBeInTheDocument()
-      expect(screen.getByText('Attacker')).toHaveClass('text-orange-500')
+      expect(screen.getByText('Attacker')).toHaveClass('text-[var(--th-sport-primary)]')
     })
 
     test('renders label when showLabel is true for defender', () => {

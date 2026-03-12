@@ -11,7 +11,7 @@ const QuickActions = ({ onAddMatch, onAddPlayer }: QuickActionsProps) => {
       <button
         type="button"
         onClick={onAddMatch}
-        className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-xl hover:from-blue-600 hover:to-indigo-700 shadow-lg flex items-center justify-center gap-2 font-semibold"
+        className="bg-sport-gradient text-white p-4 rounded-[var(--th-radius-lg)] hover:bg-sport-gradient-hover shadow-theme-card flex items-center justify-center gap-2 font-semibold"
       >
         <Target size={20} />
         Add Match
@@ -19,7 +19,7 @@ const QuickActions = ({ onAddMatch, onAddPlayer }: QuickActionsProps) => {
       <button
         type="button"
         onClick={onAddPlayer}
-        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-xl hover:from-blue-600 hover:to-purple-700 shadow-lg flex items-center justify-center gap-2 font-semibold"
+        className="bg-[var(--th-sport-primary)] text-white p-4 rounded-[var(--th-radius-lg)] hover:opacity-90 shadow-theme-card flex items-center justify-center gap-2 font-semibold"
       >
         <Plus size={20} />
         Add Player

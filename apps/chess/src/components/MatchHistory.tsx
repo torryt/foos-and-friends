@@ -39,19 +39,19 @@ const getPlayerStats = (match: Match, playerId: string): PlayerMatchStats | unde
 const formatRankingChange = (change: number) => {
   if (change > 0) {
     return (
-      <span className="text-green-600 flex items-center gap-0.5">
+      <span className="text-[var(--th-win)] flex items-center gap-0.5">
         <TrendingUp size={10} />+{change}
       </span>
     )
   } else if (change < 0) {
     return (
-      <span className="text-red-600 flex items-center gap-0.5">
+      <span className="text-[var(--th-loss)] flex items-center gap-0.5">
         <TrendingDown size={10} />
         {change}
       </span>
     )
   } else {
-    return <span className="text-gray-500">0</span>
+    return <span className="text-muted">0</span>
   }
 }
 
@@ -71,14 +71,14 @@ const PlayerWithStats = ({ player, match, teamColor, onPlayerClick }: PlayerWith
         <div className={`text-xs font-medium ${teamColor}`}>{player.name}</div>
       </button>
       {hasStats ? (
-        <div className="text-xs text-gray-600">
+        <div className="text-xs text-secondary">
           <div className="flex items-center gap-1">
             <span className="font-medium">{stats.postGameRanking}</span>
             {formatRankingChange(calculateRankingChange(stats))}
           </div>
         </div>
       ) : (
-        <div className="text-xs text-gray-600">
+        <div className="text-xs text-secondary">
           <div className="flex items-center">
             <span className="font-medium">{player.ranking}</span>
           </div>
@@ -132,25 +132,25 @@ const MatchHistory = ({
   const isArchived = !!currentSeason && !currentSeason.isActive
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
+    <div className="bg-card backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
       {/* Archived Season Indicator */}
       {isArchived && (
-        <div className="bg-gradient-to-r from-[#F0EFF4] to-[#E8D5E0] border-b border-[#832161]/20 px-4 py-2 flex items-center gap-2">
-          <Calendar size={16} className="text-[#832161]" />
-          <span className="text-sm font-medium text-[#3D2645]">
+        <div className="bg-accent-subtle border-b border-[var(--th-border)] px-4 py-2 flex items-center gap-2">
+          <Calendar size={16} className="text-[var(--th-sport-primary)]" />
+          <span className="text-sm font-medium text-primary">
             Viewing archived season: {currentSeason.name} ({currentSeason.startDate} -{' '}
             {currentSeason.endDate || 'Unknown'})
           </span>
         </div>
       )}
 
-      <div className="p-4 border-b border-slate-200/50">
+      <div className="p-4 border-b border-[var(--th-border)]">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">
+            <h2 className="text-lg font-bold text-primary">
               {selectedPlayerData ? `${selectedPlayerData.name}'s Games` : 'Recent Games'}
             </h2>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-secondary">
               {selectedPlayerData
                 ? `Match history for ${selectedPlayerData.name}`
                 : isArchived
@@ -162,7 +162,7 @@ const MatchHistory = ({
             <button
               type="button"
               onClick={() => setShowPlayerFilter(!showPlayerFilter)}
-              className="bg-gradient-to-r from-[#3D2645] to-[#5a3a66] text-white p-2 rounded-lg hover:from-[#2d1c33] hover:to-[#4a2e55]"
+              className="bg-[var(--th-sport-primary)] text-white p-2 rounded-[var(--th-radius-md)] hover:opacity-90"
               title="Filter by player"
             >
               <Filter size={16} />
@@ -170,7 +170,7 @@ const MatchHistory = ({
             <button
               type="button"
               onClick={onAddMatch}
-              className="bg-gradient-to-r from-[#832161] to-[#DA4167] text-white p-2 rounded-lg hover:from-[#6e1b52] hover:to-[#c93558]"
+              className="bg-sport-gradient text-white p-2 rounded-[var(--th-radius-md)] hover:bg-sport-gradient-hover"
             >
               <Plus size={16} />
             </button>
@@ -180,13 +180,13 @@ const MatchHistory = ({
         {/* Player Filter Dropdown */}
         {showPlayerFilter && (
           <div className="mt-4 relative">
-            <div className="bg-gradient-to-r from-[#F0EFF4] to-[#E8D5E0] p-3 rounded-lg border border-[#832161]/20">
+            <div className="bg-accent-subtle p-3 rounded-[var(--th-radius-md)] border border-[var(--th-border)]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-semibold text-[#3D2645]">Filter by Player</span>
+                <span className="text-sm font-semibold text-primary">Filter by Player</span>
                 <button
                   type="button"
                   onClick={() => setShowPlayerFilter(false)}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="text-muted hover:text-secondary"
                 >
                   <X size={16} />
                 </button>
@@ -200,8 +200,8 @@ const MatchHistory = ({
                   }}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     !selectedPlayer
-                      ? 'bg-[#832161]/20 text-[#3D2645]'
-                      : 'bg-white/60 text-slate-600 hover:bg-[#832161]/10'
+                      ? 'bg-[var(--th-sport-primary)]/20 text-primary'
+                      : 'bg-card text-secondary hover:bg-[var(--th-sport-primary)]/10'
                   }`}
                 >
                   All Players
@@ -216,8 +216,8 @@ const MatchHistory = ({
                     }}
                     className={`px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
                       selectedPlayer === player.id
-                        ? 'bg-[#832161]/20 text-[#3D2645]'
-                        : 'bg-white/60 text-slate-600 hover:bg-[#832161]/10'
+                        ? 'bg-[var(--th-sport-primary)]/20 text-primary'
+                        : 'bg-card text-secondary hover:bg-[var(--th-sport-primary)]/10'
                     }`}
                   >
                     <span className="text-xs">{player.avatar}</span>
@@ -232,9 +232,9 @@ const MatchHistory = ({
 
       <div className="p-4">
         {filteredMatches.length === 0 ? (
-          <Alert className="bg-gradient-to-r from-[#F0EFF4] to-[#E8D5E0] border-[#832161]/20">
-            <Target className="h-4 w-4 text-[#832161]" />
-            <AlertDescription className="text-slate-600 font-medium text-sm">
+          <Alert className="bg-accent-subtle border-[var(--th-border)]">
+            <Target className="h-4 w-4 text-[var(--th-sport-primary)]" />
+            <AlertDescription className="text-secondary font-medium text-sm">
               No games recorded yet. Tap + to record your first chess match!
             </AlertDescription>
           </Alert>
@@ -243,10 +243,10 @@ const MatchHistory = ({
             {filteredMatches.map((match) => (
               <div
                 key={match.id}
-                className="bg-gradient-to-br from-white to-slate-50 border border-white/50 rounded-xl p-3 shadow-sm"
+                className="bg-card border border-[var(--th-border-subtle)] rounded-[var(--th-radius-lg)] p-3 shadow-sm"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="text-xs text-slate-600 flex items-center gap-1">
+                  <div className="text-xs text-secondary flex items-center gap-1">
                     <Clock size={12} />
                     {match.date} at {match.time}
                   </div>
@@ -261,21 +261,21 @@ const MatchHistory = ({
                     return (
                       <>
                         <div
-                          className={`text-center p-2 rounded-lg border ${
+                          className={`text-center p-2 rounded-[var(--th-radius-md)] border ${
                             isDraw
-                              ? 'bg-gradient-to-br from-blue-50 to-slate-50 border-blue-200/50'
+                              ? 'bg-[var(--th-draw)]/10 border-[var(--th-draw)]/30'
                               : match.score1 > match.score2
-                                ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
-                                : 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200/50'
+                                ? 'bg-[var(--th-win)]/10 border-[var(--th-win)]/30'
+                                : 'bg-[var(--th-loss)]/10 border-[var(--th-loss)]/30'
                           }`}
                         >
                           <div
                             className={`font-bold mb-1 text-xs ${
                               isDraw
-                                ? 'text-blue-800'
+                                ? 'text-[var(--th-draw)]'
                                 : match.score1 > match.score2
-                                  ? 'text-green-800'
-                                  : 'text-amber-800'
+                                  ? 'text-[var(--th-win)]'
+                                  : 'text-[var(--th-loss)]'
                             }`}
                           >
                             {isDraw ? 'Draw' : match.score1 > match.score2 ? 'Winner' : 'White ♔'}
@@ -286,10 +286,10 @@ const MatchHistory = ({
                               match={match}
                               teamColor={
                                 isDraw
-                                  ? 'text-blue-700'
+                                  ? 'text-[var(--th-draw)]'
                                   : match.score1 > match.score2
-                                    ? 'text-green-700'
-                                    : 'text-amber-700'
+                                    ? 'text-[var(--th-win)]'
+                                    : 'text-[var(--th-loss)]'
                               }
                               onPlayerClick={onPlayerClick}
                             />
@@ -299,20 +299,22 @@ const MatchHistory = ({
                         <div className="text-center order-first sm:order-none">
                           {isDraw ? (
                             <>
-                              <div className="mx-auto mb-1 text-xl font-bold text-blue-500">
+                              <div className="mx-auto mb-1 text-xl font-bold text-[var(--th-draw)]">
                                 ½-½
                               </div>
-                              <div className="text-xs font-medium text-blue-600">Draw</div>
+                              <div className="text-xs font-medium text-[var(--th-draw)]">Draw</div>
                             </>
                           ) : (
                             <>
                               <Crown
                                 className={`mx-auto mb-1 ${
-                                  match.score1 > match.score2 ? 'text-green-500' : 'text-slate-500'
+                                  match.score1 > match.score2
+                                    ? 'text-[var(--th-win)]'
+                                    : 'text-muted'
                                 }`}
                                 size={24}
                               />
-                              <div className="text-xs font-medium text-green-600">
+                              <div className="text-xs font-medium text-[var(--th-win)]">
                                 {match.score1 > match.score2
                                   ? match.team1[0].name
                                   : match.team2[0].name}{' '}
@@ -323,21 +325,21 @@ const MatchHistory = ({
                         </div>
 
                         <div
-                          className={`text-center p-2 rounded-lg border ${
+                          className={`text-center p-2 rounded-[var(--th-radius-md)] border ${
                             isDraw
-                              ? 'bg-gradient-to-br from-blue-50 to-slate-50 border-blue-200/50'
+                              ? 'bg-[var(--th-draw)]/10 border-[var(--th-draw)]/30'
                               : match.score2 > match.score1
-                                ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/50'
-                                : 'bg-gradient-to-br from-slate-100 to-slate-50 border-slate-300/50'
+                                ? 'bg-[var(--th-win)]/10 border-[var(--th-win)]/30'
+                                : 'bg-[var(--th-loss)]/10 border-[var(--th-loss)]/30'
                           }`}
                         >
                           <div
                             className={`font-bold mb-1 text-xs ${
                               isDraw
-                                ? 'text-blue-800'
+                                ? 'text-[var(--th-draw)]'
                                 : match.score2 > match.score1
-                                  ? 'text-green-800'
-                                  : 'text-slate-800'
+                                  ? 'text-[var(--th-win)]'
+                                  : 'text-[var(--th-loss)]'
                             }`}
                           >
                             {isDraw ? 'Draw' : match.score2 > match.score1 ? 'Winner' : 'Black ♚'}
@@ -348,10 +350,10 @@ const MatchHistory = ({
                               match={match}
                               teamColor={
                                 isDraw
-                                  ? 'text-blue-700'
+                                  ? 'text-[var(--th-draw)]'
                                   : match.score2 > match.score1
-                                    ? 'text-green-700'
-                                    : 'text-slate-700'
+                                    ? 'text-[var(--th-win)]'
+                                    : 'text-[var(--th-loss)]'
                               }
                               onPlayerClick={onPlayerClick}
                             />

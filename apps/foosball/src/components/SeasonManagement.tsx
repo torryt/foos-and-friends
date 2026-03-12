@@ -65,9 +65,9 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
 
   const modalContent = (
     <ModalOrBottomDrawer isOpen={isOpen} onClose={onClose} className="sm:max-w-2xl">
-      <div className="bg-white shadow-2xl w-full flex flex-col max-h-[90vh]">
+      <div className="bg-card shadow-2xl w-full flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-red-500">
+        <div className="px-6 py-4 border-b border-[var(--th-border)] bg-sport-gradient">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Calendar size={24} />
@@ -88,7 +88,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
         <div className="flex-1 overflow-y-auto p-6">
           {/* Current Active Season */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Active Season</h3>
+            <h3 className="text-lg font-semibold text-primary mb-3">Active Season</h3>
             {activeSeason ? (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-start justify-between">
@@ -105,15 +105,15 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                 </div>
               </div>
             ) : (
-              <p className="text-gray-500">No active season</p>
+              <p className="text-muted">No active season</p>
             )}
           </div>
 
           {/* Create New Season Form */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Create New Season</h3>
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <p className="text-sm text-orange-800 mb-4">
+            <h3 className="text-lg font-semibold text-primary mb-3">Create New Season</h3>
+            <div className="bg-accent-subtle border border-[var(--th-border)] rounded-[var(--th-radius-md)] p-4">
+              <p className="text-sm text-primary mb-4">
                 ⚠️ Creating a new season will end the current active season and reset all player
                 rankings to 1200.
               </p>
@@ -122,7 +122,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                 <div>
                   <label
                     htmlFor={seasonNameId}
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-primary mb-1"
                   >
                     Season Name *
                   </label>
@@ -132,7 +132,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                     value={newSeasonName}
                     onChange={(e) => setNewSeasonName(e.target.value)}
                     placeholder="e.g., Spring 2024, Season 2"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-[var(--th-border)] rounded-[var(--th-radius-md)] focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent"
                     disabled={isCreating}
                   />
                 </div>
@@ -140,7 +140,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                 <div>
                   <label
                     htmlFor={seasonDescriptionId}
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-primary mb-1"
                   >
                     Description (optional)
                   </label>
@@ -150,7 +150,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                     onChange={(e) => setNewSeasonDescription(e.target.value)}
                     placeholder="Add a description for this season..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-[var(--th-border)] rounded-[var(--th-radius-md)] focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent resize-none"
                     disabled={isCreating}
                   />
                 </div>
@@ -172,7 +172,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                 <button
                   type="submit"
                   disabled={isCreating || !newSeasonName.trim()}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-lg font-medium hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-sport-gradient text-white px-4 py-2 rounded-[var(--th-radius-md)] font-medium hover:bg-sport-gradient-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isCreating ? (
                     <>
@@ -193,23 +193,26 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
           {/* Archived Seasons */}
           {archivedSeasons.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Archived Seasons</h3>
+              <h3 className="text-lg font-semibold text-primary mb-3">Archived Seasons</h3>
               <div className="space-y-2">
                 {archivedSeasons.map((season) => (
-                  <div key={season.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div
+                    key={season.id}
+                    className="bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)] p-4"
+                  >
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-900">{season.name}</span>
-                          <span className="text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded">
+                          <span className="font-semibold text-primary">{season.name}</span>
+                          <span className="text-xs bg-card-hover text-secondary px-2 py-0.5 rounded">
                             Archived
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-secondary mt-1">
                           {season.startDate} - {season.endDate || 'Unknown'}
                         </p>
                         {season.description && (
-                          <p className="text-sm text-gray-500 mt-2">{season.description}</p>
+                          <p className="text-sm text-muted mt-2">{season.description}</p>
                         )}
                       </div>
                     </div>
@@ -221,11 +224,11 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-t border-[var(--th-border)] bg-card-hover">
           <button
             type="button"
             onClick={onClose}
-            className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            className="w-full px-4 py-2 bg-card border border-[var(--th-border)] text-primary rounded-[var(--th-radius-md)] font-medium hover:bg-card-hover transition-colors"
           >
             Close
           </button>

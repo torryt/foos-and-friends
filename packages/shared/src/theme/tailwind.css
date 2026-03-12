@@ -1,0 +1,43 @@
+/* Register theme tokens as Tailwind v4 theme values */
+@theme {
+  /* Colors */
+  --color-page: var(--th-bg-page);
+  --color-card: var(--th-bg-card);
+  --color-card-hover: var(--th-bg-card-hover);
+  --color-header: var(--th-bg-header);
+  --color-input: var(--th-bg-input);
+
+  --color-primary: var(--th-text-primary);
+  --color-secondary: var(--th-text-secondary);
+  --color-muted: var(--th-text-muted);
+
+  --color-th-border: var(--th-border);
+  --color-th-border-subtle: var(--th-border-subtle);
+
+  --color-accent: var(--th-accent);
+  --color-accent-hover: var(--th-accent-hover);
+  --color-accent-subtle: var(--th-accent-subtle);
+
+  --color-win: var(--th-win);
+  --color-loss: var(--th-loss);
+  --color-draw: var(--th-draw);
+
+  --color-sport-primary: var(--th-sport-primary);
+  --color-sport-from: var(--th-sport-from);
+  --color-sport-to: var(--th-sport-to);
+
+  /* Font families */
+  --font-body: var(--th-font-body);
+  --font-heading: var(--th-font-heading);
+  --font-data: var(--th-font-data);
+
+  /* Border radii */
+  --radius-theme-sm: var(--th-radius-sm);
+  --radius-theme-md: var(--th-radius-md);
+  --radius-theme-lg: var(--th-radius-lg);
+
+  /* Shadows */
+  --shadow-theme-card: var(--th-shadow-card);
+  --shadow-theme-card-hover: var(--th-shadow-card-hover);
+  --shadow-theme-glow: var(--th-shadow-glow);
+}

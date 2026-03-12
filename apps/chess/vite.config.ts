@@ -72,6 +72,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
+      '@foos/shared/theme.css': path.resolve(
+        import.meta.dirname,
+        '../../packages/shared/src/theme/index.css',
+      ),
       '@foos/shared': path.resolve(import.meta.dirname, '../../packages/shared/src/index.ts'),
     },
   },

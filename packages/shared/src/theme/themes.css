@@ -1,0 +1,144 @@
+/* ============================================
+ * DEFAULT THEME — Current orange/warm style
+ * ============================================ */
+:root,
+[data-theme="default"] {
+  /* Backgrounds */
+  --th-bg-page: #fff7ed;
+  --th-bg-card: #ffffff;
+  --th-bg-card-hover: #fafafa;
+  --th-bg-header: #ffffff;
+  --th-bg-input: #ffffff;
+  --th-bg-input-hover: #f9fafb;
+  --th-bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Text */
+  --th-text-primary: #1e293b;
+  --th-text-secondary: #64748b;
+  --th-text-muted: #94a3b8;
+
+  /* Borders */
+  --th-border: #e2e8f0;
+  --th-border-subtle: rgba(255, 255, 255, 0.5);
+
+  /* Accent */
+  --th-accent: #f97316;
+  --th-accent-hover: #ea580c;
+  --th-accent-subtle: #fff7ed;
+
+  /* Semantic */
+  --th-win: #16a34a;
+  --th-loss: #f87171;
+  --th-draw: #3b82f6;
+
+  /* Typography */
+  --th-font-body: system-ui, -apple-system, sans-serif;
+  --th-font-heading: system-ui, -apple-system, sans-serif;
+  --th-font-data: system-ui, -apple-system, sans-serif;
+
+  /* Geometry */
+  --th-radius-sm: 0.375rem;
+  --th-radius-md: 0.5rem;
+  --th-radius-lg: 0.75rem;
+
+  /* Effects */
+  --th-shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --th-shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --th-shadow-glow: none;
+}
+
+/* ============================================
+ * CLEANSPORT THEME — Professional minimalist
+ * ============================================ */
+[data-theme="cleansport"] {
+  /* Backgrounds */
+  --th-bg-page: #f7f8fb;
+  --th-bg-card: #ffffff;
+  --th-bg-card-hover: #f4f6f9;
+  --th-bg-header: #0f1729;
+  --th-bg-input: #ffffff;
+  --th-bg-input-hover: #f4f6f9;
+  --th-bg-overlay: rgba(15, 23, 41, 0.6);
+
+  /* Text */
+  --th-text-primary: #0f1729;
+  --th-text-secondary: #6b7a94;
+  --th-text-muted: #8694ad;
+
+  /* Borders */
+  --th-border: #e8eaf0;
+  --th-border-subtle: #e8eaf0;
+
+  /* Accent */
+  --th-accent: #0af0c0;
+  --th-accent-hover: #08d4a8;
+  --th-accent-subtle: rgba(10, 240, 192, 0.08);
+
+  /* Semantic */
+  --th-win: #16a34a;
+  --th-loss: #ff6b5a;
+  --th-draw: #3b82f6;
+
+  /* Typography */
+  --th-font-body: "Outfit", system-ui, sans-serif;
+  --th-font-heading: "Outfit", system-ui, sans-serif;
+  --th-font-data: "DM Mono", ui-monospace, monospace;
+
+  /* Geometry */
+  --th-radius-sm: 6px;
+  --th-radius-md: 8px;
+  --th-radius-lg: 10px;
+
+  /* Effects */
+  --th-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --th-shadow-card-hover: 0 2px 12px rgba(10, 240, 192, 0.08);
+  --th-shadow-glow: 0 0 8px rgba(10, 240, 192, 0.3);
+}
+
+/* ============================================
+ * NEONARCADE THEME — Retro 80s arcade
+ * ============================================ */
+[data-theme="neonarcade"] {
+  /* Backgrounds */
+  --th-bg-page: #0a0a12;
+  --th-bg-card: #12121e;
+  --th-bg-card-hover: #1a1a2e;
+  --th-bg-header: #0a0a12;
+  --th-bg-input: #12121e;
+  --th-bg-input-hover: #1a1a2e;
+  --th-bg-overlay: rgba(10, 10, 18, 0.8);
+
+  /* Text */
+  --th-text-primary: #eeeef4;
+  --th-text-secondary: #c8c8d4;
+  --th-text-muted: #7a7a8e;
+
+  /* Borders */
+  --th-border: rgba(0, 240, 255, 0.08);
+  --th-border-subtle: rgba(0, 240, 255, 0.06);
+
+  /* Accent */
+  --th-accent: #00f0ff;
+  --th-accent-hover: #00d4e0;
+  --th-accent-subtle: rgba(0, 240, 255, 0.08);
+
+  /* Semantic */
+  --th-win: #39ff14;
+  --th-loss: #ff2d7b;
+  --th-draw: #b24dff;
+
+  /* Typography */
+  --th-font-body: "Rajdhani", system-ui, sans-serif;
+  --th-font-heading: "Press Start 2P", monospace;
+  --th-font-data: "Press Start 2P", monospace;
+
+  /* Geometry */
+  --th-radius-sm: 0px;
+  --th-radius-md: 0px;
+  --th-radius-lg: 0px;
+
+  /* Effects */
+  --th-shadow-card: 0 0 15px rgba(0, 240, 255, 0.05), inset 0 0 15px rgba(0, 240, 255, 0.02);
+  --th-shadow-card-hover: 0 0 20px rgba(0, 240, 255, 0.1), inset 0 0 20px rgba(0, 240, 255, 0.03);
+  --th-shadow-glow: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 60px rgba(0, 240, 255, 0.2);
+}

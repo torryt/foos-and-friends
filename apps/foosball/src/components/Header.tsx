@@ -1,4 +1,4 @@
-import type { AuthUser } from '@foos/shared'
+import { type AuthUser, ThemePicker } from '@foos/shared'
 import { LogOut, User, Users, Zap } from 'lucide-react'
 import { useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
@@ -52,16 +52,16 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-white/90 to-orange-50/90 backdrop-blur-sm shadow-sm border-b border-white/20 sticky top-0 z-40">
+      <div className="bg-[var(--th-bg-header)] backdrop-blur-sm shadow-sm border-b border-[var(--th-border-subtle)] sticky top-0 z-40">
         <div className="container mx-auto max-w-6xl">
           <div className="px-4 py-3">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center gap-2">
-                  <Zap className="text-orange-500" size={20} />
+                <h1 className="text-lg md:text-2xl font-bold text-sport-gradient flex items-center gap-2">
+                  <Zap className="text-[var(--th-sport-primary)]" size={20} />
                   Foos & Friends
                 </h1>
-                <p className="text-xs md:text-sm text-slate-600">Play. Compete. Connect.</p>
+                <p className="text-xs md:text-sm text-secondary">Play. Compete. Connect.</p>
               </div>
 
               <div className="flex items-center gap-1 md:gap-3">
@@ -90,8 +90,8 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                           onLeaveGroup={handleLeaveGroup}
                         />
                       ) : (
-                        <div className="bg-white/80 px-2 py-2 rounded-lg border border-white/50">
-                          <Users size={16} className="text-gray-600" />
+                        <div className="bg-card px-2 py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)]">
+                          <Users size={16} className="text-secondary" />
                         </div>
                       )}
                     </div>
@@ -104,13 +104,13 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                       <button
                         type="button"
                         onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                        className="bg-white/80 px-2 py-2 rounded-lg border border-white/50 hover:bg-white transition-colors flex items-center gap-2"
+                        className="bg-card px-2 py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center gap-2"
                         title={user.email.split('@')[0]}
                       >
-                        <User size={16} className="text-gray-600" />
+                        <User size={16} className="text-secondary" />
                         {/* Desktop: Show username */}
                         <div className="hidden sm:flex items-center gap-1">
-                          <span className="text-xs md:text-sm font-medium text-gray-700 max-w-16 md:max-w-32 truncate">
+                          <span className="text-xs md:text-sm font-medium text-primary max-w-16 md:max-w-32 truncate">
                             {user.email.split('@')[0]}
                           </span>
                         </div>
@@ -128,14 +128,19 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                           />
 
                           {/* Profile Dropdown */}
-                          <div className="absolute top-full mt-1 right-0 bg-white rounded-lg shadow-lg border border-gray-200 min-w-48 z-20">
+                          <div className="absolute top-full mt-1 right-0 bg-card rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border)] min-w-48 z-20">
                             <div className="p-2">
                               {/* User info section */}
-                              <div className="px-3 py-2 border-b border-gray-100">
-                                <div className="text-sm font-medium text-gray-900 truncate">
+                              <div className="px-3 py-2 border-b border-[var(--th-border)]">
+                                <div className="text-sm font-medium text-primary truncate">
                                   {user.email.split('@')[0]}
                                 </div>
-                                <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                                <div className="text-xs text-muted truncate">{user.email}</div>
+                              </div>
+
+                              {/* Theme picker */}
+                              <div className="border-b border-[var(--th-border)]">
+                                <ThemePicker />
                               </div>
 
                               {/* Actions section */}
@@ -147,9 +152,9 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                                       onSignOut()
                                       setShowProfileDropdown(false)
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2 text-sm font-medium text-red-700"
+                                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-loss/10 transition-colors flex items-center gap-2 text-sm font-medium text-[var(--th-loss)]"
                                   >
-                                    <LogOut size={16} className="text-red-500" />
+                                    <LogOut size={16} className="text-[var(--th-loss)]" />
                                     Sign Out
                                   </button>
                                 )}

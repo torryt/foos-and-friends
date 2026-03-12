@@ -1,0 +1,61 @@
+/* ============================================
+ * Theme-specific effects
+ * Things that CSS variables alone can't express
+ * ============================================ */
+
+/* --- NeonArcade scanline overlay --- */
+[data-theme="neonarcade"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 240, 255, 0.008) 2px,
+    rgba(0, 240, 255, 0.008) 4px
+  );
+}
+
+/* --- NeonArcade ambient background glows --- */
+[data-theme="neonarcade"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 600px 300px at 20% 10%, rgba(0, 240, 255, 0.04), transparent),
+    radial-gradient(ellipse 500px 400px at 80% 90%, rgba(255, 45, 123, 0.03), transparent);
+}
+
+/* --- NeonArcade neon glow text --- */
+.theme-glow-text {
+  text-shadow: none;
+}
+[data-theme="neonarcade"] .theme-glow-text {
+  text-shadow:
+    0 0 20px rgba(0, 240, 255, 0.5),
+    0 0 60px rgba(0, 240, 255, 0.2);
+}
+
+/* --- NeonArcade neon glow for sport accent --- */
+.theme-glow-sport {
+  text-shadow: none;
+}
+[data-theme="neonarcade"] .theme-glow-sport {
+  text-shadow: 0 0 15px rgba(255, 45, 123, 0.3);
+}
+
+/* --- CleanSport monospace data font utility --- */
+.theme-data-font {
+  font-family: var(--th-font-data);
+}
+
+/* --- NeonArcade heading font sizing (pixel font needs smaller sizes) --- */
+[data-theme="neonarcade"] .theme-heading {
+  font-family: var(--th-font-heading);
+  letter-spacing: 2px;
+}

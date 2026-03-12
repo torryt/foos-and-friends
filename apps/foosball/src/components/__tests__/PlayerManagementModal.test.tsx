@@ -82,7 +82,7 @@ describe('PlayerManagementModal', () => {
       )
 
       // Should see edit button for player created by user1
-      const johnRow = screen.getByText('John Doe').closest('.bg-white\\/60')
+      const johnRow = screen.getByText('John Doe').closest('.bg-card')
       expect(johnRow).toBeInTheDocument()
 
       // Find edit button within John's row
@@ -104,7 +104,7 @@ describe('PlayerManagementModal', () => {
       )
 
       // Should NOT see edit button for player created by user2
-      const janeRow = screen.getByText('Jane Smith').closest('.bg-white\\/60')
+      const janeRow = screen.getByText('Jane Smith').closest('.bg-card')
       expect(janeRow).toBeInTheDocument()
 
       // Should not find edit button within Jane's row
@@ -126,7 +126,7 @@ describe('PlayerManagementModal', () => {
       )
 
       // Should see delete button for player created by user1 with 0 matches
-      const johnRow = screen.getByText('John Doe').closest('.bg-white\\/60')
+      const johnRow = screen.getByText('John Doe').closest('.bg-card')
       expect(johnRow).toBeInTheDocument()
 
       // Find delete button within John's row
@@ -150,7 +150,7 @@ describe('PlayerManagementModal', () => {
       )
 
       // Should NOT see delete button for player created by user3
-      const bobRow = screen.getByText('Bob Wilson').closest('.bg-white\\/60')
+      const bobRow = screen.getByText('Bob Wilson').closest('.bg-card')
       expect(bobRow).toBeInTheDocument()
 
       // Should not find delete button within Bob's row
@@ -177,7 +177,7 @@ describe('PlayerManagementModal', () => {
 
       // Should see edit buttons for all players
       mockPlayers.forEach((player) => {
-        const playerRow = screen.getByText(player.name).closest('.bg-white\\/60')
+        const playerRow = screen.getByText(player.name).closest('.bg-card')
         expect(playerRow).toBeInTheDocument()
 
         const editButton = playerRow?.querySelector('button[title="Edit player"]')
@@ -199,21 +199,21 @@ describe('PlayerManagementModal', () => {
       )
 
       // Should see delete button for John (0 matches)
-      const johnRow = screen.getByText('John Doe').closest('.bg-white\\/60')
+      const johnRow = screen.getByText('John Doe').closest('.bg-card')
       const johnDeleteButton = johnRow?.querySelector(
         'button[title="Delete player (only if no matches played)"]',
       )
       expect(johnDeleteButton).toBeInTheDocument()
 
       // Should see delete button for Bob (0 matches)
-      const bobRow = screen.getByText('Bob Wilson').closest('.bg-white\\/60')
+      const bobRow = screen.getByText('Bob Wilson').closest('.bg-card')
       const bobDeleteButton = bobRow?.querySelector(
         'button[title="Delete player (only if no matches played)"]',
       )
       expect(bobDeleteButton).toBeInTheDocument()
 
       // Should NOT see delete button for Jane (has matches)
-      const janeRow = screen.getByText('Jane Smith').closest('.bg-white\\/60')
+      const janeRow = screen.getByText('Jane Smith').closest('.bg-card')
       const janeDeleteButton = janeRow?.querySelector(
         'button[title="Delete player (only if no matches played)"]',
       )
@@ -237,7 +237,7 @@ describe('PlayerManagementModal', () => {
       )
 
       // Click delete button for Bob (created by user3, but admin should be able to delete)
-      const bobRow = screen.getByText('Bob Wilson').closest('.bg-white\\/60')
+      const bobRow = screen.getByText('Bob Wilson').closest('.bg-card')
       const bobDeleteButton = bobRow?.querySelector(
         'button[title="Delete player (only if no matches played)"]',
       )
@@ -270,7 +270,7 @@ describe('PlayerManagementModal', () => {
       )
 
       // Jane has 5 matches played, should not show delete button
-      const janeRow = screen.getByText('Jane Smith').closest('.bg-white\\/60')
+      const janeRow = screen.getByText('Jane Smith').closest('.bg-card')
       expect(janeRow).toBeInTheDocument()
 
       const deleteButton = janeRow?.querySelector(

@@ -1,0 +1,20 @@
+/*
+ * Theme Design Tokens
+ *
+ * All theme-able properties are defined as CSS custom properties prefixed with --th-.
+ * Each theme block (in themes.css) provides values for these tokens.
+ * Sport-specific tokens (--th-sport-*) are set per-app in each app's index.css.
+ */
+
+/* Token categories documented here for reference:
+ *
+ * Backgrounds:   --th-bg-page, --th-bg-card, --th-bg-card-hover, --th-bg-header, --th-bg-input, --th-bg-input-hover
+ * Text:          --th-text-primary, --th-text-secondary, --th-text-muted
+ * Borders:       --th-border, --th-border-subtle
+ * Accent:        --th-accent, --th-accent-hover, --th-accent-subtle
+ * Semantic:      --th-win, --th-loss, --th-draw
+ * Sport brand:   --th-sport-from, --th-sport-to, --th-sport-primary, --th-sport-hover-from, --th-sport-hover-to
+ * Typography:    --th-font-body, --th-font-heading, --th-font-data
+ * Geometry:      --th-radius-sm, --th-radius-md, --th-radius-lg
+ * Effects:       --th-shadow-card, --th-shadow-card-hover, --th-shadow-glow
+ */

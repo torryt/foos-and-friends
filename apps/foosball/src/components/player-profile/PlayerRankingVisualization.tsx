@@ -53,16 +53,16 @@ export function PlayerRankingVisualization({
   if (!mainPlayerHistory[0]) return null
 
   return (
-    <Card className="p-4 bg-white/80 backdrop-blur-sm">
+    <Card className="p-4 bg-card backdrop-blur-sm">
       <div className="space-y-4">
         {/* Header with toggle buttons */}
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={() => setShowRankingChart(!showRankingChart)}
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-primary hover:text-primary transition-colors"
           >
-            <ChartLine className="w-5 h-5 text-orange-500" />
+            <ChartLine className="w-5 h-5 text-[var(--th-sport-primary)]" />
             <h3 className="font-semibold">Ranking History</h3>
             {showRankingChart ? (
               <ChevronUp className="w-4 h-4" />
@@ -97,14 +97,14 @@ export function PlayerRankingVisualization({
                     return (
                       <div
                         key={id}
-                        className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-lg"
+                        className="flex items-center gap-1 px-2 py-1 bg-card-hover rounded-lg"
                       >
                         <span className="text-sm">{comparePlayer.avatar}</span>
-                        <span className="text-xs text-gray-600">{comparePlayer.name}</span>
+                        <span className="text-xs text-secondary">{comparePlayer.name}</span>
                         <button
                           type="button"
                           onClick={() => handleRemoveComparePlayer(id)}
-                          className="ml-1 text-gray-400 hover:text-red-500 transition-colors"
+                          className="ml-1 text-muted hover:text-red-500 transition-colors"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -123,7 +123,7 @@ export function PlayerRankingVisualization({
                       </Button>
 
                       {showPlayerSelector && (
-                        <div className="absolute top-full mt-1 left-0 z-50 w-48 bg-white rounded-lg shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
+                        <div className="absolute top-full mt-1 left-0 z-50 w-48 bg-card rounded-lg shadow-lg border border-[var(--th-border)] max-h-64 overflow-y-auto">
                           {players
                             .filter(
                               (p) =>
@@ -137,12 +137,12 @@ export function PlayerRankingVisualization({
                                 key={p.id}
                                 type="button"
                                 onClick={() => handleAddComparePlayer(p.id)}
-                                className="w-full px-3 py-2 flex items-center gap-2 hover:bg-gray-50 transition-colors text-left"
+                                className="w-full px-3 py-2 flex items-center gap-2 hover:bg-card-hover transition-colors text-left"
                               >
                                 <span className="text-sm">{p.avatar}</span>
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-sm text-gray-900 truncate">{p.name}</div>
-                                  <div className="text-xs text-gray-500">{p.ranking} pts</div>
+                                  <div className="text-sm text-primary truncate">{p.name}</div>
+                                  <div className="text-xs text-muted">{p.ranking} pts</div>
                                 </div>
                               </button>
                             ))}
@@ -169,26 +169,26 @@ export function PlayerRankingVisualization({
             {/* Chart statistics */}
             {mainPlayerHistory[0].data.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-500">Highest</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="text-center p-2 bg-card-hover rounded-lg">
+                  <p className="text-xs text-muted">Highest</p>
+                  <p className="text-sm font-semibold text-primary">
                     {mainPlayerHistory[0].highestRanking}
                   </p>
                 </div>
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-500">Lowest</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="text-center p-2 bg-card-hover rounded-lg">
+                  <p className="text-xs text-muted">Lowest</p>
+                  <p className="text-sm font-semibold text-primary">
                     {mainPlayerHistory[0].lowestRanking}
                   </p>
                 </div>
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-500">Current</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="text-center p-2 bg-card-hover rounded-lg">
+                  <p className="text-xs text-muted">Current</p>
+                  <p className="text-sm font-semibold text-primary">
                     {mainPlayerHistory[0].currentRanking}
                   </p>
                 </div>
-                <div className="text-center p-2 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-500">Change</p>
+                <div className="text-center p-2 bg-card-hover rounded-lg">
+                  <p className="text-xs text-muted">Change</p>
                   <p
                     className={cn(
                       'text-sm font-semibold',
@@ -198,7 +198,7 @@ export function PlayerRankingVisualization({
                               mainPlayerHistory[0].initialRanking <
                             0
                           ? 'text-red-600'
-                          : 'text-gray-900',
+                          : 'text-primary',
                     )}
                   >
                     {mainPlayerHistory[0].currentRanking - mainPlayerHistory[0].initialRanking > 0

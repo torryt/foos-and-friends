@@ -1,1 +1,28 @@
 @import "tailwindcss";
+@import "@foos/shared/theme.css";
+
+/* Foosball sport colors per theme */
+:root,
+[data-theme="default"] {
+  --th-sport-from: #f97316;
+  --th-sport-to: #ef4444;
+  --th-sport-primary: #f97316;
+  --th-sport-hover-from: #ea580c;
+  --th-sport-hover-to: #dc2626;
+}
+
+[data-theme="cleansport"] {
+  --th-sport-from: #0af0c0;
+  --th-sport-to: #ff6b5a;
+  --th-sport-primary: #0af0c0;
+  --th-sport-hover-from: #08d4a8;
+  --th-sport-hover-to: #e85a4a;
+}
+
+[data-theme="neonarcade"] {
+  --th-sport-from: #ff2d7b;
+  --th-sport-to: #00f0ff;
+  --th-sport-primary: #ff2d7b;
+  --th-sport-hover-from: #e0266b;
+  --th-sport-hover-to: #00d4e0;
+}

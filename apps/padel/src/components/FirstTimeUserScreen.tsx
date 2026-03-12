@@ -7,10 +7,10 @@ interface FirstTimeUserScreenProps {
 }
 
 const LoadingState = () => (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-100 flex items-center justify-center">
+  <div className="min-h-screen bg-page flex items-center justify-center">
     <div className="text-center">
-      <Loader className="animate-spin mx-auto mb-4 text-blue-500" size={32} />
-      <p className="text-gray-600">Loading...</p>
+      <Loader className="animate-spin mx-auto mb-4 text-[var(--th-sport-primary)]" size={32} />
+      <p className="text-secondary">Loading...</p>
     </div>
   </div>
 )
@@ -18,13 +18,11 @@ const LoadingState = () => (
 const WelcomeHeader = () => (
   <div className="text-center mb-12">
     <div className="flex items-center justify-center gap-3 mb-6">
-      <Zap className="text-blue-500" size={40} />
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-        Padelmigos
-      </h1>
+      <Zap className="text-[var(--th-sport-primary)]" size={40} />
+      <h1 className="text-4xl font-bold text-sport-gradient">Padelmigos</h1>
     </div>
-    <p className="text-xl text-gray-700 mb-4">Welcome to your padel tracker!</p>
-    <p className="text-gray-600 max-w-2xl mx-auto">
+    <p className="text-xl text-primary mb-4">Welcome to your padel tracker!</p>
+    <p className="text-secondary max-w-2xl mx-auto">
       Connect with friends, track your games, and compete for the top ranking. Create a group to get
       started or join an existing one with an invite code.
     </p>
@@ -38,13 +36,13 @@ const FirstTimeUserSection = ({
   onCreateGroup: () => void
   onJoinGroup: () => void
 }) => (
-  <div className="bg-white/60 backdrop-blur-sm rounded-xl p-8 border border-white/50 mb-8">
+  <div className="bg-card backdrop-blur-sm rounded-[var(--th-radius-lg)] p-8 border border-[var(--th-border-subtle)] mb-8">
     <div className="text-center mb-6">
-      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="w-16 h-16 bg-sport-gradient rounded-full flex items-center justify-center mx-auto mb-4">
         <Users className="text-white" size={24} />
       </div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Get Started</h2>
-      <p className="text-gray-600">
+      <h2 className="text-2xl font-bold text-primary mb-2">Get Started</h2>
+      <p className="text-secondary">
         Ready to track your padel games? You can create a new group or join an existing one.
       </p>
     </div>
@@ -53,7 +51,7 @@ const FirstTimeUserSection = ({
       <button
         type="button"
         onClick={onCreateGroup}
-        className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all font-medium"
+        className="flex items-center justify-center gap-3 p-4 bg-sport-gradient text-white rounded-[var(--th-radius-md)] hover:bg-sport-gradient-hover transition-all font-medium"
       >
         <Plus size={20} />
         Create Your First Group
@@ -62,15 +60,15 @@ const FirstTimeUserSection = ({
       <button
         type="button"
         onClick={onJoinGroup}
-        className="flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+        className="flex items-center justify-center gap-3 p-4 bg-[var(--th-win)] text-white rounded-[var(--th-radius-md)] hover:opacity-90 transition-colors font-medium"
       >
         <UserPlus size={20} />
         Join Existing Group
       </button>
     </div>
 
-    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-      <p className="text-blue-800 text-sm">
+    <div className="mt-6 p-4 bg-accent-subtle border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
+      <p className="text-primary text-sm">
         <strong>💡 Pro tip:</strong> Groups keep your games private and separate. Each group has its
         own players, matches, and rankings.
       </p>
@@ -88,7 +86,7 @@ export const FirstTimeUserScreen = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-100">
+    <div className="min-h-screen bg-page">
       <div className="container mx-auto max-w-4xl px-4 py-12">
         <WelcomeHeader />
         <FirstTimeUserSection onCreateGroup={onCreateGroup} onJoinGroup={onJoinGroup} />

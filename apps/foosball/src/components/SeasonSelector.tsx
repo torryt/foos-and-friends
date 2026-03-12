@@ -10,7 +10,7 @@ export const SeasonSelector = () => {
 
   if (loading || !currentSeason) {
     return (
-      <div className="flex items-center gap-2 text-sm text-gray-400">
+      <div className="flex items-center gap-2 text-sm text-muted">
         <span>Loading seasons...</span>
       </div>
     )
@@ -25,7 +25,7 @@ export const SeasonSelector = () => {
       <div className="flex items-center gap-1 md:gap-2">
         <label
           htmlFor={seasonSelectId}
-          className="hidden md:block text-xs md:text-sm font-medium text-gray-700"
+          className="hidden md:block text-xs md:text-sm font-medium text-primary"
         >
           Season:
         </label>
@@ -33,7 +33,7 @@ export const SeasonSelector = () => {
           id={seasonSelectId}
           value={currentSeason.id}
           onChange={(e) => switchSeason(e.target.value)}
-          className="bg-white/80 px-2 md:px-3 py-1.5 md:py-2 rounded-lg border border-white/50 hover:bg-white transition-colors text-xs md:text-sm text-gray-700 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          className="bg-card px-2 md:px-3 py-1.5 md:py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors text-xs md:text-sm text-primary focus:border-[var(--th-sport-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--th-sport-primary)]"
         >
           {seasons.map((season) => (
             <option key={season.id} value={season.id}>
@@ -49,14 +49,14 @@ export const SeasonSelector = () => {
         <button
           type="button"
           onClick={() => setShowManagement(true)}
-          className="bg-white/80 p-1.5 md:p-2 rounded-lg border border-white/50 hover:bg-white transition-colors"
+          className="bg-card p-1.5 md:p-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors"
           title="Manage seasons"
         >
-          <Settings size={14} className="text-gray-600" />
+          <Settings size={14} className="text-secondary" />
         </button>
 
         {!currentSeason.isActive && (
-          <span className="text-xs text-orange-600" title="Viewing archived season">
+          <span className="text-xs text-[var(--th-sport-primary)]" title="Viewing archived season">
             📦
           </span>
         )}

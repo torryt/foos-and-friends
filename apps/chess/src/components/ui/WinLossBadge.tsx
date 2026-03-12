@@ -19,7 +19,7 @@ export function WinLossBadge({ result, size = 'md', className }: WinLossBadgePro
       className={cn(
         'rounded font-bold flex items-center justify-center text-white',
         sizeClasses[size],
-        isWin ? 'bg-green-600' : 'bg-red-400',
+        isWin ? 'bg-win' : 'bg-loss',
         className,
       )}
     >

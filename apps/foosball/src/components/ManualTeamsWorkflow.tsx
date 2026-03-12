@@ -125,12 +125,12 @@ export const ManualTeamsWorkflow = ({
 
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-white p-6 w-full shadow-2xl border border-gray-100 max-h-[85vh] overflow-y-auto">
+      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)] max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
           >
             <ArrowLeft size={20} />
             <span>Back</span>
@@ -138,15 +138,15 @@ export const ManualTeamsWorkflow = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
           >
             <X size={20} />
           </button>
         </div>
 
         <div className="text-center mb-6">
-          <h2 className="text-lg font-bold text-gray-900">Select Teams Manually</h2>
-          <p className="text-sm text-gray-600">Choose players and their positions</p>
+          <h2 className="text-lg font-bold text-primary">Select Teams Manually</h2>
+          <p className="text-sm text-secondary">Choose players and their positions</p>
         </div>
 
         <div className="space-y-6">
@@ -178,8 +178,8 @@ export const ManualTeamsWorkflow = ({
 
           {/* VS Divider */}
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full border-4 border-white shadow-md">
-              <span className="font-bold text-gray-600">VS</span>
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-card-hover rounded-full border-4 border-[var(--th-border)] shadow-md">
+              <span className="font-bold text-secondary">VS</span>
             </div>
           </div>
 
@@ -215,7 +215,7 @@ export const ManualTeamsWorkflow = ({
             type="button"
             onClick={handleContinueToScore}
             disabled={!isValid}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Register Score
           </button>

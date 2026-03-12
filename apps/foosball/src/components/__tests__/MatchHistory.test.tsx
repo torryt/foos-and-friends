@@ -374,8 +374,8 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check for sword icons (attackers) - should have orange color
-      const swordIcons = document.querySelectorAll('svg.text-orange-500')
+      // Check for sword icons (attackers) - should have sport-primary color
+      const swordIcons = document.querySelectorAll('svg.text-\\[var\\(--th-sport-primary\\)\\]')
       expect(swordIcons.length).toBe(2) // 2 attackers (one per team)
 
       // Check for shield icons (defenders) - should have blue color
@@ -439,7 +439,7 @@ describe('MatchHistory', () => {
       )
 
       // Should have 4 attackers (2 per match) and 4 defenders (2 per match)
-      const swordIcons = document.querySelectorAll('svg.text-orange-500')
+      const swordIcons = document.querySelectorAll('svg.text-\\[var\\(--th-sport-primary\\)\\]')
       expect(swordIcons.length).toBe(4) // 4 attackers total
 
       const shieldIcons = document.querySelectorAll('svg.text-blue-500')
