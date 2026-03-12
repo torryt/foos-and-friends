@@ -43,10 +43,10 @@ export function PlayerStatsCards({
             className={cn(
               'p-3 rounded-full',
               winRate >= 60
-                ? 'bg-green-100 text-green-600'
+                ? 'bg-card-hover text-[var(--th-win)]'
                 : winRate >= 40
-                  ? 'bg-yellow-100 text-yellow-600'
-                  : 'bg-red-100 text-red-600',
+                  ? 'bg-card-hover text-[var(--th-draw)]'
+                  : 'bg-card-hover text-[var(--th-loss)]',
             )}
           >
             <Trophy className="w-6 h-6" />
@@ -71,10 +71,10 @@ export function PlayerStatsCards({
             className={cn(
               'p-3 rounded-full',
               goalDifference > 0
-                ? 'bg-green-100 text-green-600'
+                ? 'bg-card-hover text-[var(--th-win)]'
                 : goalDifference === 0
                   ? 'bg-card-hover text-secondary'
-                  : 'bg-red-100 text-red-600',
+                  : 'bg-card-hover text-[var(--th-loss)]',
             )}
           >
             <Target className="w-6 h-6" />
@@ -97,7 +97,7 @@ export function PlayerStatsCards({
           <div
             className={cn(
               'p-3 rounded-full',
-              streakType === 'win' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600',
+              streakType === 'win' ? 'bg-card-hover text-[var(--th-win)]' : 'bg-card-hover text-[var(--th-loss)]',
             )}
           >
             {streakType === 'win' ? (

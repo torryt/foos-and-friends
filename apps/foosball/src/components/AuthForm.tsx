@@ -114,14 +114,14 @@ export const AuthForm = () => {
       </form>
 
       {message && (
-        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-green-800 text-sm">{message}</p>
+        <div className="mt-4 p-4 bg-accent-subtle border border-[var(--th-border)] rounded-lg">
+          <p className="text-primary text-sm">{message}</p>
         </div>
       )}
 
       {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-800 text-sm">{error}</p>
+        <div className="mt-4 p-4 bg-card-hover border border-[var(--th-border)] rounded-lg">
+          <p className="text-primary text-sm">{error}</p>
         </div>
       )}
 

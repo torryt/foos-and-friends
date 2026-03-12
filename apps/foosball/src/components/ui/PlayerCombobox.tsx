@@ -47,8 +47,8 @@ export function PlayerCombobox({
           className={cn('w-full justify-between font-normal', !value && 'text-muted', className)}
         >
           <span className="flex items-center gap-2 truncate">
-            {position === 'attacker' && <Sword className="text-orange-500 shrink-0" size={16} />}
-            {position === 'defender' && <Shield className="text-blue-500 shrink-0" size={16} />}
+            {position === 'attacker' && <Sword className="text-[var(--th-sport-primary)] shrink-0" size={16} />}
+            {position === 'defender' && <Shield className="text-[var(--th-accent)] shrink-0" size={16} />}
             {value ? (
               <span className="truncate">
                 {selectedPlayer?.avatar} {selectedPlayer?.name} ({selectedPlayer?.ranking})

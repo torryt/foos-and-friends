@@ -24,13 +24,13 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
   const getBadgeInfo = (badge: string | null) => {
     switch (badge) {
       case 'best':
-        return { icon: Crown, text: 'Best Partner', color: 'text-yellow-600 bg-yellow-100' }
+        return { icon: Crown, text: 'Best Partner', color: 'text-[var(--th-draw)] bg-card-hover' }
       case 'worst':
-        return { icon: TrendingDown, text: 'Needs Work', color: 'text-red-600 bg-red-100' }
+        return { icon: TrendingDown, text: 'Needs Work', color: 'text-[var(--th-loss)] bg-card-hover' }
       case 'rival':
-        return { icon: Shield, text: 'Biggest Rival', color: 'text-purple-600 bg-purple-100' }
+        return { icon: Shield, text: 'Biggest Rival', color: 'text-[var(--th-draw)] bg-card-hover' }
       case 'easy':
-        return { icon: TrendingUp, text: 'Favorite Opponent', color: 'text-green-600 bg-green-100' }
+        return { icon: TrendingUp, text: 'Favorite Opponent', color: 'text-[var(--th-win)] bg-card-hover' }
       default:
         return null
     }
@@ -39,12 +39,12 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
   const badgeInfo = getBadgeInfo(badge || null)
   const winRateColor =
     relationship.winRate >= 70
-      ? 'text-green-700 bg-green-50'
+      ? 'text-[var(--th-win)] bg-card-hover'
       : relationship.winRate >= 50
-        ? 'text-blue-700 bg-blue-50'
+        ? 'text-[var(--th-accent)] bg-card-hover'
         : relationship.winRate >= 30
-          ? 'text-orange-700 bg-orange-50'
-          : 'text-red-700 bg-red-50'
+          ? 'text-[var(--th-draw)] bg-card-hover'
+          : 'text-[var(--th-loss)] bg-card-hover'
 
   return (
     <div className="p-3 bg-card-hover rounded-lg hover:bg-card-hover transition-colors">
@@ -90,7 +90,7 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                     <span
                       className={cn(
                         'flex-shrink-0',
-                        relationship.goalDifference > 0 ? 'text-green-600' : 'text-red-600',
+                        relationship.goalDifference > 0 ? 'text-[var(--th-win)]' : 'text-[var(--th-loss)]',
                       )}
                     >
                       {relationship.goalDifference > 0 ? '+' : ''}
@@ -307,7 +307,7 @@ export function PlayerRelationshipStats({
         <div className="mt-4 pt-4 border-t border-[var(--th-border)]">
           <div className="space-y-2 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0 text-sm">
             {relationshipData.topTeammate && (
-              <div className="flex items-center gap-2 text-green-600">
+              <div className="flex items-center gap-2 text-[var(--th-win)]">
                 <Crown className="w-4 h-4 flex-shrink-0" />
                 <span className="min-w-0">
                   <span className="hidden sm:inline">Best with </span>
@@ -320,7 +320,7 @@ export function PlayerRelationshipStats({
               </div>
             )}
             {relationshipData.biggestRival && (
-              <div className="flex items-center gap-2 text-purple-600">
+              <div className="flex items-center gap-2 text-[var(--th-accent)]">
                 <Shield className="w-4 h-4 flex-shrink-0" />
                 <span className="min-w-0">
                   <span className="hidden sm:inline">Most played vs </span>

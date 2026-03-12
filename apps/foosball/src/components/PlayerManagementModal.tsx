@@ -146,8 +146,8 @@ const PlayerManagementModal = ({
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-[var(--th-radius-md)] mb-4">
-            <p className="text-red-800 text-sm">{error}</p>
+          <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)] mb-4">
+            <p className="text-[var(--th-loss)] text-sm">{error}</p>
           </div>
         )}
 
@@ -255,7 +255,7 @@ const PlayerManagementModal = ({
                           type="button"
                           onClick={() => handleDeletePlayer(player.id)}
                           disabled={isLoading || !isOnline}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-[var(--th-radius-md)] disabled:opacity-50"
+                          className="p-2 text-[var(--th-loss)] hover:bg-card-hover rounded-[var(--th-radius-md)] disabled:opacity-50"
                           title={
                             !isOnline
                               ? 'Cannot delete while offline'

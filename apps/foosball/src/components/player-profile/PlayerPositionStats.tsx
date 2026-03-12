@@ -50,7 +50,7 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
 
         <div className="bg-card-hover rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-4 h-4 text-blue-500" />
+            <Shield className="w-4 h-4 text-[var(--th-accent)]" />
             <span className="text-sm font-medium text-primary">Defender</span>
           </div>
           <div className="flex items-center gap-2">
@@ -85,7 +85,7 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
                 style={{ width: `${attackPercentage}%` }}
               />
               <div
-                className="bg-blue-500 transition-all duration-300"
+                className="bg-[var(--th-accent)] transition-all duration-300"
                 style={{ width: `${defensePercentage}%` }}
               />
             </div>
@@ -94,7 +94,7 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
             <span className="text-sm font-bold text-primary">{defensePercentage}%</span>
             <span className="text-sm text-secondary">Defense</span>
             <Shield
-              className={cn('w-4 h-4', defensePercentage > 50 ? 'text-blue-600' : 'text-muted')}
+              className={cn('w-4 h-4', defensePercentage > 50 ? 'text-[var(--th-accent)]' : 'text-muted')}
             />
           </div>
         </div>

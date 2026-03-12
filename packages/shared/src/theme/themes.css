@@ -41,6 +41,18 @@
   --th-radius-md: 0.5rem;
   --th-radius-lg: 0.75rem;
 
+  /* Tier badges (rankings, stats) */
+  --th-tier-1-bg: linear-gradient(to right, #f3e8ff, #ddd6fe);
+  --th-tier-1-text: #6b21a8;
+  --th-tier-2-bg: linear-gradient(to right, #d1fae5, #bbf7d0);
+  --th-tier-2-text: #065f46;
+  --th-tier-3-bg: linear-gradient(to right, #dbeafe, #a5f3fc);
+  --th-tier-3-text: #1e40af;
+  --th-tier-4-bg: linear-gradient(to right, #fef3c7, #fef08a);
+  --th-tier-4-text: #92400e;
+  --th-tier-5-bg: linear-gradient(to right, #ffe4e6, #fbcfe8);
+  --th-tier-5-text: #9f1239;
+
   /* Effects */
   --th-shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   --th-shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
@@ -89,6 +101,18 @@
   --th-radius-md: 8px;
   --th-radius-lg: 10px;
 
+  /* Tier badges (rankings, stats) */
+  --th-tier-1-bg: linear-gradient(to right, #ede9fe, #ddd6fe);
+  --th-tier-1-text: #7c3aed;
+  --th-tier-2-bg: linear-gradient(to right, #d1fae5, #bbf7d0);
+  --th-tier-2-text: #059669;
+  --th-tier-3-bg: linear-gradient(to right, #dbeafe, #bae6fd);
+  --th-tier-3-text: #2563eb;
+  --th-tier-4-bg: linear-gradient(to right, #fef3c7, #fde68a);
+  --th-tier-4-text: #d97706;
+  --th-tier-5-bg: linear-gradient(to right, #ffe4e6, #fecdd3);
+  --th-tier-5-text: #e11d48;
+
   /* Effects */
   --th-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   --th-shadow-card-hover: 0 2px 12px rgba(10, 240, 192, 0.08);
@@ -123,7 +147,7 @@
   --th-accent-subtle: rgba(0, 240, 255, 0.08);
 
   /* Semantic */
-  --th-win: #39ff14;
+  --th-win: #00f0ff;
   --th-loss: #ff2d7b;
   --th-draw: #b24dff;
 
@@ -136,6 +160,18 @@
   --th-radius-sm: 0px;
   --th-radius-md: 0px;
   --th-radius-lg: 0px;
+
+  /* Tier badges (rankings, stats) */
+  --th-tier-1-bg: rgba(0, 240, 255, 0.15);
+  --th-tier-1-text: #00f0ff;
+  --th-tier-2-bg: rgba(0, 240, 255, 0.10);
+  --th-tier-2-text: #00f0ff;
+  --th-tier-3-bg: rgba(255, 45, 123, 0.15);
+  --th-tier-3-text: #ff2d7b;
+  --th-tier-4-bg: rgba(178, 77, 255, 0.12);
+  --th-tier-4-text: #b24dff;
+  --th-tier-5-bg: rgba(255, 45, 123, 0.10);
+  --th-tier-5-text: #ff2d7b;
 
   /* Effects */
   --th-shadow-card: 0 0 15px rgba(0, 240, 255, 0.05), inset 0 0 15px rgba(0, 240, 255, 0.02);

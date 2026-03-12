@@ -153,7 +153,7 @@ export function PlayerRecentMatches({
                           {position === 'attacker' ? (
                             <Sword className="w-4 h-4 text-[var(--th-sport-primary)] flex-shrink-0" />
                           ) : (
-                            <Shield className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                            <Shield className="w-4 h-4 text-[var(--th-accent)] flex-shrink-0" />
                           )}
                           <span className="text-sm font-medium text-primary">
                             with{' '}

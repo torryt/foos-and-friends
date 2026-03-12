@@ -20,7 +20,7 @@ describe('PositionIcon', () => {
 
       // Check that the icon has blue color class
       const icon = container.querySelector('svg')
-      expect(icon).toHaveClass('text-blue-500')
+      expect(icon).toHaveClass('text-[var(--th-accent)]')
     })
 
     test('renders with custom size', () => {
@@ -58,7 +58,7 @@ describe('PositionIcon', () => {
       render(<PositionIcon position="defender" showLabel={true} />)
 
       expect(screen.getByText('Defender')).toBeInTheDocument()
-      expect(screen.getByText('Defender')).toHaveClass('text-blue-500')
+      expect(screen.getByText('Defender')).toHaveClass('text-[var(--th-accent)]')
     })
 
     test('does not render label when showLabel is false', () => {

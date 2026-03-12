@@ -361,7 +361,7 @@ describe('PlayerRecentMatches', () => {
       )
 
       // Player2 is in team1[1], so should be a defender (Shield icon)
-      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
+      const shieldIcons = document.querySelectorAll('svg.text-\\[var\\(--th-accent\\)\\]')
       expect(shieldIcons.length).toBeGreaterThan(0)
     })
 

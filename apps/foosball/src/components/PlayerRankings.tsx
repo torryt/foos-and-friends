@@ -22,92 +22,91 @@ interface PlayerCardProps {
   sortBy: SortOption
 }
 
-const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
-  <>
-    <div className="flex items-center gap-3">
-      <div className="flex items-center gap-2">
-        {index === 0 && <Trophy className="text-yellow-500" size={16} />}
-        {index === 1 && <Medal className="text-gray-400" size={14} />}
-        {index === 2 && <Medal className="text-amber-600" size={14} />}
-        <span className="font-bold text-primary text-sm w-6">{index + 1}</span>
-      </div>
-      <span className="text-2xl">{player.avatar}</span>
-      <div>
-        <div className="font-semibold text-primary text-sm">{player.name}</div>
-        <div className="text-xs text-muted">
-          {player.wins}W - {player.losses}L ({player.matchesPlayed} total)
+const getTier = (sortBy: SortOption, player: PlayerWithStats): number => {
+  if (sortBy === 'elo') {
+    if (player.ranking >= 1800) return 1
+    if (player.ranking >= 1600) return 2
+    if (player.ranking >= 1400) return 3
+    if (player.ranking >= 1200) return 4
+    return 5
+  }
+  if (sortBy === 'goalDifference') {
+    if (player.goalDifference > 10) return 1
+    if (player.goalDifference > 5) return 2
+    if (player.goalDifference > 0) return 3
+    if (player.goalDifference >= -5) return 4
+    return 5
+  }
+  // winRate
+  if (player.winRate >= 70) return 1
+  if (player.winRate >= 60) return 2
+  if (player.winRate >= 50) return 3
+  if (player.winRate >= 40) return 4
+  return 5
+}
+
+const TierBadge = ({ tier, children }: { tier: number; children: React.ReactNode }) => (
+  <span
+    className="px-2 py-1 rounded-full text-xs font-bold"
+    style={{
+      background: `var(--th-tier-${tier}-bg)`,
+      color: `var(--th-tier-${tier}-text)`,
+    }}
+  >
+    {children}
+  </span>
+)
+
+const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => {
+  const tier = getTier(sortBy, player)
+
+  return (
+    <>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {index === 0 && <Trophy className="text-[var(--th-draw)]" size={16} />}
+          {index === 1 && <Medal className="text-secondary" size={14} />}
+          {index === 2 && <Medal className="text-[var(--th-sport-primary)]" size={14} />}
+          <span className="font-bold text-primary text-sm w-6">{index + 1}</span>
+        </div>
+        <span className="text-2xl">{player.avatar}</span>
+        <div>
+          <div className="font-semibold text-primary text-sm">{player.name}</div>
+          <div className="text-xs text-muted">
+            {player.wins}W - {player.losses}L ({player.matchesPlayed} total)
+          </div>
         </div>
       </div>
-    </div>
-    <div className="text-right">
-      {sortBy === 'elo' && (
-        <>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold ${
-              player.ranking >= 1800
-                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
-                : player.ranking >= 1600
-                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
-                  : player.ranking >= 1400
-                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
-                    : player.ranking >= 1200
-                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
-                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
-            }`}
-          >
-            {player.ranking}
-          </span>
-          <div className="text-xs text-secondary mt-1">
-            {player.matchesPlayed > 0
-              ? `${Math.round((player.wins / player.matchesPlayed) * 100)}% win rate`
-              : 'No matches'}
-          </div>
-        </>
-      )}
-      {sortBy === 'goalDifference' && (
-        <>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold ${
-              player.goalDifference > 10
-                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
-                : player.goalDifference > 5
-                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
-                  : player.goalDifference > 0
-                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
-                    : player.goalDifference >= -5
-                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
-                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
-            }`}
-          >
-            {player.goalDifference > 0 ? '+' : ''}
-            {player.goalDifference}
-          </span>
-          <div className="text-xs text-secondary mt-1">Goal diff</div>
-        </>
-      )}
-      {sortBy === 'winRate' && (
-        <>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-bold ${
-              player.winRate >= 70
-                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
-                : player.winRate >= 60
-                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
-                  : player.winRate >= 50
-                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
-                    : player.winRate >= 40
-                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
-                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
-            }`}
-          >
-            {player.winRate}%
-          </span>
-          <div className="text-xs text-secondary mt-1">Win rate</div>
-        </>
-      )}
-    </div>
-  </>
-)
+      <div className="text-right">
+        {sortBy === 'elo' && (
+          <>
+            <TierBadge tier={tier}>{player.ranking}</TierBadge>
+            <div className="text-xs text-secondary mt-1">
+              {player.matchesPlayed > 0
+                ? `${Math.round((player.wins / player.matchesPlayed) * 100)}% win rate`
+                : 'No matches'}
+            </div>
+          </>
+        )}
+        {sortBy === 'goalDifference' && (
+          <>
+            <TierBadge tier={tier}>
+              {player.goalDifference > 0 ? '+' : ''}
+              {player.goalDifference}
+            </TierBadge>
+            <div className="text-xs text-secondary mt-1">Goal diff</div>
+          </>
+        )}
+        {sortBy === 'winRate' && (
+          <>
+            <TierBadge tier={tier}>{player.winRate}%</TierBadge>
+            <div className="text-xs text-secondary mt-1">Win rate</div>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
 
 const SORT_OPTIONS = [
   { value: 'elo' as const, label: 'ELO Ranking' },

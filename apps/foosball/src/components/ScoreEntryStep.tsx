@@ -82,9 +82,9 @@ export const ScoreEntryStep = ({
         {/* Teams Display */}
         <div className="mb-6">
           <div className="space-y-3">
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-              <div className="grid grid-cols-3 items-center text-blue-800">
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="font-medium text-[var(--th-accent)] text-sm mb-1">Team 1</div>
+              <div className="grid grid-cols-3 items-center text-primary">
                 <span className="text-left">{teams.team1.attacker.name} (A)</span>
                 <div className="flex justify-center">
                   {onSwapTeam1 && (
@@ -92,7 +92,7 @@ export const ScoreEntryStep = ({
                       type="button"
                       onClick={onSwapTeam1}
                       disabled={isSubmitting}
-                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors disabled:opacity-50"
+                      className="p-1.5 text-[var(--th-accent)] hover:text-primary hover:bg-card-hover rounded transition-colors disabled:opacity-50"
                       title="Swap positions for Team 1"
                     >
                       <ArrowLeftRight size={18} />
@@ -102,9 +102,9 @@ export const ScoreEntryStep = ({
                 <span className="text-right">{teams.team1.defender.name} (D)</span>
               </div>
             </div>
-            <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-              <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-              <div className="grid grid-cols-3 items-center text-purple-800">
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="font-medium text-[var(--th-sport-primary)] text-sm mb-1">Team 2</div>
+              <div className="grid grid-cols-3 items-center text-primary">
                 <span className="text-left">{teams.team2.attacker.name} (A)</span>
                 <div className="flex justify-center">
                   {onSwapTeam2 && (
@@ -112,7 +112,7 @@ export const ScoreEntryStep = ({
                       type="button"
                       onClick={onSwapTeam2}
                       disabled={isSubmitting}
-                      className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors disabled:opacity-50"
+                      className="p-1.5 text-[var(--th-sport-primary)] hover:text-primary hover:bg-card-hover rounded transition-colors disabled:opacity-50"
                       title="Swap positions for Team 2"
                     >
                       <ArrowLeftRight size={18} />
@@ -197,7 +197,7 @@ export const ScoreEntryStep = ({
         </button>
 
         {!isValid && (
-          <p className="text-sm text-red-600 text-center mt-2">
+          <p className="text-sm text-[var(--th-loss)] text-center mt-2">
             Please enter scores for both teams
           </p>
         )}

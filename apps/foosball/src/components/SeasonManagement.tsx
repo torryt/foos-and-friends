@@ -90,16 +90,16 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-primary mb-3">Active Season</h3>
             {activeSeason ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="bg-accent-subtle border border-[var(--th-border)] rounded-lg p-4">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-green-900">{activeSeason.name}</span>
-                      <span className="text-green-600">🟢</span>
+                      <span className="text-lg font-bold text-primary">{activeSeason.name}</span>
+                      <span className="text-[var(--th-win)]">🟢</span>
                     </div>
-                    <p className="text-sm text-green-700 mt-1">Started: {activeSeason.startDate}</p>
+                    <p className="text-sm text-secondary mt-1">Started: {activeSeason.startDate}</p>
                     {activeSeason.description && (
-                      <p className="text-sm text-green-600 mt-2">{activeSeason.description}</p>
+                      <p className="text-sm text-secondary mt-2">{activeSeason.description}</p>
                     )}
                   </div>
                 </div>
@@ -156,16 +156,16 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
                 </div>
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                    <XCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-800">{error}</p>
+                  <div className="bg-card-hover border border-[var(--th-border)] rounded-lg p-3 flex items-start gap-2">
+                    <XCircle size={20} className="text-[var(--th-loss)] flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-primary">{error}</p>
                   </div>
                 )}
 
                 {success && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-start gap-2">
-                    <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-green-800">Season created successfully!</p>
+                  <div className="bg-accent-subtle border border-[var(--th-border)] rounded-lg p-3 flex items-start gap-2">
+                    <CheckCircle size={20} className="text-[var(--th-win)] flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-primary">Season created successfully!</p>
                   </div>
                 )}
 

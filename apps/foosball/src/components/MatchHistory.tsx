@@ -31,13 +31,13 @@ const getPlayerStats = (match: Match, playerId: string): PlayerMatchStats | unde
 const formatRankingChange = (change: number) => {
   if (change > 0) {
     return (
-      <span className="text-green-600 flex items-center gap-0.5">
+      <span className="text-[var(--th-win)] flex items-center gap-0.5">
         <TrendingUp size={10} />+{change}
       </span>
     )
   } else if (change < 0) {
     return (
-      <span className="text-red-600 flex items-center gap-0.5">
+      <span className="text-[var(--th-loss)] flex items-center gap-0.5">
         <TrendingDown size={10} />
         {change}
       </span>
@@ -181,9 +181,9 @@ const MatchHistory = ({
         {/* Player Filter Dropdown */}
         {showPlayerFilter && (
           <div className="mt-4 relative">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200/50">
+            <div className="bg-card-hover p-3 rounded-lg border border-[var(--th-border)]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-semibold text-blue-800">Filter by Player</span>
+                <span className="text-sm font-semibold text-primary">Filter by Player</span>
                 <button
                   type="button"
                   onClick={() => setShowPlayerFilter(false)}
@@ -201,8 +201,8 @@ const MatchHistory = ({
                   }}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     !selectedPlayer
-                      ? 'bg-blue-200 text-blue-800'
-                      : 'bg-card/60 text-secondary hover:bg-blue-100'
+                      ? 'bg-accent-subtle text-[var(--th-accent)]'
+                      : 'bg-card/60 text-secondary hover:bg-card-hover'
                   }`}
                 >
                   All Players
@@ -217,8 +217,8 @@ const MatchHistory = ({
                     }}
                     className={`px-3 py-1 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
                       selectedPlayer === player.id
-                        ? 'bg-blue-200 text-blue-800'
-                        : 'bg-card/60 text-secondary hover:bg-blue-100'
+                        ? 'bg-accent-subtle text-[var(--th-accent)]'
+                        : 'bg-card/60 text-secondary hover:bg-card-hover'
                     }`}
                   >
                     <span className="text-xs">{player.avatar}</span>
@@ -251,21 +251,21 @@ const MatchHistory = ({
                     <Clock size={12} />
                     {match.date} at {match.time}
                   </div>
-                  <span className="bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800 px-2 py-1 rounded-full text-xs font-bold">
+                  <span className="bg-accent-subtle text-[var(--th-win)] px-2 py-1 rounded-full text-xs font-bold border border-[var(--th-border)]">
                     Completed
                   </span>
                 </div>
 
                 <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
-                  <div className="text-center bg-gradient-to-br from-blue-50 to-cyan-50 p-2 rounded-lg border border-blue-200/50">
-                    <div className="font-bold text-blue-800 mb-1 text-xs">
+                  <div className="text-center bg-card-hover p-2 rounded-lg border border-[var(--th-border)]">
+                    <div className="font-bold text-[var(--th-accent)] mb-1 text-xs">
                       {match.matchType === '1v1' ? 'Player 1' : 'Team 1'}
                     </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team1[0]}
                         match={match}
-                        teamColor="text-blue-700"
+                        teamColor="text-[var(--th-accent)]"
                         position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
                         onPlayerClick={onPlayerClick}
                       />
@@ -273,14 +273,14 @@ const MatchHistory = ({
                         <PlayerWithStats
                           player={match.team1[1]}
                           match={match}
-                          teamColor="text-blue-700"
+                          teamColor="text-[var(--th-accent)]"
                           position="defender"
                           onPlayerClick={onPlayerClick}
                         />
                       )}
                     </div>
                     {match.team1[1] && (
-                      <div className="text-xs bg-blue-100 text-blue-600 px-1 py-0.5 rounded-full mt-1">
+                      <div className="text-xs bg-accent-subtle text-[var(--th-accent)] px-1 py-0.5 rounded-full mt-1">
                         {match.playerStats ? (
                           <>
                             Pre-Avg:{' '}
@@ -305,9 +305,9 @@ const MatchHistory = ({
                     <div
                       className={`text-2xl font-bold mb-1 ${
                         match.score1 > match.score2
-                          ? 'text-green-600'
+                          ? 'text-[var(--th-win)]'
                           : match.score2 > match.score1
-                            ? 'text-red-600'
+                            ? 'text-[var(--th-loss)]'
                             : 'text-secondary'
                       }`}
                     >
@@ -316,15 +316,15 @@ const MatchHistory = ({
                     <div className="text-xs text-muted">Final Score</div>
                   </div>
 
-                  <div className="text-center bg-gradient-to-br from-purple-50 to-violet-50 p-2 rounded-lg border border-purple-200/50">
-                    <div className="font-bold text-purple-800 mb-1 text-xs">
+                  <div className="text-center bg-card-hover p-2 rounded-lg border border-[var(--th-border)]">
+                    <div className="font-bold text-[var(--th-sport-primary)] mb-1 text-xs">
                       {match.matchType === '1v1' ? 'Player 2' : 'Team 2'}
                     </div>
                     <div className="space-y-1">
                       <PlayerWithStats
                         player={match.team2[0]}
                         match={match}
-                        teamColor="text-purple-700"
+                        teamColor="text-[var(--th-sport-primary)]"
                         position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
                         onPlayerClick={onPlayerClick}
                       />
@@ -332,14 +332,14 @@ const MatchHistory = ({
                         <PlayerWithStats
                           player={match.team2[1]}
                           match={match}
-                          teamColor="text-purple-700"
+                          teamColor="text-[var(--th-sport-primary)]"
                           position="defender"
                           onPlayerClick={onPlayerClick}
                         />
                       )}
                     </div>
                     {match.team2[1] && (
-                      <div className="text-xs bg-purple-100 text-purple-600 px-1 py-0.5 rounded-full mt-1">
+                      <div className="text-xs bg-accent-subtle text-[var(--th-sport-primary)] px-1 py-0.5 rounded-full mt-1">
                         {match.playerStats ? (
                           <>
                             Pre-Avg:{' '}
@@ -363,7 +363,7 @@ const MatchHistory = ({
 
                 {match.score1 !== match.score2 && (
                   <div className="mt-2 text-center">
-                    <span className="text-xs font-medium text-green-600">
+                    <span className="text-xs font-medium text-[var(--th-win)]">
                       🎉{' '}
                       {match.matchType === '1v1'
                         ? `${match.score1 > match.score2 ? match.team1[0].name : match.team2[0].name} wins!`

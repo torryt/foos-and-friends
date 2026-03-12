@@ -18,7 +18,7 @@ export const PositionIcon = ({
   const isAttacker = position === 'attacker'
 
   const Icon = isAttacker ? Sword : Shield
-  const color = isAttacker ? 'text-[var(--th-sport-primary)]' : 'text-blue-500'
+  const color = isAttacker ? 'text-[var(--th-sport-primary)]' : 'text-[var(--th-accent)]'
   const label = isAttacker ? 'Attacker' : 'Defender'
 
   return (

@@ -127,7 +127,7 @@ function PlayerProfile() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-500">Loading player data...</div>
+        <div className="text-muted">Loading player data...</div>
       </div>
     )
   }
@@ -135,7 +135,7 @@ function PlayerProfile() {
   if (!player || !playerStats) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-500">Player not found</div>
+        <div className="text-muted">Player not found</div>
       </div>
     )
   }
@@ -183,29 +183,29 @@ function PlayerProfile() {
 
       {/* Additional Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4 bg-white/80 backdrop-blur-sm">
+        <Card className="p-4 bg-card backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Goals (Avg)</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm text-muted">Goals (Avg)</p>
+              <p className="text-2xl font-bold text-primary">
                 {playerStats.avgGoalsScored} - {playerStats.avgGoalsConceded}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted mt-1">
                 Diff: {playerStats.goalDifference > 0 ? '+' : ''}
                 {playerStats.goalDifference}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-              <Target className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 rounded-full bg-card-hover flex items-center justify-center">
+              <Target className="w-6 h-6 text-[var(--th-accent)]" />
             </div>
           </div>
         </Card>
-        <Card className="p-4 bg-white/80 backdrop-blur-sm">
+        <Card className="p-4 bg-card backdrop-blur-sm">
           <div className="flex items-center space-x-3">
-            <Calendar className="w-5 h-5 text-gray-400" />
+            <Calendar className="w-5 h-5 text-muted" />
             <div>
-              <p className="text-sm text-gray-500">Total Matches</p>
-              <p className="text-lg font-semibold text-gray-900">{player.matchesPlayed}</p>
+              <p className="text-sm text-muted">Total Matches</p>
+              <p className="text-lg font-semibold text-primary">{player.matchesPlayed}</p>
             </div>
           </div>
         </Card>

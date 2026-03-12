@@ -114,15 +114,15 @@ export const Manual1v1Workflow = ({
 
           {/* Players Display */}
           <div className="mb-6 space-y-3">
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <div className="flex items-center gap-2 text-blue-800">
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="flex items-center gap-2 text-[var(--th-accent)]">
                 <span className="text-lg">{p1?.avatar}</span>
                 <span className="font-medium">{p1?.name}</span>
               </div>
             </div>
             <div className="text-center font-bold text-secondary">VS</div>
-            <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-              <div className="flex items-center gap-2 text-purple-800">
+            <div className="bg-card-hover rounded-lg p-3 border border-[var(--th-border)]">
+              <div className="flex items-center gap-2 text-[var(--th-sport-primary)]">
                 <span className="text-lg">{p2?.avatar}</span>
                 <span className="font-medium">{p2?.name}</span>
               </div>
@@ -201,7 +201,7 @@ export const Manual1v1Workflow = ({
           </button>
 
           {!isScoreValid && (
-            <p className="text-sm text-red-600 text-center mt-2">
+            <p className="text-sm text-[var(--th-loss)] text-center mt-2">
               Please enter scores for both players
             </p>
           )}
@@ -239,17 +239,17 @@ export const Manual1v1Workflow = ({
 
         <div className="space-y-6">
           {/* Player 1 */}
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
             <div className="flex items-center gap-2 mb-3">
-              <User className="text-blue-600" size={18} />
-              <h3 className="font-semibold text-blue-900">Player 1</h3>
+              <User className="text-[var(--th-accent)]" size={18} />
+              <h3 className="font-semibold text-primary">Player 1</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player2Id])}
               value={player1Id}
               onChange={setPlayer1Id}
               placeholder="Select Player"
-              className="border-blue-300 focus:ring-2 focus:ring-blue-500"
+              className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-accent)]"
             />
           </div>
 
@@ -261,17 +261,17 @@ export const Manual1v1Workflow = ({
           </div>
 
           {/* Player 2 */}
-          <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
             <div className="flex items-center gap-2 mb-3">
-              <User className="text-purple-600" size={18} />
-              <h3 className="font-semibold text-purple-900">Player 2</h3>
+              <User className="text-[var(--th-sport-primary)]" size={18} />
+              <h3 className="font-semibold text-primary">Player 2</h3>
             </div>
             <PlayerCombobox
               players={getAvailablePlayers([player1Id])}
               value={player2Id}
               onChange={setPlayer2Id}
               placeholder="Select Player"
-              className="border-purple-300 focus:ring-2 focus:ring-purple-500"
+              className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-sport-primary)]"
             />
           </div>
         </div>
@@ -287,7 +287,7 @@ export const Manual1v1Workflow = ({
           </button>
 
           {!isSelectionValid && player1Id !== '' && player2Id !== '' && (
-            <p className="text-sm text-red-600 text-center mt-2">
+            <p className="text-sm text-[var(--th-loss)] text-center mt-2">
               Please select two different players
             </p>
           )}

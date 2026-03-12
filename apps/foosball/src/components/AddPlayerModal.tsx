@@ -115,8 +115,8 @@ const AddPlayerModal = ({ isOpen, onClose, onAddPlayer }: AddPlayerModalProps) =
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-[var(--th-radius-md)]">
-              <p className="text-red-800 text-sm">{error}</p>
+            <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
+              <p className="text-[var(--th-loss)] text-sm">{error}</p>
             </div>
           )}
 

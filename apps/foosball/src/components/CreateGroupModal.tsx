@@ -121,14 +121,14 @@ export const CreateGroupModal = ({ isOpen, onClose }: CreateGroupModalProps) => 
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-[var(--th-radius-md)]">
-              <p className="text-red-800 text-sm">{error}</p>
+            <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
+              <p className="text-primary text-sm">{error}</p>
             </div>
           )}
 
-          <div className="bg-blue-50 border border-blue-200 rounded-[var(--th-radius-md)] p-4">
-            <h4 className="font-medium text-blue-900 text-sm mb-2">What happens next?</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
+          <div className="bg-accent-subtle border border-[var(--th-border)] rounded-[var(--th-radius-md)] p-4">
+            <h4 className="font-medium text-primary text-sm mb-2">What happens next?</h4>
+            <ul className="text-sm text-secondary space-y-1">
               <li>• You'll become the group owner</li>
               <li>• A unique invite code will be generated</li>
               <li>• Share the code with friends to invite them</li>

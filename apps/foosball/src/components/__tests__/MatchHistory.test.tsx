@@ -379,7 +379,7 @@ describe('MatchHistory', () => {
       expect(swordIcons.length).toBe(2) // 2 attackers (one per team)
 
       // Check for shield icons (defenders) - should have blue color
-      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
+      const shieldIcons = document.querySelectorAll('svg.text-\\[var\\(--th-accent\\)\\]')
       expect(shieldIcons.length).toBe(2) // 2 defenders (one per team)
     })
 
@@ -442,7 +442,7 @@ describe('MatchHistory', () => {
       const swordIcons = document.querySelectorAll('svg.text-\\[var\\(--th-sport-primary\\)\\]')
       expect(swordIcons.length).toBe(4) // 4 attackers total
 
-      const shieldIcons = document.querySelectorAll('svg.text-blue-500')
+      const shieldIcons = document.querySelectorAll('svg.text-\\[var\\(--th-accent\\)\\]')
       expect(shieldIcons.length).toBe(4) // 4 defenders total
     })
 

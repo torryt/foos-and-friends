@@ -10,21 +10,21 @@ const ToastItem = ({ toast }: ToastProps) => {
   const { dismissToast } = useToast()
 
   const icons = {
-    success: <CheckCircle size={20} className="text-green-500" />,
-    error: <XCircle size={20} className="text-red-500" />,
-    info: <Info size={20} className="text-blue-500" />,
+    success: <CheckCircle size={20} className="text-[var(--th-win)]" />,
+    error: <XCircle size={20} className="text-[var(--th-loss)]" />,
+    info: <Info size={20} className="text-[var(--th-accent)]" />,
   }
 
   const bgColors = {
-    success: 'bg-green-50 border-green-200',
-    error: 'bg-red-50 border-red-200',
-    info: 'bg-blue-50 border-blue-200',
+    success: 'bg-card border-[var(--th-border)]',
+    error: 'bg-card border-[var(--th-border)]',
+    info: 'bg-card border-[var(--th-border)]',
   }
 
   const textColors = {
-    success: 'text-green-800',
-    error: 'text-red-800',
-    info: 'text-blue-800',
+    success: 'text-primary',
+    error: 'text-primary',
+    info: 'text-primary',
   }
 
   return (

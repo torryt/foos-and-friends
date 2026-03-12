@@ -151,10 +151,10 @@ export const ManualTeamsWorkflow = ({
 
         <div className="space-y-6">
           {/* Team 1 */}
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
             <div className="flex items-center gap-2 mb-3">
-              <Users className="text-blue-600" size={18} />
-              <h3 className="font-semibold text-blue-900">Team 1</h3>
+              <Users className="text-[var(--th-accent)]" size={18} />
+              <h3 className="font-semibold text-[var(--th-accent)]">Team 1</h3>
             </div>
             <div className="space-y-3">
               <PlayerCombobox
@@ -163,7 +163,7 @@ export const ManualTeamsWorkflow = ({
                 onChange={setTeam1Player1Id}
                 placeholder="Select Attacker"
                 position="attacker"
-                className="border-blue-300 focus:ring-2 focus:ring-blue-500"
+                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-accent)]"
               />
               <PlayerCombobox
                 players={getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id])}
@@ -171,7 +171,7 @@ export const ManualTeamsWorkflow = ({
                 onChange={setTeam1Player2Id}
                 placeholder="Select Defender"
                 position="defender"
-                className="border-blue-300 focus:ring-2 focus:ring-blue-500"
+                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-accent)]"
               />
             </div>
           </div>
@@ -184,10 +184,10 @@ export const ManualTeamsWorkflow = ({
           </div>
 
           {/* Team 2 */}
-          <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
             <div className="flex items-center gap-2 mb-3">
-              <Users className="text-purple-600" size={18} />
-              <h3 className="font-semibold text-purple-900">Team 2</h3>
+              <Users className="text-[var(--th-sport-primary)]" size={18} />
+              <h3 className="font-semibold text-[var(--th-sport-primary)]">Team 2</h3>
             </div>
             <div className="space-y-3">
               <PlayerCombobox
@@ -196,7 +196,7 @@ export const ManualTeamsWorkflow = ({
                 onChange={setTeam2Player1Id}
                 placeholder="Select Attacker"
                 position="attacker"
-                className="border-purple-300 focus:ring-2 focus:ring-purple-500"
+                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-sport-primary)]"
               />
               <PlayerCombobox
                 players={getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id])}
@@ -204,7 +204,7 @@ export const ManualTeamsWorkflow = ({
                 onChange={setTeam2Player2Id}
                 placeholder="Select Defender"
                 position="defender"
-                className="border-purple-300 focus:ring-2 focus:ring-purple-500"
+                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-sport-primary)]"
               />
             </div>
           </div>
@@ -221,7 +221,7 @@ export const ManualTeamsWorkflow = ({
           </button>
 
           {!isValid && (
-            <p className="text-sm text-red-600 text-center mt-2">
+            <p className="text-sm text-[var(--th-loss)] text-center mt-2">
               {[team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id].some(
                 (id) => id === '',
               )

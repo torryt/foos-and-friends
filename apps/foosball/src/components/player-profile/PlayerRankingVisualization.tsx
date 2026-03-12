@@ -104,7 +104,7 @@ export function PlayerRankingVisualization({
                         <button
                           type="button"
                           onClick={() => handleRemoveComparePlayer(id)}
-                          className="ml-1 text-muted hover:text-red-500 transition-colors"
+                          className="ml-1 text-muted hover:text-[var(--th-loss)] transition-colors"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -193,11 +193,11 @@ export function PlayerRankingVisualization({
                     className={cn(
                       'text-sm font-semibold',
                       mainPlayerHistory[0].currentRanking - mainPlayerHistory[0].initialRanking > 0
-                        ? 'text-green-600'
+                        ? 'text-[var(--th-win)]'
                         : mainPlayerHistory[0].currentRanking -
                               mainPlayerHistory[0].initialRanking <
                             0
-                          ? 'text-red-600'
+                          ? 'text-[var(--th-loss)]'
                           : 'text-primary',
                     )}
                   >

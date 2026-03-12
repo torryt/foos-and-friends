@@ -110,14 +110,14 @@ export const JoinGroupModal = ({ isOpen, onClose }: JoinGroupModalProps) => {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-[var(--th-radius-md)]">
-              <p className="text-red-800 text-sm">{error}</p>
+            <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
+              <p className="text-primary text-sm">{error}</p>
             </div>
           )}
 
-          <div className="bg-green-50 border border-green-200 rounded-[var(--th-radius-md)] p-4">
-            <h4 className="font-medium text-green-900 text-sm mb-2">How to get an invite code:</h4>
-            <ul className="text-sm text-green-800 space-y-1">
+          <div className="bg-accent-subtle border border-[var(--th-border)] rounded-[var(--th-radius-md)] p-4">
+            <h4 className="font-medium text-primary text-sm mb-2">How to get an invite code:</h4>
+            <ul className="text-sm text-secondary space-y-1">
               <li>• Ask a current group member for the code</li>
               <li>• Group owners can find it in group settings</li>
               <li>• Codes are exactly 8 characters (lowercase letters and numbers)</li>

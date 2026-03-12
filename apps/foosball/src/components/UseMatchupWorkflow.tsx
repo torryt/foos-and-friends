@@ -174,16 +174,16 @@ export const UseMatchupWorkflow = ({
                   type="button"
                   key={matchup.id}
                   onClick={() => handleSelectMatchup(matchup)}
-                  className="w-full text-left p-4 border border-[var(--th-border)] rounded-[var(--th-radius-lg)] hover:border-purple-300 hover:bg-purple-50 transition-colors group focus:ring-2 focus:ring-purple-300 focus:outline-none"
+                  className="w-full text-left p-4 border border-[var(--th-border)] rounded-[var(--th-radius-lg)] hover:border-[var(--th-border)] hover:bg-card-hover transition-colors group focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:outline-none"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="flex items-center gap-1">
                           {matchup.mode === 'balanced' ? (
-                            <Brain className="text-blue-500" size={14} />
+                            <Brain className="text-[var(--th-accent)]" size={14} />
                           ) : (
-                            <Sparkles className="text-purple-500" size={14} />
+                            <Sparkles className="text-[var(--th-sport-primary)]" size={14} />
                           )}
                           <span className="text-xs font-medium text-secondary">{summary.mode}</span>
                         </div>
@@ -192,11 +192,11 @@ export const UseMatchupWorkflow = ({
 
                       <div className="font-medium text-primary text-sm mb-2">
                         <div className="flex items-center gap-2 mb-1">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-[var(--th-accent)] rounded-full"></div>
                           {matchup.teams.team1.attacker.name} + {matchup.teams.team1.defender.name}
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-[var(--th-sport-primary)] rounded-full"></div>
                           {matchup.teams.team2.attacker.name} + {matchup.teams.team2.defender.name}
                         </div>
                       </div>
@@ -214,7 +214,7 @@ export const UseMatchupWorkflow = ({
                     <button
                       type="button"
                       onClick={(e) => handleDeleteMatchup(matchup.id, e)}
-                      className="ml-3 p-2 text-muted hover:text-red-600 hover:bg-red-50 rounded-[var(--th-radius-md)] transition-colors"
+                      className="ml-3 p-2 text-muted hover:text-[var(--th-loss)] hover:bg-accent-subtle rounded-[var(--th-radius-md)] transition-colors"
                       title="Delete matchup"
                     >
                       <Trash2 size={14} />

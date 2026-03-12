@@ -7,11 +7,6 @@ const THEMES: { id: ThemeName; label: string; colors: string[] }[] = [
     colors: ['#f97316', '#ef4444', '#fff7ed'],
   },
   {
-    id: 'cleansport',
-    label: 'Clean Sport',
-    colors: ['#0f1729', '#0af0c0', '#f7f8fb'],
-  },
-  {
     id: 'neonarcade',
     label: 'Neon Arcade',
     colors: ['#00f0ff', '#ff2d7b', '#0a0a12'],

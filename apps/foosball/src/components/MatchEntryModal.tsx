@@ -207,12 +207,12 @@ export const MatchEntryModal = ({
               className={`w-full p-4 border rounded-[var(--th-radius-lg)] transition-colors text-left ${
                 isArchived
                   ? 'bg-card-hover border-[var(--th-border)] opacity-50 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:from-green-100 hover:to-emerald-100'
+                  : 'bg-accent-subtle border-[var(--th-border)] hover:bg-card-hover'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-[var(--th-radius-md)]">
-                  <User className="text-green-600" size={20} />
+                <div className="p-2 bg-card-hover rounded-[var(--th-radius-md)]">
+                  <User className="text-[var(--th-win)]" size={20} />
                 </div>
                 <div>
                   <h3 className="font-semibold text-primary">Select Players</h3>
@@ -233,12 +233,12 @@ export const MatchEntryModal = ({
                 className={`w-full p-4 border rounded-[var(--th-radius-lg)] transition-colors text-left ${
                   isArchived
                     ? 'bg-card-hover border-[var(--th-border)] opacity-50 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:from-blue-100 hover:to-indigo-100'
+                    : 'bg-accent-subtle border-[var(--th-border)] hover:bg-card-hover'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-[var(--th-radius-md)]">
-                    <Brain className="text-blue-600" size={20} />
+                  <div className="p-2 bg-card-hover rounded-[var(--th-radius-md)]">
+                    <Brain className="text-[var(--th-accent)]" size={20} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-primary">Pick Teams Smartly</h3>
@@ -257,12 +257,12 @@ export const MatchEntryModal = ({
                 className={`w-full p-4 border rounded-[var(--th-radius-lg)] transition-colors text-left ${
                   isArchived
                     ? 'bg-card-hover border-[var(--th-border)] opacity-50 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:from-green-100 hover:to-emerald-100'
+                    : 'bg-accent-subtle border-[var(--th-border)] hover:bg-card-hover'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-[var(--th-radius-md)]">
-                    <Users className="text-green-600" size={20} />
+                  <div className="p-2 bg-card-hover rounded-[var(--th-radius-md)]">
+                    <Users className="text-[var(--th-win)]" size={20} />
                   </div>
                   <div>
                     <h3 className="font-semibold text-primary">Select Teams Manually</h3>
@@ -279,17 +279,17 @@ export const MatchEntryModal = ({
                 className={`w-full p-4 border rounded-[var(--th-radius-lg)] transition-colors text-left ${
                   isArchived || savedMatchups.length === 0
                     ? 'bg-card-hover border-[var(--th-border)] opacity-50 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200 hover:from-purple-100 hover:to-violet-100'
+                    : 'bg-accent-subtle border-[var(--th-border)] hover:bg-card-hover'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-2 rounded-[var(--th-radius-md)] ${
-                      savedMatchups.length === 0 ? 'bg-card-hover' : 'bg-purple-100'
+                      savedMatchups.length === 0 ? 'bg-card-hover' : 'bg-card-hover'
                     }`}
                   >
                     <History
-                      className={savedMatchups.length === 0 ? 'text-muted' : 'text-purple-600'}
+                      className={savedMatchups.length === 0 ? 'text-muted' : 'text-[var(--th-draw)]'}
                       size={20}
                     />
                   </div>
@@ -297,7 +297,7 @@ export const MatchEntryModal = ({
                     <h3 className="font-semibold text-primary">
                       Use Previous Matchup
                       {savedMatchups.length > 0 && (
-                        <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
+                        <span className="ml-2 px-2 py-1 bg-card-hover text-[var(--th-draw)] text-xs rounded-full">
                           {savedMatchups.length}
                         </span>
                       )}

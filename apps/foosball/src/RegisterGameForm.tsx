@@ -200,33 +200,33 @@ const RegisterGameForm = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-4 w-full max-w-sm shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
+      <div className="bg-card rounded-2xl p-4 w-full max-w-sm shadow-2xl border border-[var(--th-border-subtle)] max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Target className="text-orange-500" size={20} />
+          <h3 className="text-lg font-bold text-primary flex items-center gap-2">
+            <Target className="text-[var(--th-sport-primary)]" size={20} />
             Record Match
           </h3>
           <button
             type="button"
             onClick={() => setShowRecordMatch(false)}
             disabled={isSubmitting}
-            className="text-slate-400 hover:text-slate-600  p-1 rounded-full hover:bg-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Mode Switcher */}
-        <div className="bg-white/60 rounded-xl p-3 mb-4 border border-gray-200/50">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+        <div className="bg-card-hover rounded-xl p-3 mb-4 border border-[var(--th-border)]">
+          <div className="flex bg-card-hover rounded-lg p-1">
             <button
               type="button"
               onClick={() => handleModeChange('manual')}
               disabled={isSubmitting}
               className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 mode === 'manual'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-card text-primary shadow-sm'
+                  : 'text-muted hover:text-secondary'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <Users size={16} />
@@ -238,8 +238,8 @@ const RegisterGameForm = ({
               disabled={isSubmitting}
               className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 mode === 'matchmaking'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-card text-primary shadow-sm'
+                  : 'text-muted hover:text-secondary'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <Brain size={16} />
@@ -251,15 +251,15 @@ const RegisterGameForm = ({
         <div className="space-y-4">
           {/* Matchmaking Player Pool Selection */}
           {mode === 'matchmaking' && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-xl border border-green-200/50">
+            <div className="bg-card-hover p-3 rounded-xl border border-[var(--th-border)]">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Users className="text-green-500" size={14} />
-                  <span className="text-sm font-semibold text-green-800">
+                  <Users className="text-[var(--th-win)]" size={14} />
+                  <span className="text-sm font-semibold text-primary">
                     Player Pool ({selectedPlayerPool.length})
                   </span>
                 </div>
-                <div className="text-xs text-green-600">Select 4 or more players</div>
+                <div className="text-xs text-secondary">Select 4 or more players</div>
               </div>
 
               {/* Matchmaking Mode Toggle */}
@@ -269,8 +269,8 @@ const RegisterGameForm = ({
                   onClick={() => setMatchmakingMode('balanced')}
                   className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
                     matchmakingMode === 'balanced'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-white/60 text-green-700 hover:bg-white/80'
+                      ? 'bg-[var(--th-win)] text-white'
+                      : 'bg-card text-secondary hover:bg-card-hover'
                   }`}
                 >
                   <Brain size={14} />
@@ -281,15 +281,15 @@ const RegisterGameForm = ({
                   onClick={() => setMatchmakingMode('rare')}
                   className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${
                     matchmakingMode === 'rare'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-white/60 text-green-700 hover:bg-white/80'
+                      ? 'bg-[var(--th-win)] text-white'
+                      : 'bg-card text-secondary hover:bg-card-hover'
                   }`}
                 >
                   <Sparkles size={14} />
                   Rare Matchup
                 </button>
               </div>
-              <div className="text-xs text-green-600 mb-3 text-center">
+              <div className="text-xs text-secondary mb-3 text-center">
                 {matchmakingMode === 'balanced'
                   ? 'Creates evenly matched teams based on rankings'
                   : 'Pairs players who rarely play together'}
@@ -301,21 +301,21 @@ const RegisterGameForm = ({
                   .map((player) => (
                     <label
                       key={player.id}
-                      className="flex items-center gap-3 p-2 rounded-lg bg-white/60 hover:bg-white/80 cursor-pointer transition-colors border border-green-100"
+                      className="flex items-center gap-3 p-2 rounded-lg bg-card hover:bg-card-hover cursor-pointer transition-colors border border-[var(--th-border)]"
                     >
                       <input
                         type="checkbox"
                         checked={selectedPlayerPool.includes(player.id)}
                         onChange={() => handlePlayerPoolToggle(player.id)}
                         disabled={isSubmitting}
-                        className="rounded border-green-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
+                        className="rounded border-[var(--th-border)] text-[var(--th-win)] focus:ring-[var(--th-win)] disabled:opacity-50"
                       />
                       <span className="text-lg">{player.avatar}</span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">
+                        <div className="text-sm font-medium text-primary truncate">
                           {player.name}
                         </div>
-                        <div className="text-xs text-gray-500">{player.ranking} pts</div>
+                        <div className="text-xs text-muted">{player.ranking} pts</div>
                       </div>
                     </label>
                   ))}
@@ -324,7 +324,7 @@ const RegisterGameForm = ({
                 type="button"
                 onClick={handleGenerateMatchup}
                 disabled={isSubmitting || selectedPlayerPool.length < 4}
-                className="w-full mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-4 rounded-lg hover:from-green-600 hover:to-emerald-700 font-medium shadow-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full mt-3 bg-[var(--th-win)] text-white py-2 px-4 rounded-lg hover:opacity-90 font-medium shadow-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <Shuffle size={16} />
                 {matchmakingMode === 'balanced'
@@ -332,11 +332,11 @@ const RegisterGameForm = ({
                   : 'Generate Rare Matchup'}
               </button>
               {matchmakingResult && (
-                <div className="mt-3 p-3 bg-white/80 rounded-lg border border-green-200">
-                  <div className="text-xs font-medium text-green-800 mb-1">
+                <div className="mt-3 p-3 bg-card rounded-lg border border-[var(--th-border)]">
+                  <div className="text-xs font-medium text-primary mb-1">
                     Generated Matchup ({Math.round(matchmakingResult.confidence * 100)}% confidence)
                   </div>
-                  <div className="text-xs text-gray-600 whitespace-pre-line">
+                  <div className="text-xs text-secondary whitespace-pre-line">
                     {formatTeamAssignment(matchmakingResult)}
                   </div>
                 </div>
@@ -344,21 +344,21 @@ const RegisterGameForm = ({
             </div>
           )}
 
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-3 rounded-xl border border-blue-200/50">
-            <div className="block text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
-              <Users className="text-blue-500" size={14} />
+          <div className="bg-card-hover p-3 rounded-xl border border-[var(--th-border)]">
+            <div className="block text-sm font-semibold text-[var(--th-accent)] mb-2 flex items-center gap-2">
+              <Users className="text-[var(--th-accent)]" size={14} />
               Team 1
             </div>
             <div className="space-y-2">
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Sword className="text-orange-500" size={16} />
+                  <Sword className="text-[var(--th-sport-primary)]" size={16} />
                 </div>
                 <select
                   value={team1Player1Id}
                   onChange={(e) => setTeam1Player1Id(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-8 p-2 border border-[var(--th-border)] rounded-lg bg-card backdrop-blur-sm focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Attacker</option>
                   {getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id]).map(
@@ -372,13 +372,13 @@ const RegisterGameForm = ({
               </div>
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Shield className="text-blue-500" size={16} />
+                  <Shield className="text-[var(--th-accent)]" size={16} />
                 </div>
                 <select
                   value={team1Player2Id}
                   onChange={(e) => setTeam1Player2Id(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-8 p-2 border border-[var(--th-border)] rounded-lg bg-card backdrop-blur-sm focus:ring-2 focus:ring-[var(--th-accent)] focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Defender</option>
                   {getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id]).map(
@@ -393,21 +393,21 @@ const RegisterGameForm = ({
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-3 rounded-xl border border-purple-200/50">
-            <div className="block text-sm font-semibold text-purple-800 mb-2 flex items-center gap-2">
-              <Users className="text-purple-500" size={14} />
+          <div className="bg-card-hover p-3 rounded-xl border border-[var(--th-border)]">
+            <div className="block text-sm font-semibold text-[var(--th-sport-primary)] mb-2 flex items-center gap-2">
+              <Users className="text-[var(--th-sport-primary)]" size={14} />
               Team 2
             </div>
             <div className="space-y-2">
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Sword className="text-orange-500" size={16} />
+                  <Sword className="text-[var(--th-sport-primary)]" size={16} />
                 </div>
                 <select
                   value={team2Player1Id}
                   onChange={(e) => setTeam2Player1Id(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-8 p-2 border border-orange-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-8 p-2 border border-[var(--th-border)] rounded-lg bg-card backdrop-blur-sm focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Attacker</option>
                   {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id]).map(
@@ -421,13 +421,13 @@ const RegisterGameForm = ({
               </div>
               <div className="relative">
                 <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <Shield className="text-blue-500" size={16} />
+                  <Shield className="text-[var(--th-accent)]" size={16} />
                 </div>
                 <select
                   value={team2Player2Id}
                   onChange={(e) => setTeam2Player2Id(e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full pl-8 p-2 border border-blue-200 rounded-lg bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-blue-300 focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-8 p-2 border border-[var(--th-border)] rounded-lg bg-card backdrop-blur-sm focus:ring-2 focus:ring-[var(--th-accent)] focus:border-transparent text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Select Defender</option>
                   {getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id]).map(
@@ -442,8 +442,8 @@ const RegisterGameForm = ({
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-orange-50 to-red-50 p-3 rounded-xl border border-orange-200/50">
-            <div className="block text-sm font-semibold text-orange-800 mb-2">Final Score</div>
+          <div className="bg-card-hover p-3 rounded-xl border border-[var(--th-border)]">
+            <div className="block text-sm font-semibold text-[var(--th-sport-primary)] mb-2">Final Score</div>
             <div className="grid grid-cols-3 gap-2 items-center">
               <input
                 type="number"
@@ -461,9 +461,9 @@ const RegisterGameForm = ({
                 }}
                 disabled={isSubmitting}
                 placeholder="0"
-                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-[var(--th-border)] rounded-lg bg-card text-center text-sm focus:ring-2 focus:ring-[var(--th-sport-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <div className="text-center font-bold text-orange-800">VS</div>
+              <div className="text-center font-bold text-[var(--th-sport-primary)]">VS</div>
               <input
                 type="number"
                 inputMode="numeric"
@@ -480,10 +480,10 @@ const RegisterGameForm = ({
                 }}
                 disabled={isSubmitting}
                 placeholder="0"
-                className="p-2 border border-orange-200 rounded-lg bg-white/80 text-center text-sm focus:ring-2 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 border border-[var(--th-border)] rounded-lg bg-card text-center text-sm focus:ring-2 focus:ring-[var(--th-sport-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
-            <p className="text-xs text-orange-600 mt-1 text-center">
+            <p className="text-xs text-secondary mt-1 text-center">
               Games are typically played to 10 points
             </p>
           </div>
@@ -502,7 +502,7 @@ const RegisterGameForm = ({
               score2 === '' ||
               new Set([team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id]).size !== 4
             }
-            className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-700  font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-sport-gradient text-white py-3 px-4 rounded-xl hover:bg-sport-gradient-hover font-semibold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             title={!isOnline ? 'Cannot record matches while offline' : undefined}
           >
             {!isOnline ? (

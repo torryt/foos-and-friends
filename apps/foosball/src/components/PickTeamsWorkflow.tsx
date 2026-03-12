@@ -303,7 +303,7 @@ export const PickTeamsWorkflow = ({
           </div>
 
           <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent-subtle text-[var(--th-win)] rounded-full text-sm font-medium mb-3 border border-[var(--th-border)]">
               <Check size={16} />
               Teams Generated
             </div>
@@ -317,9 +317,9 @@ export const PickTeamsWorkflow = ({
 
           <div className="bg-card-hover rounded-[var(--th-radius-lg)] p-4 mb-6">
             <div className="space-y-3">
-              <div className="bg-blue-100 rounded-lg p-3">
-                <div className="font-medium text-blue-900 text-sm mb-1">Team 1</div>
-                <div className="grid grid-cols-3 items-center text-blue-800">
+              <div className="bg-card rounded-lg p-3 border border-[var(--th-border)]">
+                <div className="font-medium text-[var(--th-accent)] text-sm mb-1">Team 1</div>
+                <div className="grid grid-cols-3 items-center text-primary">
                   <span className="text-left">
                     {team1Swapped
                       ? matchmakingResult.team1.defender.name
@@ -330,7 +330,7 @@ export const PickTeamsWorkflow = ({
                     <button
                       type="button"
                       onClick={() => handleSwapTeam(1)}
-                      className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-200 rounded transition-colors"
+                      className="p-1.5 text-[var(--th-accent)] hover:text-primary hover:bg-card-hover rounded transition-colors"
                       title="Swap positions for Team 1"
                     >
                       <ArrowLeftRight size={18} />
@@ -345,9 +345,9 @@ export const PickTeamsWorkflow = ({
                 </div>
               </div>
               <div className="text-center font-bold text-secondary">VS</div>
-              <div className="bg-purple-100 rounded-lg p-3">
-                <div className="font-medium text-purple-900 text-sm mb-1">Team 2</div>
-                <div className="grid grid-cols-3 items-center text-purple-800">
+              <div className="bg-card rounded-lg p-3 border border-[var(--th-border)]">
+                <div className="font-medium text-[var(--th-sport-primary)] text-sm mb-1">Team 2</div>
+                <div className="grid grid-cols-3 items-center text-primary">
                   <span className="text-left">
                     {team2Swapped
                       ? matchmakingResult.team2.defender.name
@@ -358,7 +358,7 @@ export const PickTeamsWorkflow = ({
                     <button
                       type="button"
                       onClick={() => handleSwapTeam(2)}
-                      className="p-1.5 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded transition-colors"
+                      className="p-1.5 text-[var(--th-sport-primary)] hover:text-primary hover:bg-card-hover rounded transition-colors"
                       title="Swap positions for Team 2"
                     >
                       <ArrowLeftRight size={18} />
@@ -549,7 +549,7 @@ export const PickTeamsWorkflow = ({
         </button>
 
         {selectedPlayerPool.length < 4 && (
-          <p className="text-sm text-red-600 text-center mt-2">
+          <p className="text-sm text-[var(--th-loss)] text-center mt-2">
             Select 4 or more players to generate teams
           </p>
         )}
