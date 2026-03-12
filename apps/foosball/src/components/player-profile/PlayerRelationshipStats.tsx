@@ -26,11 +26,19 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
       case 'best':
         return { icon: Crown, text: 'Best Partner', color: 'text-[var(--th-draw)] bg-card-hover' }
       case 'worst':
-        return { icon: TrendingDown, text: 'Needs Work', color: 'text-[var(--th-loss)] bg-card-hover' }
+        return {
+          icon: TrendingDown,
+          text: 'Needs Work',
+          color: 'text-[var(--th-loss)] bg-card-hover',
+        }
       case 'rival':
         return { icon: Shield, text: 'Biggest Rival', color: 'text-[var(--th-draw)] bg-card-hover' }
       case 'easy':
-        return { icon: TrendingUp, text: 'Favorite Opponent', color: 'text-[var(--th-win)] bg-card-hover' }
+        return {
+          icon: TrendingUp,
+          text: 'Favorite Opponent',
+          color: 'text-[var(--th-win)] bg-card-hover',
+        }
       default:
         return null
     }
@@ -90,7 +98,9 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
                     <span
                       className={cn(
                         'flex-shrink-0',
-                        relationship.goalDifference > 0 ? 'text-[var(--th-win)]' : 'text-[var(--th-loss)]',
+                        relationship.goalDifference > 0
+                          ? 'text-[var(--th-win)]'
+                          : 'text-[var(--th-loss)]',
                       )}
                     >
                       {relationship.goalDifference > 0 ? '+' : ''}

@@ -443,7 +443,9 @@ const RegisterGameForm = ({
           </div>
 
           <div className="bg-card-hover p-3 rounded-xl border border-[var(--th-border)]">
-            <div className="block text-sm font-semibold text-[var(--th-sport-primary)] mb-2">Final Score</div>
+            <div className="block text-sm font-semibold text-[var(--th-sport-primary)] mb-2">
+              Final Score
+            </div>
             <div className="grid grid-cols-3 gap-2 items-center">
               <input
                 type="number"

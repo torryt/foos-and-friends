@@ -289,7 +289,9 @@ export const MatchEntryModal = ({
                     }`}
                   >
                     <History
-                      className={savedMatchups.length === 0 ? 'text-muted' : 'text-[var(--th-draw)]'}
+                      className={
+                        savedMatchups.length === 0 ? 'text-muted' : 'text-[var(--th-draw)]'
+                      }
                       size={20}
                     />
                   </div>

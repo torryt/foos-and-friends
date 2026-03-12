@@ -97,7 +97,9 @@ export function PlayerStatsCards({
           <div
             className={cn(
               'p-3 rounded-full',
-              streakType === 'win' ? 'bg-card-hover text-[var(--th-win)]' : 'bg-card-hover text-[var(--th-loss)]',
+              streakType === 'win'
+                ? 'bg-card-hover text-[var(--th-win)]'
+                : 'bg-card-hover text-[var(--th-loss)]',
             )}
           >
             {streakType === 'win' ? (

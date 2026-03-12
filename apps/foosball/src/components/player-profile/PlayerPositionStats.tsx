@@ -94,7 +94,10 @@ export function PlayerPositionStats({ positionStats }: PlayerPositionStatsProps)
             <span className="text-sm font-bold text-primary">{defensePercentage}%</span>
             <span className="text-sm text-secondary">Defense</span>
             <Shield
-              className={cn('w-4 h-4', defensePercentage > 50 ? 'text-[var(--th-accent)]' : 'text-muted')}
+              className={cn(
+                'w-4 h-4',
+                defensePercentage > 50 ? 'text-[var(--th-accent)]' : 'text-muted',
+              )}
             />
           </div>
         </div>

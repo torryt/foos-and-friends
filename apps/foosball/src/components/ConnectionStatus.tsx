@@ -7,7 +7,9 @@ export const ConnectionStatus = () => {
   return (
     <output
       className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-        isOnline ? 'bg-accent-subtle text-[var(--th-win)]' : 'bg-card-hover text-[var(--th-loss)] animate-pulse'
+        isOnline
+          ? 'bg-accent-subtle text-[var(--th-win)]'
+          : 'bg-card-hover text-[var(--th-loss)] animate-pulse'
       }`}
       aria-live="polite"
     >

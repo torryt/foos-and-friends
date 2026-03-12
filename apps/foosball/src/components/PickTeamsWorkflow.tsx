@@ -346,7 +346,9 @@ export const PickTeamsWorkflow = ({
               </div>
               <div className="text-center font-bold text-secondary">VS</div>
               <div className="bg-card rounded-lg p-3 border border-[var(--th-border)]">
-                <div className="font-medium text-[var(--th-sport-primary)] text-sm mb-1">Team 2</div>
+                <div className="font-medium text-[var(--th-sport-primary)] text-sm mb-1">
+                  Team 2
+                </div>
                 <div className="grid grid-cols-3 items-center text-primary">
                   <span className="text-left">
                     {team2Swapped
