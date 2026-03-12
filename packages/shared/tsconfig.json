@@ -15,6 +15,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
     "composite": true,
