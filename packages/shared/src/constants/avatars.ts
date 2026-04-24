@@ -140,6 +140,8 @@ export const AVAILABLE_AVATARS = [
   '🐢',
   '🐍',
   '🦎',
+  '🦶', // Foot
+  '🪵', // Tree trunk
 ]
 
 export const getRandomAvatar = (): string => {
