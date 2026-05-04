@@ -417,67 +417,66 @@ export const PickTeamsWorkflow = ({
   // Selection step
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)] max-h-[95vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
-          >
-            <ArrowLeft size={20} />
-            <span>Back</span>
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="text-center mb-6">
-          <h2 className="text-lg font-bold text-primary">Pick Teams Smartly</h2>
-          <p className="text-sm text-secondary">Select players and matchmaking style</p>
-        </div>
-
-        {/* Matchmaking Mode Toggle */}
-        <div className="mb-6">
-          <div className="flex bg-card-hover rounded-[var(--th-radius-md)] p-1">
+      <div className="bg-card w-full shadow-2xl border border-[var(--th-border)] flex flex-col max-h-[90vh]">
+        <div className="px-6 pt-6 flex-shrink-0">
+          <div className="flex justify-between items-center mb-6">
             <button
               type="button"
-              onClick={() => setMatchmakingMode('rare')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                matchmakingMode === 'rare'
-                  ? 'bg-card text-primary shadow-sm'
-                  : 'text-secondary hover:text-primary'
-              }`}
+              onClick={onBack}
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
             >
-              <Sparkles size={14} />
-              Rare Matchup
+              <ArrowLeft size={20} />
+              <span>Back</span>
             </button>
             <button
               type="button"
-              onClick={() => setMatchmakingMode('balanced')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                matchmakingMode === 'balanced'
-                  ? 'bg-card text-primary shadow-sm'
-                  : 'text-secondary hover:text-primary'
-              }`}
+              onClick={onClose}
+              className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
             >
-              <Brain size={14} />
-              Balanced
+              <X size={20} />
             </button>
           </div>
-          <p className="text-xs text-secondary mt-2 text-center">
-            {matchmakingMode === 'balanced'
-              ? 'Creates evenly matched teams based on rankings'
-              : 'Pairs players who rarely team up together'}
-          </p>
-        </div>
 
-        {/* Player Selection */}
-        <div className="mb-6">
+          <div className="text-center mb-6">
+            <h2 className="text-lg font-bold text-primary">Pick Teams Smartly</h2>
+            <p className="text-sm text-secondary">Select players and matchmaking style</p>
+          </div>
+
+          {/* Matchmaking Mode Toggle */}
+          <div className="mb-6">
+            <div className="flex bg-card-hover rounded-[var(--th-radius-md)] p-1">
+              <button
+                type="button"
+                onClick={() => setMatchmakingMode('rare')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                  matchmakingMode === 'rare'
+                    ? 'bg-card text-primary shadow-sm'
+                    : 'text-secondary hover:text-primary'
+                }`}
+              >
+                <Sparkles size={14} />
+                Rare Matchup
+              </button>
+              <button
+                type="button"
+                onClick={() => setMatchmakingMode('balanced')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                  matchmakingMode === 'balanced'
+                    ? 'bg-card text-primary shadow-sm'
+                    : 'text-secondary hover:text-primary'
+                }`}
+              >
+                <Brain size={14} />
+                Balanced
+              </button>
+            </div>
+            <p className="text-xs text-secondary mt-2 text-center">
+              {matchmakingMode === 'balanced'
+                ? 'Creates evenly matched teams based on rankings'
+                : 'Pairs players who rarely team up together'}
+            </p>
+          </div>
+
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Users className="text-muted" size={16} />
@@ -504,8 +503,11 @@ export const PickTeamsWorkflow = ({
               </button>
             </div>
           </div>
+        </div>
 
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+        {/* Scrollable Player List */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-6">
+          <div className="space-y-2 pb-2">
             {players
               .slice()
               .sort((a, b) => a.name.localeCompare(b.name))
@@ -531,30 +533,37 @@ export const PickTeamsWorkflow = ({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleGenerateMatchup}
-          disabled={isGenerating || selectedPlayerPool.length < 4}
-          className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        {/* Sticky Footer */}
+        <div
+          className="flex-shrink-0 px-6 pt-4 border-t border-[var(--th-border)] bg-card"
+          style={{ paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom))' }}
         >
-          {isGenerating ? (
-            <>
-              <Loader2 className="animate-spin" size={16} />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Shuffle size={16} />
-              {matchmakingMode === 'balanced' ? 'Generate Balanced Teams' : 'Generate Rare Matchup'}
-            </>
+          {selectedPlayerPool.length < 4 && (
+            <p className="text-sm text-[var(--th-loss)] text-center mb-3">
+              Select 4 or more players to generate teams
+            </p>
           )}
-        </button>
-
-        {selectedPlayerPool.length < 4 && (
-          <p className="text-sm text-[var(--th-loss)] text-center mt-2">
-            Select 4 or more players to generate teams
-          </p>
-        )}
+          <button
+            type="button"
+            onClick={handleGenerateMatchup}
+            disabled={isGenerating || selectedPlayerPool.length < 4}
+            className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="animate-spin" size={16} />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Shuffle size={16} />
+                {matchmakingMode === 'balanced'
+                  ? 'Generate Balanced Teams'
+                  : 'Generate Rare Matchup'}
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </ModalOrBottomDrawer>
   )
