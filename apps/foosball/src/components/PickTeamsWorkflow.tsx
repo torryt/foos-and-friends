@@ -510,7 +510,7 @@ export const PickTeamsWorkflow = ({
           <div className="space-y-2 pb-2">
             {players
               .slice()
-              .sort((a, b) => a.name.localeCompare(b.name))
+              .toSorted((a, b) => a.name.localeCompare(b.name))
               .map((player) => (
                 <label
                   key={player.id}

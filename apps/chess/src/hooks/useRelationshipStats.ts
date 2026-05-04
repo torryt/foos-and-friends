@@ -37,7 +37,7 @@ export const useRelationshipStats = (
           match.team2[1]?.id === playerId
         )
       })
-      .sort((a, b) => {
+      .toSorted((a, b) => {
         // Sort by createdAt in ascending order (oldest first)
         // This ensures slice(-5) gets the most recent 5 games
         const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
@@ -151,7 +151,7 @@ export const useRelationshipStats = (
         }
       })
       .filter((stat): stat is RelationshipStats => stat !== null)
-      .sort((a, b) => b.gamesPlayed - a.gamesPlayed) // Sort by games played desc
+      .toSorted((a, b) => b.gamesPlayed - a.gamesPlayed) // Sort by games played desc
 
     const opponents: RelationshipStats[] = Array.from(opponentStats.entries())
       .map(([playerId, stats]) => {
@@ -174,7 +174,7 @@ export const useRelationshipStats = (
         }
       })
       .filter((stat): stat is RelationshipStats => stat !== null)
-      .sort((a, b) => b.gamesPlayed - a.gamesPlayed) // Sort by games played desc
+      .toSorted((a, b) => b.gamesPlayed - a.gamesPlayed) // Sort by games played desc
 
     // Find notable relationships (minimum 3 games for meaningful stats)
     const minGamesForStats = 3

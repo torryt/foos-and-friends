@@ -32,7 +32,7 @@ export function PlayerRecentMatches({
         match.team2[1]?.id === playerId
       )
     })
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       // Sort by createdAt based on user preference
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
       const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0

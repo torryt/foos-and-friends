@@ -193,9 +193,9 @@ const PlayerRankings = ({
 
     switch (sortBy) {
       case 'elo':
-        return sorted.sort((a, b) => b.ranking - a.ranking)
+        return sorted.toSorted((a, b) => b.ranking - a.ranking)
       case 'goalDifference':
-        return sorted.sort((a, b) => {
+        return sorted.toSorted((a, b) => {
           // Sort by goal difference first, then by ELO as tiebreaker
           if (b.goalDifference !== a.goalDifference) {
             return b.goalDifference - a.goalDifference
@@ -203,7 +203,7 @@ const PlayerRankings = ({
           return b.ranking - a.ranking
         })
       case 'winRate':
-        return sorted.sort((a, b) => {
+        return sorted.toSorted((a, b) => {
           // Sort by win rate first, then by matches played, then by ELO
           if (b.winRate !== a.winRate) {
             return b.winRate - a.winRate

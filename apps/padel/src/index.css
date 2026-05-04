@@ -1,9 +1,9 @@
-@import "tailwindcss";
-@import "@foos/shared/theme.css";
+@import 'tailwindcss';
+@import '@foos/shared/theme.css';
 
 /* Padel sport colors per theme */
 :root,
-[data-theme="default"] {
+[data-theme='default'] {
   --th-sport-from: #3b82f6;
   --th-sport-to: #6366f1;
   --th-sport-primary: #3b82f6;
@@ -11,7 +11,7 @@
   --th-sport-hover-to: #4f46e5;
 }
 
-[data-theme="cleansport"] {
+[data-theme='cleansport'] {
   --th-sport-from: #0af0c0;
   --th-sport-to: #3b82f6;
   --th-sport-primary: #0af0c0;
@@ -19,7 +19,7 @@
   --th-sport-hover-to: #2563eb;
 }
 
-[data-theme="neonarcade"] {
+[data-theme='neonarcade'] {
   --th-sport-from: #b24dff;
   --th-sport-to: #00f0ff;
   --th-sport-primary: #b24dff;

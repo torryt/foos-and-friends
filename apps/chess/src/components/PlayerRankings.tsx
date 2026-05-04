@@ -139,9 +139,9 @@ const PlayerRankings = ({ players, seasonStats, onPlayerClick }: PlayerRankingsP
 
     switch (sortBy) {
       case 'elo':
-        return sorted.sort((a, b) => b.ranking - a.ranking)
+        return sorted.toSorted((a, b) => b.ranking - a.ranking)
       case 'winRate':
-        return sorted.sort((a, b) => {
+        return sorted.toSorted((a, b) => {
           // Sort by win rate first, then by matches played, then by ELO
           if (b.winRate !== a.winRate) {
             return b.winRate - a.winRate

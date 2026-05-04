@@ -43,7 +43,7 @@ export function useRankingHistory(
               match.team2[0].id === id ||
               match.team2[1]?.id === id,
           )
-          .reverse() // Reverse to get oldest first for chronological order
+          .toReversed() // Reverse to get oldest first for chronological order
 
         const dataPoints: RankingDataPoint[] = []
         let currentRanking = 1200 // Default starting ranking

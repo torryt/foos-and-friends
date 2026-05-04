@@ -31,7 +31,7 @@ export function PlayerRankingVisualization({
       // When enabling comparison, add 1-2 default players
       const topPlayers = players
         .filter((p) => p.id !== playerId && p.matchesPlayed > 0)
-        .sort((a, b) => b.ranking - a.ranking)
+        .toSorted((a, b) => b.ranking - a.ranking)
         .slice(0, 2)
         .map((p) => p.id)
       setComparePlayerIds(topPlayers)
@@ -131,7 +131,7 @@ export function PlayerRankingVisualization({
                                 !comparePlayerIds.includes(p.id) &&
                                 p.matchesPlayed > 0,
                             )
-                            .sort((a, b) => b.ranking - a.ranking)
+                            .toSorted((a, b) => b.ranking - a.ranking)
                             .map((p) => (
                               <button
                                 key={p.id}

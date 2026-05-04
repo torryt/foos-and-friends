@@ -50,7 +50,7 @@ const calculateRecentForm = (playerId: string, matches: Match[]) => {
         match.team2[1].id === playerId
       )
     })
-    .sort((a, b) => {
+    .toSorted((a, b) => {
       // Sort by createdAt in ascending order (oldest first)
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
       const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0

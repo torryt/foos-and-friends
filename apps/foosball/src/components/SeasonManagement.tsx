@@ -61,7 +61,7 @@ export const SeasonManagement = ({ isOpen, onClose }: SeasonManagementProps) => 
   const activeSeason = seasons.find((s) => s.isActive)
   const archivedSeasons = seasons
     .filter((s) => !s.isActive)
-    .sort((a, b) => b.seasonNumber - a.seasonNumber)
+    .toSorted((a, b) => b.seasonNumber - a.seasonNumber)
 
   const modalContent = (
     <ModalOrBottomDrawer isOpen={isOpen} onClose={onClose} className="sm:max-w-2xl">
