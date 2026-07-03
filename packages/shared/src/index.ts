@@ -7,6 +7,7 @@ export { AVAILABLE_AVATARS, getRandomAvatar } from './constants/avatars.ts'
 export * from './lib/database.ts'
 export * from './lib/supabase.ts'
 export * from './lib/supabase-database.ts'
+export { useClickOutside } from './lib/useClickOutside.ts'
 export { cn, scrollToTop } from './lib/utils.ts'
 
 // Services

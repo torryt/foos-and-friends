@@ -1,6 +1,6 @@
-import { type AuthUser, ThemePicker } from '@foos/shared'
+import { type AuthUser, ThemePicker, useClickOutside } from '@foos/shared'
 import { LogOut, User, Users, Zap } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { ConnectionStatus } from './ConnectionStatus'
 import { CreateGroupModal } from './CreateGroupModal'
@@ -27,6 +27,8 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
   const [groupToLeave, setGroupToLeave] = useState<string | null>(null)
   const [groupToEdit, setGroupToEdit] = useState<string | null>(null)
   const { currentGroup, userGroups, deleteGroup, leaveGroup } = useGroupContext()
+  const profileDropdownRef = useRef<HTMLDivElement>(null)
+  useClickOutside(profileDropdownRef, () => setShowProfileDropdown(false), showProfileDropdown)
 
   const handleDeleteGroup = (groupId: string) => {
     setGroupToDelete(groupId)
@@ -104,7 +106,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                     {/* <SeasonSelector /> */}
 
                     {/* Profile Dropdown for all screen sizes */}
-                    <div className="relative">
+                    <div className="relative" ref={profileDropdownRef}>
                       <button
                         type="button"
                         onClick={() => setShowProfileDropdown(!showProfileDropdown)}
@@ -121,18 +123,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                       </button>
 
                       {showProfileDropdown && (
-                        <>
-                          {/* Backdrop */}
-                          <button
-                            type="button"
-                            className="fixed inset-0 z-10"
-                            onClick={() => setShowProfileDropdown(false)}
-                            tabIndex={-1}
-                            aria-label="Close profile dropdown"
-                          />
-
-                          {/* Profile Dropdown */}
-                          <div className="absolute top-full mt-1 right-0 bg-card rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border)] min-w-48 z-20">
+                        <div className="absolute top-full mt-1 right-0 bg-card rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border)] min-w-48 z-20">
                             <div className="p-2">
                               {/* User info section */}
                               <div className="px-3 py-2 border-b border-[var(--th-border)]">
@@ -163,9 +154,8 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                                   </button>
                                 )}
                               </div>
-                            </div>
                           </div>
-                        </>
+                        </div>
                       )}
                     </div>
                   </>

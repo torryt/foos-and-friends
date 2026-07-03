@@ -9,7 +9,8 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useClickOutside } from '@foos/shared'
+import { useRef, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useToast } from '@/hooks/useToast'
 
@@ -31,6 +32,8 @@ export const GroupSelector = ({
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const { toast } = useToast()
   const navigate = useNavigate()
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  useClickOutside(dropdownRef, () => setIsOpen(false), isOpen)
 
   const copyInviteLink = async (inviteCode: string, groupName: string) => {
     try {
@@ -68,18 +71,7 @@ export const GroupSelector = ({
   }
 
   return (
-    <div className="relative">
-      {/* Backdrop */}
-      {isOpen && (
-        <button
-          type="button"
-          className="fixed inset-0 z-10"
-          onClick={() => setIsOpen(false)}
-          tabIndex={-1}
-          aria-label="Close group selector"
-        />
-      )}
-
+    <div className="relative" ref={dropdownRef}>
       {/* Trigger Button */}
       <button
         type="button"
