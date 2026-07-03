@@ -9,6 +9,10 @@
   --th-sport-primary: #f97316;
   --th-sport-hover-from: #ea580c;
   --th-sport-hover-to: #dc2626;
+  --th-sport-secondary-from: oklch(62.3% 0.214 259.815); /* blue-500 */
+  --th-sport-secondary-to: oklch(55.8% 0.288 302.321); /* purple-600 */
+  --th-sport-secondary-hover-from: oklch(54.6% 0.245 262.881); /* blue-600 */
+  --th-sport-secondary-hover-to: oklch(49.6% 0.265 301.924); /* purple-700 */
 }
 
 [data-theme='cleansport'] {
@@ -17,6 +21,10 @@
   --th-sport-primary: #0af0c0;
   --th-sport-hover-from: #08d4a8;
   --th-sport-hover-to: #e85a4a;
+  --th-sport-secondary-from: #0af0c0;
+  --th-sport-secondary-to: #0af0c0;
+  --th-sport-secondary-hover-from: #08d4a8;
+  --th-sport-secondary-hover-to: #08d4a8;
 }
 
 [data-theme='neonarcade'] {
@@ -25,4 +33,8 @@
   --th-sport-primary: #ff2d7b;
   --th-sport-hover-from: #e0266b;
   --th-sport-hover-to: #00d4e0;
+  --th-sport-secondary-from: #ff2d7b;
+  --th-sport-secondary-to: #ff2d7b;
+  --th-sport-secondary-hover-from: #e0266b;
+  --th-sport-secondary-hover-to: #e0266b;
 }

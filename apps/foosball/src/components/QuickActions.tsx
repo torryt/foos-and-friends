@@ -19,7 +19,7 @@ const QuickActions = ({ onAddMatch, onAddPlayer }: QuickActionsProps) => {
       <button
         type="button"
         onClick={onAddPlayer}
-        className="bg-[var(--th-sport-primary)] text-white p-4 rounded-[var(--th-radius-lg)] hover:opacity-90 shadow-theme-card flex items-center justify-center gap-2 font-semibold"
+        className="bg-sport-secondary-gradient text-white p-4 rounded-[var(--th-radius-lg)] hover:bg-sport-secondary-gradient-hover shadow-theme-card flex items-center justify-center gap-2 font-semibold"
       >
         <Plus size={20} />
         Add Player

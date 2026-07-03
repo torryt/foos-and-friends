@@ -1,11 +1,27 @@
 /* Custom utility classes for common theme patterns */
 
-.bg-sport-gradient {
+@utility bg-sport-gradient {
   background-image: linear-gradient(to right, var(--th-sport-from), var(--th-sport-to));
 }
 
-.bg-sport-gradient-hover {
+@utility bg-sport-gradient-hover {
   background-image: linear-gradient(to right, var(--th-sport-hover-from), var(--th-sport-hover-to));
+}
+
+@utility bg-sport-secondary-gradient {
+  background-image: linear-gradient(
+    to right,
+    var(--th-sport-secondary-from, var(--th-sport-primary)),
+    var(--th-sport-secondary-to, var(--th-sport-primary))
+  );
+}
+
+@utility bg-sport-secondary-gradient-hover {
+  background-image: linear-gradient(
+    to right,
+    var(--th-sport-secondary-hover-from, var(--th-sport-primary)),
+    var(--th-sport-secondary-hover-to, var(--th-sport-primary))
+  );
 }
 
 .text-sport-gradient {
