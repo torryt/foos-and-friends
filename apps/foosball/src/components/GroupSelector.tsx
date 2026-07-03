@@ -5,6 +5,7 @@ import {
   Clipboard,
   LogOut,
   Plus,
+  Settings,
   Trash2,
   UserPlus,
   Users,
@@ -18,6 +19,7 @@ interface GroupSelectorProps {
   onJoinGroup?: () => void
   onDeleteGroup?: (groupId: string) => void
   onLeaveGroup?: (groupId: string) => void
+  onGroupSettings?: (groupId: string) => void
 }
 
 export const GroupSelector = ({
@@ -25,6 +27,7 @@ export const GroupSelector = ({
   onJoinGroup,
   onDeleteGroup,
   onLeaveGroup,
+  onGroupSettings,
 }: GroupSelectorProps) => {
   const { currentGroup, userGroups, switchGroup, loading } = useGroupContext()
   const [isOpen, setIsOpen] = useState(false)
@@ -156,6 +159,21 @@ export const GroupSelector = ({
                         >
                           <Users size={14} className="text-[var(--th-sport-primary)]" />
                           Switch to Group
+                        </button>
+                      )}
+
+                      {/* Group Settings - owners only */}
+                      {group.isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onGroupSettings?.(group.id)
+                            setIsOpen(false)
+                          }}
+                          className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-primary"
+                        >
+                          <Settings size={14} className="text-muted" />
+                          Group Settings
                         </button>
                       )}
 

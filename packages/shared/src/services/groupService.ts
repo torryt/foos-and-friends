@@ -1,4 +1,4 @@
-import type { Database } from '../lib/database.ts'
+import type { Database, GroupSettingsUpdate } from '../lib/database.ts'
 import type {
   FriendGroup,
   GroupCreationResult,
@@ -92,6 +92,13 @@ export class GroupService {
       error: result.data?.error,
       deletedCounts: result.data?.deleted_counts,
     }
+  }
+
+  async updateGroup(
+    groupId: string,
+    updates: GroupSettingsUpdate,
+  ): Promise<{ data: FriendGroup | null; error: string | null }> {
+    return await this.db.updateGroup(groupId, updates)
   }
 
   async leaveGroup(groupId: string, userId: string): Promise<GroupLeaveResult> {

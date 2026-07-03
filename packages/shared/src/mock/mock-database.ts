@@ -6,6 +6,7 @@ import type {
   GroupDeletionRpcResult,
   GroupJoinRpcResult,
   GroupLeaveRpcResult,
+  GroupSettingsUpdate,
   SeasonCreationRpcResult,
 } from '../lib/database.ts'
 import type {
@@ -72,6 +73,21 @@ export class MockDatabase implements Database {
     return group ? { data: group, error: null } : { data: null, error: 'Group not found' }
   }
 
+  async updateGroup(
+    groupId: string,
+    updates: GroupSettingsUpdate,
+  ): Promise<DatabaseResult<FriendGroup>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: null, error: 'Group not found' }
+    }
+    if (updates.name !== undefined) group.name = updates.name
+    if (updates.description !== undefined) group.description = updates.description
+    if (updates.targetScore !== undefined) group.targetScore = updates.targetScore
+    group.updatedAt = new Date().toISOString()
+    return { data: { ...group }, error: null }
+  }
+
   async getGroupByInviteCode(inviteCode: string): Promise<DatabaseResult<FriendGroup>> {
     const group = this.groups.find((g) => g.inviteCode === inviteCode && g.isActive)
     if (!group) {
@@ -109,6 +125,7 @@ export class MockDatabase implements Database {
       updatedAt: now,
       sportType,
       supportedMatchTypes,
+      targetScore: 10,
     })
 
     this.memberships.push({

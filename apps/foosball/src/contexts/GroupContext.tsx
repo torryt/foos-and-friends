@@ -1,4 +1,4 @@
-import type { FriendGroup, SportType } from '@foos/shared'
+import type { FriendGroup, GroupSettingsUpdate, SportType } from '@foos/shared'
 import type { ReactNode } from 'react'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
@@ -23,6 +23,10 @@ interface GroupContextType {
     deletedCounts?: { players: number; matches: number; members: number }
   }>
   leaveGroup: (groupId: string) => Promise<{ success: boolean; error?: string }>
+  updateGroup: (
+    groupId: string,
+    updates: GroupSettingsUpdate,
+  ) => Promise<{ success: boolean; error?: string }>
 }
 
 const GroupContext = createContext<GroupContextType | null>(null)
@@ -160,6 +164,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           isOwner: true,
           playerCount: 0,
           supportedMatchTypes: ['2v2'],
+          targetScore: 10,
         }
 
         // Set the new group as current immediately
@@ -209,6 +214,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           isOwner: false,
           playerCount: 0,
           supportedMatchTypes: ['2v2'],
+          targetScore: 10,
         }
 
         // Set the joined group as current immediately
@@ -317,6 +323,35 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     }
   }
 
+  // Update group settings (owner only)
+  const updateGroup = async (groupId: string, updates: GroupSettingsUpdate) => {
+    if (!isAuthenticated || !user) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    setError(null)
+
+    try {
+      const result = await groupService.updateGroup(groupId, updates)
+
+      if (result.error || !result.data) {
+        setError(result.error || 'Failed to update group')
+        return { success: false, error: result.error || 'Failed to update group' }
+      }
+
+      const updated = result.data
+      // Merge into local state, preserving client-side fields like playerCount/isOwner
+      setUserGroups((groups) => groups.map((g) => (g.id === groupId ? { ...g, ...updated } : g)))
+      setCurrentGroup((current) => (current?.id === groupId ? { ...current, ...updated } : current))
+
+      return { success: true }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update group'
+      setError(errorMessage)
+      return { success: false, error: errorMessage }
+    }
+  }
+
   // Load groups when user authenticates
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -343,6 +378,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         joinGroup,
         deleteGroup,
         leaveGroup,
+        updateGroup,
       }}
     >
       {children}

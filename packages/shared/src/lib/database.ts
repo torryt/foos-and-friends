@@ -9,6 +9,13 @@ import type {
   SportType,
 } from '../types/index.ts'
 
+// Editable group settings (owner only)
+export interface GroupSettingsUpdate {
+  name?: string
+  description?: string | null
+  targetScore?: number
+}
+
 // Database operation results
 export interface DatabaseResult<T> {
   data: T | null
@@ -76,6 +83,7 @@ export interface Database {
   ): Promise<DatabaseResult<GroupJoinRpcResult>>
   deleteGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupDeletionRpcResult>>
   leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>>
+  updateGroup(groupId: string, updates: GroupSettingsUpdate): Promise<DatabaseResult<FriendGroup>>
 
   // Group membership operations
   getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMembership>>
