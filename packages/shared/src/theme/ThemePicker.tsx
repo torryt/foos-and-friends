@@ -13,7 +13,7 @@ const THEMES: { id: ThemeName; label: string; colors: string[] }[] = [
   },
 ]
 
-export function ThemePicker() {
+export function ThemePicker({ onSelect }: { onSelect?: () => void }) {
   const { theme, setTheme } = useTheme()
 
   return (
@@ -24,7 +24,10 @@ export function ThemePicker() {
           <button
             key={t.id}
             type="button"
-            onClick={() => setTheme(t.id)}
+            onClick={() => {
+              setTheme(t.id)
+              onSelect?.()
+            }}
             className={`flex flex-col items-center gap-1 p-2 rounded-[var(--th-radius-md)] border transition-colors ${
               theme === t.id
                 ? 'border-[var(--th-accent)] bg-accent-subtle'

@@ -135,7 +135,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
                               {/* Theme picker */}
                               <div className="border-b border-[var(--th-border)]">
-                                <ThemePicker />
+                                <ThemePicker onSelect={() => setShowProfileDropdown(false)} />
                               </div>
 
                               {/* Actions section */}
