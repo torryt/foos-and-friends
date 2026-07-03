@@ -1,5 +1,8 @@
 import type { Match, Player, PlayerPosition } from '../types/index.ts'
 
+/** Picks a uniformly random element from a non-empty array */
+const pickRandom = <T>(items: T[]): T => items[Math.floor(Math.random() * items.length)]
+
 export interface TeamAssignment {
   team1: {
     attacker: Player
@@ -298,28 +301,35 @@ export const findBestMatchup = (
   // Generate all possible team combinations
   const teamCombinations = generateTeamCombinations(players)
 
-  let bestMatchup: TeamAssignment | null = null
+  // Collect every combination tied for the best score, then pick one at random.
+  // Using a strict ">" comparison here would always keep the first-seen combination,
+  // biasing results towards whatever order `players` happens to be in (e.g. alphabetical).
+  const SCORE_EPSILON = 1e-9
+  let bestMatchups: TeamAssignment[] = []
   let bestScore = -1
 
   for (const combination of teamCombinations) {
     const { assignment, quality } = findBestPositions(combination.team1, combination.team2, prefs)
+    const candidate: TeamAssignment = {
+      team1: assignment.team1,
+      team2: assignment.team2,
+      rankingDifference: quality.rankingDifference,
+      confidence: Math.min(1, quality.score),
+    }
 
-    if (quality.score > bestScore) {
+    if (quality.score > bestScore + SCORE_EPSILON) {
       bestScore = quality.score
-      bestMatchup = {
-        team1: assignment.team1,
-        team2: assignment.team2,
-        rankingDifference: quality.rankingDifference,
-        confidence: Math.min(1, quality.score),
-      }
+      bestMatchups = [candidate]
+    } else if (Math.abs(quality.score - bestScore) <= SCORE_EPSILON) {
+      bestMatchups.push(candidate)
     }
   }
 
-  if (!bestMatchup) {
+  if (bestMatchups.length === 0) {
     throw new Error('Could not find suitable matchup')
   }
 
-  return bestMatchup
+  return pickRandom(bestMatchups)
 }
 
 /**
@@ -389,8 +399,11 @@ export const findRareMatchup = (players: Player[], matches: Match[]): TeamAssign
   // Generate all possible team combinations
   const teamCombinations = generateTeamCombinations(players)
 
-  // Find the combination with the lowest rarity score
-  let bestMatchup: { team1: [Player, Player]; team2: [Player, Player] } | null = null
+  // Collect every combination tied for the lowest rarity score, then pick one at random.
+  // Using a strict "<" comparison here would always keep the first-seen combination,
+  // biasing results towards whatever order `players` happens to be in (e.g. alphabetical) —
+  // most noticeable when a brand-new player has a rarity score of 0 with everyone.
+  let bestMatchups: { team1: [Player, Player]; team2: [Player, Player] }[] = []
   let lowestRarityScore = Infinity
 
   for (const combination of teamCombinations) {
@@ -398,13 +411,17 @@ export const findRareMatchup = (players: Player[], matches: Match[]): TeamAssign
 
     if (rarityScore < lowestRarityScore) {
       lowestRarityScore = rarityScore
-      bestMatchup = combination
+      bestMatchups = [combination]
+    } else if (rarityScore === lowestRarityScore) {
+      bestMatchups.push(combination)
     }
   }
 
-  if (!bestMatchup) {
+  if (bestMatchups.length === 0) {
     throw new Error('Could not find suitable matchup')
   }
+
+  const bestMatchup = pickRandom(bestMatchups)
 
   // For rare matchups, assign positions randomly
   const randomizePositions = (team: [Player, Player]): { attacker: Player; defender: Player } => {
