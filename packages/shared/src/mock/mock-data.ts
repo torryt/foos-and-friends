@@ -88,6 +88,7 @@ export const buildMockSeed = (): MockSeed => {
     updatedAt: daysAgo(90).toISOString(),
     sportType: 'foosball',
     supportedMatchTypes: ['1v1', '2v2'],
+    targetScore: 10,
   }
 
   const membership: GroupMembership = {

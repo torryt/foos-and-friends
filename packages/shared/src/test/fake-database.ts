@@ -6,6 +6,7 @@ import type {
   GroupDeletionRpcResult,
   GroupJoinRpcResult,
   GroupLeaveRpcResult,
+  GroupSettingsUpdate,
   SeasonCreationRpcResult,
 } from '../lib/database.ts'
 import type {
@@ -100,6 +101,7 @@ export class FakeDatabase implements Database {
       updatedAt: new Date().toISOString(),
       sportType,
       supportedMatchTypes: ['2v2'],
+      targetScore: 10,
     }
 
     this.groups.push(group)
@@ -239,6 +241,21 @@ export class FakeDatabase implements Database {
       },
       error: null,
     }
+  }
+
+  async updateGroup(
+    groupId: string,
+    updates: GroupSettingsUpdate,
+  ): Promise<DatabaseResult<FriendGroup>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: null, error: 'Group not found' }
+    }
+    if (updates.name !== undefined) group.name = updates.name
+    if (updates.description !== undefined) group.description = updates.description
+    if (updates.targetScore !== undefined) group.targetScore = updates.targetScore
+    group.updatedAt = new Date().toISOString()
+    return { data: { ...group }, error: null }
   }
 
   async leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {

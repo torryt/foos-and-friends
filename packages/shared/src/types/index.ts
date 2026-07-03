@@ -125,6 +125,7 @@ export interface FriendGroup {
   isOwner?: boolean // Added for client-side group owner detection
   sportType?: SportType // Added for multi-sport support
   supportedMatchTypes: MatchType[] // Which match types this group supports
+  targetScore: number // Points needed to win a game in this group
 }
 
 export interface GroupMembership {

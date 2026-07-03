@@ -21,6 +21,7 @@ import type {
   GroupDeletionRpcResult,
   GroupJoinRpcResult,
   GroupLeaveRpcResult,
+  GroupSettingsUpdate,
   SeasonCreationRpcResult,
 } from './database.ts'
 import { getSupabase } from './supabase.ts'
@@ -226,6 +227,7 @@ export class SupabaseDatabase implements Database {
         isOwner: group.owner_id === userId,
         sportType: group.sport_type as SportType,
         supportedMatchTypes: (group.supported_match_types as MatchType[]) || ['2v2'],
+        targetScore: (group.target_score as number) ?? 10,
       }))
 
       return { data: groups, error: null }
@@ -261,6 +263,7 @@ export class SupabaseDatabase implements Database {
         updatedAt: data.updated_at,
         sportType: data.sport_type as SportType,
         supportedMatchTypes: (data.supported_match_types as MatchType[]) || ['2v2'],
+        targetScore: (data.target_score as number) ?? 10,
       }
 
       return { data: group, error: null }
@@ -299,6 +302,7 @@ export class SupabaseDatabase implements Database {
         playerCount: 0, // We don't need the actual count for invite preview
         sportType: groupData.sport_type as SportType,
         supportedMatchTypes: (groupData.supported_match_types as MatchType[]) || ['2v2'],
+        targetScore: (groupData.target_score as number) ?? 10,
       }
 
       return { data: group, error: null }
@@ -374,6 +378,51 @@ export class SupabaseDatabase implements Database {
       return { data: data as GroupDeletionRpcResult, error: null }
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to delete group' }
+    }
+  }
+
+  async updateGroup(
+    groupId: string,
+    updates: GroupSettingsUpdate,
+  ): Promise<DatabaseResult<FriendGroup>> {
+    try {
+      const supabase = getSupabase()
+
+      const row: Record<string, unknown> = {}
+      if (updates.name !== undefined) row.name = updates.name
+      if (updates.description !== undefined) row.description = updates.description
+      if (updates.targetScore !== undefined) row.target_score = updates.targetScore
+
+      const { data, error } = await supabase
+        .from('friend_groups')
+        .update(row)
+        .eq('id', groupId)
+        .select('*')
+        .single()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      const group: FriendGroup = {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        inviteCode: data.invite_code,
+        ownerId: data.owner_id,
+        createdBy: data.created_by,
+        isActive: data.is_active,
+        maxMembers: data.max_members,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        sportType: data.sport_type as SportType,
+        supportedMatchTypes: (data.supported_match_types as MatchType[]) || ['2v2'],
+        targetScore: (data.target_score as number) ?? 10,
+      }
+
+      return { data: group, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to update group' }
     }
   }
 
