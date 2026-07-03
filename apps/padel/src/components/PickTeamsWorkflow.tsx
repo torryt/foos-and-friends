@@ -437,7 +437,6 @@ export const PickTeamsWorkflow = ({
 
           <div className="text-center mb-6">
             <h2 className="text-lg font-bold text-gray-900">Pick Teams Smartly</h2>
-            <p className="text-sm text-gray-600">Select players and matchmaking style</p>
           </div>
 
           {/* Matchmaking Mode Toggle */}
