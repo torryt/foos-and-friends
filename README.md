@@ -48,7 +48,7 @@ All apps share the same backend infrastructure and user accounts, but maintain s
 3. **Start development**
    ```bash
    # Foosball app (port 5173)
-   pnpm dev:foosball
+   pnpm dev:foos
 
    # Chess app (port 5175)
    pnpm dev:chess
@@ -72,12 +72,12 @@ All apps share the same backend infrastructure and user accounts, but maintain s
 
 ```bash
 # Development
-pnpm dev:foosball       # Start foosball dev server
+pnpm dev:foos       # Start foosball dev server
 pnpm dev:chess          # Start chess dev server
 
 # Building & Testing
 pnpm build              # Build all apps
-pnpm build:foosball     # Build foosball app
+pnpm build:foos     # Build foosball app
 pnpm build:chess        # Build chess app
 pnpm typecheck          # Run TypeScript compiler check
 pnpm test               # Run tests in watch mode
@@ -210,7 +210,7 @@ foos-and-friends/
 ## Deployment
 
 ### Cloudflare Pages (Foosball)
-- **Build command**: `pnpm install && pnpm build:foosball`
+- **Build command**: `pnpm install && pnpm build:foos`
 - **Build output**: `apps/foosball/dist`
 - **Root directory**: (empty - repo root)
 

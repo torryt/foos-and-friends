@@ -10,8 +10,8 @@ Two apps — foosball and chess — track players, matches, and ELO rankings, sh
 
 ## Commands
 
-- `pnpm dev:foosball` / `pnpm dev:chess` — dev server (ports 5173/5175)
-- `pnpm build` / `pnpm build:foosball` / `pnpm build:chess` — build
+- `pnpm dev:foos` / `pnpm dev:chess` — dev server (ports 5173/5175)
+- `pnpm build` / `pnpm build:foos` / `pnpm build:chess` — build
 - `pnpm typecheck` — TypeScript check, all packages
 - `pnpm lint` / `pnpm lint:fix` — Biome lint
 - `pnpm format` — Biome format

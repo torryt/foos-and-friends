@@ -10,7 +10,7 @@ Each app is deployed as a separate Cloudflare Pages project.
 1. **Create Cloudflare Pages project** for foosball
 2. **Configure Build Settings**
    ```
-   Build command: pnpm install && pnpm build:foosball
+   Build command: pnpm install && pnpm build:foos
    Build output directory: apps/foosball/dist
    Root directory: (leave blank)
    ```

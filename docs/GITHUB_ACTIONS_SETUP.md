@@ -89,7 +89,7 @@ pnpm build         # Build all apps (foosball, chess)
 **"Build failing"**
 - Run `pnpm build` locally
 - Check that environment variables are set if needed
-- Each app builds independently: `pnpm build:foosball`, `pnpm build:chess`
+- Each app builds independently: `pnpm build:foos`, `pnpm build:chess`
 
 ### Debugging
 

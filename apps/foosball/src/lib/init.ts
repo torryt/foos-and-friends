@@ -11,7 +11,7 @@ import {
 } from '@foos/shared'
 
 // Mock mode: run the app against an in-memory database, no Supabase needed.
-// Enable with `pnpm dev:foosball:mock` (sets VITE_MOCK_DATA=true).
+// Enable with `pnpm dev:foos:mock` (sets VITE_MOCK_DATA=true).
 export const isMockMode = import.meta.env.VITE_MOCK_DATA === 'true'
 
 // Initialize Supabase with environment variables.

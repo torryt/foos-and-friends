@@ -8,7 +8,7 @@ description: How to run and verify UI changes in this repo end-to-end without Su
 ## Launch (no Supabase needed)
 
 ```bash
-pnpm dev:foosball:mock   # VITE_MOCK_DATA=true — in-memory DB, fake logged-in user
+pnpm dev:foos:mock   # VITE_MOCK_DATA=true — in-memory DB, fake logged-in user
 ```
 
 Seeds 10 players ("Office Legends" group) and a 60-match season. Match
