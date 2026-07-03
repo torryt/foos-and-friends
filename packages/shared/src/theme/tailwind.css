@@ -1,4 +1,9 @@
 /* Register theme tokens as Tailwind v4 theme values */
+
+/* `classic:` applies only in the default ("Classic") theme — for colors that
+   predate theming and have no semantic token in the other themes. */
+@custom-variant classic (:root:is([data-theme='default'], :not([data-theme])) &);
+
 @theme {
   /* Colors */
   --color-page: var(--th-bg-page);

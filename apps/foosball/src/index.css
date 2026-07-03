@@ -4,11 +4,12 @@
 /* Foosball sport colors per theme */
 :root,
 [data-theme='default'] {
-  --th-sport-from: #f97316;
-  --th-sport-to: #ef4444;
-  --th-sport-primary: #f97316;
-  --th-sport-hover-from: #ea580c;
-  --th-sport-hover-to: #dc2626;
+  /* Pre-theming button/tab gradient: orange-500 → red-600 */
+  --th-sport-from: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --th-sport-to: oklch(57.7% 0.245 27.325); /* red-600 */
+  --th-sport-primary: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --th-sport-hover-from: oklch(64.6% 0.222 41.116); /* orange-600 */
+  --th-sport-hover-to: oklch(50.5% 0.213 27.518); /* red-700 */
   --th-sport-secondary-from: oklch(62.3% 0.214 259.815); /* blue-500 */
   --th-sport-secondary-to: oklch(55.8% 0.288 302.321); /* purple-600 */
   --th-sport-secondary-hover-from: oklch(54.6% 0.245 262.881); /* blue-600 */
