@@ -1,12 +1,27 @@
-import type { SavedMatchup, TeamAssignment } from '@foos/shared'
+import type { Player, SavedMatchup, TeamAssignment } from '@foos/shared'
 import { savedMatchupsService } from '@foos/shared'
-import { ArrowLeft, Brain, Clock, Sparkles, Trash2, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowLeftRight,
+  Brain,
+  ChevronRight,
+  Clock,
+  Shield,
+  Sparkles,
+  Sword,
+  Trash2,
+  Users,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
+import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
+import { PlayerPickerSheet } from './PlayerPickerSheet'
 import { ScoreEntryStep } from './ScoreEntryStep'
 
 interface UseMatchupWorkflowProps {
   savedMatchups: SavedMatchup[]
+  players: Player[]
   addMatch: (
     team1Player1Id: string,
     team1Player2Id: string,
@@ -21,10 +36,46 @@ interface UseMatchupWorkflowProps {
   groupId: string
 }
 
-type Step = 'selection' | 'score'
+type Step = 'selection' | 'edit' | 'score'
+type Slot = 'team1Attacker' | 'team1Defender' | 'team2Attacker' | 'team2Defender'
+
+type SlotPlayers = Record<Slot, Player>
+
+interface SlotButtonProps {
+  position: 'attacker' | 'defender'
+  player: Player
+  onClick: () => void
+}
+
+const SlotButton = ({ position, player, onClick }: SlotButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="w-full flex items-center justify-between gap-2 p-3 min-h-12 rounded-[var(--th-radius-md)] border border-[var(--th-border)] bg-card hover:bg-card-hover text-left transition-colors"
+  >
+    <span className="flex items-center gap-2 truncate">
+      {position === 'attacker' ? (
+        <Sword className="text-[var(--th-sport-primary)] shrink-0" size={16} />
+      ) : (
+        <Shield className="text-[var(--th-accent)] shrink-0" size={16} />
+      )}
+      <span className="truncate text-primary">
+        {player.avatar} {player.name} ({player.ranking})
+      </span>
+    </span>
+    <ChevronRight className="text-muted shrink-0" size={16} />
+  </button>
+)
+
+const modeIcon = (mode: SavedMatchup['mode']) => {
+  if (mode === 'balanced') return <Brain className="text-[var(--th-accent)]" size={14} />
+  if (mode === 'rare') return <Sparkles className="text-[var(--th-sport-primary)]" size={14} />
+  return <Users className="text-[var(--th-win)]" size={14} />
+}
 
 export const UseMatchupWorkflow = ({
   savedMatchups: initialMatchups,
+  players,
   addMatch,
   onBack,
   onClose,
@@ -34,15 +85,53 @@ export const UseMatchupWorkflow = ({
   const [step, setStep] = useState<Step>('selection')
   const [selectedMatchup, setSelectedMatchup] = useState<SavedMatchup | null>(null)
   const [savedMatchups, setSavedMatchups] = useState(initialMatchups)
-  const [team1Swapped, setTeam1Swapped] = useState(false)
-  const [team2Swapped, setTeam2Swapped] = useState(false)
+  const [slotPlayers, setSlotPlayers] = useState<SlotPlayers | null>(null)
+  const [activeSlot, setActiveSlot] = useState<Slot | null>(null)
   const { toast } = useToast()
 
+  const slotConfig: Record<Slot, { title: string; position: 'attacker' | 'defender' }> = {
+    team1Attacker: { title: 'Team 1 Attacker', position: 'attacker' },
+    team1Defender: { title: 'Team 1 Defender', position: 'defender' },
+    team2Attacker: { title: 'Team 2 Attacker', position: 'attacker' },
+    team2Defender: { title: 'Team 2 Defender', position: 'defender' },
+  }
+
+  const buildTeams = (slots: SlotPlayers): TeamAssignment => ({
+    team1: {
+      attacker: slots.team1Attacker,
+      defender: slots.team1Defender,
+    },
+    team2: {
+      attacker: slots.team2Attacker,
+      defender: slots.team2Defender,
+    },
+    rankingDifference: Math.abs(
+      slots.team1Attacker.ranking +
+        slots.team1Defender.ranking -
+        (slots.team2Attacker.ranking + slots.team2Defender.ranking),
+    ),
+    confidence: selectedMatchup?.confidence ?? 1,
+  })
+
+  // Update slot state and persist the edited lineup back to the saved matchup
+  const applySlots = (slots: SlotPlayers) => {
+    setSlotPlayers(slots)
+    if (selectedMatchup) {
+      savedMatchupsService.updateMatchup(selectedMatchup.id, groupId, buildTeams(slots))
+    }
+  }
+
   const handleSelectMatchup = (matchup: SavedMatchup) => {
+    // Resolve stored players against the current roster so names/rankings are fresh
+    const resolve = (p: Player) => players.find((current) => current.id === p.id) ?? p
     setSelectedMatchup(matchup)
-    setTeam1Swapped(false) // Reset swap states when selecting a new matchup
-    setTeam2Swapped(false)
-    setStep('score')
+    setSlotPlayers({
+      team1Attacker: resolve(matchup.teams.team1.attacker),
+      team1Defender: resolve(matchup.teams.team1.defender),
+      team2Attacker: resolve(matchup.teams.team2.attacker),
+      team2Defender: resolve(matchup.teams.team2.defender),
+    })
+    setStep('edit')
   }
 
   const handleDeleteMatchup = (matchupId: string, event: React.MouseEvent) => {
@@ -52,22 +141,43 @@ export const UseMatchupWorkflow = ({
     toast().success('Matchup deleted')
   }
 
+  // Selecting a player already in another slot swaps the two slots
+  const handlePickPlayer = (slot: Slot, playerId: string) => {
+    if (!slotPlayers) return
+    const picked = players.find((p) => p.id === playerId)
+    if (!picked) return
+
+    const next = { ...slotPlayers }
+    const occupiedSlot = (Object.keys(next) as Slot[]).find(
+      (s) => s !== slot && next[s].id === playerId,
+    )
+    if (occupiedSlot) {
+      next[occupiedSlot] = next[slot]
+    }
+    next[slot] = picked
+    applySlots(next)
+    setActiveSlot(null)
+  }
+
+  const handleSwapTeam = (team: 1 | 2) => {
+    if (!slotPlayers) return
+    const next = { ...slotPlayers }
+    if (team === 1) {
+      ;[next.team1Attacker, next.team1Defender] = [next.team1Defender, next.team1Attacker]
+    } else {
+      ;[next.team2Attacker, next.team2Defender] = [next.team2Defender, next.team2Attacker]
+    }
+    applySlots(next)
+  }
+
   const handleAddMatch = async (score1: string, score2: string) => {
-    if (!selectedMatchup) return
-
-    const { teams } = selectedMatchup
-
-    // Apply swap if needed for each team independently
-    const team1Attacker = team1Swapped ? teams.team1.defender : teams.team1.attacker
-    const team1Defender = team1Swapped ? teams.team1.attacker : teams.team1.defender
-    const team2Attacker = team2Swapped ? teams.team2.defender : teams.team2.attacker
-    const team2Defender = team2Swapped ? teams.team2.attacker : teams.team2.defender
+    if (!slotPlayers) return
 
     const result = await addMatch(
-      team1Attacker.id,
-      team1Defender.id,
-      team2Attacker.id,
-      team2Defender.id,
+      slotPlayers.team1Attacker.id,
+      slotPlayers.team1Defender.id,
+      slotPlayers.team2Attacker.id,
+      slotPlayers.team2Defender.id,
       score1,
       score2,
     )
@@ -80,39 +190,156 @@ export const UseMatchupWorkflow = ({
     }
   }
 
-  if (step === 'score' && selectedMatchup) {
-    // Apply swap if needed for display
-    const displayTeams: TeamAssignment = {
-      team1: {
-        attacker: team1Swapped
-          ? selectedMatchup.teams.team1.defender
-          : selectedMatchup.teams.team1.attacker,
-        defender: team1Swapped
-          ? selectedMatchup.teams.team1.attacker
-          : selectedMatchup.teams.team1.defender,
-      },
-      team2: {
-        attacker: team2Swapped
-          ? selectedMatchup.teams.team2.defender
-          : selectedMatchup.teams.team2.attacker,
-        defender: team2Swapped
-          ? selectedMatchup.teams.team2.attacker
-          : selectedMatchup.teams.team2.defender,
-      },
-      rankingDifference: selectedMatchup.teams.rankingDifference,
-      confidence: selectedMatchup.teams.confidence,
-    }
-
+  if (step === 'score' && slotPlayers) {
     return (
       <ScoreEntryStep
-        teams={displayTeams}
-        onBack={() => setStep('selection')}
+        teams={buildTeams(slotPlayers)}
+        onBack={() => setStep('edit')}
         onClose={onClose}
         onSubmit={handleAddMatch}
         title="Register Score"
-        onSwapTeam1={() => setTeam1Swapped(!team1Swapped)}
-        onSwapTeam2={() => setTeam2Swapped(!team2Swapped)}
+        onSwapTeam1={() => handleSwapTeam(1)}
+        onSwapTeam2={() => handleSwapTeam(2)}
       />
+    )
+  }
+
+  // Full-screen player picker for the active slot
+  if (step === 'edit' && slotPlayers && activeSlot) {
+    return (
+      <PlayerPickerSheet
+        players={players}
+        title={slotConfig[activeSlot].title}
+        selectedId={slotPlayers[activeSlot].id}
+        onSelect={(id) => handlePickPlayer(activeSlot, id)}
+        onBack={() => setActiveSlot(null)}
+        onClose={onClose}
+      />
+    )
+  }
+
+  // Edit step - adjust players and positions before entering the score
+  if (step === 'edit' && slotPlayers) {
+    return (
+      <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+        <div className="bg-card w-full shadow-2xl border border-[var(--th-border)] flex flex-col max-h-full sm:max-h-[90vh]">
+          <div
+            className="px-6 flex-shrink-0"
+            style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSlot(null)
+                  setStep('selection')
+                }}
+                className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
+              >
+                <ArrowLeft size={20} />
+                <span>Back</span>
+              </button>
+              <h2 className="text-lg font-bold text-primary">Adjust Matchup</h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto min-h-0 px-6">
+            <p className="text-sm text-secondary text-center mb-4">
+              Tap a player to change them — picking someone already in the matchup swaps their
+              positions
+            </p>
+            <div className="space-y-4">
+              {/* Team 1 */}
+              <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="text-[var(--th-accent)]" size={18} />
+                    <h3 className="font-semibold text-[var(--th-accent)]">Team 1</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSwapTeam(1)}
+                    className="p-1.5 text-[var(--th-accent)] hover:text-primary hover:bg-card rounded transition-colors"
+                    title="Swap positions for Team 1"
+                  >
+                    <ArrowLeftRight size={18} />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <SlotButton
+                    position="attacker"
+                    player={slotPlayers.team1Attacker}
+                    onClick={() => setActiveSlot('team1Attacker')}
+                  />
+                  <SlotButton
+                    position="defender"
+                    player={slotPlayers.team1Defender}
+                    onClick={() => setActiveSlot('team1Defender')}
+                  />
+                </div>
+              </div>
+
+              {/* VS Divider */}
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-card-hover rounded-full border-4 border-[var(--th-border)] shadow-md">
+                  <span className="font-bold text-secondary">VS</span>
+                </div>
+              </div>
+
+              {/* Team 2 */}
+              <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="text-[var(--th-sport-primary)]" size={18} />
+                    <h3 className="font-semibold text-[var(--th-sport-primary)]">Team 2</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSwapTeam(2)}
+                    className="p-1.5 text-[var(--th-sport-primary)] hover:text-primary hover:bg-card rounded transition-colors"
+                    title="Swap positions for Team 2"
+                  >
+                    <ArrowLeftRight size={18} />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <SlotButton
+                    position="attacker"
+                    player={slotPlayers.team2Attacker}
+                    onClick={() => setActiveSlot('team2Attacker')}
+                  />
+                  <SlotButton
+                    position="defender"
+                    player={slotPlayers.team2Defender}
+                    onClick={() => setActiveSlot('team2Defender')}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky Footer */}
+          <div
+            className="flex-shrink-0 px-6 pt-4"
+            style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
+          >
+            <button
+              type="button"
+              onClick={() => setStep('score')}
+              className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors"
+            >
+              Register Score
+            </button>
+          </div>
+        </div>
+      </ModalOrBottomDrawer>
     )
   }
 
@@ -180,14 +407,14 @@ export const UseMatchupWorkflow = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="flex items-center gap-1">
-                          {matchup.mode === 'balanced' ? (
-                            <Brain className="text-[var(--th-accent)]" size={14} />
-                          ) : (
-                            <Sparkles className="text-[var(--th-sport-primary)]" size={14} />
-                          )}
+                          {modeIcon(matchup.mode)}
                           <span className="text-xs font-medium text-secondary">{summary.mode}</span>
                         </div>
-                        <span className="text-xs text-muted">{summary.confidence} confidence</span>
+                        {matchup.mode !== 'manual' && (
+                          <span className="text-xs text-muted">
+                            {summary.confidence} confidence
+                          </span>
+                        )}
                       </div>
 
                       <div className="font-medium text-primary text-sm mb-2">
@@ -225,7 +452,7 @@ export const UseMatchupWorkflow = ({
             })}
 
             <div className="pt-4 border-t border-[var(--th-border)]">
-              <p className="text-xs text-muted text-center">Matchups auto-expire after 48 hours</p>
+              <p className="text-xs text-muted text-center">Matchups auto-expire after 7 days</p>
             </div>
           </div>
         )}

@@ -1,4 +1,5 @@
 import type { Player } from '@foos/shared'
+import { savedMatchupsService } from '@foos/shared'
 import { ArrowLeft, ChevronRight, Shield, Sword, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { useToast } from '@/hooks/useToast'
@@ -19,6 +20,7 @@ interface ManualTeamsWorkflowProps {
   onBack: () => void
   onClose: () => void
   onSuccess: () => void
+  groupId: string
 }
 
 type Step = 'selection' | 'score'
@@ -62,6 +64,7 @@ export const ManualTeamsWorkflow = ({
   onBack,
   onClose,
   onSuccess,
+  groupId,
 }: ManualTeamsWorkflowProps) => {
   const [step, setStep] = useState<Step>('selection')
   const [activeSlot, setActiveSlot] = useState<Slot | null>(null)
@@ -151,6 +154,9 @@ export const ManualTeamsWorkflow = ({
     )
 
     if (result.success) {
+      if (groupId) {
+        savedMatchupsService.saveMatchup(getSelectedTeams(), 'manual', groupId)
+      }
       toast().success('Match added successfully!')
       onSuccess()
     } else {

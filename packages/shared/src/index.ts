@@ -18,6 +18,7 @@ export {
 } from './services/playerSeasonStatsService.ts'
 export { createPlayersService, PlayersService } from './services/playersService.ts'
 export {
+  type MatchupMode,
   type SavedMatchup,
   SavedMatchupsService,
   savedMatchupsService,

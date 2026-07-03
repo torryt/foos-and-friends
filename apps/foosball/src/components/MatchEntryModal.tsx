@@ -99,6 +99,7 @@ export const MatchEntryModal = ({
     return (
       <UseMatchupWorkflow
         savedMatchups={savedMatchups}
+        players={players}
         addMatch={addMatch2v2}
         onBack={handleBack}
         onClose={onClose}
@@ -116,6 +117,7 @@ export const MatchEntryModal = ({
         onBack={handleBack}
         onClose={onClose}
         onSuccess={handleSuccess}
+        groupId={currentGroup?.id || ''}
       />
     )
   }
@@ -319,7 +321,7 @@ export const MatchEntryModal = ({
         {selectedMatchType === '2v2' && savedMatchups.length > 0 && (
           <div className="mt-4 pt-4 border-t border-[var(--th-border)]">
             <p className="text-xs text-muted text-center">
-              Saved matchups auto-expire after 48 hours
+              Saved matchups auto-expire after 7 days
             </p>
           </div>
         )}

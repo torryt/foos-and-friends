@@ -1,16 +1,18 @@
 import type { TeamAssignment } from '../utils/matchmaking.ts'
 
+export type MatchupMode = 'balanced' | 'rare' | 'manual'
+
 export interface SavedMatchup {
   id: string
   timestamp: number
   teams: TeamAssignment
-  mode: 'balanced' | 'rare'
+  mode: MatchupMode
   confidence: number
   playerCount: number
 }
 
 const STORAGE_KEY_PREFIX = 'foosball_saved_matchups'
-const EXPIRY_HOURS = 48
+const EXPIRY_DAYS = 7
 const MAX_MATCHUPS = 5
 
 export class SavedMatchupsService {
@@ -28,7 +30,7 @@ export class SavedMatchupsService {
   /**
    * Save a generated matchup to localStorage
    */
-  saveMatchup(teams: TeamAssignment, mode: 'balanced' | 'rare', groupId: string): SavedMatchup {
+  saveMatchup(teams: TeamAssignment, mode: MatchupMode, groupId: string): SavedMatchup {
     const matchup: SavedMatchup = {
       id: `matchup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
@@ -64,7 +66,7 @@ export class SavedMatchupsService {
 
       const matchups: SavedMatchup[] = JSON.parse(stored)
       const now = Date.now()
-      const expiryTime = EXPIRY_HOURS * 60 * 60 * 1000
+      const expiryTime = EXPIRY_DAYS * 24 * 60 * 60 * 1000
 
       // Filter out expired matchups
       const valid = matchups.filter((matchup) => {
@@ -89,6 +91,23 @@ export class SavedMatchupsService {
   getMatchup(id: string, groupId: string): SavedMatchup | null {
     const matchups = this.getAllMatchups(groupId)
     return matchups.find((m) => m.id === id) || null
+  }
+
+  /**
+   * Update the team assignment of an existing matchup, keeping its id and timestamp
+   */
+  updateMatchup(id: string, groupId: string, teams: TeamAssignment): SavedMatchup | null {
+    const storage = this.getStorage()
+    if (!storage) return null
+
+    const matchups = this.getAllMatchups(groupId)
+    const index = matchups.findIndex((m) => m.id === id)
+    if (index === -1) return null
+
+    const updated: SavedMatchup = { ...matchups[index], teams, confidence: teams.confidence }
+    matchups[index] = updated
+    storage.setItem(this.getStorageKey(groupId), JSON.stringify(matchups))
+    return updated
   }
 
   /**
@@ -152,7 +171,12 @@ export class SavedMatchupsService {
       subtitle: `Team 1: ${matchup.teams.team1.attacker.name} (A) + ${matchup.teams.team1.defender.name} (D)`,
       timeAgo: this.getTimeAgo(matchup.timestamp),
       confidence: `${Math.round(matchup.confidence * 100)}%`,
-      mode: matchup.mode === 'balanced' ? 'Balanced' : 'Rare Matchup',
+      mode:
+        matchup.mode === 'balanced'
+          ? 'Balanced'
+          : matchup.mode === 'rare'
+            ? 'Rare Matchup'
+            : 'Manual',
     }
   }
 }
