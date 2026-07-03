@@ -5,7 +5,6 @@ A pnpm workspaces monorepo containing React + TypeScript sports ranking applicat
 ## Apps
 
 - **Foosball** (`apps/foosball`) - Office foosball ranking tracker
-- **Padel** (`apps/padel`) - Padel tennis ranking tracker
 - **Chess** (`apps/chess`) - Chess ranking tracker
 
 All apps share the same backend infrastructure and user accounts, but maintain separate groups and data per sport.
@@ -40,7 +39,7 @@ All apps share the same backend infrastructure and user accounts, but maintain s
    ```
 
 2. **Environment setup**
-   Create `.env.local` in each app directory (`apps/foosball/`, `apps/padel/`, and `apps/chess/`):
+   Create `.env.local` in each app directory (`apps/foosball/` and `apps/chess/`):
    ```
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -51,16 +50,12 @@ All apps share the same backend infrastructure and user accounts, but maintain s
    # Foosball app (port 5173)
    pnpm dev:foosball
 
-   # Padel app (port 5174)
-   pnpm dev:padel
-
    # Chess app (port 5175)
    pnpm dev:chess
    ```
 
 4. **Open in browser**
    - Foosball: http://localhost:5173
-   - Padel: http://localhost:5174
    - Chess: http://localhost:5175
 
 ### Database Setup (Supabase Mode)
@@ -78,13 +73,11 @@ All apps share the same backend infrastructure and user accounts, but maintain s
 ```bash
 # Development
 pnpm dev:foosball       # Start foosball dev server
-pnpm dev:padel          # Start padel dev server
 pnpm dev:chess          # Start chess dev server
 
 # Building & Testing
 pnpm build              # Build all apps
 pnpm build:foosball     # Build foosball app
-pnpm build:padel        # Build padel app
 pnpm build:chess        # Build chess app
 pnpm typecheck          # Run TypeScript compiler check
 pnpm test               # Run tests in watch mode
@@ -124,9 +117,6 @@ foos-and-friends/
 │   │   ├── package.json
 │   │   └── vite.config.ts
 │   │
-│   ├── padel/               # Padel app (@foos/padel)
-│   │   └── ...              # Same structure as foosball
-│   │
 │   └── chess/               # Chess app (@foos/chess)
 │       └── ...              # Same structure as foosball (1v1 only)
 │
@@ -152,7 +142,7 @@ foos-and-friends/
 - **pnpm workspaces** for monorepo management
 
 ### Multi-Sport Architecture
-- **Shared database** with `sport_type` column on `friend_groups` table (`foosball`, `padel`, `chess`)
+- **Shared database** with `sport_type` column on `friend_groups` table (`foosball`, `chess`)
 - Each app filters groups by its sport type
 - **Shared user accounts** across all sports
 - **Complete data isolation** per sport via GroupContext filtering
@@ -162,7 +152,7 @@ foos-and-friends/
 - **1v1 matches**: Direct player vs player ELO calculations
 - **2v2 matches**: Team-based ELO with averaged team ratings
 - **Separate rankings**: 1v1 and 2v2 rankings tracked independently per season via computed views
-- **Chess** defaults to 1v1 only; foosball and padel support both
+- **Chess** defaults to 1v1 only; foosball supports both
 
 ### Authentication & Groups
 - **Magic Link Authentication** - Passwordless login via email
@@ -222,11 +212,6 @@ foos-and-friends/
 ### Cloudflare Pages (Foosball)
 - **Build command**: `pnpm install && pnpm build:foosball`
 - **Build output**: `apps/foosball/dist`
-- **Root directory**: (empty - repo root)
-
-### Cloudflare Pages (Padel)
-- **Build command**: `pnpm install && pnpm build:padel`
-- **Build output**: `apps/padel/dist`
 - **Root directory**: (empty - repo root)
 
 ### Cloudflare Pages (Chess)

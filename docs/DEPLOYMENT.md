@@ -15,15 +15,6 @@ Each app is deployed as a separate Cloudflare Pages project.
    Root directory: (leave blank)
    ```
 
-#### Padel App
-1. **Create Cloudflare Pages project** for padel
-2. **Configure Build Settings**
-   ```
-   Build command: pnpm install && pnpm build:padel
-   Build output directory: apps/padel/dist
-   Root directory: (leave blank)
-   ```
-
 #### Chess App
 1. **Create Cloudflare Pages project** for chess
 2. **Configure Build Settings**

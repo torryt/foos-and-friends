@@ -1,6 +1,6 @@
 # Test Data Generator
 
-Generate realistic SQL test data for sport groups (foosball, padel, chess) with configurable parameters using Faker.js.
+Generate realistic SQL test data for sport groups (foosball, chess) with configurable parameters using Faker.js.
 
 ## Features
 

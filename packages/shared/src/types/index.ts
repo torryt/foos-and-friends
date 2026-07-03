@@ -2,7 +2,7 @@
 export type PlayerPosition = 'attacker' | 'defender'
 
 // Sport type for multi-sport support
-export type SportType = 'foosball' | 'padel' | 'chess'
+export type SportType = 'foosball' | 'chess'
 
 // Match type for 1v1 or 2v2 support
 export type MatchType = '1v1' | '2v2'

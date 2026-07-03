@@ -1,6 +1,6 @@
 # Database Setup for Foos & Friends
 
-This folder contains SQL scripts for setting up and managing the Supabase database used by all three apps (foosball, padel, chess).
+This folder contains SQL scripts for setting up and managing the Supabase database used by both apps (foosball, chess).
 
 ## Quick Setup (Development)
 
@@ -16,7 +16,7 @@ For a fresh development environment, run the complete reset script:
 
 | Table | Description |
 |-------|-------------|
-| **friend_groups** | Private groups with invite codes, ownership, `sport_type` (`foosball`/`padel`/`chess`), and `supported_match_types` (`1v1`/`2v2`) |
+| **friend_groups** | Private groups with invite codes, ownership, `sport_type` (`foosball`/`padel`/`chess`; padel app is sunset but the value remains valid), and `supported_match_types` (`1v1`/`2v2`) |
 | **group_memberships** | User membership in groups with roles |
 | **players** | Group-scoped player profiles |
 | **matches** | Match records with team compositions, scores, season association, and `match_type` (`1v1` or `2v2`) |

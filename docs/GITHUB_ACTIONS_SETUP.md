@@ -15,7 +15,7 @@ Runs quality checks automatically on every pull request (opened, synchronized, o
 4. Runs linting (`pnpm lint`)
 5. Runs all tests (`pnpm test:run`)
 6. Runs type checking (`pnpm typecheck`)
-7. Builds all apps (`pnpm build`) — this builds foosball, padel, and chess apps
+7. Builds all apps (`pnpm build`) — this builds the foosball and chess apps
 
 **All checks must pass before a PR can be merged.**
 
@@ -42,7 +42,7 @@ No additional secrets required — quality checks run without Supabase credentia
 
 ## Deployment
 
-Deployment is handled via **Cloudflare Pages** connected directly to the repository, not through GitHub Actions. Each app (foosball, padel, chess) is a separate Cloudflare Pages project with its own build configuration. See [DEPLOYMENT.md](./DEPLOYMENT.md) for details.
+Deployment is handled via **Cloudflare Pages** connected directly to the repository, not through GitHub Actions. Each app (foosball, chess) is a separate Cloudflare Pages project with its own build configuration. See [DEPLOYMENT.md](./DEPLOYMENT.md) for details.
 
 ### Cloudflare Credentials (for Cloudflare Pages dashboard, not GitHub Actions)
 
@@ -67,7 +67,7 @@ Run the same checks locally before pushing:
 pnpm lint          # Biome linting
 pnpm test:run      # All tests (Vitest)
 pnpm typecheck     # TypeScript type checking
-pnpm build         # Build all apps (foosball, padel, chess)
+pnpm build         # Build all apps (foosball, chess)
 ```
 
 ## Troubleshooting
@@ -89,7 +89,7 @@ pnpm build         # Build all apps (foosball, padel, chess)
 **"Build failing"**
 - Run `pnpm build` locally
 - Check that environment variables are set if needed
-- Each app builds independently: `pnpm build:foosball`, `pnpm build:padel`, `pnpm build:chess`
+- Each app builds independently: `pnpm build:foosball`, `pnpm build:chess`
 
 ### Debugging
 

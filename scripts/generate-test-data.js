@@ -90,10 +90,10 @@ function parseArgs() {
           config.locale = value || DEFAULT_CONFIG.locale
           break
         case 'sport-type':
-          if (value === 'foosball' || value === 'padel') {
+          if (value === 'foosball') {
             config.sportType = value
           } else {
-            console.error('❌ Error: --sport-type must be "foosball" or "padel"')
+            console.error('❌ Error: --sport-type must be "foosball"')
             process.exit(1)
           }
           break
@@ -121,7 +121,7 @@ function showHelp() {
   console.log(`
 🏓 Game Tracker Test Data Generator
 
-Generate realistic SQL test data for foosball or padel groups with configurable parameters.
+Generate realistic SQL test data for foosball groups with configurable parameters.
 
 Usage:
   npm run generate -- --user-id=<UUID> [options]
@@ -136,11 +136,10 @@ Optional Parameters:
   --group-description=<string>  Group description
   --months=<number>        Time span for matches in months (default: 12)
   --locale=<string>        Faker locale for names (default: "en")
-  --sport-type=<string>    Sport type: "foosball" or "padel" (default: "foosball")
+  --sport-type=<string>    Sport type: "foosball" (default: "foosball")
 
 Examples:
   npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460"
-  npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460" --sport-type=padel --group-name="Padel Pros"
   npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460" --players=50 --matches=200
   npm run generate -- --user-id="a29f3a94-99ff-45c3-8134-1c41ee6bc460" --group-name="Office Champions" --months=6
   `)
@@ -306,7 +305,7 @@ function generateSQL(config, groupId, seasonId, players, matches) {
   const groupCreatedAt = new Date()
   groupCreatedAt.setMonth(groupCreatedAt.getMonth() - config.months)
 
-  const sportEmoji = config.sportType === 'padel' ? '🎾' : '🏓'
+  const sportEmoji = '🏓'
 
   let sql = `-- Generated Test Data for ${config.sportType.charAt(0).toUpperCase() + config.sportType.slice(1)} Group
 -- Generated on: ${new Date().toLocaleString()}
@@ -479,7 +478,7 @@ function main() {
     // Set faker locale (newer Faker.js API)
     faker.locale = config.locale
 
-    const sportEmoji = config.sportType === 'padel' ? '🎾' : '🏓'
+    const sportEmoji = '🏓'
 
     console.log(`${sportEmoji} Generating ${config.sportType} test data...`)
     console.log(`📊 Configuration:`)

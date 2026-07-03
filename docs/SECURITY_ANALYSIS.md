@@ -8,10 +8,8 @@ This document outlines security best practices for the Foos & Friends invite flo
 
 **Supabase Auth Redirect URLs:**
 - Foosball Production: `https://foos-and-friends.pages.dev/*`
-- Padel Production: `https://padel-and-friends.pages.dev/*`
 - Chess Production: `https://chess-and-friends.pages.dev/*`
 - Development (Foosball): `http://localhost:5173/*`
-- Development (Padel): `http://localhost:5174/*`
 - Development (Chess): `http://localhost:5175/*`
 
 ## Invite Flow Architecture
@@ -33,10 +31,8 @@ This document outlines security best practices for the Foos & Friends invite flo
 **Current Configuration:**
 ```
 https://foos-and-friends.pages.dev/*
-https://padel-and-friends.pages.dev/*
 https://chess-and-friends.pages.dev/*
 http://localhost:5173/*
-http://localhost:5174/*
 http://localhost:5175/*
 ```
 
@@ -45,9 +41,6 @@ http://localhost:5175/*
 https://foos-and-friends.pages.dev/
 https://foos-and-friends.pages.dev/invite
 https://foos-and-friends.pages.dev/?invite=*
-https://padel-and-friends.pages.dev/
-https://padel-and-friends.pages.dev/invite
-https://padel-and-friends.pages.dev/?invite=*
 https://chess-and-friends.pages.dev/
 https://chess-and-friends.pages.dev/invite
 https://chess-and-friends.pages.dev/?invite=*

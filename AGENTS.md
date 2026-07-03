@@ -6,12 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 pnpm workspaces monorepo. React 19 + TypeScript + Vite. Supabase (auth, Postgres, RLS) backend. Tailwind CSS v4. Biome for lint/format. Vitest + React Testing Library for tests.
 
-Three apps — foosball, padel, chess — track players, matches, and ELO rankings, sharing one Supabase backend via `packages/shared` (`@foos/shared`). Data isolation between sports is via a `sport_type` column, not separate databases.
+Two apps — foosball and chess — track players, matches, and ELO rankings, sharing one Supabase backend via `packages/shared` (`@foos/shared`). Data isolation between sports is via a `sport_type` column, not separate databases.
 
 ## Commands
 
-- `pnpm dev:foosball` / `pnpm dev:padel` / `pnpm dev:chess` — dev server (ports 5173/5174/5175)
-- `pnpm build` / `pnpm build:foosball` / `pnpm build:padel` / `pnpm build:chess` — build
+- `pnpm dev:foosball` / `pnpm dev:chess` — dev server (ports 5173/5175)
+- `pnpm build` / `pnpm build:foosball` / `pnpm build:chess` — build
 - `pnpm typecheck` — TypeScript check, all packages
 - `pnpm lint` / `pnpm lint:fix` — Biome lint
 - `pnpm format` — Biome format
@@ -27,16 +27,16 @@ Three apps — foosball, padel, chess — track players, matches, and ELO rankin
 
 ```
 packages/shared/src/     lib/ (db abstraction + Supabase client), services/, types/, utils/ (ELO, matchmaking)
-apps/{foosball,padel,chess}/src/   components/, routes/ (TanStack Router), hooks/, contexts/, lib/init.ts
+apps/{foosball,chess}/src/   components/, routes/ (TanStack Router), hooks/, contexts/, lib/init.ts
 database/                SQL migrations (shared across apps)
 ```
 
-`apps/foosball` is the reference implementation; padel and chess mirror its structure. Path alias `@/` → app's `src/`; `@foos/shared` → shared package.
+`apps/foosball` is the reference implementation; chess mirrors its structure. Path alias `@/` → app's `src/`; `@foos/shared` → shared package.
 
 ## Domain Model (non-obvious facts)
 
-- **Sport isolation**: `friend_groups.sport_type` (`'foosball' | 'padel' | 'chess'`) scopes everything; each app's `GroupContext` filters by its own sport.
-- **Match types**: `MatchType = '1v1' | '2v2'`. 1v1 leaves `team*_player2_id` null and computes ELO player-vs-player; 2v2 uses team-averaged ELO. Separate computed views per type: `player_season_stats_1v1_computed`, `player_season_stats_2v2_computed`. Chess only supports `1v1`; foosball/padel default to `2v2` but can support both, per-group via `friend_groups.supported_match_types`.
+- **Sport isolation**: `friend_groups.sport_type` (`'foosball' | 'chess'`) scopes everything; each app's `GroupContext` filters by its own sport. (The DB still accepts and may contain `'padel'` rows from the sunset padel app.)
+- **Match types**: `MatchType = '1v1' | '2v2'`. 1v1 leaves `team*_player2_id` null and computes ELO player-vs-player; 2v2 uses team-averaged ELO. Separate computed views per type: `player_season_stats_1v1_computed`, `player_season_stats_2v2_computed`. Chess only supports `1v1`; foosball defaults to `2v2` but can support both, per-group via `friend_groups.supported_match_types`.
 - **Seasons**: one active season per group (partial unique index). Ending/creating a season is manual (group owner only). Each new season resets all rankings to 1200 — there is no carry-over. `SeasonContext` persists the selected season to `localStorage` per group and falls back to most recent if none active.
 - **ELO**: asymmetric K-factors (K_WINNER=35, K_LOSER=29, intentional slight inflation), clamped to 800–2400.
 - **Auth**: Supabase magic-link only (passwordless), no password flow exists.

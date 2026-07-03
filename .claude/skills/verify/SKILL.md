@@ -12,7 +12,7 @@ pnpm dev:foosball:mock   # VITE_MOCK_DATA=true — in-memory DB, fake logged-in 
 ```
 
 Seeds 10 players ("Office Legends" group) and a 60-match season. Match
-registration works and updates rankings in memory. Padel/chess have no
+registration works and updates rankings in memory. Chess has no
 mock script yet — mock mode is wired up in foosball only
 (`apps/foosball/src/lib/init.ts`, `useAuth.ts`).
 
