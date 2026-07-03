@@ -5,6 +5,7 @@ interface ModalOrBottomDrawerProps {
   onClose: () => void
   children: ReactNode
   className?: string
+  fullHeight?: boolean
 }
 
 export const ModalOrBottomDrawer = ({
@@ -12,6 +13,7 @@ export const ModalOrBottomDrawer = ({
   onClose,
   children,
   className = '',
+  fullHeight = false,
 }: ModalOrBottomDrawerProps) => {
   if (!isOpen) return null
 
@@ -27,7 +29,7 @@ export const ModalOrBottomDrawer = ({
       />
       {/* Content */}
       <div
-        className={`relative w-full rounded-t-2xl sm:rounded-2xl overflow-hidden max-h-[90vh] ${className}`}
+        className={`relative w-full overflow-hidden sm:max-h-[90vh] sm:rounded-2xl ${fullHeight ? 'h-dvh rounded-none' : 'max-h-dvh rounded-t-2xl'} ${className}`}
       >
         {children}
       </div>

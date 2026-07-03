@@ -1,9 +1,9 @@
 import type { Player } from '@foos/shared'
-import { ArrowLeft, Users, X } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Shield, Sword, Users, X } from 'lucide-react'
 import { useState } from 'react'
-import { PlayerCombobox } from '@/components/ui/PlayerCombobox'
 import { useToast } from '@/hooks/useToast'
 import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
+import { PlayerPickerSheet } from './PlayerPickerSheet'
 import { ScoreEntryStep } from './ScoreEntryStep'
 
 interface ManualTeamsWorkflowProps {
@@ -22,6 +22,39 @@ interface ManualTeamsWorkflowProps {
 }
 
 type Step = 'selection' | 'score'
+type Slot = 'team1Attacker' | 'team1Defender' | 'team2Attacker' | 'team2Defender'
+
+interface SlotButtonProps {
+  position: 'attacker' | 'defender'
+  player?: Player
+  onClick: () => void
+}
+
+const SlotButton = ({ position, player, onClick }: SlotButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="w-full flex items-center justify-between gap-2 p-3 min-h-12 rounded-[var(--th-radius-md)] border border-[var(--th-border)] bg-card hover:bg-card-hover text-left transition-colors"
+  >
+    <span className="flex items-center gap-2 truncate">
+      {position === 'attacker' ? (
+        <Sword className="text-[var(--th-sport-primary)] shrink-0" size={16} />
+      ) : (
+        <Shield className="text-[var(--th-accent)] shrink-0" size={16} />
+      )}
+      {player ? (
+        <span className="truncate text-primary">
+          {player.avatar} {player.name} ({player.ranking})
+        </span>
+      ) : (
+        <span className="truncate text-muted">
+          {position === 'attacker' ? 'Select Attacker' : 'Select Defender'}
+        </span>
+      )}
+    </span>
+    <ChevronRight className="text-muted shrink-0" size={16} />
+  </button>
+)
 
 export const ManualTeamsWorkflow = ({
   players,
@@ -31,6 +64,7 @@ export const ManualTeamsWorkflow = ({
   onSuccess,
 }: ManualTeamsWorkflowProps) => {
   const [step, setStep] = useState<Step>('selection')
+  const [activeSlot, setActiveSlot] = useState<Slot | null>(null)
   const [team1Player1Id, setTeam1Player1Id] = useState('')
   const [team1Player2Id, setTeam1Player2Id] = useState('')
   const [team2Player1Id, setTeam2Player1Id] = useState('')
@@ -39,6 +73,48 @@ export const ManualTeamsWorkflow = ({
 
   const getAvailablePlayers = (excludeIds: string[] = []) => {
     return players.filter((p) => !excludeIds.includes(p.id))
+  }
+
+  const getPlayerById = (id: string) => players.find((p) => p.id === id)
+
+  const slots: Record<
+    Slot,
+    {
+      title: string
+      position: 'attacker' | 'defender'
+      value: string
+      setValue: (id: string) => void
+      excludeIds: string[]
+    }
+  > = {
+    team1Attacker: {
+      title: 'Team 1 Attacker',
+      position: 'attacker',
+      value: team1Player1Id,
+      setValue: setTeam1Player1Id,
+      excludeIds: [team1Player2Id, team2Player1Id, team2Player2Id],
+    },
+    team1Defender: {
+      title: 'Team 1 Defender',
+      position: 'defender',
+      value: team1Player2Id,
+      setValue: setTeam1Player2Id,
+      excludeIds: [team1Player1Id, team2Player1Id, team2Player2Id],
+    },
+    team2Attacker: {
+      title: 'Team 2 Attacker',
+      position: 'attacker',
+      value: team2Player1Id,
+      setValue: setTeam2Player1Id,
+      excludeIds: [team1Player1Id, team1Player2Id, team2Player2Id],
+    },
+    team2Defender: {
+      title: 'Team 2 Defender',
+      position: 'defender',
+      value: team2Player2Id,
+      setValue: setTeam2Player2Id,
+      excludeIds: [team1Player1Id, team1Player2Id, team2Player1Id],
+    },
   }
 
   const validateTeamSelection = () => {
@@ -118,6 +194,24 @@ export const ManualTeamsWorkflow = ({
     )
   }
 
+  // Full-screen player picker for the active slot
+  if (activeSlot) {
+    const slot = slots[activeSlot]
+    return (
+      <PlayerPickerSheet
+        players={getAvailablePlayers(slot.excludeIds)}
+        title={slot.title}
+        selectedId={slot.value || undefined}
+        onSelect={(id) => {
+          slot.setValue(id)
+          setActiveSlot(null)
+        }}
+        onBack={() => setActiveSlot(null)}
+        onClose={onClose}
+      />
+    )
+  }
+
   // Team selection step
   const isValid =
     [team1Player1Id, team1Player2Id, team2Player1Id, team2Player2Id].every((id) => id !== '') &&
@@ -125,92 +219,87 @@ export const ManualTeamsWorkflow = ({
 
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)] max-h-[85vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
-          >
-            <ArrowLeft size={20} />
-            <span>Back</span>
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
-          >
-            <X size={20} />
-          </button>
+      <div className="bg-card w-full shadow-2xl border border-[var(--th-border)] flex flex-col max-h-full sm:max-h-[90vh]">
+        <div
+          className="px-6 flex-shrink-0"
+          style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+        >
+          <div className="flex justify-between items-center mb-6">
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span>Back</span>
+            </button>
+            <h2 className="text-lg font-bold text-primary">Select Teams Manually</h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
-        <div className="text-center mb-6">
-          <h2 className="text-lg font-bold text-primary">Select Teams Manually</h2>
-          <p className="text-sm text-secondary">Choose players and their positions</p>
-        </div>
+        <div className="flex-1 overflow-y-auto min-h-0 px-6">
+          <div className="space-y-4">
+            {/* Team 1 */}
+            <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="text-[var(--th-accent)]" size={18} />
+                <h3 className="font-semibold text-[var(--th-accent)]">Team 1</h3>
+              </div>
+              <div className="space-y-3">
+                <SlotButton
+                  position="attacker"
+                  player={getPlayerById(team1Player1Id)}
+                  onClick={() => setActiveSlot('team1Attacker')}
+                />
+                <SlotButton
+                  position="defender"
+                  player={getPlayerById(team1Player2Id)}
+                  onClick={() => setActiveSlot('team1Defender')}
+                />
+              </div>
+            </div>
 
-        <div className="space-y-6">
-          {/* Team 1 */}
-          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
-            <div className="flex items-center gap-2 mb-3">
-              <Users className="text-[var(--th-accent)]" size={18} />
-              <h3 className="font-semibold text-[var(--th-accent)]">Team 1</h3>
+            {/* VS Divider */}
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-card-hover rounded-full border-4 border-[var(--th-border)] shadow-md">
+                <span className="font-bold text-secondary">VS</span>
+              </div>
             </div>
-            <div className="space-y-3">
-              <PlayerCombobox
-                players={getAvailablePlayers([team1Player2Id, team2Player1Id, team2Player2Id])}
-                value={team1Player1Id}
-                onChange={setTeam1Player1Id}
-                placeholder="Select Attacker"
-                position="attacker"
-                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-accent)]"
-              />
-              <PlayerCombobox
-                players={getAvailablePlayers([team1Player1Id, team2Player1Id, team2Player2Id])}
-                value={team1Player2Id}
-                onChange={setTeam1Player2Id}
-                placeholder="Select Defender"
-                position="defender"
-                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-accent)]"
-              />
-            </div>
-          </div>
 
-          {/* VS Divider */}
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-card-hover rounded-full border-4 border-[var(--th-border)] shadow-md">
-              <span className="font-bold text-secondary">VS</span>
-            </div>
-          </div>
-
-          {/* Team 2 */}
-          <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
-            <div className="flex items-center gap-2 mb-3">
-              <Users className="text-[var(--th-sport-primary)]" size={18} />
-              <h3 className="font-semibold text-[var(--th-sport-primary)]">Team 2</h3>
-            </div>
-            <div className="space-y-3">
-              <PlayerCombobox
-                players={getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player2Id])}
-                value={team2Player1Id}
-                onChange={setTeam2Player1Id}
-                placeholder="Select Attacker"
-                position="attacker"
-                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-sport-primary)]"
-              />
-              <PlayerCombobox
-                players={getAvailablePlayers([team1Player1Id, team1Player2Id, team2Player1Id])}
-                value={team2Player2Id}
-                onChange={setTeam2Player2Id}
-                placeholder="Select Defender"
-                position="defender"
-                className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-sport-primary)]"
-              />
+            {/* Team 2 */}
+            <div className="bg-card-hover rounded-xl p-4 border border-[var(--th-border)]">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="text-[var(--th-sport-primary)]" size={18} />
+                <h3 className="font-semibold text-[var(--th-sport-primary)]">Team 2</h3>
+              </div>
+              <div className="space-y-3">
+                <SlotButton
+                  position="attacker"
+                  player={getPlayerById(team2Player1Id)}
+                  onClick={() => setActiveSlot('team2Attacker')}
+                />
+                <SlotButton
+                  position="defender"
+                  player={getPlayerById(team2Player2Id)}
+                  onClick={() => setActiveSlot('team2Defender')}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-6">
+        {/* Sticky Footer */}
+        <div
+          className="flex-shrink-0 px-6 pt-4"
+          style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
+        >
           <button
             type="button"
             onClick={handleContinueToScore}

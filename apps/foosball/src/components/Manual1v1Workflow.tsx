@@ -1,10 +1,10 @@
 import type { Player } from '@foos/shared'
-import { ArrowLeft, CloudOff, Loader2, Target, User, X } from 'lucide-react'
+import { ArrowLeft, ChevronRight, CloudOff, Loader2, Target, User, X } from 'lucide-react'
 import { useId, useState } from 'react'
-import { PlayerCombobox } from '@/components/ui/PlayerCombobox'
 import { useOfflineStatus } from '@/hooks/useOfflineStatus'
 import { useToast } from '@/hooks/useToast'
 import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
+import { PlayerPickerSheet } from './PlayerPickerSheet'
 
 interface Manual1v1WorkflowProps {
   players: Player[]
@@ -29,6 +29,7 @@ export const Manual1v1Workflow = ({
   onSuccess,
 }: Manual1v1WorkflowProps) => {
   const [step, setStep] = useState<Step>('selection')
+  const [activeSlot, setActiveSlot] = useState<'player1' | 'player2' | null>(null)
   const [player1Id, setPlayer1Id] = useState('')
   const [player2Id, setPlayer2Id] = useState('')
   const [score1, setScore1] = useState('')
@@ -210,6 +211,28 @@ export const Manual1v1Workflow = ({
     )
   }
 
+  // Full-screen player picker for the active slot
+  if (activeSlot) {
+    const isPlayer1 = activeSlot === 'player1'
+    return (
+      <PlayerPickerSheet
+        players={getAvailablePlayers([isPlayer1 ? player2Id : player1Id])}
+        title={isPlayer1 ? 'Select Player 1' : 'Select Player 2'}
+        selectedId={(isPlayer1 ? player1Id : player2Id) || undefined}
+        onSelect={(id) => {
+          if (isPlayer1) {
+            setPlayer1Id(id)
+          } else {
+            setPlayer2Id(id)
+          }
+          setActiveSlot(null)
+        }}
+        onBack={() => setActiveSlot(null)}
+        onClose={onClose}
+      />
+    )
+  }
+
   // Selection step
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
@@ -244,13 +267,21 @@ export const Manual1v1Workflow = ({
               <User className="text-[var(--th-accent)]" size={18} />
               <h3 className="font-semibold text-primary">Player 1</h3>
             </div>
-            <PlayerCombobox
-              players={getAvailablePlayers([player2Id])}
-              value={player1Id}
-              onChange={setPlayer1Id}
-              placeholder="Select Player"
-              className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-accent)]"
-            />
+            <button
+              type="button"
+              onClick={() => setActiveSlot('player1')}
+              className="w-full flex items-center justify-between gap-2 p-3 min-h-12 rounded-[var(--th-radius-md)] border border-[var(--th-border)] bg-card hover:bg-card-hover text-left transition-colors"
+            >
+              {getPlayer(player1Id) ? (
+                <span className="truncate text-primary">
+                  {getPlayer(player1Id)?.avatar} {getPlayer(player1Id)?.name} (
+                  {getPlayer(player1Id)?.ranking})
+                </span>
+              ) : (
+                <span className="truncate text-muted">Select Player</span>
+              )}
+              <ChevronRight className="text-muted shrink-0" size={16} />
+            </button>
           </div>
 
           {/* VS Divider */}
@@ -266,13 +297,21 @@ export const Manual1v1Workflow = ({
               <User className="text-[var(--th-sport-primary)]" size={18} />
               <h3 className="font-semibold text-primary">Player 2</h3>
             </div>
-            <PlayerCombobox
-              players={getAvailablePlayers([player1Id])}
-              value={player2Id}
-              onChange={setPlayer2Id}
-              placeholder="Select Player"
-              className="border-[var(--th-border)] focus:ring-2 focus:ring-[var(--th-sport-primary)]"
-            />
+            <button
+              type="button"
+              onClick={() => setActiveSlot('player2')}
+              className="w-full flex items-center justify-between gap-2 p-3 min-h-12 rounded-[var(--th-radius-md)] border border-[var(--th-border)] bg-card hover:bg-card-hover text-left transition-colors"
+            >
+              {getPlayer(player2Id) ? (
+                <span className="truncate text-primary">
+                  {getPlayer(player2Id)?.avatar} {getPlayer(player2Id)?.name} (
+                  {getPlayer(player2Id)?.ranking})
+                </span>
+              ) : (
+                <span className="truncate text-muted">Select Player</span>
+              )}
+              <ChevronRight className="text-muted shrink-0" size={16} />
+            </button>
           </div>
         </div>
 
