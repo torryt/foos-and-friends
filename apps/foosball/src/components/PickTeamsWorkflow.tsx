@@ -11,6 +11,7 @@ import {
   Brain,
   Check,
   Loader2,
+  Search,
   Shuffle,
   Sparkles,
   Users,
@@ -38,7 +39,7 @@ interface PickTeamsWorkflowProps {
   groupId: string
 }
 
-type Step = 'selection' | 'result' | 'score'
+type Step = 'mode' | 'selection' | 'result' | 'score'
 
 export const PickTeamsWorkflow = ({
   players,
@@ -49,7 +50,7 @@ export const PickTeamsWorkflow = ({
   onSuccess,
   groupId,
 }: PickTeamsWorkflowProps) => {
-  const [step, setStep] = useState<Step>('selection')
+  const [step, setStep] = useState<Step>('mode')
   const [matchmakingMode, setMatchmakingMode] = useState<'balanced' | 'rare'>('rare')
   const [selectedPlayerPool, setSelectedPlayerPool] = useState<string[]>([])
   const [matchmakingResult, setMatchmakingResult] = useState<TeamAssignment | null>(null)
@@ -57,6 +58,7 @@ export const PickTeamsWorkflow = ({
   const [isGenerating, setIsGenerating] = useState(false)
   const [team1Swapped, setTeam1Swapped] = useState(false)
   const [team2Swapped, setTeam2Swapped] = useState(false)
+  const [playerSearch, setPlayerSearch] = useState('')
   const { toast } = useToast()
 
   const handlePlayerPoolToggle = (playerId: string) => {
@@ -274,7 +276,10 @@ export const PickTeamsWorkflow = ({
   if (step === 'result' && matchmakingResult) {
     return (
       <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-        <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)]">
+        <div
+          className="bg-card px-6 pb-6 w-full shadow-2xl border border-[var(--th-border)]"
+          style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+        >
           <div className="flex justify-between items-center mb-6">
             <button
               type="button"
@@ -414,20 +419,98 @@ export const PickTeamsWorkflow = ({
     )
   }
 
-  // Selection step
+  // Mode selection step
+  if (step === 'mode') {
+    return (
+      <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
+        <div className="bg-card w-full shadow-2xl border border-[var(--th-border)] flex flex-col">
+          <div
+            className="px-6 flex-shrink-0"
+            style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+          >
+            <div className="flex justify-between items-center mb-8">
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
+              >
+                <ArrowLeft size={20} />
+                <span>Back</span>
+              </button>
+              <h2 className="text-lg font-bold text-primary">Pick Teams Smartly</h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-muted hover:text-secondary p-1 rounded-full hover:bg-card-hover"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 flex flex-col justify-center px-6 gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                setMatchmakingMode('rare')
+                setStep('selection')
+              }}
+              className="w-full text-left p-5 rounded-[var(--th-radius-lg)] border-2 border-[var(--th-border)] bg-card-hover hover:border-[var(--th-accent)] hover:bg-card transition-colors"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <Sparkles size={22} className="text-[var(--th-accent)]" />
+                <span className="text-base font-semibold text-primary">Rare Matchup</span>
+              </div>
+              <p className="text-sm text-secondary pl-9">
+                Pairs players who rarely team up together
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMatchmakingMode('balanced')
+                setStep('selection')
+              }}
+              className="w-full text-left p-5 rounded-[var(--th-radius-lg)] border-2 border-[var(--th-border)] bg-card-hover hover:border-[var(--th-sport-primary)] hover:bg-card transition-colors"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <Brain size={22} className="text-[var(--th-sport-primary)]" />
+                <span className="text-base font-semibold text-primary">Balanced</span>
+              </div>
+              <p className="text-sm text-secondary pl-9">
+                Creates evenly matched teams based on rankings
+              </p>
+            </button>
+          </div>
+
+          <div
+            className="flex-shrink-0 px-6 pt-4"
+            style={{ paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom))' }}
+          />
+        </div>
+      </ModalOrBottomDrawer>
+    )
+  }
+
+  // Player selection step
   return (
-    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-card w-full shadow-2xl border border-[var(--th-border)] flex flex-col max-h-[90vh]">
-        <div className="px-6 pt-6 flex-shrink-0">
+    <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md" fullHeight>
+      <div className="bg-card w-full shadow-2xl border border-[var(--th-border)] flex flex-col h-full">
+        <div
+          className="px-6 flex-shrink-0"
+          style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+        >
           <div className="flex justify-between items-center mb-6">
             <button
               type="button"
-              onClick={onBack}
+              onClick={() => setStep('mode')}
               className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
             >
               <ArrowLeft size={20} />
               <span>Back</span>
             </button>
+            <h2 className="text-lg font-bold text-primary">Pick Teams Smartly</h2>
             <button
               type="button"
               onClick={onClose}
@@ -435,46 +518,6 @@ export const PickTeamsWorkflow = ({
             >
               <X size={20} />
             </button>
-          </div>
-
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-bold text-primary">Pick Teams Smartly</h2>
-            <p className="text-sm text-secondary">Select players and matchmaking style</p>
-          </div>
-
-          {/* Matchmaking Mode Toggle */}
-          <div className="mb-6">
-            <div className="flex bg-card-hover rounded-[var(--th-radius-md)] p-1">
-              <button
-                type="button"
-                onClick={() => setMatchmakingMode('rare')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                  matchmakingMode === 'rare'
-                    ? 'bg-card text-primary shadow-sm'
-                    : 'text-secondary hover:text-primary'
-                }`}
-              >
-                <Sparkles size={14} />
-                Rare Matchup
-              </button>
-              <button
-                type="button"
-                onClick={() => setMatchmakingMode('balanced')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                  matchmakingMode === 'balanced'
-                    ? 'bg-card text-primary shadow-sm'
-                    : 'text-secondary hover:text-primary'
-                }`}
-              >
-                <Brain size={14} />
-                Balanced
-              </button>
-            </div>
-            <p className="text-xs text-secondary mt-2 text-center">
-              {matchmakingMode === 'balanced'
-                ? 'Creates evenly matched teams based on rankings'
-                : 'Pairs players who rarely team up together'}
-            </p>
           </div>
 
           <div className="flex items-center justify-between mb-3">
@@ -503,6 +546,17 @@ export const PickTeamsWorkflow = ({
               </button>
             </div>
           </div>
+
+          <div className="relative mb-3">
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+            <input
+              type="search"
+              placeholder="Search players…"
+              value={playerSearch}
+              onChange={(e) => setPlayerSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-sm rounded-[var(--th-radius-md)] bg-card-hover border border-[var(--th-border)] text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent"
+            />
+          </div>
         </div>
 
         {/* Scrollable Player List */}
@@ -511,6 +565,7 @@ export const PickTeamsWorkflow = ({
             {players
               .slice()
               .toSorted((a, b) => a.name.localeCompare(b.name))
+              .filter((p) => p.name.toLowerCase().includes(playerSearch.toLowerCase()))
               .map((player) => (
                 <label
                   key={player.id}

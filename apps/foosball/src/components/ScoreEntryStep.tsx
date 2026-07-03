@@ -52,7 +52,10 @@ export const ScoreEntryStep = ({
 
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md">
-      <div className="bg-card p-6 w-full shadow-2xl border border-[var(--th-border)]">
+      <div
+        className="bg-card px-6 pb-6 w-full shadow-2xl border border-[var(--th-border)]"
+        style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+      >
         <div className="flex justify-between items-center mb-6">
           <button
             type="button"
