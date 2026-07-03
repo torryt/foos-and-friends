@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev:foosball": "pnpm --filter @foos/foosball dev",
+    "dev:foosball:mock": "pnpm --filter @foos/foosball dev:mock",
     "dev:padel": "pnpm --filter @foos/padel dev",
     "dev:chess": "pnpm --filter @foos/chess dev",
     "build": "pnpm -r build",

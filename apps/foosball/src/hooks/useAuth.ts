@@ -1,6 +1,7 @@
 import type { AuthUser } from '@foos/shared'
+import { MOCK_USER } from '@foos/shared'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/init'
+import { isMockMode, supabase } from '@/lib/init'
 
 interface AuthState {
   user: AuthUser | null
@@ -9,13 +10,15 @@ interface AuthState {
 }
 
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    loading: true,
-    error: null,
-  })
+  const [authState, setAuthState] = useState<AuthState>(
+    isMockMode
+      ? { user: MOCK_USER, loading: false, error: null }
+      : { user: null, loading: true, error: null },
+  )
 
   useEffect(() => {
+    if (isMockMode) return
+
     let mounted = true
 
     // Get initial session
@@ -84,6 +87,8 @@ export const useAuth = () => {
     email: string,
     redirectTo?: string,
   ): Promise<{ success: boolean; error?: string }> => {
+    if (isMockMode) return { success: true }
+
     try {
       const finalRedirectUrl = redirectTo || window.location.origin
 
@@ -108,6 +113,8 @@ export const useAuth = () => {
   }
 
   const signOut = async (): Promise<{ success: boolean; error?: string }> => {
+    if (isMockMode) return { success: true }
+
     try {
       const { error } = await supabase.auth.signOut()
 

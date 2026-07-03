@@ -23,6 +23,16 @@ export {
   savedMatchupsService,
 } from './services/savedMatchupsService.ts'
 export { createSeasonsService, SeasonsService } from './services/seasonsService.ts'
+// Mock mode (local development without Supabase)
+export {
+  buildMockSeed,
+  MOCK_GROUP_ID,
+  MOCK_SEASON_ID,
+  MOCK_USER,
+  MOCK_USER_ID,
+  type MockSeed,
+} from './mock/mock-data.ts'
+export { createMockDatabase, MockDatabase } from './mock/mock-database.ts'
 // Test utilities
 export { FakeDatabase } from './test/fake-database.ts'
 export {
