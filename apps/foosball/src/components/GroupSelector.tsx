@@ -7,6 +7,7 @@ import {
   Plus,
   Settings,
   Trash2,
+  UserCog,
   UserPlus,
   Users,
 } from 'lucide-react'
@@ -166,6 +167,24 @@ export const GroupSelector = ({
                         >
                           <Settings size={14} className="text-muted" />
                           Group Settings
+                        </button>
+                      )}
+
+                      {/* Manage Members - owners and admins */}
+                      {(group.isOwner || group.currentUserRole === 'admin') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigate({
+                              to: '/groups/$groupId/members',
+                              params: { groupId: group.id },
+                            })
+                            setIsOpen(false)
+                          }}
+                          className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-primary"
+                        >
+                          <UserCog size={14} className="text-muted" />
+                          Members
                         </button>
                       )}
 

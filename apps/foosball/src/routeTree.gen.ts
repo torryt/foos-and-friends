@@ -15,6 +15,7 @@ import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
+import { Route as GroupsGroupIdMembersRouteImport } from './routes/groups.$groupId.members'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -46,6 +47,11 @@ const PlayersPlayerIdRoute = PlayersPlayerIdRouteImport.update({
   path: '/players/$playerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupsGroupIdMembersRoute = GroupsGroupIdMembersRouteImport.update({
+  id: '/groups/$groupId/members',
+  path: '/groups/$groupId/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
+  '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
+  '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
+  '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/players/$playerId'
+    | '/groups/$groupId/members'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/players/$playerId'
+    | '/groups/$groupId/members'
   id:
     | '__root__'
     | '/'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/players/$playerId'
+    | '/groups/$groupId/members'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +118,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   PlayersPlayerIdRoute: typeof PlayersPlayerIdRoute
+  GroupsGroupIdMembersRoute: typeof GroupsGroupIdMembersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayersPlayerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groups/$groupId/members': {
+      id: '/groups/$groupId/members'
+      path: '/groups/$groupId/members'
+      fullPath: '/groups/$groupId/members'
+      preLoaderRoute: typeof GroupsGroupIdMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -162,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   PlayersPlayerIdRoute: PlayersPlayerIdRoute,
+  GroupsGroupIdMembersRoute: GroupsGroupIdMembersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

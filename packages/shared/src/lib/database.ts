@@ -1,6 +1,6 @@
 import type {
   FriendGroup,
-  GroupMembership,
+  GroupMember,
   Match,
   MatchType,
   Player,
@@ -57,6 +57,27 @@ export interface GroupLeaveRpcResult {
   error?: string
 }
 
+export interface GroupMembersRpcResult {
+  success: boolean
+  members?: Array<{
+    id: string
+    group_id: string
+    user_id: string
+    role: 'owner' | 'admin' | 'member'
+    is_active: boolean
+    invited_by: string | null
+    joined_at: string
+    created_at: string
+    email: string | null
+  }>
+  error?: string
+}
+
+export interface MemberActionRpcResult {
+  success: boolean
+  error?: string
+}
+
 export interface SeasonCreationRpcResult {
   success: boolean
   old_season_id?: string
@@ -86,7 +107,15 @@ export interface Database {
   updateGroup(groupId: string, updates: GroupSettingsUpdate): Promise<DatabaseResult<FriendGroup>>
 
   // Group membership operations
-  getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMembership>>
+  getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMember>>
+  promoteGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>>
+  removeGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>>
 
   // Player operations
   getPlayersByGroup(groupId: string): Promise<DatabaseListResult<Player>>

@@ -4,7 +4,8 @@ import type {
   DbPlayerSeasonStats,
   DbSeason,
   FriendGroup,
-  GroupMembership,
+  GroupMember,
+  GroupRole,
   Match,
   MatchType,
   Player,
@@ -21,7 +22,9 @@ import type {
   GroupDeletionRpcResult,
   GroupJoinRpcResult,
   GroupLeaveRpcResult,
+  GroupMembersRpcResult,
   GroupSettingsUpdate,
+  MemberActionRpcResult,
   SeasonCreationRpcResult,
 } from './database.ts'
 import { getSupabase } from './supabase.ts'
@@ -194,7 +197,7 @@ export class SupabaseDatabase implements Database {
         .from('friend_groups')
         .select(`
           *,
-          group_memberships!inner(user_id, is_active),
+          group_memberships!inner(user_id, is_active, role),
           player_count:players(count)
         `)
         .eq('group_memberships.user_id', userId)
@@ -225,6 +228,7 @@ export class SupabaseDatabase implements Database {
         updatedAt: group.updated_at,
         playerCount: group.player_count?.[0]?.count || 0,
         isOwner: group.owner_id === userId,
+        currentUserRole: group.group_memberships?.[0]?.role as GroupRole | undefined,
         sportType: group.sport_type as SportType,
         supportedMatchTypes: (group.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (group.target_score as number) ?? 10,
@@ -444,33 +448,79 @@ export class SupabaseDatabase implements Database {
     }
   }
 
-  async getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMembership>> {
+  async getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMember>> {
     try {
       const supabase = getSupabase()
-      const { data, error } = await supabase
-        .from('group_memberships')
-        .select('*')
-        .eq('group_id', groupId)
-        .eq('is_active', true)
+      const { data, error } = await supabase.rpc('get_group_members', {
+        p_group_id: groupId,
+      })
 
       if (error) {
         return { data: [], error: error.message }
       }
 
-      const memberships: GroupMembership[] = (data || []).map((membership) => ({
-        id: membership.id,
-        groupId: membership.group_id,
-        userId: membership.user_id,
-        role: membership.role,
-        isActive: membership.is_active,
-        invitedBy: membership.invited_by,
-        joinedAt: membership.joined_at,
-        createdAt: membership.created_at,
+      const result = data as GroupMembersRpcResult
+      if (!result.success) {
+        return { data: [], error: result.error || 'Failed to fetch members' }
+      }
+
+      const members: GroupMember[] = (result.members || []).map((member) => ({
+        id: member.id,
+        groupId: member.group_id,
+        userId: member.user_id,
+        role: member.role,
+        isActive: member.is_active,
+        invitedBy: member.invited_by,
+        joinedAt: member.joined_at,
+        createdAt: member.created_at,
+        email: member.email,
       }))
 
-      return { data: memberships, error: null }
+      return { data: members, error: null }
     } catch (err) {
       return { data: [], error: err instanceof Error ? err.message : 'Failed to fetch members' }
+    }
+  }
+
+  async promoteGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('promote_group_member', {
+        p_group_id: groupId,
+        p_target_user_id: targetUserId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as MemberActionRpcResult, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to promote member' }
+    }
+  }
+
+  async removeGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('remove_group_member', {
+        p_group_id: groupId,
+        p_target_user_id: targetUserId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as MemberActionRpcResult, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to remove member' }
     }
   }
 

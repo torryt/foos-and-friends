@@ -4,7 +4,8 @@ import type {
   GroupCreationResult,
   GroupJoinResult,
   GroupLeaveResult,
-  GroupMembership,
+  GroupMember,
+  GroupMemberActionResult,
   SportType,
 } from '../types/index.ts'
 
@@ -67,10 +68,34 @@ export class GroupService {
     return await this.db.getGroupByInviteCode(inviteCode)
   }
 
-  async getGroupMembers(
-    groupId: string,
-  ): Promise<{ data: GroupMembership[]; error: string | null }> {
+  async getGroupMembers(groupId: string): Promise<{ data: GroupMember[]; error: string | null }> {
     return await this.db.getGroupMembers(groupId)
+  }
+
+  async promoteMember(groupId: string, targetUserId: string): Promise<GroupMemberActionResult> {
+    const result = await this.db.promoteGroupMember(groupId, targetUserId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+    }
+  }
+
+  async removeMember(groupId: string, targetUserId: string): Promise<GroupMemberActionResult> {
+    const result = await this.db.removeGroupMember(groupId, targetUserId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+    }
   }
 
   async deleteGroup(
