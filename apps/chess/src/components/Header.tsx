@@ -121,44 +121,44 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
                       {showProfileDropdown && (
                         <div className="absolute top-full mt-1 right-0 bg-card rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border)] min-w-48 z-20">
-                            <div className="p-2">
-                              {/* User info section */}
-                              <div className="px-3 py-2 border-b border-[var(--th-border)]">
-                                <div className="text-sm font-medium text-primary truncate">
-                                  {user.email.split('@')[0]}
-                                </div>
-                                <div className="text-xs text-muted truncate">{user.email}</div>
+                          <div className="p-2">
+                            {/* User info section */}
+                            <div className="px-3 py-2 border-b border-[var(--th-border)]">
+                              <div className="text-sm font-medium text-primary truncate">
+                                {user.email.split('@')[0]}
                               </div>
+                              <div className="text-xs text-muted truncate">{user.email}</div>
+                            </div>
 
-                              {/* Theme picker */}
-                              <div className="border-b border-[var(--th-border)]">
-                                <ThemePicker onSelect={() => setShowProfileDropdown(false)} />
-                              </div>
+                            {/* Theme picker */}
+                            <div className="border-b border-[var(--th-border)]">
+                              <ThemePicker onSelect={() => setShowProfileDropdown(false)} />
+                            </div>
 
-                              {/* Actions section */}
-                              <div className="pt-2">
-                                <Link
-                                  to="/settings"
-                                  onClick={() => setShowProfileDropdown(false)}
-                                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-card-hover transition-colors flex items-center gap-2 text-sm font-medium text-primary"
+                            {/* Actions section */}
+                            <div className="pt-2">
+                              <Link
+                                to="/settings"
+                                onClick={() => setShowProfileDropdown(false)}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-card-hover transition-colors flex items-center gap-2 text-sm font-medium text-primary"
+                              >
+                                <Settings size={16} className="text-secondary" />
+                                Settings
+                              </Link>
+                              {onSignOut && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    onSignOut()
+                                    setShowProfileDropdown(false)
+                                  }}
+                                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-loss/10 transition-colors flex items-center gap-2 text-sm font-medium text-[var(--th-loss)]"
                                 >
-                                  <Settings size={16} className="text-secondary" />
-                                  Settings
-                                </Link>
-                                {onSignOut && (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      onSignOut()
-                                      setShowProfileDropdown(false)
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-loss/10 transition-colors flex items-center gap-2 text-sm font-medium text-[var(--th-loss)]"
-                                  >
-                                    <LogOut size={16} className="text-[var(--th-loss)]" />
-                                    Sign Out
-                                  </button>
-                                )}
-                              </div>
+                                  <LogOut size={16} className="text-[var(--th-loss)]" />
+                                  Sign Out
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )}
