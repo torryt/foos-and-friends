@@ -23,6 +23,14 @@
   --color-accent-hover: var(--th-accent-hover);
   --color-accent-subtle: var(--th-accent-subtle);
 
+  --color-toast: var(--th-toast-bg);
+  --color-toast-text: var(--th-toast-text);
+  --color-toast-muted: var(--th-toast-text-muted);
+  --color-toast-border: var(--th-toast-border);
+  --color-toast-success: var(--th-toast-success);
+  --color-toast-error: var(--th-toast-error);
+  --color-toast-info: var(--th-toast-info);
+
   --color-win: var(--th-win);
   --color-loss: var(--th-loss);
   --color-draw: var(--th-draw);

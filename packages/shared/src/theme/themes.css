@@ -53,6 +53,15 @@
   --th-tier-5-bg: linear-gradient(to right, #ffe4e6, #fbcfe8);
   --th-tier-5-text: #9f1239;
 
+  /* Toasts — inverted surface so they stand out from the page */
+  --th-toast-bg: #1e293b;
+  --th-toast-text: #f8fafc;
+  --th-toast-text-muted: #94a3b8;
+  --th-toast-border: transparent;
+  --th-toast-success: #4ade80;
+  --th-toast-error: #f87171;
+  --th-toast-info: #60a5fa;
+
   /* Effects */
   --th-shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   --th-shadow-card-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
@@ -113,6 +122,15 @@
   --th-tier-5-bg: linear-gradient(to right, #ffe4e6, #fecdd3);
   --th-tier-5-text: #e11d48;
 
+  /* Toasts — inverted surface so they stand out from the page */
+  --th-toast-bg: #0f1729;
+  --th-toast-text: #ffffff;
+  --th-toast-text-muted: #8694ad;
+  --th-toast-border: transparent;
+  --th-toast-success: #0af0c0;
+  --th-toast-error: #ff6b5a;
+  --th-toast-info: #60a5fa;
+
   /* Effects */
   --th-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
   --th-shadow-card-hover: 0 2px 12px rgba(10, 240, 192, 0.08);
@@ -172,6 +190,15 @@
   --th-tier-4-text: #b24dff;
   --th-tier-5-bg: rgba(255, 45, 123, 0.10);
   --th-tier-5-text: #ff2d7b;
+
+  /* Toasts — brighter surface + neon border so they stand out from the page */
+  --th-toast-bg: #1a1a2e;
+  --th-toast-text: #eeeef4;
+  --th-toast-text-muted: #9a9aae;
+  --th-toast-border: rgba(0, 240, 255, 0.35);
+  --th-toast-success: #00f0ff;
+  --th-toast-error: #ff2d7b;
+  --th-toast-info: #b24dff;
 
   /* Effects */
   --th-shadow-card: 0 0 15px rgba(0, 240, 255, 0.05), inset 0 0 15px rgba(0, 240, 255, 0.02);
