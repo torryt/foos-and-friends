@@ -6,7 +6,6 @@ import { useGroupContext } from '@/contexts/GroupContext'
 import { ConnectionStatus } from './ConnectionStatus'
 import { CreateGroupModal } from './CreateGroupModal'
 import { DeleteGroupConfirmationModal } from './DeleteGroupConfirmationModal'
-import { GroupMembersModal } from './GroupMembersModal'
 import { GroupSelector } from './GroupSelector'
 import { GroupSettingsModal } from './GroupSettingsModal'
 import { JoinGroupModal } from './JoinGroupModal'
@@ -28,7 +27,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null)
   const [groupToLeave, setGroupToLeave] = useState<string | null>(null)
   const [groupToEdit, setGroupToEdit] = useState<string | null>(null)
-  const [groupToManageMembers, setGroupToManageMembers] = useState<string | null>(null)
   const { currentGroup, userGroups, deleteGroup, leaveGroup } = useGroupContext()
   const profileDropdownRef = useRef<HTMLDivElement>(null)
   useClickOutside(profileDropdownRef, () => setShowProfileDropdown(false), showProfileDropdown)
@@ -85,7 +83,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                         onDeleteGroup={handleDeleteGroup}
                         onLeaveGroup={handleLeaveGroup}
                         onGroupSettings={setGroupToEdit}
-                        onManageMembers={setGroupToManageMembers}
                       />
                     </div>
 
@@ -98,7 +95,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                           onDeleteGroup={handleDeleteGroup}
                           onLeaveGroup={handleLeaveGroup}
                           onGroupSettings={setGroupToEdit}
-                          onManageMembers={setGroupToManageMembers}
                         />
                       ) : (
                         <div className="bg-card px-2 py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)]">
@@ -186,16 +182,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
         isOpen={groupToEdit !== null}
         onClose={() => setGroupToEdit(null)}
         group={groupToEdit ? userGroups.find((g) => g.id === groupToEdit) || null : null}
-      />
-
-      <GroupMembersModal
-        isOpen={groupToManageMembers !== null}
-        onClose={() => setGroupToManageMembers(null)}
-        group={
-          groupToManageMembers
-            ? userGroups.find((g) => g.id === groupToManageMembers) || null
-            : null
-        }
       />
 
       <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />

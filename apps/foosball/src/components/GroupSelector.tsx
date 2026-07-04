@@ -22,7 +22,6 @@ interface GroupSelectorProps {
   onDeleteGroup?: (groupId: string) => void
   onLeaveGroup?: (groupId: string) => void
   onGroupSettings?: (groupId: string) => void
-  onManageMembers?: (groupId: string) => void
 }
 
 export const GroupSelector = ({
@@ -31,7 +30,6 @@ export const GroupSelector = ({
   onDeleteGroup,
   onLeaveGroup,
   onGroupSettings,
-  onManageMembers,
 }: GroupSelectorProps) => {
   const { currentGroup, userGroups, switchGroup, loading } = useGroupContext()
   const [isOpen, setIsOpen] = useState(false)
@@ -177,7 +175,10 @@ export const GroupSelector = ({
                         <button
                           type="button"
                           onClick={() => {
-                            onManageMembers?.(group.id)
+                            navigate({
+                              to: '/groups/$groupId/members',
+                              params: { groupId: group.id },
+                            })
                             setIsOpen(false)
                           }}
                           className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-primary"
