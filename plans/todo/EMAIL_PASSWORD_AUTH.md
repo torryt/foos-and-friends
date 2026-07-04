@@ -1,7 +1,7 @@
 # Email/Password Authentication Plan
 
 **Date**: 2026-07-04 (rewritten; supersedes the January 2025 draft, which targeted the pre-monorepo layout and a separate-username design)
-**Status**: Planned
+**Status**: In progress — all agent-implementable items (Phases 1–4 + automated QA) done 2026-07-04 on branch `email-password-auth` (commit `f958ac5`, worktree `../foos-and-friends--worktrees/email-password-auth`). Remaining: Phase 0 Supabase dashboard config, manual E2E, PR/issue cleanup below.
 **Issue**: [#26](https://github.com/torryt/foos-and-friends/issues/26)
 **Effort**: ~1–2 days of implementation + manual Supabase configuration
 
