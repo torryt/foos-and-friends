@@ -1,7 +1,7 @@
 # Email/Password Authentication Plan
 
 **Date**: 2026-07-04 (rewritten; supersedes the January 2025 draft, which targeted the pre-monorepo layout and a separate-username design)
-**Status**: In progress — all agent-implementable items (Phases 1–4 + automated QA) done 2026-07-04 on branch `email-password-auth` (commit `f958ac5`, worktree `../foos-and-friends--worktrees/email-password-auth`). Remaining: Phase 0 Supabase dashboard config, manual E2E, PR/issue cleanup below.
+**Status**: Shipped 2026-07-04 (implementation in `f958ac5`, manually tested against real Supabase). Remaining loose ends: close PR #28 / issue #26, production smoke test after deploy.
 **Issue**: [#26](https://github.com/torryt/foos-and-friends/issues/26)
 **Effort**: ~1–2 days of implementation + manual Supabase configuration
 
@@ -60,11 +60,11 @@ Track progress by checking these off. Items marked **🧑 MANUAL** require a hum
 
 ### Phase 0 — Supabase configuration (🧑 MANUAL, do first)
 
-- [ ] 🧑 Supabase dashboard → **Authentication → Sign In / Providers → Email**: ensure **Email + password** sign-in is enabled (magic link/OTP stays enabled). Set minimum password length (recommend 8) and enable leaked-password protection if on a plan that supports it.
-- [ ] 🧑 **Authentication → Email Templates**: paste `email-templates/password-reset.html` into *Reset Password* and `email-templates/confirm-sign-up.html` into *Confirm signup* (magic-link template should already be in place). Verify `{{ .ConfirmationURL }}` placeholders survive the paste.
-- [ ] 🧑 **Authentication → URL Configuration**: add redirect URLs for the reset flow to the allowlist — `http://localhost:5173/reset-password` (both apps' dev ports) and the production URLs (`https://<prod-domain>/reset-password` for foosball and chess).
-- [ ] 🧑 Confirm whether **"Confirm email"** is required on signup (recommended: yes). Note the choice here — it changes the post-signup UX (Phase 3).
-- [ ] 🧑 Sanity-check Brevo SMTP still sends (trigger a magic link) and that the free-tier daily quota (300/day) is fine for added reset/confirmation volume.
+- [x] 🧑 Supabase dashboard → **Authentication → Sign In / Providers → Email**: ensure **Email + password** sign-in is enabled (magic link/OTP stays enabled). Set minimum password length (recommend 8) and enable leaked-password protection if on a plan that supports it.
+- [x] 🧑 **Authentication → Email Templates**: paste `email-templates/password-reset.html` into *Reset Password* and `email-templates/confirm-sign-up.html` into *Confirm signup* (magic-link template should already be in place). Verify `{{ .ConfirmationURL }}` placeholders survive the paste.
+- [x] 🧑 **Authentication → URL Configuration**: add redirect URLs for the reset flow to the allowlist — `http://localhost:5173/reset-password` (both apps' dev ports) and the production URLs (`https://<prod-domain>/reset-password` for foosball and chess).
+- [x] 🧑 Confirm whether **"Confirm email"** is required on signup (recommended: yes). Note the choice here — it changes the post-signup UX (Phase 3).
+- [x] 🧑 Sanity-check Brevo SMTP still sends (trigger a magic link) and that the free-tier daily quota (300/day) is fine for added reset/confirmation volume.
 
 ### Phase 1 — Shared auth module (`packages/shared`)
 
@@ -98,13 +98,13 @@ Track progress by checking these off. Items marked **🧑 MANUAL** require a hum
 ### Phase 5 — QA & wrap-up
 
 - [x] Lint, typecheck, unit tests, production build for both apps (`pnpm` workspace scripts).
-- [ ] 🧑 **Manual E2E in a real browser against real Supabase** (agents can't read your inbox):
-  - [ ] 🧑 Sign up with a new email → receive confirmation email → confirm → land in app.
-  - [ ] 🧑 Sign out → sign in with email+password.
-  - [ ] 🧑 Forgot password → receive reset email → link opens `/reset-password` → set new password → sign in with it.
-  - [ ] 🧑 Existing magic-link user: log in via magic link → settings → "Set password" → receive reset email → set password on `/reset-password` → sign out → log in with password.
-  - [ ] 🧑 Change password from settings works the same way (email round trip), and the old password stops working afterwards.
-  - [ ] 🧑 Magic-link login still works end to end.
+- [x] 🧑 **Manual E2E in a real browser against real Supabase** (agents can't read your inbox):
+  - [x] 🧑 Sign up with a new email → receive confirmation email → confirm → land in app.
+  - [x] 🧑 Sign out → sign in with email+password.
+  - [x] 🧑 Forgot password → receive reset email → link opens `/reset-password` → set new password → sign in with it.
+  - [x] 🧑 Existing magic-link user: log in via magic link → settings → "Set password" → receive reset email → set password on `/reset-password` → sign out → log in with password.
+  - [x] 🧑 Change password from settings works the same way (email round trip), and the old password stops working afterwards.
+  - [x] 🧑 Magic-link login still works end to end.
   - [ ] 🧑 Repeat the signup + reset smoke test on **production** after deploy (redirect URLs differ).
 - [ ] 🧑 Close PR #28 with a comment pointing at the new implementation; delete `claude/issue-26-*` branches.
 - [ ] Close issue #26 (auto-close via "Closes #26" in the PR).
