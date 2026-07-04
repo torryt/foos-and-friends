@@ -9,6 +9,8 @@ interface PlayerRankingsProps {
   seasonStats?: PlayerSeasonStats[]
   matches?: Match[]
   onPlayerClick?: (playerId: string) => void
+  title?: string
+  subtitle?: string
 }
 
 interface PlayerWithStats extends Player {
@@ -119,6 +121,8 @@ const PlayerRankings = ({
   seasonStats,
   matches = [],
   onPlayerClick,
+  title = 'Friend Rankings',
+  subtitle = 'See how you stack up against your friends!',
 }: PlayerRankingsProps) => {
   const [sortBy, setSortBy] = useState<SortOption>('elo')
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -136,24 +140,28 @@ const PlayerRankings = ({
     localStorage.setItem('rankingSortPreference', sortBy)
   }, [sortBy])
 
-  // Calculate additional stats for each player, using season stats if available
+  // Calculate additional stats for each player.
+  // When seasonStats is provided we are in season scope: players without a
+  // stat row simply haven't played this season yet, so they show the 1200
+  // baseline — not their all-time numbers. Without seasonStats (all-time
+  // scope) global player stats are used.
   const playersWithStats = useMemo(() => {
+    const seasonScope = seasonStats !== undefined
     return players.map((player) => {
       // Find season-specific stats for this player
       const seasonStat = seasonStats?.find((stat) => stat.playerId === player.id)
 
-      // Use season stats if available, otherwise use global player stats
-      const ranking = seasonStat?.ranking ?? player.ranking
-      const wins = seasonStat?.wins ?? player.wins
-      const losses = seasonStat?.losses ?? player.losses
-      const matchesPlayed = seasonStat?.matchesPlayed ?? player.matchesPlayed
+      const ranking = seasonScope ? (seasonStat?.ranking ?? 1200) : player.ranking
+      const wins = seasonScope ? (seasonStat?.wins ?? 0) : player.wins
+      const losses = seasonScope ? (seasonStat?.losses ?? 0) : player.losses
+      const matchesPlayed = seasonScope ? (seasonStat?.matchesPlayed ?? 0) : player.matchesPlayed
       const goalsFor = seasonStat?.goalsFor ?? 0
       const goalsAgainst = seasonStat?.goalsAgainst ?? 0
 
       // Calculate goal difference (use season stats if available, otherwise calculate from matches)
       let goalDifference: number
-      if (seasonStat) {
-        goalDifference = goalsFor - goalsAgainst
+      if (seasonScope) {
+        goalDifference = seasonStat ? goalsFor - goalsAgainst : 0
       } else {
         // Fallback: calculate from matches
         const playerMatches = matches.filter(
@@ -224,9 +232,9 @@ const PlayerRankings = ({
           <div>
             <h2 className="text-lg font-bold text-primary flex items-center gap-2">
               <Trophy className="text-[var(--th-sport-primary)]" />
-              Friend Rankings
+              {title}
             </h2>
-            <p className="text-sm text-secondary">See how you stack up against your friends!</p>
+            <p className="text-sm text-secondary">{subtitle}</p>
           </div>
           <div className="relative">
             <button

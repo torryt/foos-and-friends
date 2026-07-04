@@ -4,6 +4,7 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -11,10 +12,18 @@ import {
 } from 'recharts'
 import type { PlayerRankingHistory } from '@/hooks/useRankingHistory'
 
+export interface SeasonMarker {
+  /** matchNumber of the first match played in this season */
+  matchNumber: number
+  label: string
+}
+
 interface RankingChartProps {
   history: PlayerRankingHistory
   height?: number
   className?: string
+  /** Dashed vertical lines marking where a new season began */
+  seasonMarkers?: SeasonMarker[]
 }
 
 // Custom tooltip component moved outside to avoid recreation
@@ -55,7 +64,12 @@ const CustomTooltip = ({ active, payload, chartTheme }: any) => {
   return null
 }
 
-export function RankingChart({ history, height = 250, className }: RankingChartProps) {
+export function RankingChart({
+  history,
+  height = 250,
+  className,
+  seasonMarkers,
+}: RankingChartProps) {
   const chartId = React.useId()
   const [isMobile, setIsMobile] = React.useState(false)
   const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -149,6 +163,20 @@ export function RankingChart({ history, height = 250, className }: RankingChartP
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} />
+            {seasonMarkers?.map((marker) => (
+              <ReferenceLine
+                key={`${marker.matchNumber}-${marker.label}`}
+                x={marker.matchNumber}
+                stroke={chartTheme.border}
+                strokeDasharray="4 4"
+                label={{
+                  value: marker.label,
+                  position: 'insideTopLeft',
+                  fontSize: 10,
+                  fill: chartTheme.textMuted,
+                }}
+              />
+            ))}
             <XAxis
               dataKey="matchNumber"
               tick={{ fontSize: 12 }}

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
+import { ArchivedSeasonBanner } from '@/components/ArchivedSeasonBanner'
 import { MatchEntryModal } from '@/components/MatchEntryModal'
 import MatchHistory from '@/components/MatchHistory'
 import { useGameLogic } from '@/hooks/useGameLogic'
@@ -18,7 +19,7 @@ function Matches() {
   const { playerId } = Route.useSearch()
   const navigate = useNavigate()
   const [showRecordMatch, setShowRecordMatch] = useState(false)
-  const { players, matches, supportedMatchTypes, addMatch } = useGameLogic()
+  const { players, matches, allMatches, supportedMatchTypes, addMatch } = useGameLogic()
 
   const handlePlayerClick = (playerId: string) => {
     navigate({
@@ -28,9 +29,11 @@ function Matches() {
   }
 
   return (
-    <div>
+    <div className="space-y-4">
+      <ArchivedSeasonBanner />
       <MatchHistory
         matches={matches}
+        allMatches={allMatches}
         players={players}
         onAddMatch={() => setShowRecordMatch(true)}
         initialSelectedPlayer={playerId}

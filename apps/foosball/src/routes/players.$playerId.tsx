@@ -19,17 +19,18 @@ export const Route = createFileRoute('/players/$playerId')({
 
 function PlayerProfile() {
   const { playerId } = Route.useParams()
-  const { players, matches, updatePlayer, loading } = useGameLogic()
+  const { players, matches, allMatches, updatePlayer, loading } = useGameLogic()
 
   const player = players.find((p) => p.id === playerId)
   const positionStats = usePositionStats(playerId, matches)
 
-  // Get ranking history for main player and all potential comparison players
+  // Get ranking history for main player and all potential comparison players.
+  // Uses all-time matches so the chart spans seasons (with reset points).
   const allPlayerIds = [
     playerId,
     ...players.filter((p) => p.id !== playerId && p.matchesPlayed > 0).map((p) => p.id),
   ]
-  const allPlayerHistories = useRankingHistory(allPlayerIds, matches, players)
+  const allPlayerHistories = useRankingHistory(allPlayerIds, allMatches, players)
   const mainPlayerHistory = allPlayerHistories.filter((h) => h.playerId === playerId)
 
   // Scroll to top when navigating to a different player

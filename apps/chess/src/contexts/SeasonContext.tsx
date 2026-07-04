@@ -150,16 +150,10 @@ export const SeasonProvider = ({ children }: SeasonProviderProps) => {
       )
 
       if (result.success && result.newSeasonId) {
-        // Refresh seasons to get the updated list
+        // Persist the new season id first so refreshSeasons selects it —
+        // the `seasons` state in this closure predates the new season.
+        setStoredSeasonId(currentGroup.id, result.newSeasonId)
         await refreshSeasons()
-
-        // Switch to the new season
-        if (result.newSeasonId) {
-          const newSeason = seasons.find((s) => s.id === result.newSeasonId)
-          if (newSeason) {
-            switchSeason(result.newSeasonId)
-          }
-        }
 
         return { success: true }
       } else {

@@ -1,6 +1,6 @@
 import type { Match, Player, PlayerMatchStats, PlayerPosition } from '@foos/shared'
 import { calculateRankingChange } from '@foos/shared'
-import { Calendar, Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
+import { Clock, Filter, Plus, Target, TrendingDown, TrendingUp, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { PositionIcon } from '@/components/PositionIcon'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -8,11 +8,14 @@ import { useSeasonContext } from '@/contexts/SeasonContext'
 
 interface MatchHistoryProps {
   matches: Match[]
+  allMatches?: Match[]
   players: Player[]
   onAddMatch: () => void
   initialSelectedPlayer?: string
   onPlayerClick?: (playerId: string) => void
 }
+
+type MatchScope = 'season' | 'allTime'
 
 interface PlayerWithStatsProps {
   player: Player
@@ -91,14 +94,16 @@ const PlayerWithStats = ({
 
 const MatchHistory = ({
   matches,
+  allMatches,
   players,
   onAddMatch,
   initialSelectedPlayer,
   onPlayerClick,
 }: MatchHistoryProps) => {
-  const { currentSeason } = useSeasonContext()
+  const { currentSeason, seasons } = useSeasonContext()
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(initialSelectedPlayer || null)
   const [showPlayerFilter, setShowPlayerFilter] = useState(false)
+  const [scope, setScope] = useState<MatchScope>('season')
 
   useEffect(() => {
     if (initialSelectedPlayer) {
@@ -124,27 +129,23 @@ const MatchHistory = ({
     )
   }
 
+  const showScopeToggle = !!allMatches && seasons.length > 1
+  const allTime = scope === 'allTime' && !!allMatches
+  const sourceMatches = allTime && allMatches ? allMatches : matches
+
+  // Look up a season name for the all-time view's per-match tags
+  const seasonNameById = new Map(seasons.map((s) => [s.id, s.name]))
+
   // Filter matches based on selected player
   const filteredMatches = selectedPlayer
-    ? matches.filter((match) => playerInMatch(match, selectedPlayer))
-    : matches
+    ? sourceMatches.filter((match) => playerInMatch(match, selectedPlayer))
+    : sourceMatches
 
   const selectedPlayerData = selectedPlayer ? players.find((p) => p.id === selectedPlayer) : null
   const isArchived = !!currentSeason && !currentSeason.isActive
 
   return (
     <div className="bg-card classic:bg-white/80 backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
-      {/* Archived Season Indicator */}
-      {isArchived && (
-        <div className="bg-accent-subtle classic:bg-gradient-to-r classic:from-orange-100 classic:to-amber-100 border-b border-[var(--th-border)] classic:border-orange-200 px-4 py-2 flex items-center gap-2">
-          <Calendar size={16} className="text-[var(--th-sport-primary)] classic:text-orange-600" />
-          <span className="text-sm font-medium text-primary classic:text-orange-800">
-            Viewing archived season: {currentSeason.name} ({currentSeason.startDate} -{' '}
-            {currentSeason.endDate || 'Unknown'})
-          </span>
-        </div>
-      )}
-
       <div className="p-4 border-b border-[var(--th-border)]">
         <div className="flex justify-between items-center">
           <div>
@@ -154,9 +155,11 @@ const MatchHistory = ({
             <p className="text-sm text-secondary">
               {selectedPlayerData
                 ? `Match history for ${selectedPlayerData.name}`
-                : isArchived
-                  ? `Historical matches from ${currentSeason?.name || 'archived season'}`
-                  : 'Latest foos battles with friends'}
+                : allTime
+                  ? 'Every match across all seasons'
+                  : isArchived
+                    ? `Historical matches from ${currentSeason?.name || 'archived season'}`
+                    : 'Latest foos battles with friends'}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -168,15 +171,46 @@ const MatchHistory = ({
             >
               <Filter size={16} />
             </button>
-            <button
-              type="button"
-              onClick={onAddMatch}
-              className="bg-sport-gradient text-white p-2 rounded-lg hover:bg-sport-gradient-hover"
-            >
-              <Plus size={16} />
-            </button>
+            {!isArchived && (
+              <button
+                type="button"
+                onClick={onAddMatch}
+                className="bg-sport-gradient text-white p-2 rounded-lg hover:bg-sport-gradient-hover"
+                title="Record match"
+              >
+                <Plus size={16} />
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Season / all-time scope */}
+        {showScopeToggle && (
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setScope('season')}
+              className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
+                !allTime
+                  ? 'bg-accent-subtle border-[var(--th-sport-primary)] text-[var(--th-accent)]'
+                  : 'bg-card/60 border-[var(--th-border-subtle)] text-secondary hover:bg-card-hover'
+              }`}
+            >
+              {currentSeason?.name || 'This season'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope('allTime')}
+              className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
+                allTime
+                  ? 'bg-accent-subtle border-[var(--th-sport-primary)] text-[var(--th-accent)]'
+                  : 'bg-card/60 border-[var(--th-border-subtle)] text-secondary hover:bg-card-hover'
+              }`}
+            >
+              All time
+            </button>
+          </div>
+        )}
 
         {/* Player Filter Dropdown */}
         {showPlayerFilter && (
@@ -249,9 +283,16 @@ const MatchHistory = ({
                 className="bg-card classic:bg-gradient-to-br classic:from-white classic:to-slate-50 border border-[var(--th-border-subtle)] rounded-[var(--th-radius-lg)] p-3 shadow-sm"
               >
                 <div className="flex justify-between items-start mb-3">
-                  <div className="text-xs text-secondary flex items-center gap-1">
-                    <Clock size={12} />
-                    {match.date} at {match.time}
+                  <div className="text-xs text-secondary flex items-center gap-2 flex-wrap">
+                    <span className="flex items-center gap-1">
+                      <Clock size={12} />
+                      {match.date} at {match.time}
+                    </span>
+                    {allTime && match.seasonId && seasonNameById.has(match.seasonId) && (
+                      <span className="px-1.5 py-0.5 rounded border border-[var(--th-border)] text-muted text-[10px] font-semibold">
+                        {seasonNameById.get(match.seasonId)}
+                      </span>
+                    )}
                   </div>
                   <span className="bg-accent-subtle classic:bg-gradient-to-r classic:from-emerald-100 classic:to-green-200 text-[var(--th-win)] classic:text-emerald-800 px-2 py-1 rounded-full text-xs font-bold border border-[var(--th-border)] classic:border-transparent">
                     Completed

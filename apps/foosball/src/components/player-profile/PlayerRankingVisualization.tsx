@@ -3,9 +3,10 @@ import { cn } from '@foos/shared'
 import { ChartLine, ChevronDown, ChevronUp, UserPlus, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { PlayerComparisonChart } from '@/components/charts/PlayerComparisonChart'
-import { RankingChart } from '@/components/charts/RankingChart'
+import { RankingChart, type SeasonMarker } from '@/components/charts/RankingChart'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { useSeasonContext } from '@/contexts/SeasonContext'
 import type { PlayerRankingHistory } from '@/hooks/useRankingHistory'
 
 interface PlayerRankingVisualizationProps {
@@ -25,6 +26,35 @@ export function PlayerRankingVisualization({
   const [showComparison, setShowComparison] = useState(false)
   const [comparePlayerIds, setComparePlayerIds] = useState<string[]>([])
   const [showPlayerSelector, setShowPlayerSelector] = useState(false)
+  const { seasons } = useSeasonContext()
+
+  const history = mainPlayerHistory[0]
+
+  // Where each new season starts within the (all-time, chronological) history,
+  // plus the final ELO the player reached in each season they played.
+  const seasonNameById = new Map(seasons.map((s) => [s.id, s.name]))
+  const seasonMarkers: SeasonMarker[] = []
+  const seasonFinals: { seasonId: string; name: string; ranking: number; live: boolean }[] = []
+  for (const point of history?.data ?? []) {
+    if (!point.seasonId) continue
+    const last = seasonFinals[seasonFinals.length - 1]
+    if (last?.seasonId === point.seasonId) {
+      last.ranking = point.ranking
+    } else {
+      seasonFinals.push({
+        seasonId: point.seasonId,
+        name: seasonNameById.get(point.seasonId) ?? 'Season',
+        ranking: point.ranking,
+        live: seasons.find((s) => s.id === point.seasonId)?.isActive ?? false,
+      })
+      if (last) {
+        seasonMarkers.push({
+          matchNumber: point.matchNumber,
+          label: seasonFinals.at(-1)?.name ?? '',
+        })
+      }
+    }
+  }
 
   const handleToggleComparison = () => {
     if (!showComparison) {
@@ -163,7 +193,35 @@ export function PlayerRankingVisualization({
               </div>
             ) : (
               /* Single player chart */
-              <RankingChart history={mainPlayerHistory[0]} height={250} />
+              <>
+                <RankingChart
+                  history={mainPlayerHistory[0]}
+                  height={250}
+                  seasonMarkers={seasonMarkers}
+                />
+                {seasonFinals.length > 1 && (
+                  <div className="flex gap-2 mt-3 overflow-x-auto">
+                    {seasonFinals.map((final) => (
+                      <div
+                        key={final.seasonId}
+                        className="flex-1 min-w-20 text-center p-2 bg-card-hover rounded-lg"
+                      >
+                        <p className="text-[10px] font-semibold text-muted uppercase tracking-wide truncate">
+                          {final.name}
+                          {final.live ? ' · now' : ' · final'}
+                        </p>
+                        <p
+                          className={`text-sm font-semibold ${
+                            final.live ? 'text-[var(--th-sport-primary)]' : 'text-primary'
+                          }`}
+                        >
+                          {final.ranking}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
             {/* Chart statistics */}

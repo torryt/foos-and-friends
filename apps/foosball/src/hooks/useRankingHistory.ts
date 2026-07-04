@@ -8,6 +8,7 @@ export interface RankingDataPoint {
   matchId: string
   result: 'win' | 'loss'
   score: string
+  seasonId?: string
 }
 
 export interface PlayerRankingHistory {
@@ -79,6 +80,7 @@ export function useRankingHistory(
             matchId: match.id,
             result: won ? 'win' : 'loss',
             score: `${match.score1}-${match.score2}`,
+            seasonId: match.seasonId,
           })
         })
 
