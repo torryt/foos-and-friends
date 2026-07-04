@@ -14,12 +14,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg'],
+      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Foos & Friends',
         short_name: 'Foosball',
         description: 'Track your office foosball rankings',
-        theme_color: '#3b82f6',
+        theme_color: '#f97316',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
