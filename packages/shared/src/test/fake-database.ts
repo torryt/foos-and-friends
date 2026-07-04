@@ -7,10 +7,12 @@ import type {
   GroupJoinRpcResult,
   GroupLeaveRpcResult,
   GroupSettingsUpdate,
+  MemberActionRpcResult,
   SeasonCreationRpcResult,
 } from '../lib/database.ts'
 import type {
   FriendGroup,
+  GroupMember,
   GroupMembership,
   Match,
   MatchType,
@@ -21,6 +23,9 @@ import type {
 } from '../types/index.ts'
 
 export class FakeDatabase implements Database {
+  // Simulates auth.uid() for RPCs that resolve the caller server-side
+  // (getGroupMembers, promoteGroupMember, removeGroupMember)
+  currentUserId = 'fake-user-id'
   private groups: FriendGroup[] = []
   private memberships: GroupMembership[] = []
   private players: Player[] = []
@@ -53,6 +58,7 @@ export class FakeDatabase implements Database {
       ...group,
       playerCount: this.players.filter((p) => p.groupId === group.id).length,
       isOwner: group.ownerId === userId,
+      currentUserRole: userMemberships.find((m) => m.groupId === group.id)?.role,
     }))
 
     return { data: groupsWithMeta, error: null }
@@ -296,9 +302,89 @@ export class FakeDatabase implements Database {
     }
   }
 
-  async getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMembership>> {
-    const members = this.memberships.filter((m) => m.groupId === groupId && m.isActive)
+  private getCallerRole(groupId: string): GroupMembership['role'] | null {
+    const membership = this.memberships.find(
+      (m) => m.groupId === groupId && m.userId === this.currentUserId && m.isActive,
+    )
+    return membership?.role ?? null
+  }
+
+  async getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMember>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return { data: [], error: 'Only group owners and admins can list members' }
+    }
+
+    const roleOrder = { owner: 0, admin: 1, member: 2 }
+    const members = this.memberships
+      .filter((m) => m.groupId === groupId && m.isActive)
+      .sort((a, b) => roleOrder[a.role] - roleOrder[b.role] || a.joinedAt.localeCompare(b.joinedAt))
+      .map((m) => ({ ...m, email: `${m.userId}@fake.local` }))
     return { data: members, error: null }
+  }
+
+  async promoteGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return {
+        data: { success: false, error: 'Only group owners and admins can promote members' },
+        error: null,
+      }
+    }
+
+    const target = this.memberships.find(
+      (m) => m.groupId === groupId && m.userId === targetUserId && m.isActive,
+    )
+    if (!target) {
+      return { data: { success: false, error: 'User is not a member of this group' }, error: null }
+    }
+    if (target.role !== 'member') {
+      return { data: { success: false, error: 'User is already an owner or admin' }, error: null }
+    }
+
+    target.role = 'admin'
+    return { data: { success: true }, error: null }
+  }
+
+  async removeGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return {
+        data: { success: false, error: 'Only group owners and admins can remove members' },
+        error: null,
+      }
+    }
+    if (targetUserId === this.currentUserId) {
+      return {
+        data: { success: false, error: 'You cannot remove yourself. Leave the group instead.' },
+        error: null,
+      }
+    }
+
+    const target = this.memberships.find(
+      (m) => m.groupId === groupId && m.userId === targetUserId && m.isActive,
+    )
+    if (!target) {
+      return { data: { success: false, error: 'User is not a member of this group' }, error: null }
+    }
+    if (target.role === 'owner') {
+      return { data: { success: false, error: 'The group owner cannot be removed' }, error: null }
+    }
+    if (target.role === 'admin' && callerRole !== 'owner') {
+      return {
+        data: { success: false, error: 'Only the group owner can remove an admin' },
+        error: null,
+      }
+    }
+
+    this.memberships = this.memberships.filter((m) => m.id !== target.id)
+    return { data: { success: true }, error: null }
   }
 
   // Player operations

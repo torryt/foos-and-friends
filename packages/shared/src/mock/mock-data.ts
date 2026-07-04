@@ -102,6 +102,20 @@ export const buildMockSeed = (): MockSeed => {
     createdAt: group.createdAt,
   }
 
+  // Extra members so the member management UI has data in mock mode
+  const extraMemberships: GroupMembership[] = (['admin', 'member', 'member'] as const).map(
+    (role, i) => ({
+      id: `mock-membership-${i + 2}`,
+      groupId: MOCK_GROUP_ID,
+      userId: `mock-user-${i + 2}`,
+      role,
+      isActive: true,
+      invitedBy: MOCK_USER_ID,
+      joinedAt: daysAgo(80 - i * 5).toISOString(),
+      createdAt: daysAgo(80 - i * 5).toISOString(),
+    }),
+  )
+
   const season: Season = {
     id: MOCK_SEASON_ID,
     groupId: MOCK_GROUP_ID,
@@ -210,7 +224,7 @@ export const buildMockSeed = (): MockSeed => {
 
   return {
     groups: [group],
-    memberships: [membership],
+    memberships: [membership, ...extraMemberships],
     players,
     seasons: [season],
     matches,

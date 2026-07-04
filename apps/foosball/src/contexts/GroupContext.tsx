@@ -1,4 +1,4 @@
-import type { FriendGroup, GroupSettingsUpdate, SportType } from '@foos/shared'
+import type { FriendGroup, GroupMember, GroupSettingsUpdate, SportType } from '@foos/shared'
 import type { ReactNode } from 'react'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
@@ -26,6 +26,15 @@ interface GroupContextType {
   updateGroup: (
     groupId: string,
     updates: GroupSettingsUpdate,
+  ) => Promise<{ success: boolean; error?: string }>
+  getGroupMembers: (groupId: string) => Promise<{ data: GroupMember[]; error: string | null }>
+  promoteMember: (
+    groupId: string,
+    targetUserId: string,
+  ) => Promise<{ success: boolean; error?: string }>
+  removeMember: (
+    groupId: string,
+    targetUserId: string,
   ) => Promise<{ success: boolean; error?: string }>
 }
 
@@ -352,6 +361,21 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     }
   }
 
+  // List members of a group (owner/admin only, enforced server-side)
+  const getGroupMembers = useCallback(async (groupId: string) => {
+    return await groupService.getGroupMembers(groupId)
+  }, [])
+
+  // Promote a member to admin (owner/admin only, enforced server-side)
+  const promoteMember = useCallback(async (groupId: string, targetUserId: string) => {
+    return await groupService.promoteMember(groupId, targetUserId)
+  }, [])
+
+  // Remove a member from a group (owner/admin only, enforced server-side)
+  const removeMember = useCallback(async (groupId: string, targetUserId: string) => {
+    return await groupService.removeMember(groupId, targetUserId)
+  }, [])
+
   // Load groups when user authenticates
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -379,6 +403,9 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         deleteGroup,
         leaveGroup,
         updateGroup,
+        getGroupMembers,
+        promoteMember,
+        removeMember,
       }}
     >
       {children}

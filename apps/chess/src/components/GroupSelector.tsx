@@ -6,6 +6,7 @@ import {
   LogOut,
   Plus,
   Trash2,
+  UserCog,
   UserPlus,
   Users,
 } from 'lucide-react'
@@ -19,6 +20,7 @@ interface GroupSelectorProps {
   onJoinGroup?: () => void
   onDeleteGroup?: (groupId: string) => void
   onLeaveGroup?: (groupId: string) => void
+  onManageMembers?: (groupId: string) => void
 }
 
 export const GroupSelector = ({
@@ -26,6 +28,7 @@ export const GroupSelector = ({
   onJoinGroup,
   onDeleteGroup,
   onLeaveGroup,
+  onManageMembers,
 }: GroupSelectorProps) => {
   const { currentGroup, userGroups, switchGroup, loading } = useGroupContext()
   const [isOpen, setIsOpen] = useState(false)
@@ -148,6 +151,21 @@ export const GroupSelector = ({
                         >
                           <Users size={14} className="text-blue-500" />
                           Switch to Group
+                        </button>
+                      )}
+
+                      {/* Manage Members - owners and admins */}
+                      {(group.isOwner || group.currentUserRole === 'admin') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onManageMembers?.(group.id)
+                            setIsOpen(false)
+                          }}
+                          className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700"
+                        >
+                          <UserCog size={14} className="text-gray-500" />
+                          Members
                         </button>
                       )}
 

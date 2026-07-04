@@ -123,20 +123,29 @@ export interface FriendGroup {
   updatedAt: string
   playerCount?: number
   isOwner?: boolean // Added for client-side group owner detection
+  currentUserRole?: GroupRole // The requesting user's role in this group
   sportType?: SportType // Added for multi-sport support
   supportedMatchTypes: MatchType[] // Which match types this group supports
   targetScore: number // Points needed to win a game in this group
 }
 
+export type GroupRole = 'owner' | 'admin' | 'member'
+
 export interface GroupMembership {
   id: string
   groupId: string
   userId: string
-  role: 'owner' | 'admin' | 'member'
+  role: GroupRole
   isActive: boolean
   invitedBy: string | null
   joinedAt: string
   createdAt: string
+}
+
+// Membership enriched with the member's email (from get_group_members RPC,
+// only available to group owners/admins)
+export interface GroupMember extends GroupMembership {
+  email: string | null
 }
 
 // Season types for competitive periods
@@ -222,6 +231,12 @@ export interface GroupJoinResult {
 }
 
 export interface GroupLeaveResult {
+  success: boolean
+  error?: string
+}
+
+// Promote/remove member responses
+export interface GroupMemberActionResult {
   success: boolean
   error?: string
 }
