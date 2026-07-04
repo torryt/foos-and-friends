@@ -1,4 +1,4 @@
-import { type AuthUser, ThemeProvider } from '@foos/shared'
+import { type AuthUser, ResetPasswordPage, ThemeProvider } from '@foos/shared'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { useState } from 'react'
 import { CreateGroupModal } from '@/components/CreateGroupModal'
@@ -95,6 +95,17 @@ function App() {
 
   const handleSignOut = async () => {
     await signOut()
+  }
+
+  // Password recovery links from Supabase land here. Rendered outside
+  // ProtectedRoute so an expired link shows the reset page's error state
+  // instead of the sign-in form.
+  if (window.location.pathname === '/reset-password') {
+    return (
+      <ThemeProvider>
+        <ResetPasswordPage />
+      </ThemeProvider>
+    )
   }
 
   return (

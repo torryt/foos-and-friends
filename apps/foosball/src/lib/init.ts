@@ -19,7 +19,7 @@ export const isMockMode = import.meta.env.VITE_MOCK_DATA === 'true'
 const supabaseUrl = isMockMode ? 'https://mock.invalid' : import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = isMockMode ? 'mock-anon-key' : import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-export const supabase = initSupabase(supabaseUrl, supabaseAnonKey)
+export const supabase = initSupabase(supabaseUrl, supabaseAnonKey, { mockMode: isMockMode })
 
 // Create database instance
 export const database = isMockMode ? createMockDatabase() : createSupabaseDatabase()

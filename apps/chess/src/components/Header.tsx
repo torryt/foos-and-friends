@@ -1,5 +1,6 @@
 import { type AuthUser, ThemePicker, useClickOutside } from '@foos/shared'
-import { Crown, LogOut, User, Users } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { Crown, LogOut, Settings, User, Users } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { ConnectionStatus } from './ConnectionStatus'
@@ -136,6 +137,14 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
                               {/* Actions section */}
                               <div className="pt-2">
+                                <Link
+                                  to="/settings"
+                                  onClick={() => setShowProfileDropdown(false)}
+                                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-card-hover transition-colors flex items-center gap-2 text-sm font-medium text-primary"
+                                >
+                                  <Settings size={16} className="text-secondary" />
+                                  Settings
+                                </Link>
                                 {onSignOut && (
                                   <button
                                     type="button"

@@ -1,6 +1,6 @@
+import { AuthForm } from '@foos/shared'
 import type { ReactNode } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { AuthForm } from './AuthForm'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -26,7 +26,7 @@ export const ProtectedRoute = ({ children, fallback }: ProtectedRouteProps) => {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        {fallback || <AuthForm />}
+        {fallback || <AuthForm title="Welcome to Chess & Friends" />}
       </div>
     )
   }

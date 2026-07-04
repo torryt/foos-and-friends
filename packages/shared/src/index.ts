@@ -1,4 +1,15 @@
-// Types
+// Auth
+export {
+  type AuthResult,
+  MIN_PASSWORD_LENGTH,
+  mapAuthError,
+  type SignUpResult,
+} from './auth/authApi.ts'
+export { AuthForm } from './auth/AuthForm.tsx'
+export { PasswordInput } from './auth/PasswordInput.tsx'
+export { ResetPasswordPage } from './auth/ResetPasswordPage.tsx'
+export { useAuth } from './auth/useAuth.ts'
+export { UserSettingsPage } from './auth/UserSettingsPage.tsx'
 
 // Constants
 export { AVAILABLE_AVATARS, getRandomAvatar } from './constants/avatars.ts'
