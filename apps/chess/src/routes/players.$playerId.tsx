@@ -9,6 +9,7 @@ import { PlayerRecentMatches } from '@/components/player-profile/PlayerRecentMat
 import { PlayerRelationshipStats } from '@/components/player-profile/PlayerRelationshipStats'
 import { PlayerStatsCards } from '@/components/player-profile/PlayerStatsCards'
 import { Card } from '@/components/ui/Card'
+import { useSeasonContext } from '@/contexts/SeasonContext'
 import { useGameLogic } from '@/hooks/useGameLogic'
 import { usePositionStats } from '@/hooks/usePositionStats'
 import { useRankingHistory } from '@/hooks/useRankingHistory'
@@ -19,9 +20,12 @@ export const Route = createFileRoute('/players/$playerId')({
 
 function PlayerProfile() {
   const { playerId } = Route.useParams()
-  const { players, matches, allMatches, updatePlayer, loading } = useGameLogic()
+  const { players, seasonStats, matches, allMatches, updatePlayer, loading } = useGameLogic()
+  const { currentSeason } = useSeasonContext()
 
   const player = players.find((p) => p.id === playerId)
+  // Players without matches in the selected season fall back to the 1200 baseline
+  const seasonRanking = seasonStats.find((s) => s.playerId === playerId)?.ranking ?? 1200
   const positionStats = usePositionStats(playerId, matches)
 
   // Get ranking history for main player and all potential comparison players.
@@ -132,6 +136,8 @@ function PlayerProfile() {
       {/* Player Header */}
       <PlayerHeader
         player={player}
+        seasonRanking={seasonRanking}
+        seasonName={currentSeason?.name}
         isCurrentUser={true} // For now, assume current user can edit
         onUpdatePlayer={handleUpdatePlayer}
       />

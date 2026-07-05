@@ -9,11 +9,19 @@ import { Label } from '@/components/ui/Label'
 
 interface PlayerHeaderProps {
   player: Player
+  seasonRanking: number
+  seasonName?: string
   isCurrentUser: boolean
   onUpdatePlayer: (playerId: string, updates: Partial<Player>) => Promise<void>
 }
 
-export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHeaderProps) {
+export function PlayerHeader({
+  player,
+  seasonRanking,
+  seasonName,
+  isCurrentUser,
+  onUpdatePlayer,
+}: PlayerHeaderProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedName, setEditedName] = useState(player.name)
   const [editedAvatar, setEditedAvatar] = useState(player.avatar)
@@ -93,9 +101,12 @@ export function PlayerHeader({ player, isCurrentUser, onUpdatePlayer }: PlayerHe
               <p className="text-sm text-gray-500 mt-1">
                 Member since {new Date(player.createdAt || Date.now()).toLocaleDateString()}
               </p>
-              <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
+              <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 flex-wrap">
                 <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-                  {player.ranking} ELO
+                  {seasonRanking} ELO{seasonName ? ` · ${seasonName}` : ''}
+                </span>
+                <span className="px-3 py-1 bg-white text-gray-500 rounded-full text-sm">
+                  {player.ranking} all-time
                 </span>
               </div>
             </>
