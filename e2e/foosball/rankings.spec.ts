@@ -30,10 +30,12 @@ test('toggles between season and all-time scope', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'Friend Rankings' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'All time' }).click()
+  await page.getByRole('button', { name: 'Season 3' }).click()
+  await page.getByRole('option', { name: /All time/ }).click()
   await expect(page.getByRole('heading', { name: 'All-Time Rankings' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Season 3', exact: true }).click()
+  await page.getByRole('button', { name: 'All time' }).click()
+  await page.getByRole('option', { name: /Season 3/ }).click()
   await expect(page.getByRole('heading', { name: 'Friend Rankings' })).toBeVisible()
 })
 
