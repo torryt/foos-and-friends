@@ -20,13 +20,14 @@ export const Route = createFileRoute('/players/$playerId')({
 
 function PlayerProfile() {
   const { playerId } = Route.useParams()
-  const { players, seasonStats, matches, allMatches, updatePlayer, loading } = useGameLogic()
+  const { players, seasonStats, allMatches, updatePlayer, loading } = useGameLogic()
   const { currentSeason } = useSeasonContext()
 
   const player = players.find((p) => p.id === playerId)
   // Players without matches in the selected season fall back to the 1200 baseline
   const seasonRanking = seasonStats.find((s) => s.playerId === playerId)?.ranking ?? 1200
-  const positionStats = usePositionStats(playerId, matches)
+  // Everything below the header ELO pill is career (all-time) data
+  const positionStats = usePositionStats(playerId, allMatches)
 
   // Get ranking history for main player and all potential comparison players.
   // Uses all-time matches so the chart spans seasons (with reset points).
@@ -49,7 +50,7 @@ function PlayerProfile() {
   const playerStats = useMemo(() => {
     if (!player) return null
 
-    const playerMatches = matches
+    const playerMatches = allMatches
       .filter((match) => {
         return (
           match.team1[0].id === playerId ||
@@ -127,7 +128,7 @@ function PlayerProfile() {
       lowestRanking,
       playerMatches,
     }
-  }, [player, matches, playerId])
+  }, [player, allMatches, playerId])
 
   if (loading) {
     return (
@@ -219,13 +220,13 @@ function PlayerProfile() {
       </div>
 
       {/* Relationship Statistics */}
-      <PlayerRelationshipStats playerId={playerId} players={players} matches={matches} />
+      <PlayerRelationshipStats playerId={playerId} players={players} matches={allMatches} />
 
       {/* Match History */}
       <PlayerRecentMatches
         playerId={playerId}
         players={players}
-        matches={matches}
+        matches={allMatches}
         recentForm={playerStats.recentForm}
       />
     </div>

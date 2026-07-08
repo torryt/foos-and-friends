@@ -5,10 +5,9 @@ import { ArchivedSeasonBanner } from '@/components/ArchivedSeasonBanner'
 import { MatchEntryModal } from '@/components/MatchEntryModal'
 import PlayerRankings from '@/components/PlayerRankings'
 import QuickActions from '@/components/QuickActions'
+import { type RankingScope, SeasonScopePicker } from '@/components/SeasonScopePicker'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 import { useGameLogic } from '@/hooks/useGameLogic'
-
-type RankingScope = 'season' | 'allTime'
 
 export const Route = createFileRoute('/')({
   component: Index,
@@ -47,32 +46,7 @@ function Index() {
         />
       )}
 
-      {showScopeToggle && (
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setScope('season')}
-            className={`min-h-11 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-              !allTime
-                ? 'bg-accent-subtle border-[var(--th-sport-primary)] text-[var(--th-sport-primary)]'
-                : 'bg-card border-[var(--th-border-subtle)] text-secondary hover:bg-card-hover'
-            }`}
-          >
-            {currentSeason?.name || 'This season'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setScope('allTime')}
-            className={`min-h-11 px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-              allTime
-                ? 'bg-accent-subtle border-[var(--th-sport-primary)] text-[var(--th-sport-primary)]'
-                : 'bg-card border-[var(--th-border-subtle)] text-secondary hover:bg-card-hover'
-            }`}
-          >
-            All time
-          </button>
-        </div>
-      )}
+      {showScopeToggle && <SeasonScopePicker scope={scope} onScopeChange={setScope} />}
 
       <PlayerRankings
         players={players}

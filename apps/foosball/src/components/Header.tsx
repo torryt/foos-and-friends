@@ -10,7 +10,6 @@ import { GroupSelector } from './GroupSelector'
 import { GroupSettingsModal } from './GroupSettingsModal'
 import { JoinGroupModal } from './JoinGroupModal'
 import { LeaveGroupConfirmationModal } from './LeaveGroupConfirmationModal'
-import { SeasonPill } from './SeasonPill'
 
 interface HeaderProps {
   user?: AuthUser | null
@@ -101,8 +100,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                         </div>
                       )}
                     </div>
-
-                    <SeasonPill />
 
                     {/* Profile Dropdown for all screen sizes */}
                     <div className="relative" ref={profileDropdownRef}>
