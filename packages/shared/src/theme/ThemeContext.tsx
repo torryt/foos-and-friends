@@ -16,7 +16,7 @@ const THEME_FONTS: Record<ThemeName, string | null> = {
   cleansport:
     'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap',
   neonarcade:
-    'https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;500;600;700&display=swap',
+    'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap',
 }
 
 function loadFonts(theme: ThemeName) {
