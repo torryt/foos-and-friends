@@ -20,9 +20,9 @@
 }
 
 [data-theme='neonarcade'] {
-  --th-sport-from: #ffe600;
-  --th-sport-to: #ff2d7b;
-  --th-sport-primary: #ffe600;
-  --th-sport-hover-from: #e6cf00;
-  --th-sport-hover-to: #e0266b;
+  --th-sport-from: #ffc45c;
+  --th-sport-to: #ff5c8a;
+  --th-sport-primary: #ffc45c;
+  --th-sport-hover-from: #ffd07e;
+  --th-sport-hover-to: #ff7ba0;
 }

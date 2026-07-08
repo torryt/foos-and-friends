@@ -29,13 +29,13 @@
 }
 
 [data-theme='neonarcade'] {
-  --th-sport-from: #ff2d7b;
-  --th-sport-to: #00f0ff;
-  --th-sport-primary: #ff2d7b;
-  --th-sport-hover-from: #e0266b;
-  --th-sport-hover-to: #00d4e0;
-  --th-sport-secondary-from: #ff2d7b;
-  --th-sport-secondary-to: #ff2d7b;
-  --th-sport-secondary-hover-from: #e0266b;
-  --th-sport-secondary-hover-to: #e0266b;
+  --th-sport-from: #ff5c8a;
+  --th-sport-to: #53e8ff;
+  --th-sport-primary: #ff5c8a;
+  --th-sport-hover-from: #ff7ba0;
+  --th-sport-hover-to: #7deeff;
+  --th-sport-secondary-from: #ff5c8a;
+  --th-sport-secondary-to: #ff5c8a;
+  --th-sport-secondary-hover-from: #ff7ba0;
+  --th-sport-secondary-hover-to: #ff7ba0;
 }

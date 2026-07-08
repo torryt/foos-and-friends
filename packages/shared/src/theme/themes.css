@@ -141,67 +141,67 @@
  * NEONARCADE THEME — Retro 80s arcade
  * ============================================ */
 [data-theme="neonarcade"] {
-  /* Backgrounds */
-  --th-bg-page: #0a0a12;
-  --th-bg-card: #12121e;
-  --th-bg-card-hover: #1a1a2e;
-  --th-bg-header: #0a0a12;
-  --th-bg-input: #12121e;
-  --th-bg-input-hover: #1a1a2e;
-  --th-bg-overlay: rgba(10, 10, 18, 0.8);
+  /* Backgrounds — indigo-black ground so the dark itself has a hue */
+  --th-bg-page: #0c0a18;
+  --th-bg-card: #161329;
+  --th-bg-card-hover: #1c1836;
+  --th-bg-header: #0c0a18;
+  --th-bg-input: #161329;
+  --th-bg-input-hover: #1c1836;
+  --th-bg-overlay: rgba(12, 10, 24, 0.8);
 
   /* Text */
-  --th-text-primary: #eeeef4;
-  --th-text-secondary: #c8c8d4;
-  --th-text-muted: #7a7a8e;
+  --th-text-primary: #edecf7;
+  --th-text-secondary: #b3b0cc;
+  --th-text-muted: #8d89ab;
 
-  /* Borders */
-  --th-border: rgba(0, 240, 255, 0.08);
-  --th-border-subtle: rgba(0, 240, 255, 0.06);
+  /* Borders — solid and visible so cards separate from the page */
+  --th-border: #2a2547;
+  --th-border-subtle: #221e3c;
 
-  /* Accent */
-  --th-accent: #00f0ff;
-  --th-accent-hover: #00d4e0;
-  --th-accent-subtle: rgba(0, 240, 255, 0.08);
+  /* Accent — the only thing allowed to glow */
+  --th-accent: #53e8ff;
+  --th-accent-hover: #7deeff;
+  --th-accent-subtle: rgba(83, 232, 255, 0.1);
 
   /* Semantic */
-  --th-win: #00f0ff;
-  --th-loss: #ff2d7b;
-  --th-draw: #b24dff;
+  --th-win: #3ee08a;
+  --th-loss: #ff5c8a;
+  --th-draw: #9d7bff;
 
   /* Typography */
   --th-font-body: "Rajdhani", system-ui, sans-serif;
-  --th-font-heading: "Press Start 2P", monospace;
-  --th-font-data: "Press Start 2P", monospace;
+  --th-font-heading: "Chakra Petch", system-ui, sans-serif;
+  --th-font-data: "Chakra Petch", system-ui, sans-serif;
 
-  /* Geometry */
-  --th-radius-sm: 0px;
-  --th-radius-md: 0px;
-  --th-radius-lg: 0px;
+  /* Geometry — rounded, but tighter than Classic (6/8/12px) */
+  --th-radius-sm: 4px;
+  --th-radius-md: 6px;
+  --th-radius-lg: 10px;
 
   /* Tier badges (rankings, stats) */
-  --th-tier-1-bg: rgba(0, 240, 255, 0.15);
-  --th-tier-1-text: #00f0ff;
-  --th-tier-2-bg: rgba(0, 240, 255, 0.10);
-  --th-tier-2-text: #00f0ff;
-  --th-tier-3-bg: rgba(255, 45, 123, 0.15);
-  --th-tier-3-text: #ff2d7b;
-  --th-tier-4-bg: rgba(178, 77, 255, 0.12);
-  --th-tier-4-text: #b24dff;
-  --th-tier-5-bg: rgba(255, 45, 123, 0.10);
-  --th-tier-5-text: #ff2d7b;
+  --th-tier-1-bg: rgba(83, 232, 255, 0.12);
+  --th-tier-1-text: #53e8ff;
+  --th-tier-2-bg: rgba(62, 224, 138, 0.12);
+  --th-tier-2-text: #3ee08a;
+  --th-tier-3-bg: rgba(157, 123, 255, 0.12);
+  --th-tier-3-text: #9d7bff;
+  --th-tier-4-bg: rgba(255, 196, 92, 0.12);
+  --th-tier-4-text: #ffc45c;
+  --th-tier-5-bg: rgba(255, 92, 138, 0.12);
+  --th-tier-5-text: #ff5c8a;
 
   /* Toasts — brighter surface + neon border so they stand out from the page */
-  --th-toast-bg: #1a1a2e;
-  --th-toast-text: #eeeef4;
-  --th-toast-text-muted: #9a9aae;
-  --th-toast-border: rgba(0, 240, 255, 0.35);
-  --th-toast-success: #00f0ff;
-  --th-toast-error: #ff2d7b;
-  --th-toast-info: #b24dff;
+  --th-toast-bg: #1c1836;
+  --th-toast-text: #edecf7;
+  --th-toast-text-muted: #8d89ab;
+  --th-toast-border: rgba(83, 232, 255, 0.35);
+  --th-toast-success: #3ee08a;
+  --th-toast-error: #ff5c8a;
+  --th-toast-info: #53e8ff;
 
-  /* Effects */
-  --th-shadow-card: 0 0 15px rgba(0, 240, 255, 0.05), inset 0 0 15px rgba(0, 240, 255, 0.02);
-  --th-shadow-card-hover: 0 0 20px rgba(0, 240, 255, 0.1), inset 0 0 20px rgba(0, 240, 255, 0.03);
-  --th-shadow-glow: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 60px rgba(0, 240, 255, 0.2);
+  /* Effects — depth from plain dark shadows; glow reserved for the accent */
+  --th-shadow-card: 0 4px 24px -8px rgba(0, 0, 0, 0.6);
+  --th-shadow-card-hover: 0 8px 32px -8px rgba(0, 0, 0, 0.7);
+  --th-shadow-glow: 0 0 24px rgba(83, 232, 255, 0.35);
 }
