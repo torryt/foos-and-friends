@@ -1,5 +1,5 @@
 import type { Player } from '@foos/shared'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import PlayerRankings from '../PlayerRankings'
 
 const mockPlayers: Player[] = [
@@ -97,5 +97,81 @@ describe('PlayerRankings', () => {
     expect(screen.getByText('👩‍💻')).toBeInTheDocument()
     expect(screen.getByText('👨‍🎨')).toBeInTheDocument()
     expect(screen.getByText('🧔')).toBeInTheDocument()
+  })
+
+  describe('players without games', () => {
+    const playersWithInactive: Player[] = [
+      ...mockPlayers,
+      {
+        id: '4',
+        name: 'Dana White',
+        ranking: 1200,
+        matchesPlayed: 0,
+        wins: 0,
+        losses: 0,
+        avatar: '🧑‍🚀',
+        department: 'Marketing',
+      },
+    ]
+
+    test('hides players with no games by default', () => {
+      render(<PlayerRankings players={playersWithInactive} />)
+
+      expect(screen.queryByText('Dana White')).not.toBeInTheDocument()
+      expect(screen.getByText('Show 1 player without games')).toBeInTheDocument()
+    })
+
+    test('reveals players with no games when the footer button is clicked', () => {
+      render(<PlayerRankings players={playersWithInactive} />)
+
+      fireEvent.click(screen.getByText('Show 1 player without games'))
+
+      expect(screen.getByText('Dana White')).toBeInTheDocument()
+      expect(screen.getByText('Hide players without games')).toBeInTheDocument()
+    })
+
+    test('hides them again when toggled back', () => {
+      render(<PlayerRankings players={playersWithInactive} />)
+
+      fireEvent.click(screen.getByText('Show 1 player without games'))
+      fireEvent.click(screen.getByText('Hide players without games'))
+
+      expect(screen.queryByText('Dana White')).not.toBeInTheDocument()
+    })
+
+    test('hides players with no games in the selected season', () => {
+      render(
+        <PlayerRankings
+          players={playersWithInactive}
+          seasonStats={[
+            {
+              id: 'stat-1',
+              playerId: '1',
+              seasonId: 's1',
+              ranking: 1300,
+              matchesPlayed: 5,
+              wins: 3,
+              losses: 2,
+              goalsFor: 25,
+              goalsAgainst: 20,
+              createdAt: '2026-01-01T00:00:00Z',
+              updatedAt: '2026-01-01T00:00:00Z',
+            },
+          ]}
+        />,
+      )
+
+      // Only Alice has games this season; everyone else is hidden
+      expect(screen.getByText('Alice Johnson')).toBeInTheDocument()
+      expect(screen.queryByText('Bob Smith')).not.toBeInTheDocument()
+      expect(screen.queryByText('Charlie Brown')).not.toBeInTheDocument()
+      expect(screen.getByText('Show 3 players without games')).toBeInTheDocument()
+    })
+
+    test('shows no footer button when all players have games', () => {
+      render(<PlayerRankings players={mockPlayers} />)
+
+      expect(screen.queryByText(/without games/)).not.toBeInTheDocument()
+    })
   })
 })

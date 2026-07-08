@@ -75,7 +75,7 @@ test('registers a match via Pick Teams Smartly', async ({ page }) => {
   // Player pool step
   await expect(sheet.getByText('Player Pool (0)')).toBeVisible()
   await sheet.getByRole('button', { name: 'Select All' }).click()
-  await expect(sheet.getByText('Player Pool (10)')).toBeVisible()
+  await expect(sheet.getByText('Player Pool (12)')).toBeVisible()
   await sheet.getByRole('button', { name: 'Generate Balanced Teams' }).click()
 
   // Result step

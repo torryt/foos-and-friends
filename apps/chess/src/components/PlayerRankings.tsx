@@ -102,6 +102,7 @@ const PlayerRankings = ({
 }: PlayerRankingsProps) => {
   const [sortBy, setSortBy] = useState<SortOption>('elo')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [showInactive, setShowInactive] = useState(false)
 
   // Load saved preference from localStorage
   useEffect(() => {
@@ -168,6 +169,12 @@ const PlayerRankings = ({
     }
   }, [playersWithStats, sortBy])
 
+  // Players with no games in the current scope are hidden by default; a
+  // footer button reveals them below the active list.
+  const activePlayers = sortedPlayers.filter((player) => player.matchesPlayed > 0)
+  const inactivePlayers = sortedPlayers.filter((player) => player.matchesPlayed === 0)
+  const visiblePlayers = showInactive ? [...activePlayers, ...inactivePlayers] : activePlayers
+
   return (
     <div className="bg-card backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
       <div className="p-4 border-b border-[var(--th-border)]">
@@ -217,7 +224,7 @@ const PlayerRankings = ({
 
       <div className="p-4">
         <div className="flex flex-col gap-2 max-w-4xl mx-auto">
-          {sortedPlayers.map((player, index) =>
+          {visiblePlayers.map((player, index) =>
             onPlayerClick ? (
               <button
                 key={player.id}
@@ -236,6 +243,17 @@ const PlayerRankings = ({
                 <PlayerCard player={player} index={index} sortBy={sortBy} />
               </div>
             ),
+          )}
+          {inactivePlayers.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowInactive(!showInactive)}
+              className="w-full py-3 text-sm text-secondary hover:bg-card-hover rounded-[var(--th-radius-md)] transition-colors"
+            >
+              {showInactive
+                ? 'Hide players without games'
+                : `Show ${inactivePlayers.length} ${inactivePlayers.length === 1 ? 'player' : 'players'} without games`}
+            </button>
           )}
         </div>
       </div>

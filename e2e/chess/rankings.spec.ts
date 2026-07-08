@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test'
 
-// Mock seed: group "Office Legends" (chess) with 10 players and 3 seasons.
-const SEEDED_PLAYERS = [
+// Mock seed: group "Office Legends" (chess) with 12 players and 3 seasons.
+// Solveig sits out Season 3; Torstein and Ragnhild never play, so all three
+// are hidden in the default Season 3 view until revealed.
+const ACTIVE_PLAYERS = [
   'Astrid',
   'Birger',
   'Dagny',
@@ -11,15 +13,34 @@ const SEEDED_PLAYERS = [
   'Ingeborg',
   'Leif',
   'Oddvar',
-  'Solveig',
 ]
+const HIDDEN_PLAYERS = ['Solveig', 'Torstein', 'Ragnhild']
 
 test('shows the seeded season rankings', async ({ page }) => {
   await page.goto('/')
 
   await expect(page.getByRole('heading', { name: 'Friend Rankings' })).toBeVisible()
 
-  for (const name of SEEDED_PLAYERS) {
+  for (const name of ACTIVE_PLAYERS) {
+    await expect(
+      page.getByRole('button', { name: `View match history for ${name}` }),
+    ).toBeVisible()
+  }
+})
+
+test('hides players without games until revealed', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'Friend Rankings' })).toBeVisible()
+
+  for (const name of HIDDEN_PLAYERS) {
+    await expect(
+      page.getByRole('button', { name: `View match history for ${name}` }),
+    ).toBeHidden()
+  }
+
+  await page.getByRole('button', { name: 'Show 3 players without games' }).click()
+
+  for (const name of HIDDEN_PLAYERS) {
     await expect(
       page.getByRole('button', { name: `View match history for ${name}` }),
     ).toBeVisible()

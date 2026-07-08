@@ -1,0 +1,59 @@
+name: Main Checks
+
+on:
+  push:
+    branches: [main]
+
+# Only one run at a time — a new push aborts the in-progress run
+concurrency:
+  group: main-checks
+  cancel-in-progress: true
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    name: Quality Checks
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linting
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test:run
+
+      - name: Run type check
+        run: pnpm typecheck
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

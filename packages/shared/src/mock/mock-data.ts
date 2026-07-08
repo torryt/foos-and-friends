@@ -67,6 +67,13 @@ const PLAYER_SEEDS: Array<{ name: string; avatar: string; department: string }> 
   { name: 'Solveig', avatar: '🚀', department: 'Engineering' },
 ]
 
+// Players who never play any matches — they exercise the "hidden until
+// revealed" behavior on the rankings page.
+const INACTIVE_PLAYER_SEEDS: Array<{ name: string; avatar: string; department: string }> = [
+  { name: 'Torstein', avatar: '🐢', department: 'Finance' },
+  { name: 'Ragnhild', avatar: '🐧', department: 'HR' },
+]
+
 export interface MockSeedOptions {
   sportType?: SportType
 }
@@ -125,10 +132,12 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
 
   // Three seasons: two finished, one active. Rankings reset to 1200 each
   // season, matching the real no-carry-over behavior.
+  // `sitOut` players have games in other seasons but none in that season, so
+  // they are hidden in that season's rankings but visible in all-time scope.
   const seasonWindows = [
-    { id: 'mock-season-1', name: 'Season 1', startDay: 90, endDay: 61, matches: 45 },
-    { id: 'mock-season-2', name: 'Season 2', startDay: 60, endDay: 31, matches: 50 },
-    { id: MOCK_SEASON_ID, name: 'Season 3', startDay: 30, endDay: 0, matches: 35 },
+    { id: 'mock-season-1', name: 'Season 1', startDay: 90, endDay: 61, matches: 45, sitOut: [] as string[] },
+    { id: 'mock-season-2', name: 'Season 2', startDay: 60, endDay: 31, matches: 50, sitOut: [] as string[] },
+    { id: MOCK_SEASON_ID, name: 'Season 3', startDay: 30, endDay: 0, matches: 35, sitOut: ['Solveig'] },
   ]
 
   const seasons: Season[] = seasonWindows.map((w, i) => {
@@ -148,7 +157,7 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     }
   })
 
-  const players: Player[] = PLAYER_SEEDS.map((p, i) => ({
+  const players: Player[] = [...PLAYER_SEEDS, ...INACTIVE_PLAYER_SEEDS].map((p, i) => ({
     id: `mock-player-${i + 1}`,
     name: p.name,
     ranking: 1200,
@@ -170,14 +179,19 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
   let rankings = new Map(players.map((p) => [p.id, 1200]))
   let matchId = 1
 
+  const activePlayers = players.filter((p) =>
+    PLAYER_SEEDS.some((seed) => seed.name === p.name),
+  )
+
   for (const window of seasonWindows) {
     rankings = new Map(players.map((p) => [p.id, 1200]))
+    const pool = activePlayers.filter((p) => !window.sitOut.includes(p.name))
 
     for (let i = 0; i < window.matches; i++) {
       const matchType: MatchType = isChess ? '1v1' : rng() < 0.2 ? '1v1' : '2v2'
       const playerCount = matchType === '1v1' ? 2 : 4
 
-      const shuffled = [...players].sort(() => rng() - 0.5)
+      const shuffled = [...pool].sort(() => rng() - 0.5)
       const [p1, p2, p3, p4] = shuffled.slice(0, playerCount)
       const team1 = matchType === '1v1' ? [p1] : [p1, p3]
       const team2 = matchType === '1v1' ? [p2] : [p2, p4]

@@ -10,6 +10,8 @@ test('adds a new player who appears in the rankings', async ({ page }) => {
   await sheet.getByPlaceholder("Enter player's name...").fill('Playwright Pete')
   await sheet.getByRole('button', { name: 'Add Player', exact: true }).click()
 
+  // New players have no games yet, so they sit behind the reveal button
+  await page.getByRole('button', { name: /Show \d+ players without games/ }).click()
   await expect(
     page.getByRole('button', { name: 'View match history for Playwright Pete' }),
   ).toBeVisible()
