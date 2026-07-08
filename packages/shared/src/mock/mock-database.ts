@@ -22,6 +22,7 @@ import type {
   Season,
   SportType,
 } from '../types/index.ts'
+import { replayContinuousElo } from '../utils/elo.ts'
 import { buildMockSeed, MOCK_USER_ID, type MockSeed, type MockSeedOptions } from './mock-data.ts'
 
 // In-memory Database implementation for local development without Supabase.
@@ -345,8 +346,12 @@ export class MockDatabase implements Database {
   // ===== PLAYER OPERATIONS =====
 
   async getPlayersByGroup(groupId: string): Promise<DatabaseListResult<Player>> {
+    // All-time ranking is the continuous unresetting chain, mirroring
+    // compute_player_global_ranking in the real database (migration 020)
+    const series = replayContinuousElo(this.matches.filter((m) => m.groupId === groupId))
     const players = this.players
       .filter((p) => p.groupId === groupId)
+      .map((p) => ({ ...p, ranking: series.get(p.id)?.at(-1)?.ranking ?? 1200 }))
       .sort((a, b) => b.ranking - a.ranking)
     return { data: players, error: null }
   }

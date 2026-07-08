@@ -12,13 +12,41 @@ import type { PlayerRankingHistory } from '@/hooks/useRankingHistory'
 interface PlayerRankingVisualizationProps {
   mainPlayerHistory: PlayerRankingHistory[]
   comparisonHistories: PlayerRankingHistory[]
+  // Continuous all-time chains (no 1200 reset at season boundaries), matching
+  // the all-time rating in the profile header
+  continuousMainHistory: PlayerRankingHistory[]
+  continuousComparisonHistories: PlayerRankingHistory[]
   players: Player[]
   playerId: string
+}
+
+type ChartScope = 'season' | 'alltime'
+
+// Restrict a stored (per-season resetting) history to a single season's chain
+function sliceHistoryToSeason(
+  history: PlayerRankingHistory,
+  seasonId: string | undefined,
+): PlayerRankingHistory {
+  const data = history.data
+    .filter((point) => point.seasonId === seasonId)
+    .map((point, index) => ({ ...point, matchNumber: index + 1 }))
+  const rankings = data.map((point) => point.ranking)
+  const currentRanking = rankings.at(-1) ?? 1200
+  return {
+    ...history,
+    data,
+    initialRanking: data[0]?.ranking ?? 1200,
+    currentRanking,
+    highestRanking: rankings.length > 0 ? Math.max(...rankings) : currentRanking,
+    lowestRanking: rankings.length > 0 ? Math.min(...rankings) : currentRanking,
+  }
 }
 
 export function PlayerRankingVisualization({
   mainPlayerHistory,
   comparisonHistories,
+  continuousMainHistory,
+  continuousComparisonHistories,
   players,
   playerId,
 }: PlayerRankingVisualizationProps) {
@@ -26,8 +54,18 @@ export function PlayerRankingVisualization({
   const [showComparison, setShowComparison] = useState(false)
   const [comparePlayerIds, setComparePlayerIds] = useState<string[]>([])
   const [showPlayerSelector, setShowPlayerSelector] = useState(false)
-  const { seasons } = useSeasonContext()
+  const [chartScope, setChartScope] = useState<ChartScope>('alltime')
+  const { seasons, currentSeason } = useSeasonContext()
 
+  const seasonScope = chartScope === 'season'
+  const displayMainHistory = seasonScope
+    ? mainPlayerHistory[0] && sliceHistoryToSeason(mainPlayerHistory[0], currentSeason?.id)
+    : continuousMainHistory[0]
+  const displayComparisonHistories = seasonScope
+    ? comparisonHistories.map((h) => sliceHistoryToSeason(h, currentSeason?.id))
+    : continuousComparisonHistories
+
+  // Season markers/finals describe the stored (resetting) chain
   const history = mainPlayerHistory[0]
 
   // Where each new season starts within the (all-time, chronological) history,
@@ -117,6 +155,30 @@ export function PlayerRankingVisualization({
         {/* Chart Content */}
         {showRankingChart && (
           <>
+            {/* Scope toggle: continuous all-time chain vs selected season's chain */}
+            <div className="flex rounded-lg bg-card-hover p-1 w-fit">
+              {(
+                [
+                  ['alltime', 'All-time'],
+                  ['season', currentSeason?.name ?? 'Season'],
+                ] as [ChartScope, string][]
+              ).map(([scope, label]) => (
+                <button
+                  key={scope}
+                  type="button"
+                  onClick={() => setChartScope(scope)}
+                  className={cn(
+                    'px-4 min-h-11 text-sm font-medium rounded-md transition-colors',
+                    chartScope === scope
+                      ? 'bg-card text-primary shadow-sm'
+                      : 'text-muted hover:text-primary',
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
             {showComparison ? (
               <div>
                 {/* Player selector for comparison */}
@@ -184,22 +246,22 @@ export function PlayerRankingVisualization({
 
                 {/* Comparison chart */}
                 <PlayerComparisonChart
-                  histories={comparisonHistories.filter(
+                  histories={displayComparisonHistories.filter(
                     (h) => h.playerId === playerId || comparePlayerIds.includes(h.playerId),
                   )}
                   height={300}
                   showLegend={false}
                 />
               </div>
-            ) : (
+            ) : displayMainHistory && displayMainHistory.data.length > 0 ? (
               /* Single player chart */
               <>
                 <RankingChart
-                  history={mainPlayerHistory[0]}
+                  history={displayMainHistory}
                   height={250}
-                  seasonMarkers={seasonMarkers}
+                  seasonMarkers={seasonScope ? [] : seasonMarkers}
                 />
-                {seasonFinals.length > 1 && (
+                {!seasonScope && seasonFinals.length > 1 && (
                   <div className="flex gap-2 mt-3 overflow-x-auto">
                     {seasonFinals.map((final) => (
                       <div
@@ -222,27 +284,31 @@ export function PlayerRankingVisualization({
                   </div>
                 )}
               </>
+            ) : (
+              <p className="text-sm text-muted text-center py-8">
+                No matches in {currentSeason?.name ?? 'this season'}
+              </p>
             )}
 
             {/* Chart statistics */}
-            {mainPlayerHistory[0].data.length > 0 && (
+            {displayMainHistory && displayMainHistory.data.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
                 <div className="text-center p-2 bg-card-hover rounded-lg">
                   <p className="text-xs text-muted">Highest</p>
                   <p className="text-sm font-semibold text-primary">
-                    {mainPlayerHistory[0].highestRanking}
+                    {displayMainHistory.highestRanking}
                   </p>
                 </div>
                 <div className="text-center p-2 bg-card-hover rounded-lg">
                   <p className="text-xs text-muted">Lowest</p>
                   <p className="text-sm font-semibold text-primary">
-                    {mainPlayerHistory[0].lowestRanking}
+                    {displayMainHistory.lowestRanking}
                   </p>
                 </div>
                 <div className="text-center p-2 bg-card-hover rounded-lg">
                   <p className="text-xs text-muted">Current</p>
                   <p className="text-sm font-semibold text-primary">
-                    {mainPlayerHistory[0].currentRanking}
+                    {displayMainHistory.currentRanking}
                   </p>
                 </div>
                 <div className="text-center p-2 bg-card-hover rounded-lg">
@@ -250,19 +316,17 @@ export function PlayerRankingVisualization({
                   <p
                     className={cn(
                       'text-sm font-semibold',
-                      mainPlayerHistory[0].currentRanking - mainPlayerHistory[0].initialRanking > 0
+                      displayMainHistory.currentRanking - displayMainHistory.initialRanking > 0
                         ? 'text-[var(--th-win)]'
-                        : mainPlayerHistory[0].currentRanking -
-                              mainPlayerHistory[0].initialRanking <
-                            0
+                        : displayMainHistory.currentRanking - displayMainHistory.initialRanking < 0
                           ? 'text-[var(--th-loss)]'
                           : 'text-primary',
                     )}
                   >
-                    {mainPlayerHistory[0].currentRanking - mainPlayerHistory[0].initialRanking > 0
+                    {displayMainHistory.currentRanking - displayMainHistory.initialRanking > 0
                       ? '+'
                       : ''}
-                    {mainPlayerHistory[0].currentRanking - mainPlayerHistory[0].initialRanking}
+                    {displayMainHistory.currentRanking - displayMainHistory.initialRanking}
                   </p>
                 </div>
               </div>

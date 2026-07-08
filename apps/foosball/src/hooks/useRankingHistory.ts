@@ -1,4 +1,4 @@
-import type { Match, Player } from '@foos/shared'
+import { type Match, type Player, replayContinuousElo } from '@foos/shared'
 import { useMemo } from 'react'
 
 export interface RankingDataPoint {
@@ -98,6 +98,60 @@ export function useRankingHistory(
           currentRanking: player.ranking,
           highestRanking: Math.max(highestRanking, player.ranking),
           lowestRanking: Math.min(lowestRanking, player.ranking),
+        }
+      })
+      .filter((history): history is PlayerRankingHistory => history !== null)
+  }, [playerId, matches, players])
+}
+
+// Continuous all-time ranking history: replays the whole group's match history
+// as one unbroken ELO chain (no 1200 reset at season boundaries), matching the
+// all-time rating shown in the profile header. Same shape as useRankingHistory.
+export function useContinuousRankingHistory(
+  playerId: string | string[],
+  matches: Match[],
+  players: Player[],
+): PlayerRankingHistory[] {
+  return useMemo(() => {
+    const playerIds = Array.isArray(playerId) ? playerId : [playerId]
+    const series = replayContinuousElo(matches)
+    const matchById = new Map(matches.map((m) => [m.id, m]))
+
+    return playerIds
+      .map((id) => {
+        const player = players.find((p) => p.id === id)
+        if (!player) return null
+
+        const dataPoints: RankingDataPoint[] = (series.get(id) ?? []).map((point, index) => {
+          const match = matchById.get(point.matchId)
+          const wasInTeam1 = match?.team1[0].id === id || match?.team1[1]?.id === id
+          const won = match
+            ? wasInTeam1
+              ? match.score1 > match.score2
+              : match.score2 > match.score1
+            : false
+          return {
+            matchNumber: index + 1,
+            date: match?.date ?? '',
+            ranking: point.ranking,
+            matchId: point.matchId,
+            result: won ? 'win' : 'loss',
+            score: match ? `${match.score1}-${match.score2}` : '',
+            seasonId: match?.seasonId,
+          }
+        })
+
+        const rankings = dataPoints.map((dp) => dp.ranking)
+        const currentRanking = rankings.at(-1) ?? 1200
+        return {
+          playerId: id,
+          playerName: player.name,
+          playerAvatar: player.avatar,
+          initialRanking: dataPoints[0]?.ranking ?? 1200,
+          data: dataPoints,
+          currentRanking,
+          highestRanking: rankings.length > 0 ? Math.max(...rankings) : currentRanking,
+          lowestRanking: rankings.length > 0 ? Math.min(...rankings) : currentRanking,
         }
       })
       .filter((history): history is PlayerRankingHistory => history !== null)

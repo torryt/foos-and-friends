@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/Card'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 import { useGameLogic } from '@/hooks/useGameLogic'
 import { usePositionStats } from '@/hooks/usePositionStats'
-import { useRankingHistory } from '@/hooks/useRankingHistory'
+import { useContinuousRankingHistory, useRankingHistory } from '@/hooks/useRankingHistory'
 
 export const Route = createFileRoute('/players/$playerId')({
   component: PlayerProfile,
@@ -37,6 +37,9 @@ function PlayerProfile() {
   ]
   const allPlayerHistories = useRankingHistory(allPlayerIds, allMatches, players)
   const mainPlayerHistory = allPlayerHistories.filter((h) => h.playerId === playerId)
+  // Continuous all-time chains (no season resets), matching the header's all-time ELO
+  const continuousHistories = useContinuousRankingHistory(allPlayerIds, allMatches, players)
+  const continuousMainHistory = continuousHistories.filter((h) => h.playerId === playerId)
 
   // Scroll to top when navigating to a different player
   useEffect(() => {
@@ -150,6 +153,8 @@ function PlayerProfile() {
       <PlayerRankingVisualization
         mainPlayerHistory={mainPlayerHistory}
         comparisonHistories={allPlayerHistories}
+        continuousMainHistory={continuousMainHistory}
+        continuousComparisonHistories={continuousHistories}
         players={players}
         playerId={playerId}
       />

@@ -1,29 +1,6 @@
 import type { Database } from '../lib/database.ts'
 import type { Match, MatchType, Player, PlayerSeasonStats } from '../types/index.ts'
-
-// Default ranking for new players or players with no matches in a season
-const DEFAULT_RANKING = 1200
-
-// ELO Configuration - Asymmetric K-factors for slight inflation
-const K_FACTOR_WINNER = 35 // Winners get more points (+9% vs standard K=32)
-const K_FACTOR_LOSER = 29 // Losers lose fewer points (-9% vs standard K=32)
-const K_FACTOR_DRAW = 32 // Standard ELO K-factor for draws (remis)
-// Net result: ~3-8 points inflation per match while maintaining competitive balance
-
-type MatchResult = 'win' | 'loss' | 'draw'
-
-// Calculate new ranking using inflationary ELO system
-const calculateNewRanking = (
-  playerRanking: number,
-  opponentRanking: number,
-  result: MatchResult,
-) => {
-  const K = result === 'win' ? K_FACTOR_WINNER : result === 'loss' ? K_FACTOR_LOSER : K_FACTOR_DRAW
-  const expectedScore = 1 / (1 + 10 ** ((opponentRanking - playerRanking) / 400))
-  const actualScore = result === 'win' ? 1 : result === 'draw' ? 0.5 : 0
-  const newRanking = playerRanking + K * (actualScore - expectedScore)
-  return Math.max(800, Math.min(2400, Math.round(newRanking)))
-}
+import { calculateNewRanking, DEFAULT_RANKING, type MatchResult } from '../utils/elo.ts'
 
 export class MatchesService {
   private db: Database

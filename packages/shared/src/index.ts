@@ -62,5 +62,6 @@ export { ThemePicker } from './theme/ThemePicker.tsx'
 export { useChartTheme } from './theme/useChartTheme.ts'
 export * from './types/index.ts'
 // Utils
+export * from './utils/elo.ts'
 export * from './utils/matchmaking.ts'
 export * from './utils/streakCalculations.ts'
