@@ -22,7 +22,7 @@ import type {
   Season,
   SportType,
 } from '../types/index.ts'
-import { buildMockSeed, MOCK_USER_ID, type MockSeed } from './mock-data.ts'
+import { buildMockSeed, MOCK_USER_ID, type MockSeed, type MockSeedOptions } from './mock-data.ts'
 
 // In-memory Database implementation for local development without Supabase.
 // Season stats are computed from match history, mirroring the
@@ -655,6 +655,6 @@ export class MockDatabase implements Database {
 }
 
 // Factory: a MockDatabase pre-seeded with a group, season, players, and match history
-export function createMockDatabase(): MockDatabase {
-  return new MockDatabase(buildMockSeed())
+export function createMockDatabase(options?: MockSeedOptions): MockDatabase {
+  return new MockDatabase(buildMockSeed(options))
 }

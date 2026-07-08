@@ -24,6 +24,7 @@ export const SeasonPill = () => {
         type="button"
         onClick={() => setShowSheet(true)}
         title={`${currentSeason.name}${isLive ? ' (live)' : ' (ended)'}`}
+        aria-label={`${currentSeason.name}${isLive ? ' (live)' : ' (ended)'}`}
         className={`min-h-11 px-2.5 md:px-3 py-2 rounded-[var(--th-radius-md)] border transition-colors flex items-center gap-1.5 ${
           isLive
             ? 'bg-accent-subtle border-[var(--th-sport-primary)] text-[var(--th-sport-primary)] hover:opacity-80'

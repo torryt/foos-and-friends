@@ -44,6 +44,7 @@ export {
   MOCK_USER,
   MOCK_USER_ID,
   type MockSeed,
+  type MockSeedOptions,
 } from './mock/mock-data.ts'
 export { createMockDatabase, MockDatabase } from './mock/mock-database.ts'
 // Test utilities

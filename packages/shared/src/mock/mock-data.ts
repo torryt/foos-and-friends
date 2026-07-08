@@ -7,6 +7,7 @@ import type {
   Player,
   PlayerMatchStats,
   Season,
+  SportType,
 } from '../types/index.ts'
 
 export const MOCK_USER_ID = 'mock-user-1'
@@ -66,7 +67,13 @@ const PLAYER_SEEDS: Array<{ name: string; avatar: string; department: string }> 
   { name: 'Solveig', avatar: '🚀', department: 'Engineering' },
 ]
 
-export const buildMockSeed = (): MockSeed => {
+export interface MockSeedOptions {
+  sportType?: SportType
+}
+
+export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
+  const sportType = options?.sportType ?? 'foosball'
+  const isChess = sportType === 'chess'
   const rng = mulberry32(42)
   const now = new Date()
   const daysAgo = (days: number) => {
@@ -86,9 +93,9 @@ export const buildMockSeed = (): MockSeed => {
     maxMembers: 50,
     createdAt: daysAgo(90).toISOString(),
     updatedAt: daysAgo(90).toISOString(),
-    sportType: 'foosball',
-    supportedMatchTypes: ['1v1', '2v2'],
-    targetScore: 10,
+    sportType,
+    supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
+    targetScore: isChess ? 1 : 10,
   }
 
   const membership: GroupMembership = {
@@ -167,7 +174,7 @@ export const buildMockSeed = (): MockSeed => {
     rankings = new Map(players.map((p) => [p.id, 1200]))
 
     for (let i = 0; i < window.matches; i++) {
-      const matchType: MatchType = rng() < 0.2 ? '1v1' : '2v2'
+      const matchType: MatchType = isChess ? '1v1' : rng() < 0.2 ? '1v1' : '2v2'
       const playerCount = matchType === '1v1' ? 2 : 4
 
       const shuffled = [...players].sort(() => rng() - 0.5)
@@ -183,9 +190,10 @@ export const buildMockSeed = (): MockSeed => {
       // Better-ranked team wins more often
       const team1WinProb = 1 / (1 + 10 ** ((team2Avg - team1Avg) / 400))
       const team1Won = rng() < team1WinProb
-      const loserScore = Math.floor(rng() * 9)
-      const score1 = team1Won ? 10 : loserScore
-      const score2 = team1Won ? loserScore : 10
+      // Chess records 1-0 results; foosball plays to the group's target score
+      const loserScore = isChess ? 0 : Math.floor(rng() * 9)
+      const score1 = team1Won ? group.targetScore : loserScore
+      const score2 = team1Won ? loserScore : group.targetScore
 
       const playerStats: PlayerMatchStats[] = []
       for (const p of team1) {

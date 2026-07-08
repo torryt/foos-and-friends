@@ -7,6 +7,7 @@
     "dev:foos": "pnpm --filter @foos/foosball dev",
     "dev:foos:mock": "pnpm --filter @foos/foosball dev:mock",
     "dev:chess": "pnpm --filter @foos/chess dev",
+    "dev:chess:mock": "pnpm --filter @foos/chess dev:mock",
     "build": "pnpm -r build",
     "build:foos": "pnpm --filter @foos/foosball build",
     "build:chess": "pnpm --filter @foos/chess build",
@@ -16,9 +17,12 @@
     "format": "pnpm -r format",
     "test": "pnpm -r test",
     "test:run": "pnpm -r test:run",
-    "test:coverage": "pnpm -r test:coverage"
+    "test:coverage": "pnpm -r test:coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.2.0"
+    "@faker-js/faker": "^10.2.0",
+    "@playwright/test": "^1.61.1"
   }
 }

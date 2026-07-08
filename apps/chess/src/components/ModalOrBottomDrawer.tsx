@@ -29,6 +29,8 @@ export const ModalOrBottomDrawer = ({
       />
       {/* Content */}
       <div
+        role="dialog"
+        aria-modal="true"
         className={`relative w-full overflow-hidden sm:max-h-[90vh] sm:rounded-2xl ${fullHeight ? 'h-dvh rounded-none' : 'max-h-dvh rounded-t-2xl'} ${className}`}
       >
         {children}

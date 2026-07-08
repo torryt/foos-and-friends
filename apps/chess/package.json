@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mock": "VITE_MOCK_DATA=true vite",
     "build": "tsgo -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsgo -b",

@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Playwright
+test-results/
+playwright-report/
+
 # User added
 settings.local.json
 .vite

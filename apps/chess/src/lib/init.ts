@@ -2,6 +2,7 @@
 import {
   createGroupService,
   createMatchesService,
+  createMockDatabase,
   createPlayerSeasonStatsService,
   createPlayersService,
   createSeasonsService,
@@ -9,14 +10,21 @@ import {
   initSupabase,
 } from '@foos/shared'
 
-// Initialize Supabase with environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+// Mock mode: run the app against an in-memory database, no Supabase needed.
+// Enable with `pnpm dev:chess:mock` (sets VITE_MOCK_DATA=true).
+export const isMockMode = import.meta.env.VITE_MOCK_DATA === 'true'
 
-export const supabase = initSupabase(supabaseUrl, supabaseAnonKey)
+// Initialize Supabase with environment variables.
+// In mock mode the client is created with dummy credentials and never contacted.
+const supabaseUrl = isMockMode ? 'https://mock.invalid' : import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseAnonKey = isMockMode ? 'mock-anon-key' : import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+
+export const supabase = initSupabase(supabaseUrl, supabaseAnonKey, { mockMode: isMockMode })
 
 // Create database instance
-export const database = createSupabaseDatabase()
+export const database = isMockMode
+  ? createMockDatabase({ sportType: 'chess' })
+  : createSupabaseDatabase()
 
 // Create service instances
 export const groupService = createGroupService(database)
