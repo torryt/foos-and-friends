@@ -177,7 +177,7 @@ export function PlayerRelationshipStats({
 
   return (
     <Card className="p-4 bg-card backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h3 className="font-semibold text-primary flex items-center gap-2">
           <Users className="w-5 h-5 text-[var(--th-sport-primary)]" />
           Relationships
@@ -195,7 +195,7 @@ export function PlayerRelationshipStats({
                 : 'text-muted hover:text-primary',
             )}
           >
-            Teammates ({relationshipData.teammates.length})
+            Teammates
           </button>
           <button
             type="button"
@@ -207,7 +207,7 @@ export function PlayerRelationshipStats({
                 : 'text-muted hover:text-primary',
             )}
           >
-            Opponents ({relationshipData.opponents.length})
+            Opponents
           </button>
         </div>
       </div>

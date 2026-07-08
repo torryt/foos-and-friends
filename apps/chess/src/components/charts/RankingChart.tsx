@@ -72,6 +72,7 @@ export function RankingChart({
 }: RankingChartProps) {
   const chartId = React.useId()
   const [isMobile, setIsMobile] = React.useState(false)
+  const [containerWidth, setContainerWidth] = React.useState(0)
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const chartTheme = useChartTheme()
 
@@ -82,6 +83,14 @@ export function RankingChart({
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  React.useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const observer = new ResizeObserver(() => setContainerWidth(el.clientWidth))
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
   // Add initial point if we have data
@@ -98,23 +107,27 @@ export function RankingChart({
         ]
       : []
 
-  // On mobile with > 10 matches, enable horizontal scrolling
+  // Horizontal scrolling kicks in past 10 matches on mobile, 50 on desktop
   const MOBILE_VISIBLE_POINTS = 10
-  const needsScroll = isMobile && allChartData.length > MOBILE_VISIBLE_POINTS
+  const DESKTOP_VISIBLE_POINTS = 50
+  const visiblePoints = isMobile ? MOBILE_VISIBLE_POINTS : DESKTOP_VISIBLE_POINTS
+  const needsScroll = allChartData.length > visiblePoints
 
-  // Calculate chart width for scrolling on mobile
-  // Each point needs ~60px width to be clearly visible
+  // Mobile: ~60px per point so each dot is clearly tappable.
+  // Desktop: size so at most DESKTOP_VISIBLE_POINTS fit in the viewport.
   const POINT_WIDTH = 60
   const chartWidth = needsScroll
-    ? Math.max(allChartData.length * POINT_WIDTH, 600) // Minimum 600px width
+    ? isMobile
+      ? Math.max(allChartData.length * POINT_WIDTH, 600) // Minimum 600px width
+      : Math.max(allChartData.length * (containerWidth / DESKTOP_VISIBLE_POINTS), containerWidth)
     : '100%'
 
-  // Scroll to the right (most recent) on mount when scrolling is needed
+  // Scroll to the right (most recent) once sizing settles when scrolling is needed
   React.useEffect(() => {
     if (needsScroll && scrollRef.current) {
       scrollRef.current.scrollLeft = scrollRef.current.scrollWidth - scrollRef.current.clientWidth
     }
-  }, [needsScroll])
+  }, [needsScroll, chartWidth])
 
   if (!history.data || history.data.length === 0) {
     return (

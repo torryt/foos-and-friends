@@ -173,8 +173,8 @@ describe('PlayerRelationshipStats', () => {
       <PlayerRelationshipStats playerId="player1" players={mockPlayers} matches={mockMatches} />,
     )
 
-    expect(screen.getByText('Teammates (2)')).toBeInTheDocument()
-    expect(screen.getByText('Opponents (1)')).toBeInTheDocument()
+    expect(screen.getByText('Teammates')).toBeInTheDocument()
+    expect(screen.getByText('Opponents')).toBeInTheDocument()
     expect(screen.getAllByText('Bob')).toHaveLength(2) // Bob appears as teammate and in summary
     expect(screen.getAllByText('Charlie')).toHaveLength(2) // Charlie appears as teammate and in summary
   })
@@ -187,7 +187,7 @@ describe('PlayerRelationshipStats', () => {
       <PlayerRelationshipStats playerId="player1" players={mockPlayers} matches={mockMatches} />,
     )
 
-    fireEvent.click(screen.getByText('Opponents (1)'))
+    fireEvent.click(screen.getByText('Opponents'))
 
     // Should show opponents content
     expect(screen.getAllByText('Bob')).toHaveLength(2) // Bob appears as opponent and in summary
@@ -249,7 +249,7 @@ describe('PlayerRelationshipStats', () => {
       <PlayerRelationshipStats playerId="player1" players={mockPlayers} matches={mockMatches} />,
     )
 
-    fireEvent.click(screen.getByText('Opponents (1)'))
+    fireEvent.click(screen.getByText('Opponents'))
     expect(screen.getByText('Biggest Rival')).toBeInTheDocument()
   })
 
