@@ -1,9 +1,11 @@
 import type { FriendGroup } from '@foos/shared'
-import { Loader, Settings, X } from 'lucide-react'
+import { Flame, Loader, Plus, Settings, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
+import { useSeasonContext } from '@/contexts/SeasonContext'
 import { useToast } from '@/hooks/useToast'
 import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
+import { NewSeasonWizard } from './NewSeasonWizard'
 
 const TARGET_SCORE_PRESETS = [5, 8, 10, 15]
 
@@ -21,12 +23,19 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
   const [useCustomScore, setUseCustomScore] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showSeasonWizard, setShowSeasonWizard] = useState(false)
   const nameId = useId()
   const descriptionId = useId()
   const customScoreId = useId()
 
-  const { updateGroup } = useGroupContext()
+  const { updateGroup, currentGroup } = useGroupContext()
+  const { seasons } = useSeasonContext()
   const { toast } = useToast()
+
+  // The season wizard operates on the currently selected group (via
+  // SeasonContext), so only offer it when editing that group.
+  const activeSeason = seasons.find((s) => s.isActive)
+  const canManageSeasons = !!group && group.id === currentGroup?.id && !!group.isOwner
 
   // Sync form state when the modal opens for a group
   useEffect(() => {
@@ -204,6 +213,29 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
             )}
           </div>
 
+          {canManageSeasons && activeSeason && (
+            <div className="pt-4 border-t border-[var(--th-border-subtle)]">
+              <span className="block text-sm font-medium text-primary mb-1">Season</span>
+              <p className="text-xs text-secondary mb-2 flex items-center gap-1.5">
+                <Flame size={12} className="text-[var(--th-sport-primary)]" aria-hidden="true" />
+                {activeSeason.name} is live
+              </p>
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => setShowSeasonWizard(true)}
+                className="w-full min-h-11 px-4 py-2 border border-[var(--th-border)] text-primary rounded-[var(--th-radius-md)] font-semibold text-sm hover:bg-card-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <Plus size={16} />
+                Start new season
+              </button>
+              <p className="text-xs text-muted mt-2">
+                Archives {activeSeason.name} and resets all rankings to 1200. Only visible to you as
+                group owner.
+              </p>
+            </div>
+          )}
+
           {error && (
             <div className="p-3 bg-card-hover border border-[var(--th-border)] rounded-[var(--th-radius-md)]">
               <p className="text-[var(--th-loss)] text-sm">{error}</p>
@@ -236,6 +268,16 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
           </div>
         </form>
       </div>
+
+      {showSeasonWizard && (
+        <NewSeasonWizard
+          onClose={() => setShowSeasonWizard(false)}
+          onDone={() => {
+            setShowSeasonWizard(false)
+            onClose()
+          }}
+        />
+      )}
     </ModalOrBottomDrawer>
   )
 }

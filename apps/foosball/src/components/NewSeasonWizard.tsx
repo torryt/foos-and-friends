@@ -153,7 +153,7 @@ export const NewSeasonWizard = ({ onClose, onDone }: NewSeasonWizardProps) => {
                       {leaderName ? `${leaderName} is crowned champion` : 'The leader is crowned'}
                     </p>
                     <p className="text-secondary">
-                      Final standings stay browsable from the season switcher.
+                      Final standings stay browsable from the rankings page.
                     </p>
                   </div>
                 </div>

@@ -3,6 +3,7 @@ import {
   ChevronDown,
   ChevronUp,
   Clipboard,
+  Flame,
   LogOut,
   Plus,
   Trash2,
@@ -14,6 +15,7 @@ import { useClickOutside } from '@foos/shared'
 import { useRef, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useToast } from '@/hooks/useToast'
+import { NewSeasonWizard } from './NewSeasonWizard'
 
 interface GroupSelectorProps {
   onCreateGroup?: () => void
@@ -30,6 +32,7 @@ export const GroupSelector = ({
 }: GroupSelectorProps) => {
   const { currentGroup, userGroups, switchGroup, loading } = useGroupContext()
   const [isOpen, setIsOpen] = useState(false)
+  const [showSeasonWizard, setShowSeasonWizard] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const { toast } = useToast()
   const navigate = useNavigate()
@@ -170,6 +173,22 @@ export const GroupSelector = ({
                         </button>
                       )}
 
+                      {/* Start New Season - owner only, current group only (the
+                          season wizard operates on the selected group) */}
+                      {group.isOwner && isCurrent && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowSeasonWizard(true)
+                            setIsOpen(false)
+                          }}
+                          className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700"
+                        >
+                          <Flame size={14} className="text-gray-500" />
+                          Start New Season
+                        </button>
+                      )}
+
                       {/* Copy Invite Link */}
                       <button
                         type="button"
@@ -242,6 +261,13 @@ export const GroupSelector = ({
             </div>
           </div>
         </div>
+      )}
+
+      {showSeasonWizard && (
+        <NewSeasonWizard
+          onClose={() => setShowSeasonWizard(false)}
+          onDone={() => setShowSeasonWizard(false)}
+        />
       )}
     </div>
   )
