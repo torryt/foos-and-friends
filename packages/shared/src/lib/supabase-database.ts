@@ -135,6 +135,7 @@ const dbMatchToMatch = async (
     date: dbMatch.match_date,
     time: dbMatch.match_time,
     groupId: dbMatch.group_id,
+    seasonId: dbMatch.season_id,
     recordedBy: dbMatch.recorded_by,
     createdAt: dbMatch.created_at,
     playerStats,
