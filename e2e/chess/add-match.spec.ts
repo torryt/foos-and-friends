@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
-import { modal, newestMatchCard } from '../utils'
+import { modal, newestMatchCard, visibleText } from '../utils'
 
 const startMatch = async (page: Page, white: string, black: string): Promise<Locator> => {
   await page.getByRole('button', { name: 'Add Match' }).click()
@@ -32,7 +32,9 @@ test('registers a decisive 1v1 match', async ({ page }) => {
   await expect(page.getByText('Match added successfully!')).toBeVisible()
 
   await page.getByRole('link', { name: 'Match History' }).click()
-  await expect(newestMatchCard(page).getByText('Astrid wins!')).toBeVisible()
+  // Desktop card announces the winner; the mobile row shows the 1–0 score
+  await expect(visibleText(newestMatchCard(page), /Astrid wins!|1\s*[–-]\s*0/)).toBeVisible()
+  await expect(visibleText(newestMatchCard(page), 'Astrid')).toBeVisible()
 })
 
 test('registers a draw', async ({ page }) => {
@@ -45,6 +47,6 @@ test('registers a draw', async ({ page }) => {
   await expect(page.getByText('Match added successfully!')).toBeVisible()
 
   await page.getByRole('link', { name: 'Match History' }).click()
-  await expect(newestMatchCard(page).getByText('½-½')).toBeVisible()
-  await expect(newestMatchCard(page).getByText('Dagny')).toBeVisible()
+  await expect(visibleText(newestMatchCard(page), /½\s*[–-]\s*½/)).toBeVisible()
+  await expect(visibleText(newestMatchCard(page), 'Dagny')).toBeVisible()
 })

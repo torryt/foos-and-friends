@@ -1,6 +1,6 @@
 import type { FriendGroup, GroupMember, GroupSettingsUpdate, SportType } from '@foos/shared'
 import type { ReactNode } from 'react'
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { groupService } from '@/lib/init'
 
@@ -86,6 +86,16 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Guard async state updates: getUserGroups can resolve after unmount
+  // (e.g. test teardown), where setState would hit a dead environment.
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
   // Load user's groups
   const refreshGroups = useCallback(async () => {
     if (!isAuthenticated || !user) return
@@ -95,6 +105,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
 
     try {
       const result = await groupService.getUserGroups(user.id, SPORT_TYPE)
+      if (!mountedRef.current) return
 
       if (result.error) {
         setError(result.error)
@@ -124,11 +135,12 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         })
       }
     } catch (err) {
+      if (!mountedRef.current) return
       setError(err instanceof Error ? err.message : 'Failed to load groups')
       setUserGroups([])
       setCurrentGroup(null)
     } finally {
-      setLoading(false)
+      if (mountedRef.current) setLoading(false)
     }
   }, [isAuthenticated, user])
 
