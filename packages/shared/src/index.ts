@@ -57,8 +57,8 @@ export {
   type TestServices,
 } from './test/test-database.ts'
 // Theme
-export { type ThemeName, ThemeProvider, useTheme } from './theme/ThemeContext.tsx'
-export { ThemePicker } from './theme/ThemePicker.tsx'
+export { type ThemeMode, type ThemeName, ThemeProvider, useTheme } from './theme/ThemeContext.tsx'
+export { AppearanceSelector } from './theme/AppearanceSelector.tsx'
 export { useChartTheme } from './theme/useChartTheme.ts'
 export * from './types/index.ts'
 // Utils

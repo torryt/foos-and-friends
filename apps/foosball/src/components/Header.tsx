@@ -1,4 +1,4 @@
-import { type AuthUser, ThemePicker, useClickOutside } from '@foos/shared'
+import { type AuthUser, useClickOutside } from '@foos/shared'
 import { Link } from '@tanstack/react-router'
 import { LogOut, Settings, User, Users, Zap } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -127,11 +127,6 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                                 {user.email.split('@')[0]}
                               </div>
                               <div className="text-xs text-muted truncate">{user.email}</div>
-                            </div>
-
-                            {/* Theme picker */}
-                            <div className="border-b border-[var(--th-border)]">
-                              <ThemePicker onSelect={() => setShowProfileDropdown(false)} />
                             </div>
 
                             {/* Actions section */}

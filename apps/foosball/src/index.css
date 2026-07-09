@@ -16,18 +16,6 @@
   --th-sport-secondary-hover-to: oklch(49.6% 0.265 301.924); /* purple-700 */
 }
 
-[data-theme='cleansport'] {
-  --th-sport-from: #0af0c0;
-  --th-sport-to: #ff6b5a;
-  --th-sport-primary: #0af0c0;
-  --th-sport-hover-from: #08d4a8;
-  --th-sport-hover-to: #e85a4a;
-  --th-sport-secondary-from: #0af0c0;
-  --th-sport-secondary-to: #0af0c0;
-  --th-sport-secondary-hover-from: #08d4a8;
-  --th-sport-secondary-hover-to: #08d4a8;
-}
-
 [data-theme='neonarcade'] {
   --th-sport-from: #ff5c8a;
   --th-sport-to: #53e8ff;
