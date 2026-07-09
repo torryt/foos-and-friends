@@ -117,12 +117,12 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check match details
-      expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
+      // Check match details (rendered in both the mobile row and desktop card)
+      expect(screen.getAllByText('2024-01-15 at 14:30')).toHaveLength(2)
 
-      // Check player names
-      expect(screen.getByText('Alice')).toBeInTheDocument()
-      expect(screen.getByText('Bob')).toBeInTheDocument()
+      // Check player names (mobile row + desktop card)
+      expect(screen.getAllByText('Alice')).toHaveLength(2)
+      expect(screen.getAllByText('Bob')).toHaveLength(2)
 
       // Check winner/loser labels (Alice won since score1 > score2)
       expect(screen.getByText('Winner')).toBeInTheDocument()
@@ -139,11 +139,12 @@ describe('MatchHistory', () => {
       )
 
       // Check that post-game rankings and changes are displayed
-      expect(screen.getByText('1220')).toBeInTheDocument() // Alice post-game
-      expect(screen.getByText('+20')).toBeInTheDocument() // Alice change
+      // (mobile row + desktop card both render them)
+      expect(screen.getAllByText('1220')).toHaveLength(2) // Alice post-game
+      expect(screen.getAllByText('+20')).toHaveLength(2) // Alice change
 
-      expect(screen.getByText('1318')).toBeInTheDocument() // Bob post-game
-      expect(screen.getByText('+18')).toBeInTheDocument() // Bob change
+      expect(screen.getAllByText('1318')).toHaveLength(2) // Bob post-game
+      expect(screen.getAllByText('+18')).toHaveLength(2) // Bob change
     })
 
     it('shows trending icons for ranking changes', () => {
@@ -156,7 +157,7 @@ describe('MatchHistory', () => {
       )
 
       const positiveChanges = screen.getAllByText(/^\+\d+$/)
-      expect(positiveChanges).toHaveLength(2)
+      expect(positiveChanges).toHaveLength(4) // 2 players × mobile row + desktop card
     })
   })
 
@@ -184,8 +185,8 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check match details
-      expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
+      // Check match details (rendered in both the mobile row and desktop card)
+      expect(screen.getAllByText('2024-01-10 at 16:45')).toHaveLength(2)
 
       // Check winner label (Bob won since score2 > score1)
       expect(screen.getByText('Winner')).toBeInTheDocument()
@@ -237,9 +238,9 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check both matches are rendered
-      expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
-      expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
+      // Check both matches are rendered (mobile row + desktop card each)
+      expect(screen.getAllByText('2024-01-15 at 14:30')).toHaveLength(2)
+      expect(screen.getAllByText('2024-01-10 at 16:45')).toHaveLength(2)
 
       // Check winner labels are shown
       const winners = screen.getAllByText('Winner')
@@ -273,12 +274,12 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check that post-game rankings are displayed
-      expect(screen.getByText('1200')).toBeInTheDocument()
-      expect(screen.getByText('1300')).toBeInTheDocument()
+      // Check that post-game rankings are displayed (mobile row + desktop card)
+      expect(screen.getAllByText('1200')).toHaveLength(2)
+      expect(screen.getAllByText('1300')).toHaveLength(2)
 
       // Check that zero changes are displayed
-      expect(screen.getAllByText('0')).toHaveLength(2)
+      expect(screen.getAllByText('0')).toHaveLength(4)
 
       // Winner label should be shown
       expect(screen.getByText('Winner')).toBeInTheDocument()
@@ -315,8 +316,8 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Click on Alice
-      const aliceButton = screen.getByRole('button', { name: /alice/i })
+      // Click on Alice (first match is the mobile row's button)
+      const aliceButton = screen.getAllByRole('button', { name: /alice/i })[0]
       await user.click(aliceButton)
 
       expect(mockOnPlayerClick).toHaveBeenCalledWith('player1')

@@ -81,6 +81,67 @@ const PlayerWithStats = ({ player, match, teamColor, onPlayerClick }: PlayerWith
   )
 }
 
+interface MobileMatchRowProps {
+  match: Match
+  seasonTag?: string
+  onPlayerClick?: (playerId: string) => void
+}
+
+// Compact flat row shown below the sm breakpoint: winner first (bold),
+// loser muted, result stripe on the left edge, score in a fixed right column.
+const MobileMatchRow = ({ match, seasonTag, onPlayerClick }: MobileMatchRowProps) => {
+  const isDraw = match.score1 === match.score2
+  const white = { player: match.team1[0], score: match.score1 }
+  const black = { player: match.team2[0], score: match.score2 }
+  const ordered = !isDraw && black.score > white.score ? [black, white] : [white, black]
+
+  return (
+    <div className="relative px-4 py-3 sm:hidden">
+      <span
+        className={`absolute left-1 top-3 bottom-3 w-[3px] rounded-full ${
+          isDraw ? 'bg-[var(--th-draw)]' : 'bg-[var(--th-win)]'
+        }`}
+      />
+      <div className="text-xs text-muted flex items-center gap-2 flex-wrap mb-1.5">
+        <span className="flex items-center gap-1">
+          <Clock size={12} />
+          {match.date} at {match.time}
+        </span>
+        {seasonTag && (
+          <span className="px-1.5 py-0.5 rounded border border-[var(--th-border)] text-[10px] font-semibold">
+            {seasonTag}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
+          {ordered.map((side, i) => (
+            <PlayerWithStats
+              key={side.player.id}
+              player={side.player}
+              match={match}
+              teamColor={
+                isDraw ? 'text-primary' : i === 0 ? 'text-primary font-semibold' : 'text-secondary'
+              }
+              onPlayerClick={onPlayerClick}
+            />
+          ))}
+        </div>
+        <div className="text-lg font-bold tabular-nums whitespace-nowrap shrink-0">
+          {isDraw ? (
+            <span className="text-[var(--th-draw)]">½–½</span>
+          ) : (
+            <>
+              <span className="text-primary">1</span>
+              <span className="text-muted">–0</span>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const MatchHistory = ({
   matches,
   allMatches,
@@ -134,7 +195,7 @@ const MatchHistory = ({
   const isArchived = !!currentSeason && !currentSeason.isActive
 
   return (
-    <div className="bg-card backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
+    <div className="-mx-4 sm:mx-0 sm:bg-card sm:backdrop-blur-sm sm:rounded-[var(--th-radius-lg)] sm:shadow-theme-card sm:border sm:border-[var(--th-border-subtle)]">
       <div className="p-4 border-b border-[var(--th-border)]">
         <div className="flex justify-between items-center">
           <div>
@@ -254,7 +315,7 @@ const MatchHistory = ({
         )}
       </div>
 
-      <div className="p-4">
+      <div className={filteredMatches.length === 0 ? 'p-4' : 'sm:p-4'}>
         {filteredMatches.length === 0 ? (
           <Alert className="bg-accent-subtle border-[var(--th-border)]">
             <Target className="h-4 w-4 text-[var(--th-sport-primary)]" />
@@ -263,136 +324,147 @@ const MatchHistory = ({
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="grid grid-cols-1 gap-3 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:gap-3 max-w-2xl mx-auto">
             {filteredMatches.map((match) => (
               <div
                 key={match.id}
-                className="bg-card border border-[var(--th-border-subtle)] rounded-[var(--th-radius-lg)] p-3 shadow-sm"
+                className="border-b border-[var(--th-border-subtle)] sm:bg-card sm:border sm:rounded-[var(--th-radius-lg)] sm:p-3 sm:shadow-sm"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="text-xs text-secondary flex items-center gap-2 flex-wrap">
-                    <span className="flex items-center gap-1">
-                      <Clock size={12} />
-                      {match.date} at {match.time}
-                    </span>
-                    {allTime && match.seasonId && seasonNameById.has(match.seasonId) && (
-                      <span className="px-1.5 py-0.5 rounded border border-[var(--th-border)] text-muted text-[10px] font-semibold">
-                        {seasonNameById.get(match.seasonId)}
+                <MobileMatchRow
+                  match={match}
+                  seasonTag={
+                    allTime && match.seasonId ? seasonNameById.get(match.seasonId) : undefined
+                  }
+                  onPlayerClick={onPlayerClick}
+                />
+                <div className="hidden sm:block">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="text-xs text-secondary flex items-center gap-2 flex-wrap">
+                      <span className="flex items-center gap-1">
+                        <Clock size={12} />
+                        {match.date} at {match.time}
                       </span>
-                    )}
+                      {allTime && match.seasonId && seasonNameById.has(match.seasonId) && (
+                        <span className="px-1.5 py-0.5 rounded border border-[var(--th-border)] text-muted text-[10px] font-semibold">
+                          {seasonNameById.get(match.seasonId)}
+                        </span>
+                      )}
+                    </div>
+                    <span className="bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800 px-2 py-1 rounded-full text-xs font-bold">
+                      Completed
+                    </span>
                   </div>
-                  <span className="bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800 px-2 py-1 rounded-full text-xs font-bold">
-                    Completed
-                  </span>
-                </div>
 
-                <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
-                  {(() => {
-                    const isDraw = match.score1 === match.score2
-                    return (
-                      <>
-                        <div
-                          className={`text-center p-2 rounded-[var(--th-radius-md)] border ${
-                            isDraw
-                              ? 'bg-[var(--th-draw)]/10 border-[var(--th-draw)]/30'
-                              : match.score1 > match.score2
-                                ? 'bg-[var(--th-win)]/10 border-[var(--th-win)]/30'
-                                : 'bg-[var(--th-loss)]/10 border-[var(--th-loss)]/30'
-                          }`}
-                        >
+                  <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
+                    {(() => {
+                      const isDraw = match.score1 === match.score2
+                      return (
+                        <>
                           <div
-                            className={`font-bold mb-1 text-xs ${
+                            className={`text-center p-2 rounded-[var(--th-radius-md)] border ${
                               isDraw
-                                ? 'text-[var(--th-draw)]'
+                                ? 'bg-[var(--th-draw)]/10 border-[var(--th-draw)]/30'
                                 : match.score1 > match.score2
-                                  ? 'text-[var(--th-win)]'
-                                  : 'text-[var(--th-loss)]'
+                                  ? 'bg-[var(--th-win)]/10 border-[var(--th-win)]/30'
+                                  : 'bg-[var(--th-loss)]/10 border-[var(--th-loss)]/30'
                             }`}
                           >
-                            {isDraw ? 'Draw' : match.score1 > match.score2 ? 'Winner' : 'White ♔'}
-                          </div>
-                          <div className="space-y-1">
-                            <PlayerWithStats
-                              player={match.team1[0]}
-                              match={match}
-                              teamColor={
+                            <div
+                              className={`font-bold mb-1 text-xs ${
                                 isDraw
                                   ? 'text-[var(--th-draw)]'
                                   : match.score1 > match.score2
                                     ? 'text-[var(--th-win)]'
                                     : 'text-[var(--th-loss)]'
-                              }
-                              onPlayerClick={onPlayerClick}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="text-center order-first sm:order-none">
-                          {isDraw ? (
-                            <>
-                              <div className="mx-auto mb-1 text-xl font-bold text-[var(--th-draw)]">
-                                ½-½
-                              </div>
-                              <div className="text-xs font-medium text-[var(--th-draw)]">Draw</div>
-                            </>
-                          ) : (
-                            <>
-                              <Crown
-                                className={`mx-auto mb-1 ${
-                                  match.score1 > match.score2
-                                    ? 'text-[var(--th-win)]'
-                                    : 'text-muted'
-                                }`}
-                                size={24}
+                              }`}
+                            >
+                              {isDraw ? 'Draw' : match.score1 > match.score2 ? 'Winner' : 'White ♔'}
+                            </div>
+                            <div className="space-y-1">
+                              <PlayerWithStats
+                                player={match.team1[0]}
+                                match={match}
+                                teamColor={
+                                  isDraw
+                                    ? 'text-[var(--th-draw)]'
+                                    : match.score1 > match.score2
+                                      ? 'text-[var(--th-win)]'
+                                      : 'text-[var(--th-loss)]'
+                                }
+                                onPlayerClick={onPlayerClick}
                               />
-                              <div className="text-xs font-medium text-[var(--th-win)]">
-                                {match.score1 > match.score2
-                                  ? match.team1[0].name
-                                  : match.team2[0].name}{' '}
-                                wins!
-                              </div>
-                            </>
-                          )}
-                        </div>
+                            </div>
+                          </div>
 
-                        <div
-                          className={`text-center p-2 rounded-[var(--th-radius-md)] border ${
-                            isDraw
-                              ? 'bg-[var(--th-draw)]/10 border-[var(--th-draw)]/30'
-                              : match.score2 > match.score1
-                                ? 'bg-[var(--th-win)]/10 border-[var(--th-win)]/30'
-                                : 'bg-[var(--th-loss)]/10 border-[var(--th-loss)]/30'
-                          }`}
-                        >
+                          <div className="text-center order-first sm:order-none">
+                            {isDraw ? (
+                              <>
+                                <div className="mx-auto mb-1 text-xl font-bold text-[var(--th-draw)]">
+                                  ½-½
+                                </div>
+                                <div className="text-xs font-medium text-[var(--th-draw)]">
+                                  Draw
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <Crown
+                                  className={`mx-auto mb-1 ${
+                                    match.score1 > match.score2
+                                      ? 'text-[var(--th-win)]'
+                                      : 'text-muted'
+                                  }`}
+                                  size={24}
+                                />
+                                <div className="text-xs font-medium text-[var(--th-win)]">
+                                  {match.score1 > match.score2
+                                    ? match.team1[0].name
+                                    : match.team2[0].name}{' '}
+                                  wins!
+                                </div>
+                              </>
+                            )}
+                          </div>
+
                           <div
-                            className={`font-bold mb-1 text-xs ${
+                            className={`text-center p-2 rounded-[var(--th-radius-md)] border ${
                               isDraw
-                                ? 'text-[var(--th-draw)]'
+                                ? 'bg-[var(--th-draw)]/10 border-[var(--th-draw)]/30'
                                 : match.score2 > match.score1
-                                  ? 'text-[var(--th-win)]'
-                                  : 'text-[var(--th-loss)]'
+                                  ? 'bg-[var(--th-win)]/10 border-[var(--th-win)]/30'
+                                  : 'bg-[var(--th-loss)]/10 border-[var(--th-loss)]/30'
                             }`}
                           >
-                            {isDraw ? 'Draw' : match.score2 > match.score1 ? 'Winner' : 'Black ♚'}
-                          </div>
-                          <div className="space-y-1">
-                            <PlayerWithStats
-                              player={match.team2[0]}
-                              match={match}
-                              teamColor={
+                            <div
+                              className={`font-bold mb-1 text-xs ${
                                 isDraw
                                   ? 'text-[var(--th-draw)]'
                                   : match.score2 > match.score1
                                     ? 'text-[var(--th-win)]'
                                     : 'text-[var(--th-loss)]'
-                              }
-                              onPlayerClick={onPlayerClick}
-                            />
+                              }`}
+                            >
+                              {isDraw ? 'Draw' : match.score2 > match.score1 ? 'Winner' : 'Black ♚'}
+                            </div>
+                            <div className="space-y-1">
+                              <PlayerWithStats
+                                player={match.team2[0]}
+                                match={match}
+                                teamColor={
+                                  isDraw
+                                    ? 'text-[var(--th-draw)]'
+                                    : match.score2 > match.score1
+                                      ? 'text-[var(--th-win)]'
+                                      : 'text-[var(--th-loss)]'
+                                }
+                                onPlayerClick={onPlayerClick}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      </>
-                    )
-                  })()}
+                        </>
+                      )
+                    })()}
+                  </div>
                 </div>
               </div>
             ))}

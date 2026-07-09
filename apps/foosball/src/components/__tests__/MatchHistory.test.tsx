@@ -150,16 +150,16 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check match details
-      expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
+      // Check match details (rendered in both the mobile row and desktop card)
+      expect(screen.getAllByText('2024-01-15 at 14:30')).toHaveLength(2)
       expect(screen.getByText('10 - 8')).toBeInTheDocument()
       expect(screen.getByText('🎉 Team 1 wins! Great game, friends!')).toBeInTheDocument()
 
-      // Check player names
-      expect(screen.getByText('Alice')).toBeInTheDocument()
-      expect(screen.getByText('Bob')).toBeInTheDocument()
-      expect(screen.getByText('Charlie')).toBeInTheDocument()
-      expect(screen.getByText('Diana')).toBeInTheDocument()
+      // Check player names (mobile row + desktop card)
+      expect(screen.getAllByText('Alice')).toHaveLength(2)
+      expect(screen.getAllByText('Bob')).toHaveLength(2)
+      expect(screen.getAllByText('Charlie')).toHaveLength(2)
+      expect(screen.getAllByText('Diana')).toHaveLength(2)
 
       // Check pre-game team averages (both teams have same average by coincidence)
       expect(screen.getAllByText('Pre-Avg: 1250')).toHaveLength(2) // Team 1: (1200 + 1300) / 2 = 1250, Team 2: (1100 + 1400) / 2 = 1250
@@ -208,8 +208,8 @@ describe('MatchHistory', () => {
       const positiveChanges = screen.getAllByText(/^\+\d+$/)
       const negativeChanges = screen.getAllByText(/^-\d+$/)
 
-      expect(positiveChanges).toHaveLength(2) // Alice and Bob gained points
-      expect(negativeChanges).toHaveLength(2) // Charlie and Diana lost points
+      expect(positiveChanges).toHaveLength(3) // Alice and Bob gained points + mobile team delta
+      expect(negativeChanges).toHaveLength(3) // Charlie and Diana lost points + mobile team delta
     })
   })
 
@@ -237,8 +237,8 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check match details
-      expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
+      // Check match details (rendered in both the mobile row and desktop card)
+      expect(screen.getAllByText('2024-01-10 at 16:45')).toHaveLength(2)
       expect(screen.getByText('7 - 10')).toBeInTheDocument()
       expect(screen.getByText('🎉 Team 2 wins! Great game, friends!')).toBeInTheDocument()
 
@@ -294,9 +294,9 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Check both matches are rendered
-      expect(screen.getByText('2024-01-15 at 14:30')).toBeInTheDocument()
-      expect(screen.getByText('2024-01-10 at 16:45')).toBeInTheDocument()
+      // Check both matches are rendered (mobile row + desktop card each)
+      expect(screen.getAllByText('2024-01-15 at 14:30')).toHaveLength(2)
+      expect(screen.getAllByText('2024-01-10 at 16:45')).toHaveLength(2)
       expect(screen.getByText('10 - 8')).toBeInTheDocument()
       expect(screen.getByText('5 - 10')).toBeInTheDocument()
 
@@ -395,11 +395,11 @@ describe('MatchHistory', () => {
       // Team 1: Alice (attacker), Bob (defender)
       // Team 2: Charlie (attacker), Diana (defender)
 
-      // All player names should be visible
-      expect(screen.getByText('Alice')).toBeInTheDocument()
-      expect(screen.getByText('Bob')).toBeInTheDocument()
-      expect(screen.getByText('Charlie')).toBeInTheDocument()
-      expect(screen.getByText('Diana')).toBeInTheDocument()
+      // All player names should be visible (mobile row + desktop card)
+      expect(screen.getAllByText('Alice')).toHaveLength(2)
+      expect(screen.getAllByText('Bob')).toHaveLength(2)
+      expect(screen.getAllByText('Charlie')).toHaveLength(2)
+      expect(screen.getAllByText('Diana')).toHaveLength(2)
 
       // Position icons should be present with players
       const playerElements = screen
@@ -412,7 +412,7 @@ describe('MatchHistory', () => {
             button.textContent?.includes('Diana'),
         )
 
-      expect(playerElements).toHaveLength(4) // All 4 players
+      expect(playerElements).toHaveLength(8) // All 4 players, in mobile row and desktop card
     })
 
     it('maintains position consistency across multiple matches', () => {
@@ -459,8 +459,8 @@ describe('MatchHistory', () => {
         />,
       )
 
-      // Click on Alice (should be first player button)
-      const aliceButton = screen.getByRole('button', { name: /alice/i })
+      // Click on Alice (first match is the mobile row's button)
+      const aliceButton = screen.getAllByRole('button', { name: /alice/i })[0]
       await user.click(aliceButton)
 
       expect(mockOnPlayerClick).toHaveBeenCalledWith('player1')
