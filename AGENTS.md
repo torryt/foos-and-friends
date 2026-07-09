@@ -18,10 +18,13 @@ Two apps — foosball and chess — track players, matches, and ELO rankings, sh
 - `pnpm test` — Vitest watch mode
 - `pnpm test:run` — Vitest single run
 - `pnpm test:coverage` — Vitest with coverage
+- `pnpm test:e2e` — Playwright e2e suite (4 projects: mobile 390px + desktop, per app; servers auto-start in mock mode)
 
 **Always use `pnpm`, not `npm` or `yarn`.**
 
 **After any non-trivial feature or fix, run in order and fix failures: `pnpm lint`, `pnpm test:run`, `pnpm format`, `pnpm typecheck`.**
+
+**Before merging UI changes, also run `pnpm test:e2e` — CI gates on it, `pnpm test:run` does not cover it, and the mobile projects catch content hidden per-breakpoint. One-time setup: `pnpm exec playwright install chromium`.**
 
 ## Project Structure
 
