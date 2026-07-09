@@ -45,6 +45,11 @@ const captureApp = async (browser, colorScheme) => {
     await page.evaluate(() => {
       for (const el of document.querySelectorAll('.TanStackRouterDevtools')) el.remove()
     })
+    // Snap any in-flight CSS transitions to their final state (e.g. the
+    // selected tab's text-color transition) so shots are deterministic.
+    await page.addStyleTag({
+      content: '* { transition: none !important; animation: none !important; }',
+    })
     await page.screenshot({ path: path.join(SHOTS_DIR, `${name}-${colorScheme}.png`) })
   }
 
@@ -142,7 +147,14 @@ try {
   await mkdir(SHOTS_DIR, { recursive: true })
   await waitForServer(BASE_URL)
 
-  const browser = await chromium.launch()
+  // Scoped font setup (Roboto + emoji fallback for `system-ui`) — see the
+  // comment in landing-shots-fonts.conf.
+  const browser = await chromium.launch({
+    env: {
+      ...process.env,
+      FONTCONFIG_FILE: path.resolve(import.meta.dirname, 'landing-shots-fonts.conf'),
+    },
+  })
   await captureApp(browser, 'light')
   await captureApp(browser, 'dark')
   await captureOgImage(browser)
