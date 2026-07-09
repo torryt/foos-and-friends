@@ -12,15 +12,18 @@ All apps share the same backend infrastructure and user accounts, but maintain s
 ## Features
 
 - **Private Friend Groups** - Invite-only groups with shareable codes and data isolation
-- **ELO Rankings** - Sophisticated ranking system supporting both 1v1 and 2v2 matches
-- **1v1 & 2v2 Support** - Flexible match types per group (configurable per sport)
-- **Match Tracking** - Record games with team compositions and automatic rating updates
-- **Competitive Seasons** - Independent rankings per season with historical data
+- **ELO Rankings** - Seasonal rankings supporting both 1v1 and 2v2 matches, plus a continuous all-time rating that spans seasons
+- **1v1 & 2v2 Support** - Flexible match types per group (configurable per sport); chess also supports draws (remis)
+- **Match Tracking** - Winner-first score entry with per-group target score and automatic rating updates
+- **Competitive Seasons** - Independent rankings per season with a season picker and historical views
 - **Skill Tiers** - 5 ranking tiers with color-coded badges (Beginner to Master)
+- **Member Management** - Group owners and admins can promote and remove members
 - **Invite Links** - Shareable links for seamless user onboarding
 - **Real-time Updates** - Supabase integration with Row Level Security
-- **Magic Link Auth** - Passwordless authentication via Supabase
-- **Responsive Design** - Tailwind CSS with custom gradients
+- **Email/Password & Magic Link Auth** - Shared Supabase auth module with password reset
+- **Light/Dark/System Appearance** - Appearance setting with a distinct dark theme
+- **Mobile-First Responsive Design** - Tailwind CSS, built for small screens first
+- **Mock Mode** - Full local development and e2e testing without a Supabase project
 - **PWA Support** - Installable progressive web apps
 
 ## Quick Start
@@ -38,14 +41,20 @@ All apps share the same backend infrastructure and user accounts, but maintain s
    pnpm install
    ```
 
-2. **Environment setup**
+2. **Start in mock mode (no Supabase needed)**
+   ```bash
+   pnpm dev:foos:mock    # Foosball with in-memory mock data
+   pnpm dev:chess:mock   # Chess with in-memory mock data
+   ```
+   Mock mode seeds three seasons of sample data — the fastest way to explore the apps or work on UI.
+
+3. **Or connect to Supabase**
    Create `.env.local` in each app directory (`apps/foosball/` and `apps/chess/`):
    ```
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
-
-3. **Start development**
+   Then start normally:
    ```bash
    # Foosball app (port 5173)
    pnpm dev:foos
@@ -72,23 +81,29 @@ All apps share the same backend infrastructure and user accounts, but maintain s
 
 ```bash
 # Development
-pnpm dev:foos       # Start foosball dev server
+pnpm dev:foos           # Start foosball dev server
 pnpm dev:chess          # Start chess dev server
+pnpm dev:foos:mock      # Foosball with in-memory mock data (no Supabase)
+pnpm dev:chess:mock     # Chess with in-memory mock data (no Supabase)
 
 # Building & Testing
 pnpm build              # Build all apps
-pnpm build:foos     # Build foosball app
+pnpm build:foos         # Build foosball app
 pnpm build:chess        # Build chess app
 pnpm typecheck          # Run TypeScript compiler check
 pnpm test               # Run tests in watch mode
 pnpm test:run           # Run all tests once
 pnpm test:coverage      # Run tests with coverage
+pnpm test:e2e           # Playwright e2e suite (mobile + desktop, per app; mock mode)
+pnpm test:e2e:ui        # Playwright UI mode
 
 # Code Quality
 pnpm lint               # Check code with Biome
 pnpm lint:fix           # Auto-fix linting issues
 pnpm format             # Format code with Biome
 ```
+
+One-time e2e setup: `pnpm exec playwright install chromium`.
 
 ## Project Structure
 
@@ -99,6 +114,9 @@ foos-and-friends/
 │       ├── src/
 │       │   ├── lib/         # Database abstraction & Supabase client
 │       │   ├── services/    # Business logic services
+│       │   ├── auth/        # Shared auth UI & API (email/password + magic link)
+│       │   ├── theme/       # Appearance setting, design tokens, dark theme
+│       │   ├── mock/        # In-memory mock database & seed data
 │       │   ├── types/       # TypeScript interfaces
 │       │   ├── utils/       # ELO calculations, matchmaking
 │       │   ├── constants/   # Avatars, etc.
@@ -124,7 +142,9 @@ foos-and-friends/
 │   ├── 00_drop_and_create.sql
 │   └── migrations/
 │
+├── e2e/                     # Playwright e2e specs (per app)
 ├── docs/                    # Documentation
+├── playwright.config.ts     # E2E config (4 projects: mobile + desktop, per app)
 ├── package.json             # Workspace root
 └── pnpm-workspace.yaml      # Workspace configuration
 ```
@@ -138,7 +158,7 @@ foos-and-friends/
 - **Tailwind CSS v4** for styling
 - **TanStack Router** for type-safe routing
 - **Biome** for linting and formatting
-- **Vitest** + React Testing Library for testing
+- **Vitest** + React Testing Library for unit tests, **Playwright** for e2e
 - **pnpm workspaces** for monorepo management
 
 ### Multi-Sport Architecture
@@ -152,15 +172,20 @@ foos-and-friends/
 - **1v1 matches**: Direct player vs player ELO calculations
 - **2v2 matches**: Team-based ELO with averaged team ratings
 - **Separate rankings**: 1v1 and 2v2 rankings tracked independently per season via computed views
-- **Chess** defaults to 1v1 only; foosball supports both
+- **Chess** is 1v1 only and supports draws (remis); foosball supports both match types
+- **Target score**: points needed to win a game is configurable per group
 
 ### Authentication & Groups
-- **Magic Link Authentication** - Passwordless login via email
+- **Email/Password + Magic Link** - Shared auth module (`packages/shared/src/auth/`) with password reset flow
 - **Private Friend Groups** - Data isolation using Row Level Security (RLS)
+- **Roles** - `owner` / `admin` / `member`; owners and admins manage members from a dedicated page
 - **Invite System** - Shareable group codes for joining
 
+### Mock Mode
+Setting `VITE_MOCK_DATA=true` (the `dev:*:mock` scripts) replaces the Supabase client with an in-memory database seeded with three seasons of sample data. No credentials or network required — the Playwright e2e suite runs entirely on it.
+
 ### Data Flow
-1. **Authentication**: Magic link → Supabase session → AuthContext
+1. **Authentication**: Email/password or magic link → Supabase session → AuthContext
 2. **Group Selection**: User groups (filtered by sport_type) → GroupContext → Current group
 3. **Season Selection**: Group seasons → SeasonContext → Current season
 4. **Game Logic**: Service layer → useGameLogic → UI components
@@ -184,9 +209,9 @@ foos-and-friends/
 
 ## ELO Ranking System
 
-### How It Works
-- **K-factor**: Asymmetric (K_WINNER=35, K_LOSER=29) for slight ranking inflation
-- **Starting Rating**: 1200 (intermediate level)
+### How It Works (Seasonal)
+- **K-factor**: Asymmetric (K_WINNER=35, K_LOSER=29) for slight ranking inflation; draws use K=32
+- **Starting Rating**: 1200 (intermediate level), reset every new season
 - **Rating Bounds**: 800 minimum, 2400 maximum
 
 ### 1v1 ELO
@@ -197,6 +222,12 @@ foos-and-friends/
 - Team Rating = Average of both players' ratings
 - Each player's rating updated based on opposing team's average
 - All four players receive equal rating changes
+
+### All-Time ELO
+- Separate from seasonal rankings: the group's entire match history is replayed as one continuous chain, as if seasons never reset
+- Symmetric K=32, no rating clamp
+- Implemented in both `packages/shared/src/utils/elo.ts` (`replayContinuousElo`) and the database (migration 020) — the two must stay in sync
+- Player ranking graphs can toggle between season and all-time views
 
 ### Rating Tiers
 | Rating | Tier | Skill Level |
@@ -225,6 +256,7 @@ See `docs/DEPLOYMENT.md` for complete deployment guide.
 
 ### Testing
 - Run `pnpm test:run` before committing
+- Run `pnpm test:e2e` before merging UI changes — CI gates on it, and the mobile projects catch layout issues unit tests miss
 - Tests cover components, hooks, and integration scenarios
 - Test utilities available in `packages/shared/src/test/test-utils.tsx`
 
