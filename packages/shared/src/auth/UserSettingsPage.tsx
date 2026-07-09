@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ThemePicker } from '../theme/ThemePicker.tsx'
+import { AppearanceSelector } from '../theme/AppearanceSelector.tsx'
 import { useAuth } from './useAuth.ts'
 
 export const UserSettingsPage = () => {
@@ -73,8 +73,8 @@ export const UserSettingsPage = () => {
       </section>
 
       <section className="bg-card rounded-[var(--th-radius-md)] shadow-theme-card p-4">
-        <h3 className="text-sm font-semibold text-primary mb-1">Appearance</h3>
-        <ThemePicker />
+        <h3 className="text-sm font-semibold text-primary mb-2">Appearance</h3>
+        <AppearanceSelector />
       </section>
 
       <section className="bg-card rounded-[var(--th-radius-md)] shadow-theme-card p-4">
