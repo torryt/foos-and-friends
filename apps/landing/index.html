@@ -32,20 +32,79 @@
       href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Resolve the theme before first paint to avoid a flash; main.ts owns it from there -->
+    <script>
+      const saved = localStorage.getItem('ff-appearance')
+      document.documentElement.dataset.theme =
+        saved === 'dark' ||
+        (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+          ? 'dark'
+          : 'light'
+    </script>
   </head>
   <body class="bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100">
     <!-- Header -->
     <header class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
       <a href="/" class="flex min-h-11 items-center gap-2.5">
         <img src="/favicon.svg" alt="" class="h-8 w-8" />
-        <span class="font-display text-lg font-bold tracking-tight">Foos &amp; Friends</span>
+        <span class="font-display hidden text-lg font-bold tracking-tight whitespace-nowrap sm:inline"
+          >Foos &amp; Friends</span
+        >
       </a>
-      <a
-        href="%APP_URL%"
-        class="font-display flex min-h-11 items-center rounded-lg px-4 font-semibold text-stone-700 transition-colors hover:text-stone-950 dark:text-stone-300 dark:hover:text-white"
-      >
-        Sign in
-      </a>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="theme-switch" role="group" aria-label="Appearance">
+          <button type="button" data-appearance="light" aria-label="Light theme">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path
+                d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+              />
+            </svg>
+          </button>
+          <button type="button" data-appearance="system" aria-label="Match system theme">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect width="20" height="14" x="2" y="3" rx="2" />
+              <path d="M8 21h8m-4-4v4" />
+            </svg>
+          </button>
+          <button type="button" data-appearance="dark" aria-label="Dark theme">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+          </button>
+        </div>
+        <a
+          href="%APP_URL%"
+          class="font-display flex min-h-11 items-center rounded-lg px-2 font-semibold whitespace-nowrap text-stone-700 transition-colors hover:text-stone-950 sm:px-4 dark:text-stone-300 dark:hover:text-white"
+        >
+          Sign in
+        </a>
+      </div>
     </header>
 
     <main>

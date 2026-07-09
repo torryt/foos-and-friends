@@ -16,6 +16,27 @@ test('shows the pitch and points every CTA at the app', async ({ page }) => {
   }
 })
 
+test('theme switcher overrides the system, swaps screenshots and persists', async ({ page }) => {
+  await page.goto('/')
+
+  // Test contexts emulate a light OS; "system" (the default) follows it
+  const html = page.locator('html')
+  await expect(html).toHaveAttribute('data-theme', 'light')
+
+  await page.getByRole('button', { name: 'Dark theme' }).click()
+  await expect(html).toHaveAttribute('data-theme', 'dark')
+  await expect
+    .poll(() => page.locator('main img').first().evaluate((el: HTMLImageElement) => el.currentSrc))
+    .toContain('rankings-dark')
+
+  // The choice sticks across a reload
+  await page.reload()
+  await expect(html).toHaveAttribute('data-theme', 'dark')
+
+  await page.getByRole('button', { name: 'Match system theme' }).click()
+  await expect(html).toHaveAttribute('data-theme', 'light')
+})
+
 test('walks through the whole page without horizontal scroll', async ({ page }) => {
   await page.goto('/')
 

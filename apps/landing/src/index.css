@@ -1,6 +1,13 @@
 @import 'tailwindcss';
 
 /*
+ * Dark mode is driven by data-theme (set pre-paint in index.html, owned by
+ * main.ts) instead of prefers-color-scheme, so the header switcher can
+ * override the OS. "System" mode just resolves to light/dark in JS.
+ */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
  * Brand tokens, kept in sync by eye with the app (apps/foosball/src/index.css):
  * primary gradient orange-500 → red-600. The pitch green is landing-only —
  * it's the playfield color for the "how it works" section.
@@ -16,6 +23,11 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
   }
 
   body {
@@ -94,15 +106,63 @@
     border-color: var(--color-stone-400);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .cta-quiet {
-      color: var(--color-stone-300);
-      border-color: var(--color-stone-700);
-    }
+  [data-theme='dark'] .cta-quiet {
+    color: var(--color-stone-300);
+    border-color: var(--color-stone-700);
+  }
 
-    .cta-quiet:hover {
-      border-color: var(--color-stone-500);
-    }
+  [data-theme='dark'] .cta-quiet:hover {
+    border-color: var(--color-stone-500);
+  }
+
+  /* Light / System / Dark switcher — hidden without JS since it can't work */
+  html:not(.js) .theme-switch {
+    display: none;
+  }
+
+  .theme-switch {
+    display: flex;
+    padding: 0.125rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-stone-300);
+  }
+
+  .theme-switch button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    color: var(--color-stone-500);
+    cursor: pointer;
+  }
+
+  .theme-switch button:hover {
+    color: var(--color-stone-800);
+  }
+
+  .theme-switch button[aria-pressed='true'] {
+    background: var(--color-stone-200);
+    color: var(--color-stone-900);
+  }
+
+  .theme-switch svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  [data-theme='dark'] .theme-switch {
+    border-color: var(--color-stone-700);
+  }
+
+  [data-theme='dark'] .theme-switch button:hover {
+    color: var(--color-stone-200);
+  }
+
+  [data-theme='dark'] .theme-switch button[aria-pressed='true'] {
+    background: var(--color-stone-700);
+    color: white;
   }
 
   /* Phone frame around app screenshots */
@@ -123,11 +183,9 @@
     border-radius: 2rem;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .phone {
-      border-color: var(--color-stone-700);
-      background: var(--color-stone-700);
-    }
+  [data-theme='dark'] .phone {
+    border-color: var(--color-stone-700);
+    background: var(--color-stone-700);
   }
 
   /* The playfield: pitch green with the table's own markings */
