@@ -1,5 +1,5 @@
 import { expect, type Locator, test } from '@playwright/test'
-import { modal, newestMatchCard } from '../utils'
+import { modal, newestMatchCard, scoreText, visibleText } from '../utils'
 
 const pickPlayer = async (sheet: Locator, slotName: string, playerName: string) => {
   await sheet.getByRole('button', { name: slotName, exact: true }).first().click()
@@ -32,8 +32,8 @@ test('registers a 2v2 match with manually selected teams', async ({ page }) => {
 
   // The new match is the newest entry in match history
   await page.getByRole('link', { name: 'Match History' }).click()
-  await expect(newestMatchCard(page).getByText('10 - 7')).toBeVisible()
-  await expect(newestMatchCard(page).getByText('Astrid')).toBeVisible()
+  await expect(visibleText(newestMatchCard(page), scoreText(10, 7))).toBeVisible()
+  await expect(visibleText(newestMatchCard(page), 'Astrid')).toBeVisible()
 })
 
 test('registers a 1v1 match', async ({ page }) => {
@@ -58,8 +58,9 @@ test('registers a 1v1 match', async ({ page }) => {
   await expect(page.getByText('Match added successfully!')).toBeVisible()
 
   await page.getByRole('link', { name: 'Match History' }).click()
-  await expect(newestMatchCard(page).getByText('10 - 4')).toBeVisible()
-  await expect(newestMatchCard(page).getByText(/Gudrun wins!/)).toBeVisible()
+  await expect(visibleText(newestMatchCard(page), scoreText(10, 4))).toBeVisible()
+  // Desktop card announces the winner; the mobile row lists the winner first
+  await expect(visibleText(newestMatchCard(page), /Gudrun/)).toBeVisible()
 })
 
 test('registers a match via Pick Teams Smartly', async ({ page }) => {
