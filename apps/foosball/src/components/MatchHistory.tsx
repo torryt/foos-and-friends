@@ -92,6 +92,102 @@ const PlayerWithStats = ({
   )
 }
 
+interface MobileMatchRowProps {
+  match: Match
+  seasonTag?: string
+  onPlayerClick?: (playerId: string) => void
+}
+
+// Compact flat row shown below the sm breakpoint: winner team first (bold),
+// loser muted, result stripe on the left edge, score in a fixed right column.
+const MobileMatchRow = ({ match, seasonTag, onPlayerClick }: MobileMatchRowProps) => {
+  const isDraw = match.score1 === match.score2
+  const teams = [
+    { players: match.team1.filter((p): p is Player => !!p), score: match.score1 },
+    { players: match.team2.filter((p): p is Player => !!p), score: match.score2 },
+  ]
+  const ordered = isDraw ? teams : teams.toSorted((a, b) => b.score - a.score)
+
+  const teamDelta = (teamPlayers: Player[]): number | null => {
+    if (!match.playerStats) return null
+    const stats = teamPlayers
+      .map((p) => getPlayerStats(match, p.id))
+      .filter((s): s is PlayerMatchStats => !!s)
+    if (stats.length === 0) return null
+    return stats.reduce((sum, s) => sum + calculateRankingChange(s), 0)
+  }
+
+  return (
+    <div className="relative px-4 py-3 sm:hidden">
+      <span
+        className={`absolute left-1 top-3 bottom-3 w-[3px] rounded-full ${
+          isDraw ? 'bg-[var(--th-draw)]' : 'bg-[var(--th-win)]'
+        }`}
+      />
+      <div className="text-xs text-muted flex items-center gap-2 flex-wrap mb-1.5">
+        <span className="flex items-center gap-1">
+          <Clock size={12} />
+          {match.date} at {match.time}
+        </span>
+        {seasonTag && (
+          <span className="px-1.5 py-0.5 rounded border border-[var(--th-border)] text-[10px] font-semibold">
+            {seasonTag}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
+          {ordered.map((team) => {
+            const delta = teamDelta(team.players)
+            const won = !isDraw && team === ordered[0]
+            const nameClass = isDraw
+              ? 'text-primary'
+              : won
+                ? 'text-primary font-semibold'
+                : 'text-secondary'
+            return (
+              <div
+                key={team.players[0].id}
+                className="flex items-center justify-between gap-2 min-w-0"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  {team.players.map((p, j) => (
+                    <span key={p.id} className="flex items-center gap-1.5 min-w-0">
+                      {j > 0 && <span className="text-muted text-xs">&amp;</span>}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 min-w-0 bg-transparent border-none p-0 cursor-pointer"
+                        onClick={() => onPlayerClick?.(p.id)}
+                      >
+                        <span className="text-sm">{p.avatar}</span>
+                        <span className={`text-sm truncate ${nameClass}`}>{p.name}</span>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                {delta !== null && (
+                  <span
+                    className={`text-xs font-medium tabular-nums shrink-0 ${
+                      delta >= 0 ? 'text-[var(--th-win)]' : 'text-[var(--th-loss)]'
+                    }`}
+                  >
+                    {delta >= 0 ? '+' : ''}
+                    {delta}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+        <div className="text-lg font-bold tabular-nums whitespace-nowrap shrink-0">
+          <span className="text-primary">{ordered[0].score}</span>
+          <span className="text-muted">–{ordered[1].score}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const MatchHistory = ({
   matches,
   allMatches,
@@ -145,7 +241,7 @@ const MatchHistory = ({
   const isArchived = !!currentSeason && !currentSeason.isActive
 
   return (
-    <div className="bg-card classic:bg-white/80 backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
+    <div className="-mx-4 sm:mx-0 sm:bg-card sm:classic:bg-white/80 sm:backdrop-blur-sm sm:rounded-[var(--th-radius-lg)] sm:shadow-theme-card sm:border sm:border-[var(--th-border-subtle)]">
       <div className="p-4 border-b border-[var(--th-border)]">
         <div className="flex justify-between items-center">
           <div>
@@ -267,7 +363,7 @@ const MatchHistory = ({
         )}
       </div>
 
-      <div className="p-4">
+      <div className={filteredMatches.length === 0 ? 'p-4' : 'sm:p-4'}>
         {filteredMatches.length === 0 ? (
           <Alert className="bg-accent-subtle classic:bg-gradient-to-r classic:from-orange-50 classic:to-red-50 border-[var(--th-border)] classic:border-orange-200/50">
             <Target className="h-4 w-4 text-[var(--th-sport-primary)]" />
@@ -276,145 +372,156 @@ const MatchHistory = ({
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="grid grid-cols-1 gap-3 max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:gap-3 max-w-2xl mx-auto">
             {filteredMatches.map((match) => (
               <div
                 key={match.id}
-                className="bg-card classic:bg-gradient-to-br classic:from-white classic:to-slate-50 border border-[var(--th-border-subtle)] rounded-[var(--th-radius-lg)] p-3 shadow-sm"
+                className="border-b border-[var(--th-border-subtle)] sm:bg-card sm:classic:bg-gradient-to-br sm:classic:from-white sm:classic:to-slate-50 sm:border sm:rounded-[var(--th-radius-lg)] sm:p-3 sm:shadow-sm"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="text-xs text-secondary flex items-center gap-2 flex-wrap">
-                    <span className="flex items-center gap-1">
-                      <Clock size={12} />
-                      {match.date} at {match.time}
-                    </span>
-                    {allTime && match.seasonId && seasonNameById.has(match.seasonId) && (
-                      <span className="px-1.5 py-0.5 rounded border border-[var(--th-border)] text-muted text-[10px] font-semibold">
-                        {seasonNameById.get(match.seasonId)}
+                <MobileMatchRow
+                  match={match}
+                  seasonTag={
+                    allTime && match.seasonId ? seasonNameById.get(match.seasonId) : undefined
+                  }
+                  onPlayerClick={onPlayerClick}
+                />
+                <div className="hidden sm:block">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="text-xs text-secondary flex items-center gap-2 flex-wrap">
+                      <span className="flex items-center gap-1">
+                        <Clock size={12} />
+                        {match.date} at {match.time}
                       </span>
-                    )}
-                  </div>
-                  <span className="bg-accent-subtle classic:bg-gradient-to-r classic:from-emerald-100 classic:to-green-200 text-[var(--th-win)] classic:text-emerald-800 px-2 py-1 rounded-full text-xs font-bold border border-[var(--th-border)] classic:border-transparent">
-                    Completed
-                  </span>
-                </div>
-
-                <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
-                  <div className="text-center bg-card-hover classic:bg-gradient-to-br classic:from-blue-50 classic:to-cyan-50 p-2 rounded-lg border border-[var(--th-border)] classic:border-blue-200/50">
-                    <div className="font-bold text-[var(--th-accent)] classic:text-blue-800 mb-1 text-xs">
-                      {match.matchType === '1v1' ? 'Player 1' : 'Team 1'}
+                      {allTime && match.seasonId && seasonNameById.has(match.seasonId) && (
+                        <span className="px-1.5 py-0.5 rounded border border-[var(--th-border)] text-muted text-[10px] font-semibold">
+                          {seasonNameById.get(match.seasonId)}
+                        </span>
+                      )}
                     </div>
-                    <div className="space-y-1">
-                      <PlayerWithStats
-                        player={match.team1[0]}
-                        match={match}
-                        teamColor="text-[var(--th-accent)] classic:text-blue-700"
-                        position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
-                        onPlayerClick={onPlayerClick}
-                      />
-                      {match.team1[1] && (
+                    <span className="bg-accent-subtle classic:bg-gradient-to-r classic:from-emerald-100 classic:to-green-200 text-[var(--th-win)] classic:text-emerald-800 px-2 py-1 rounded-full text-xs font-bold border border-[var(--th-border)] classic:border-transparent">
+                      Completed
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:items-center">
+                    <div className="text-center bg-card-hover classic:bg-gradient-to-br classic:from-blue-50 classic:to-cyan-50 p-2 rounded-lg border border-[var(--th-border)] classic:border-blue-200/50">
+                      <div className="font-bold text-[var(--th-accent)] classic:text-blue-800 mb-1 text-xs">
+                        {match.matchType === '1v1' ? 'Player 1' : 'Team 1'}
+                      </div>
+                      <div className="space-y-1">
                         <PlayerWithStats
-                          player={match.team1[1]}
+                          player={match.team1[0]}
                           match={match}
                           teamColor="text-[var(--th-accent)] classic:text-blue-700"
-                          position="defender"
+                          position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
                           onPlayerClick={onPlayerClick}
                         />
-                      )}
-                    </div>
-                    {match.team1[1] && (
-                      <div className="text-xs bg-accent-subtle classic:bg-blue-100 text-[var(--th-accent)] classic:text-blue-600 px-1 py-0.5 rounded-full mt-1">
-                        {match.playerStats ? (
-                          <>
-                            Pre-Avg:{' '}
-                            {Math.round(
-                              ((getPlayerStats(match, match.team1[0].id)?.preGameRanking ||
-                                match.team1[0].ranking) +
-                                (getPlayerStats(match, match.team1[1].id)?.preGameRanking ||
-                                  match.team1[1].ranking)) /
-                                2,
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            Avg: {Math.round((match.team1[0].ranking + match.team1[1].ranking) / 2)}
-                          </>
+                        {match.team1[1] && (
+                          <PlayerWithStats
+                            player={match.team1[1]}
+                            match={match}
+                            teamColor="text-[var(--th-accent)] classic:text-blue-700"
+                            position="defender"
+                            onPlayerClick={onPlayerClick}
+                          />
                         )}
                       </div>
-                    )}
-                  </div>
-
-                  <div className="text-center order-first sm:order-none">
-                    <div
-                      className={`text-2xl font-bold mb-1 ${
-                        match.score1 > match.score2
-                          ? 'text-[var(--th-win)] classic:text-green-600'
-                          : match.score2 > match.score1
-                            ? 'text-[var(--th-loss)] classic:text-red-600'
-                            : 'text-secondary'
-                      }`}
-                    >
-                      {match.score1} - {match.score2}
+                      {match.team1[1] && (
+                        <div className="text-xs bg-accent-subtle classic:bg-blue-100 text-[var(--th-accent)] classic:text-blue-600 px-1 py-0.5 rounded-full mt-1">
+                          {match.playerStats ? (
+                            <>
+                              Pre-Avg:{' '}
+                              {Math.round(
+                                ((getPlayerStats(match, match.team1[0].id)?.preGameRanking ||
+                                  match.team1[0].ranking) +
+                                  (getPlayerStats(match, match.team1[1].id)?.preGameRanking ||
+                                    match.team1[1].ranking)) /
+                                  2,
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              Avg:{' '}
+                              {Math.round((match.team1[0].ranking + match.team1[1].ranking) / 2)}
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs text-muted">Final Score</div>
-                  </div>
 
-                  <div className="text-center bg-card-hover classic:bg-gradient-to-br classic:from-purple-50 classic:to-violet-50 p-2 rounded-lg border border-[var(--th-border)] classic:border-purple-200/50">
-                    <div className="font-bold text-[var(--th-sport-primary)] classic:text-purple-800 mb-1 text-xs">
-                      {match.matchType === '1v1' ? 'Player 2' : 'Team 2'}
+                    <div className="text-center order-first sm:order-none">
+                      <div
+                        className={`text-2xl font-bold mb-1 ${
+                          match.score1 > match.score2
+                            ? 'text-[var(--th-win)] classic:text-green-600'
+                            : match.score2 > match.score1
+                              ? 'text-[var(--th-loss)] classic:text-red-600'
+                              : 'text-secondary'
+                        }`}
+                      >
+                        {match.score1} - {match.score2}
+                      </div>
+                      <div className="text-xs text-muted">Final Score</div>
                     </div>
-                    <div className="space-y-1">
-                      <PlayerWithStats
-                        player={match.team2[0]}
-                        match={match}
-                        teamColor="text-[var(--th-sport-primary)] classic:text-purple-700"
-                        position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
-                        onPlayerClick={onPlayerClick}
-                      />
-                      {match.team2[1] && (
+
+                    <div className="text-center bg-card-hover classic:bg-gradient-to-br classic:from-purple-50 classic:to-violet-50 p-2 rounded-lg border border-[var(--th-border)] classic:border-purple-200/50">
+                      <div className="font-bold text-[var(--th-sport-primary)] classic:text-purple-800 mb-1 text-xs">
+                        {match.matchType === '1v1' ? 'Player 2' : 'Team 2'}
+                      </div>
+                      <div className="space-y-1">
                         <PlayerWithStats
-                          player={match.team2[1]}
+                          player={match.team2[0]}
                           match={match}
                           teamColor="text-[var(--th-sport-primary)] classic:text-purple-700"
-                          position="defender"
+                          position={match.matchType === '1v1' ? 'attacker' : 'attacker'}
                           onPlayerClick={onPlayerClick}
                         />
-                      )}
-                    </div>
-                    {match.team2[1] && (
-                      <div className="text-xs bg-accent-subtle classic:bg-purple-100 text-[var(--th-sport-primary)] classic:text-purple-600 px-1 py-0.5 rounded-full mt-1">
-                        {match.playerStats ? (
-                          <>
-                            Pre-Avg:{' '}
-                            {Math.round(
-                              ((getPlayerStats(match, match.team2[0].id)?.preGameRanking ||
-                                match.team2[0].ranking) +
-                                (getPlayerStats(match, match.team2[1].id)?.preGameRanking ||
-                                  match.team2[1].ranking)) /
-                                2,
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            Avg: {Math.round((match.team2[0].ranking + match.team2[1].ranking) / 2)}
-                          </>
+                        {match.team2[1] && (
+                          <PlayerWithStats
+                            player={match.team2[1]}
+                            match={match}
+                            teamColor="text-[var(--th-sport-primary)] classic:text-purple-700"
+                            position="defender"
+                            onPlayerClick={onPlayerClick}
+                          />
                         )}
                       </div>
-                    )}
+                      {match.team2[1] && (
+                        <div className="text-xs bg-accent-subtle classic:bg-purple-100 text-[var(--th-sport-primary)] classic:text-purple-600 px-1 py-0.5 rounded-full mt-1">
+                          {match.playerStats ? (
+                            <>
+                              Pre-Avg:{' '}
+                              {Math.round(
+                                ((getPlayerStats(match, match.team2[0].id)?.preGameRanking ||
+                                  match.team2[0].ranking) +
+                                  (getPlayerStats(match, match.team2[1].id)?.preGameRanking ||
+                                    match.team2[1].ranking)) /
+                                  2,
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              Avg:{' '}
+                              {Math.round((match.team2[0].ranking + match.team2[1].ranking) / 2)}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {match.score1 !== match.score2 && (
-                  <div className="mt-2 text-center">
-                    <span className="text-xs font-medium text-[var(--th-win)] classic:text-green-600">
-                      🎉{' '}
-                      {match.matchType === '1v1'
-                        ? `${match.score1 > match.score2 ? match.team1[0].name : match.team2[0].name} wins!`
-                        : `Team ${match.score1 > match.score2 ? '1' : '2'} wins!`}{' '}
-                      Great game, friends!
-                    </span>
-                  </div>
-                )}
+                  {match.score1 !== match.score2 && (
+                    <div className="mt-2 text-center">
+                      <span className="text-xs font-medium text-[var(--th-win)] classic:text-green-600">
+                        🎉{' '}
+                        {match.matchType === '1v1'
+                          ? `${match.score1 > match.score2 ? match.team1[0].name : match.team2[0].name} wins!`
+                          : `Team ${match.score1 > match.score2 ? '1' : '2'} wins!`}{' '}
+                        Great game, friends!
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

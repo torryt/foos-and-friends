@@ -233,7 +233,7 @@ const PlayerRankings = ({
   const visiblePlayers = showInactive ? [...activePlayers, ...inactivePlayers] : activePlayers
 
   return (
-    <div className="bg-card backdrop-blur-sm rounded-[var(--th-radius-lg)] shadow-theme-card border border-[var(--th-border-subtle)]">
+    <div className="-mx-4 sm:mx-0 sm:bg-card sm:backdrop-blur-sm sm:rounded-[var(--th-radius-lg)] sm:shadow-theme-card sm:border sm:border-[var(--th-border-subtle)]">
       <div className="p-4 border-b border-[var(--th-border)]">
         <div className="flex items-start justify-between">
           <div>
@@ -279,14 +279,14 @@ const PlayerRankings = ({
         </div>
       </div>
 
-      <div className="p-4">
-        <div className="flex flex-col gap-2 max-w-4xl mx-auto">
+      <div className="sm:p-4">
+        <div className="flex flex-col sm:gap-2 max-w-4xl mx-auto">
           {visiblePlayers.map((player, index) =>
             onPlayerClick ? (
               <button
                 key={player.id}
                 type="button"
-                className="w-full flex items-center justify-between bg-card p-3 rounded-lg border border-[var(--th-border)] cursor-pointer hover:bg-card-hover transition-colors text-left"
+                className="w-full flex items-center justify-between px-4 py-3 border-b border-[var(--th-border-subtle)] sm:bg-card sm:px-3 sm:rounded-lg sm:border sm:border-[var(--th-border)] cursor-pointer hover:bg-card-hover transition-colors text-left"
                 onClick={() => onPlayerClick(player.id)}
                 aria-label={`View match history for ${player.name}`}
               >
@@ -295,7 +295,7 @@ const PlayerRankings = ({
             ) : (
               <div
                 key={player.id}
-                className="flex items-center justify-between bg-card p-3 rounded-lg border border-[var(--th-border)]"
+                className="flex items-center justify-between px-4 py-3 border-b border-[var(--th-border-subtle)] sm:bg-card sm:px-3 sm:rounded-lg sm:border sm:border-[var(--th-border)]"
               >
                 <PlayerCard player={player} index={index} sortBy={sortBy} />
               </div>
