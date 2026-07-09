@@ -27,7 +27,7 @@ Two apps — foosball and chess — track players, matches, and ELO rankings, sh
 
 **After any non-trivial feature or fix, run in order and fix failures: `pnpm lint`, `pnpm test:run`, `pnpm format`, `pnpm typecheck`.**
 
-**Before merging UI changes, also run `pnpm test:e2e` — CI gates on it, `pnpm test:run` does not cover it, and the mobile projects catch content hidden per-breakpoint. One-time setup: `pnpm exec playwright install chromium`.**
+Don't run `pnpm test:e2e` routinely — the Main Checks GitHub Action runs it on every push to main, and failures there get fixed after the fact. Run it locally only when explicitly asked, or when working directly on the e2e specs/config. (One-time setup if you do: `pnpm exec playwright install chromium`.)
 
 ## Project Structure
 

@@ -262,7 +262,7 @@ See `docs/DEPLOYMENT.md` for complete deployment guide.
 
 ### Testing
 - Run `pnpm test:run` before committing
-- Run `pnpm test:e2e` before merging UI changes — CI gates on it, and the mobile projects catch layout issues unit tests miss
+- The e2e suite (`pnpm test:e2e`) runs in CI on every push to main — no need to run it locally unless you're working on the specs themselves
 - Tests cover components, hooks, and integration scenarios
 - Test utilities available in `packages/shared/src/test/test-utils.tsx`
 
