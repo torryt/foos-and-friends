@@ -250,6 +250,12 @@ Setting `VITE_MOCK_DATA=true` (the `dev:*:mock` scripts) replaces the Supabase c
 - **Build output**: `apps/chess/dist`
 - **Root directory**: (empty - repo root)
 
+### Cloudflare Pages (Landing page)
+- **Build command**: `pnpm install && pnpm build:landing`
+- **Build output**: `apps/landing/dist`
+- **Root directory**: (empty - repo root)
+- **Env**: `VITE_FOOS_APP_URL` — where the sign-in CTAs point
+
 See `docs/DEPLOYMENT.md` for complete deployment guide.
 
 ## Development Tips

@@ -6,20 +6,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 pnpm workspaces monorepo. React 19 + TypeScript + Vite. Supabase (auth, Postgres, RLS) backend. Tailwind CSS v4. Biome for lint/format. Vitest + React Testing Library for unit tests, Playwright for e2e.
 
-Two apps — foosball and chess — track players, matches, and ELO rankings, sharing one Supabase backend via `packages/shared` (`@foos/shared`). Data isolation between sports is via a `sport_type` column, not separate databases.
+Two apps — foosball and chess — track players, matches, and ELO rankings, sharing one Supabase backend via `packages/shared` (`@foos/shared`). Data isolation between sports is via a `sport_type` column, not separate databases. A third workspace app, `apps/landing`, is the static public landing page (vanilla TS, no React/Supabase).
 
 ## Commands
 
 - `pnpm dev:foos` / `pnpm dev:chess` — dev server (ports 5173/5175)
 - `pnpm dev:foos:mock` / `pnpm dev:chess:mock` — dev server with in-memory mock data (`VITE_MOCK_DATA=true`), no Supabase credentials needed
-- `pnpm build` / `pnpm build:foos` / `pnpm build:chess` — build
+- `pnpm dev:landing` — landing page dev server (port 5174 by default)
+- `pnpm build` / `pnpm build:foos` / `pnpm build:chess` / `pnpm build:landing` — build
+- `pnpm shots:landing` — regenerate landing-page screenshots + og:image from the foosball app in mock mode (committed to `apps/landing/public/`; rerun after app UI changes)
 - `pnpm typecheck` — TypeScript check, all packages
 - `pnpm lint` / `pnpm lint:fix` — Biome lint
 - `pnpm format` — Biome format
 - `pnpm test` — Vitest watch mode
 - `pnpm test:run` — Vitest single run
 - `pnpm test:coverage` — Vitest with coverage
-- `pnpm test:e2e` — Playwright e2e suite (4 projects: mobile 390px + desktop, per app; servers auto-start in mock mode)
+- `pnpm test:e2e` — Playwright e2e suite (6 projects: mobile 390px + desktop, per app + landing; servers auto-start in mock mode)
 
 **Always use `pnpm`, not `npm` or `yarn`.**
 
@@ -33,6 +35,7 @@ Two apps — foosball and chess — track players, matches, and ELO rankings, sh
 packages/shared/src/     lib/ (db abstraction + Supabase client), services/, types/, utils/ (ELO, matchmaking),
                          auth/ (shared auth UI + API), theme/ (appearance + design tokens), mock/ (in-memory mock DB)
 apps/{foosball,chess}/src/   components/, routes/ (TanStack Router), hooks/, contexts/, lib/init.ts
+apps/landing/            static public landing page (vanilla TS + Tailwind, CTAs point at VITE_FOOS_APP_URL)
 database/                SQL migrations (shared across apps)
 e2e/                     Playwright specs per app + playwright.config.ts at root
 ```

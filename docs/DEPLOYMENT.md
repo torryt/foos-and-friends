@@ -24,6 +24,28 @@ Each app is deployed as a separate Cloudflare Pages project.
    Root directory: (leave blank)
    ```
 
+#### Landing Page
+1. **Create Cloudflare Pages project** for the public landing page
+2. **Configure Build Settings**
+   ```
+   Build command: pnpm install && pnpm build:landing
+   Build output directory: apps/landing/dist
+   Root directory: (leave blank)
+   ```
+3. **Add Environment Variables**
+   ```
+   VITE_FOOS_APP_URL=https://<your-foosball-app-url>
+   ```
+   This is where every "Start playing" / "Sign in" link points. No Supabase
+   credentials needed — the landing page is fully static.
+4. **Domains**: put the landing page on the root domain (e.g. `foosandfriends.example`)
+   and the apps on subdomains (e.g. `foos.` / `chess.`). If you move the foosball
+   app to a subdomain, add the new URL to Supabase Auth → URL Configuration →
+   Redirect URLs so magic links keep working.
+
+   Screenshots on the page are generated, committed files — refresh them with
+   `pnpm shots:landing` after UI changes (see `scripts/capture-landing-shots.mjs`).
+
 #### For each app project:
 
 3. **Add Environment Variables**

@@ -1,0 +1,27 @@
+{
+  "name": "@foos/landing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsgo -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsgo -b",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.12",
+    "@types/node": "^24.5.2",
+    "@typescript/native-preview": "beta",
+    "autoprefixer": "^10.4.21",
+    "oxfmt": "^0.47.0",
+    "oxlint": "^1.62.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.12",
+    "vite": "^7.1.2"
+  }
+}

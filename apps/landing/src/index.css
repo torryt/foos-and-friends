@@ -1,0 +1,206 @@
+@import 'tailwindcss';
+
+/*
+ * Brand tokens, kept in sync by eye with the app (apps/foosball/src/index.css):
+ * primary gradient orange-500 → red-600. The pitch green is landing-only —
+ * it's the playfield color for the "how it works" section.
+ */
+@theme {
+  --color-brand-from: oklch(70.5% 0.213 47.604); /* orange-500 */
+  --color-brand-to: oklch(57.7% 0.245 27.325); /* red-600 */
+  --color-pitch: oklch(35% 0.09 155);
+  --color-pitch-deep: oklch(28% 0.08 155);
+  --font-display: 'Chakra Petch', system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .brand-gradient {
+    background-image: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));
+  }
+
+  .brand-text {
+    background-image: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* Primary CTA — 56px tall, thumb-friendly */
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3.5rem;
+    padding: 0 2rem;
+    border-radius: 1rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: white;
+    background-image: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));
+    box-shadow: 0 8px 24px -8px oklch(57.7% 0.245 27.325 / 0.5);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -8px oklch(57.7% 0.245 27.325 / 0.6);
+  }
+
+  .cta:active {
+    transform: translateY(0);
+  }
+
+  .cta-quiet {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.5rem;
+    padding: 0 1.5rem;
+    border-radius: 1rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--color-stone-700);
+    border: 1.5px solid var(--color-stone-300);
+    transition: border-color 0.15s ease;
+  }
+
+  .cta-quiet:hover {
+    border-color: var(--color-stone-400);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .cta-quiet {
+      color: var(--color-stone-300);
+      border-color: var(--color-stone-700);
+    }
+
+    .cta-quiet:hover {
+      border-color: var(--color-stone-500);
+    }
+  }
+
+  /* Phone frame around app screenshots */
+  .phone {
+    border-radius: 2.5rem;
+    border: 6px solid var(--color-stone-900);
+    background: var(--color-stone-900);
+    box-shadow:
+      0 0 0 1px oklch(0% 0 0 / 0.08),
+      0 24px 48px -16px oklch(0% 0 0 / 0.35);
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  .phone img {
+    width: 100%;
+    height: auto;
+    border-radius: 2rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .phone {
+      border-color: var(--color-stone-700);
+      background: var(--color-stone-700);
+    }
+  }
+
+  /* The playfield: pitch green with the table's own markings */
+  .pitch {
+    background-color: var(--color-pitch);
+    background-image:
+      radial-gradient(
+        circle at 50% 50%,
+        transparent 0,
+        transparent calc(6rem - 2px),
+        oklch(100% 0 0 / 0.18) calc(6rem - 2px),
+        oklch(100% 0 0 / 0.18) 6rem,
+        transparent 6rem
+      ),
+      linear-gradient(
+        to right,
+        transparent calc(50% - 1px),
+        oklch(100% 0 0 / 0.18) calc(50% - 1px),
+        oklch(100% 0 0 / 0.18) calc(50% + 1px),
+        transparent calc(50% + 1px)
+      ),
+      linear-gradient(160deg, var(--color-pitch) 0%, var(--color-pitch-deep) 100%);
+  }
+
+  /* Foosmen on the hero rod swing like a real rod being flicked */
+  .foosman {
+    transform-box: fill-box;
+    transform-origin: 50% 44%;
+    animation: foosman-swing 5s ease-in-out infinite;
+  }
+
+  .foosman-2 {
+    animation-delay: -1.6s;
+  }
+
+  .foosman-3 {
+    animation-delay: -3.2s;
+  }
+
+  @keyframes foosman-swing {
+    0%,
+    100% {
+      transform: rotate(-8deg);
+    }
+
+    50% {
+      transform: rotate(10deg);
+    }
+  }
+
+  /* Scroll-triggered reveal; content stays visible when JS is off or motion is reduced */
+  html.js .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.6s ease,
+      transform 0.6s ease;
+  }
+
+  html.js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .foosman {
+      animation: none;
+    }
+
+    html.js .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+}

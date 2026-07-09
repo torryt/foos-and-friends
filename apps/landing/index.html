@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#f97316" />
+
+    <title>Foos &amp; Friends — track your foosball league</title>
+    <meta
+      name="description"
+      content="Track foosball matches, ELO rankings and seasons with your friends or office crew. Free, mobile-first, no passwords. Play. Compete. Connect."
+    />
+    <meta name="author" content="Foos & Friends" />
+
+    <meta property="og:title" content="Foos & Friends — track your foosball league" />
+    <meta
+      property="og:description"
+      content="Track foosball matches, ELO rankings and seasons with your friends or office crew."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100">
+    <!-- Header -->
+    <header class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+      <a href="/" class="flex min-h-11 items-center gap-2.5">
+        <img src="/favicon.svg" alt="" class="h-8 w-8" />
+        <span class="font-display text-lg font-bold tracking-tight">Foos &amp; Friends</span>
+      </a>
+      <a
+        href="%APP_URL%"
+        class="font-display flex min-h-11 items-center rounded-lg px-4 font-semibold text-stone-700 transition-colors hover:text-stone-950 dark:text-stone-300 dark:hover:text-white"
+      >
+        Sign in
+      </a>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="mx-auto max-w-5xl px-4 pt-8 pb-16 sm:px-6 sm:pt-14">
+        <div class="grid items-center gap-10 md:grid-cols-[1.2fr_1fr]">
+          <div>
+            <h1
+              class="font-display text-4xl leading-tight font-bold tracking-tight text-balance sm:text-5xl"
+            >
+              Your office foosball league, minus the
+              <span class="brand-text">spreadsheet</span>.
+            </h1>
+            <p class="mt-5 max-w-prose text-lg text-stone-600 dark:text-stone-400">
+              Foos &amp; Friends tracks matches, ELO rankings and seasons for your crew — from the
+              first serve to the final table. Free, mobile-first and ready before your next break.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="%APP_URL%" class="cta">Start playing</a>
+              <a href="#how-it-works" class="cta-quiet">See how it works</a>
+            </div>
+
+            <!-- Signature: a foosball rod, mid-flick -->
+            <svg
+              class="mt-12 w-full max-w-md text-stone-900 dark:text-stone-100"
+              viewBox="0 0 480 84"
+              fill="currentColor"
+              role="img"
+              aria-label="Three foosball figures on a rod"
+            >
+              <defs>
+                <g id="foosman-shape">
+                  <circle cx="32" cy="10.5" r="6.8" />
+                  <polygon points="25.5,19.5 38.5,19.5 40.5,38 23.5,38" />
+                  <polygon points="27.5,38 36.5,38 38.5,51 25.5,51" />
+                  <rect x="20.5" y="50" width="23" height="6.5" rx="3.25" />
+                </g>
+              </defs>
+              <rect x="0" y="25.75" width="480" height="6.5" rx="3.25" opacity="0.35" />
+              <g class="foosman"><use href="#foosman-shape" x="48" /></g>
+              <g class="foosman foosman-2"><use href="#foosman-shape" x="208" /></g>
+              <g class="foosman foosman-3"><use href="#foosman-shape" x="368" /></g>
+            </svg>
+          </div>
+
+          <div class="phone mx-auto w-64 sm:w-72">
+            <picture>
+              <source
+                srcset="/screenshots/rankings-dark.png"
+                media="(prefers-color-scheme: dark)"
+              />
+              <img
+                src="/screenshots/rankings-light.png"
+                alt="Foos & Friends rankings screen showing a season leaderboard with ELO ratings"
+                width="390"
+                height="844"
+                fetchpriority="high"
+              />
+            </picture>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section
+        class="border-t border-stone-200 bg-white py-16 sm:py-24 dark:border-stone-800 dark:bg-stone-900"
+      >
+        <div class="mx-auto max-w-5xl space-y-20 px-4 sm:px-6 sm:space-y-28">
+          <div class="reveal grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                Rankings that mean something
+              </h2>
+              <p class="mt-4 text-stone-600 dark:text-stone-400">
+                Every match moves the table. Ratings are ELO-based, so beating the top seed pays
+                more than farming the intern. Separate 1v1 and 2v2 tables keep singles specialists
+                and doubles dynasties honest.
+              </p>
+            </div>
+            <div class="phone mx-auto w-60 sm:w-64">
+              <picture>
+                <source
+                  srcset="/screenshots/matches-dark.png"
+                  media="(prefers-color-scheme: dark)"
+                />
+                <img
+                  src="/screenshots/matches-light.png"
+                  alt="Match history where every result shows the rating points won and lost"
+                  width="390"
+                  height="844"
+                  loading="lazy"
+                />
+              </picture>
+            </div>
+          </div>
+
+          <div class="reveal grid items-center gap-8 md:grid-cols-2">
+            <div class="md:order-2">
+              <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                Log a match in seconds
+              </h2>
+              <p class="mt-4 text-stone-600 dark:text-stone-400">
+                Pick players, tap the winner, done — before the ball stops rolling. Play 1v1 or 2v2,
+                and let smart team balancing build fair sides when skill levels don't match. Every
+                result lands in a full match history.
+              </p>
+            </div>
+            <div class="phone mx-auto w-60 sm:w-64 md:order-1">
+              <picture>
+                <source
+                  srcset="/screenshots/add-match-dark.png"
+                  media="(prefers-color-scheme: dark)"
+                />
+                <img
+                  src="/screenshots/add-match-light.png"
+                  alt="Add Match screen asking which team won"
+                  width="390"
+                  height="844"
+                  loading="lazy"
+                />
+              </picture>
+            </div>
+          </div>
+
+          <div class="reveal grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                Seasons keep it fresh
+              </h2>
+              <p class="mt-4 text-stone-600 dark:text-stone-400">
+                Start a new season and everyone returns to 1200 — last quarter's champion has to
+                defend the title from scratch. Player profiles chart every rating swing, and the
+                all-time table never forgets who really runs the office.
+              </p>
+            </div>
+            <div class="phone mx-auto w-60 sm:w-64">
+              <picture>
+                <source
+                  srcset="/screenshots/profile-dark.png"
+                  media="(prefers-color-scheme: dark)"
+                />
+                <img
+                  src="/screenshots/profile-light.png"
+                  alt="Player profile with a rating history chart and season stats"
+                  width="390"
+                  height="844"
+                  loading="lazy"
+                />
+              </picture>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How it works: on the pitch -->
+      <section id="how-it-works" class="pitch py-16 text-white sm:py-24">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6">
+          <h2 class="font-display text-center text-2xl font-bold tracking-tight sm:text-3xl">
+            How it works
+          </h2>
+          <ol class="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-8">
+            <li class="reveal text-center">
+              <span
+                class="font-display mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/40 text-2xl font-bold"
+                aria-hidden="true"
+                >1</span
+              >
+              <h3 class="font-display mt-4 text-xl font-semibold">Rally your crew</h3>
+              <p class="mt-2 text-white/75">
+                Create a group and share one invite link. Signing in is a magic link to your email —
+                no passwords to forget.
+              </p>
+            </li>
+            <li class="reveal text-center">
+              <span
+                class="font-display mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/40 text-2xl font-bold"
+                aria-hidden="true"
+                >2</span
+              >
+              <h3 class="font-display mt-4 text-xl font-semibold">Play and log it</h3>
+              <p class="mt-2 text-white/75">
+                After each game, tap in the result — winner first. 1v1 or 2v2, balanced teams on
+                request.
+              </p>
+            </li>
+            <li class="reveal text-center">
+              <span
+                class="font-display mx-auto flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/40 text-2xl font-bold"
+                aria-hidden="true"
+                >3</span
+              >
+              <h3 class="font-display mt-4 text-xl font-semibold">Climb the table</h3>
+              <p class="mt-2 text-white/75">
+                Ratings update instantly. End the season, crown a champion, reset to 1200 and go
+                again.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="bg-white py-16 sm:py-24 dark:bg-stone-900">
+        <div class="reveal mx-auto max-w-2xl px-4 text-center sm:px-6">
+          <h2 class="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+            The table is waiting.
+          </h2>
+          <p class="mt-4 text-lg text-stone-600 dark:text-stone-400">
+            Set up your group in under a minute — the trash talk is up to you.
+          </p>
+          <div class="mt-8">
+            <a href="%APP_URL%" class="cta">Start playing</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="border-t border-stone-200 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] dark:border-stone-800"
+    >
+      <div
+        class="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 text-sm text-stone-500 sm:flex-row sm:justify-between sm:px-6 dark:text-stone-400"
+      >
+        <p class="flex items-center gap-2">
+          <img src="/favicon.svg" alt="" class="h-5 w-5" />
+          Foos &amp; Friends — Play. Compete. Connect.
+        </p>
+        <nav class="flex items-center gap-6">
+          <a
+            href="https://github.com/torryt/foos-and-friends"
+            class="flex min-h-11 items-center transition-colors hover:text-stone-900 dark:hover:text-stone-100"
+            >GitHub</a
+          >
+          <a
+            href="%APP_URL%"
+            class="flex min-h-11 items-center transition-colors hover:text-stone-900 dark:hover:text-stone-100"
+            >Sign in</a
+          >
+        </nav>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

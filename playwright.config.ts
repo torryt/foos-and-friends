@@ -5,6 +5,7 @@ import { defineConfig } from '@playwright/test'
 // every page load, so tests are isolated by construction.
 const FOOSBALL_PORT = 4273
 const CHESS_PORT = 4275
+const LANDING_PORT = 4277
 
 // Mobile-first is a hard requirement for this repo, so the primary projects
 // run in a mobile viewport (iPhone-ish, matching the verify workflow); a
@@ -43,6 +44,11 @@ export default defineConfig({
       use: { ...mobileChrome, baseURL: `http://localhost:${CHESS_PORT}` },
     },
     {
+      name: 'landing',
+      testDir: './e2e/landing',
+      use: { ...mobileChrome, baseURL: `http://localhost:${LANDING_PORT}` },
+    },
+    {
       name: 'foosball-desktop',
       testDir: './e2e/foosball',
       use: { ...desktopChrome, baseURL: `http://localhost:${FOOSBALL_PORT}` },
@@ -51,6 +57,11 @@ export default defineConfig({
       name: 'chess-desktop',
       testDir: './e2e/chess',
       use: { ...desktopChrome, baseURL: `http://localhost:${CHESS_PORT}` },
+    },
+    {
+      name: 'landing-desktop',
+      testDir: './e2e/landing',
+      use: { ...desktopChrome, baseURL: `http://localhost:${LANDING_PORT}` },
     },
   ],
   webServer: [
@@ -64,6 +75,11 @@ export default defineConfig({
       command: `pnpm --filter @foos/chess exec vite --port ${CHESS_PORT} --strictPort`,
       env: { VITE_MOCK_DATA: 'true' },
       url: `http://localhost:${CHESS_PORT}`,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: `pnpm --filter @foos/landing exec vite --port ${LANDING_PORT} --strictPort`,
+      url: `http://localhost:${LANDING_PORT}`,
       reuseExistingServer: !process.env.CI,
     },
   ],
