@@ -1,4 +1,4 @@
-import type { Player } from '@foos/shared'
+import type { Match, Player } from '@foos/shared'
 import { fireEvent, render, screen } from '@testing-library/react'
 import PlayerRankings from '../PlayerRankings'
 
@@ -172,6 +172,98 @@ describe('PlayerRankings', () => {
       render(<PlayerRankings players={mockPlayers} />)
 
       expect(screen.queryByText(/without games/)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('sorting by streaks', () => {
+    // Alice (id 1) vs Bob (id 2), oldest to newest: L, W, W, W, L
+    // -> Alice: longest win streak 3, longest lose streak 1
+    // -> Bob (inverse results): longest win streak 1, longest lose streak 3
+    const streakMatches: Match[] = [
+      {
+        id: 'm5',
+        matchType: '1v1',
+        team1: [mockPlayers[0], null],
+        team2: [mockPlayers[1], null],
+        score1: 5,
+        score2: 10,
+        date: '2024-01-05',
+        time: '10:00',
+      },
+      {
+        id: 'm4',
+        matchType: '1v1',
+        team1: [mockPlayers[0], null],
+        team2: [mockPlayers[1], null],
+        score1: 10,
+        score2: 5,
+        date: '2024-01-04',
+        time: '10:00',
+      },
+      {
+        id: 'm3',
+        matchType: '1v1',
+        team1: [mockPlayers[0], null],
+        team2: [mockPlayers[1], null],
+        score1: 10,
+        score2: 5,
+        date: '2024-01-03',
+        time: '10:00',
+      },
+      {
+        id: 'm2',
+        matchType: '1v1',
+        team1: [mockPlayers[0], null],
+        team2: [mockPlayers[1], null],
+        score1: 10,
+        score2: 5,
+        date: '2024-01-02',
+        time: '10:00',
+      },
+      {
+        id: 'm1',
+        matchType: '1v1',
+        team1: [mockPlayers[0], null],
+        team2: [mockPlayers[1], null],
+        score1: 5,
+        score2: 10,
+        date: '2024-01-01',
+        time: '10:00',
+      },
+    ]
+
+    test('sorts players by longest win streak', () => {
+      const { container } = render(<PlayerRankings players={mockPlayers} matches={streakMatches} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /Sort by/i }))
+      fireEvent.click(screen.getByText('Longest Win Streak'))
+
+      const playerNames = screen.getAllByText(/Alice Johnson|Bob Smith|Charlie Brown/)
+      expect(playerNames[0]).toHaveTextContent('Alice Johnson')
+      expect(playerNames[1]).toHaveTextContent('Bob Smith')
+      expect(playerNames[2]).toHaveTextContent('Charlie Brown')
+
+      const badges = container.querySelectorAll('.rounded-full')
+      expect(badges[0]).toHaveTextContent('3')
+      expect(badges[1]).toHaveTextContent('1')
+      expect(badges[2]).toHaveTextContent('0')
+    })
+
+    test('sorts players by longest lose streak', () => {
+      const { container } = render(<PlayerRankings players={mockPlayers} matches={streakMatches} />)
+
+      fireEvent.click(screen.getByRole('button', { name: /Sort by/i }))
+      fireEvent.click(screen.getByText('Longest Lose Streak'))
+
+      const playerNames = screen.getAllByText(/Alice Johnson|Bob Smith|Charlie Brown/)
+      expect(playerNames[0]).toHaveTextContent('Bob Smith')
+      expect(playerNames[1]).toHaveTextContent('Alice Johnson')
+      expect(playerNames[2]).toHaveTextContent('Charlie Brown')
+
+      const badges = container.querySelectorAll('.rounded-full')
+      expect(badges[0]).toHaveTextContent('3')
+      expect(badges[1]).toHaveTextContent('1')
+      expect(badges[2]).toHaveTextContent('0')
     })
   })
 })
