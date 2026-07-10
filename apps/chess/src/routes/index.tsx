@@ -19,7 +19,8 @@ function Index() {
   const [showRecordMatch, setShowRecordMatch] = useState(false)
   const [scope, setScope] = useState<RankingScope>('season')
 
-  const { players, seasonStats, matches, supportedMatchTypes, addPlayer, addMatch } = useGameLogic()
+  const { players, seasonStats, matches, allMatches, supportedMatchTypes, addPlayer, addMatch } =
+    useGameLogic()
   const { currentSeason, seasons } = useSeasonContext()
 
   const isArchived = !!currentSeason && !currentSeason.isActive
@@ -50,6 +51,7 @@ function Index() {
       <PlayerRankings
         players={players}
         seasonStats={allTime ? undefined : seasonStats}
+        matches={allTime ? allMatches : matches}
         onPlayerClick={handlePlayerCardClick}
         title={allTime ? 'All-Time Rankings' : isArchived ? 'Final Standings' : 'Friend Rankings'}
         subtitle={

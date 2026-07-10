@@ -1,12 +1,13 @@
-import type { Player, PlayerSeasonStats } from '@foos/shared'
+import type { Match, Player, PlayerSeasonStats } from '@foos/shared'
 import { ArrowUpDown, ChevronDown, Medal, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
-type SortOption = 'elo' | 'winRate'
+type SortOption = 'elo' | 'winRate' | 'longestWinStreak' | 'longestLoseStreak'
 
 interface PlayerRankingsProps {
   players: Player[]
   seasonStats?: PlayerSeasonStats[]
+  matches?: Match[]
   onPlayerClick?: (playerId: string) => void
   title?: string
   subtitle?: string
@@ -14,6 +15,52 @@ interface PlayerRankingsProps {
 
 interface PlayerWithStats extends Player {
   winRate: number
+  longestWinStreak: number
+  longestLoseStreak: number
+}
+
+// Computes the longest run of consecutive wins/losses from a player's match
+// history. Draws break both streaks without counting toward either.
+const computeStreaks = (
+  playerId: string,
+  matches: Match[],
+): { longestWinStreak: number; longestLoseStreak: number } => {
+  const playerMatches = matches
+    .filter(
+      (match) =>
+        match.team1[0].id === playerId ||
+        match.team1[1]?.id === playerId ||
+        match.team2[0].id === playerId ||
+        match.team2[1]?.id === playerId,
+    )
+    .toReversed() // oldest first
+
+  let longestWinStreak = 0
+  let longestLoseStreak = 0
+  let currentWinStreak = 0
+  let currentLoseStreak = 0
+
+  for (const match of playerMatches) {
+    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+    const playerScore = wasInTeam1 ? match.score1 : match.score2
+    const opponentScore = wasInTeam1 ? match.score2 : match.score1
+
+    if (playerScore > opponentScore) {
+      currentWinStreak += 1
+      currentLoseStreak = 0
+    } else if (playerScore < opponentScore) {
+      currentLoseStreak += 1
+      currentWinStreak = 0
+    } else {
+      currentWinStreak = 0
+      currentLoseStreak = 0
+    }
+
+    longestWinStreak = Math.max(longestWinStreak, currentWinStreak)
+    longestLoseStreak = Math.max(longestLoseStreak, currentLoseStreak)
+  }
+
+  return { longestWinStreak, longestLoseStreak }
 }
 
 interface PlayerCardProps {
@@ -84,6 +131,46 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
           <div className="text-xs text-secondary mt-1">Win rate</div>
         </>
       )}
+      {sortBy === 'longestWinStreak' && (
+        <>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-bold ${
+              player.longestWinStreak >= 8
+                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
+                : player.longestWinStreak >= 5
+                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
+                  : player.longestWinStreak >= 3
+                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
+                    : player.longestWinStreak >= 1
+                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
+                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
+            }`}
+          >
+            {player.longestWinStreak}
+          </span>
+          <div className="text-xs text-secondary mt-1">Longest win streak</div>
+        </>
+      )}
+      {sortBy === 'longestLoseStreak' && (
+        <>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-bold ${
+              player.longestLoseStreak >= 8
+                ? 'bg-gradient-to-r from-purple-100 to-violet-200 text-purple-800'
+                : player.longestLoseStreak >= 5
+                  ? 'bg-gradient-to-r from-emerald-100 to-green-200 text-emerald-800'
+                  : player.longestLoseStreak >= 3
+                    ? 'bg-gradient-to-r from-blue-100 to-cyan-200 text-blue-800'
+                    : player.longestLoseStreak >= 1
+                      ? 'bg-gradient-to-r from-amber-100 to-yellow-200 text-amber-800'
+                      : 'bg-gradient-to-r from-rose-100 to-pink-200 text-rose-800'
+            }`}
+          >
+            {player.longestLoseStreak}
+          </span>
+          <div className="text-xs text-secondary mt-1">Longest lose streak</div>
+        </>
+      )}
     </div>
   </>
 )
@@ -91,11 +178,14 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => (
 const SORT_OPTIONS = [
   { value: 'elo' as const, label: 'ELO Ranking' },
   { value: 'winRate' as const, label: 'Win Rate' },
+  { value: 'longestWinStreak' as const, label: 'Longest Win Streak' },
+  { value: 'longestLoseStreak' as const, label: 'Longest Lose Streak' },
 ]
 
 const PlayerRankings = ({
   players,
   seasonStats,
+  matches = [],
   onPlayerClick,
   title = 'Friend Rankings',
   subtitle = 'See how you stack up against your friends!',
@@ -134,6 +224,7 @@ const PlayerRankings = ({
       const matchesPlayed = seasonScope ? (seasonStat?.matchesPlayed ?? 0) : player.matchesPlayed
 
       const winRate = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0
+      const { longestWinStreak, longestLoseStreak } = computeStreaks(player.id, matches)
 
       return {
         ...player,
@@ -142,9 +233,11 @@ const PlayerRankings = ({
         losses,
         matchesPlayed,
         winRate,
+        longestWinStreak,
+        longestLoseStreak,
       }
     })
-  }, [players, seasonStats])
+  }, [players, seasonStats, matches])
 
   // Sort players based on selected criteria
   const sortedPlayers = useMemo(() => {
@@ -161,6 +254,20 @@ const PlayerRankings = ({
           }
           if (b.matchesPlayed !== a.matchesPlayed) {
             return b.matchesPlayed - a.matchesPlayed
+          }
+          return b.ranking - a.ranking
+        })
+      case 'longestWinStreak':
+        return sorted.toSorted((a, b) => {
+          if (b.longestWinStreak !== a.longestWinStreak) {
+            return b.longestWinStreak - a.longestWinStreak
+          }
+          return b.ranking - a.ranking
+        })
+      case 'longestLoseStreak':
+        return sorted.toSorted((a, b) => {
+          if (b.longestLoseStreak !== a.longestLoseStreak) {
+            return b.longestLoseStreak - a.longestLoseStreak
           }
           return b.ranking - a.ranking
         })

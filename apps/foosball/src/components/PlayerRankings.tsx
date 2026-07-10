@@ -2,7 +2,7 @@ import type { Match, Player, PlayerSeasonStats } from '@foos/shared'
 import { ArrowUpDown, ChevronDown, Medal, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
-type SortOption = 'elo' | 'goalDifference' | 'winRate'
+type SortOption = 'elo' | 'goalDifference' | 'winRate' | 'longestWinStreak' | 'longestLoseStreak'
 
 interface PlayerRankingsProps {
   players: Player[]
@@ -16,6 +16,8 @@ interface PlayerRankingsProps {
 interface PlayerWithStats extends Player {
   goalDifference: number
   winRate: number
+  longestWinStreak: number
+  longestLoseStreak: number
 }
 
 interface PlayerCardProps {
@@ -39,12 +41,64 @@ const getTier = (sortBy: SortOption, player: PlayerWithStats): number => {
     if (player.goalDifference >= -5) return 4
     return 5
   }
-  // winRate
-  if (player.winRate >= 70) return 1
-  if (player.winRate >= 60) return 2
-  if (player.winRate >= 50) return 3
-  if (player.winRate >= 40) return 4
+  if (sortBy === 'winRate') {
+    if (player.winRate >= 70) return 1
+    if (player.winRate >= 60) return 2
+    if (player.winRate >= 50) return 3
+    if (player.winRate >= 40) return 4
+    return 5
+  }
+  // longestWinStreak / longestLoseStreak
+  const streak = sortBy === 'longestWinStreak' ? player.longestWinStreak : player.longestLoseStreak
+  if (streak >= 8) return 1
+  if (streak >= 5) return 2
+  if (streak >= 3) return 3
+  if (streak >= 1) return 4
   return 5
+}
+
+// Computes the longest run of consecutive wins/losses from a player's match
+// history. Draws (chess only) break both streaks without counting toward either.
+const computeStreaks = (
+  playerId: string,
+  matches: Match[],
+): { longestWinStreak: number; longestLoseStreak: number } => {
+  const playerMatches = matches
+    .filter(
+      (match) =>
+        match.team1[0].id === playerId ||
+        match.team1[1]?.id === playerId ||
+        match.team2[0].id === playerId ||
+        match.team2[1]?.id === playerId,
+    )
+    .toReversed() // oldest first
+
+  let longestWinStreak = 0
+  let longestLoseStreak = 0
+  let currentWinStreak = 0
+  let currentLoseStreak = 0
+
+  for (const match of playerMatches) {
+    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+    const playerScore = wasInTeam1 ? match.score1 : match.score2
+    const opponentScore = wasInTeam1 ? match.score2 : match.score1
+
+    if (playerScore > opponentScore) {
+      currentWinStreak += 1
+      currentLoseStreak = 0
+    } else if (playerScore < opponentScore) {
+      currentLoseStreak += 1
+      currentWinStreak = 0
+    } else {
+      currentWinStreak = 0
+      currentLoseStreak = 0
+    }
+
+    longestWinStreak = Math.max(longestWinStreak, currentWinStreak)
+    longestLoseStreak = Math.max(longestLoseStreak, currentLoseStreak)
+  }
+
+  return { longestWinStreak, longestLoseStreak }
 }
 
 const TierBadge = ({ tier, children }: { tier: number; children: React.ReactNode }) => (
@@ -105,6 +159,18 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => {
             <div className="text-xs text-secondary mt-1">Win rate</div>
           </>
         )}
+        {sortBy === 'longestWinStreak' && (
+          <>
+            <TierBadge tier={tier}>{player.longestWinStreak}</TierBadge>
+            <div className="text-xs text-secondary mt-1">Longest win streak</div>
+          </>
+        )}
+        {sortBy === 'longestLoseStreak' && (
+          <>
+            <TierBadge tier={tier}>{player.longestLoseStreak}</TierBadge>
+            <div className="text-xs text-secondary mt-1">Longest lose streak</div>
+          </>
+        )}
       </div>
     </>
   )
@@ -114,6 +180,8 @@ const SORT_OPTIONS = [
   { value: 'elo' as const, label: 'ELO Ranking' },
   { value: 'goalDifference' as const, label: 'Goal Difference' },
   { value: 'winRate' as const, label: 'Win Rate' },
+  { value: 'longestWinStreak' as const, label: 'Longest Win Streak' },
+  { value: 'longestLoseStreak' as const, label: 'Longest Lose Streak' },
 ]
 
 const PlayerRankings = ({
@@ -182,6 +250,7 @@ const PlayerRankings = ({
       }
 
       const winRate = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0
+      const { longestWinStreak, longestLoseStreak } = computeStreaks(player.id, matches)
 
       return {
         ...player,
@@ -191,6 +260,8 @@ const PlayerRankings = ({
         matchesPlayed,
         goalDifference,
         winRate,
+        longestWinStreak,
+        longestLoseStreak,
       }
     })
   }, [players, seasonStats, matches])
@@ -218,6 +289,20 @@ const PlayerRankings = ({
           }
           if (b.matchesPlayed !== a.matchesPlayed) {
             return b.matchesPlayed - a.matchesPlayed
+          }
+          return b.ranking - a.ranking
+        })
+      case 'longestWinStreak':
+        return sorted.toSorted((a, b) => {
+          if (b.longestWinStreak !== a.longestWinStreak) {
+            return b.longestWinStreak - a.longestWinStreak
+          }
+          return b.ranking - a.ranking
+        })
+      case 'longestLoseStreak':
+        return sorted.toSorted((a, b) => {
+          if (b.longestLoseStreak !== a.longestLoseStreak) {
+            return b.longestLoseStreak - a.longestLoseStreak
           }
           return b.ranking - a.ranking
         })
