@@ -3,7 +3,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 // The landing page is static; the only dynamic value is where the app lives.
 // Set VITE_FOOS_APP_URL in the Cloudflare Pages project once the subdomain
 // (e.g. https://foos.<domain>) exists.
-const DEFAULT_APP_URL = 'https://foos-and-friends.pages.dev'
+const DEFAULT_APP_URL = 'https://app.foosandfriends.com'
 
 function injectAppUrl(appUrl: string): Plugin {
   return {
