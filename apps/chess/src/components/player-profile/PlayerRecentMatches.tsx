@@ -12,6 +12,9 @@ interface PlayerRecentMatchesProps {
   players: Player[]
   matches: Match[]
   recentForm: string[]
+  // Override for player links; public pages navigate within their own
+  // route subtree instead of the authed /players/$playerId route
+  onPlayerClick?: (playerId: string) => void
 }
 
 export function PlayerRecentMatches({
@@ -19,6 +22,7 @@ export function PlayerRecentMatches({
   players,
   matches,
   recentForm,
+  onPlayerClick,
 }: PlayerRecentMatchesProps) {
   const [sortNewestFirst, setSortNewestFirst] = useState(true)
 
@@ -158,14 +162,24 @@ export function PlayerRecentMatches({
                           <span className="text-sm font-medium text-gray-900">
                             with{' '}
                             {teammate ? (
-                              <Link
-                                to="/players/$playerId"
-                                params={{ playerId: teammate.id }}
-                                className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
-                                onClick={() => scrollToTop()}
-                              >
-                                {teammate.name}
-                              </Link>
+                              onPlayerClick ? (
+                                <button
+                                  type="button"
+                                  className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                  onClick={() => onPlayerClick(teammate.id)}
+                                >
+                                  {teammate.name}
+                                </button>
+                              ) : (
+                                <Link
+                                  to="/players/$playerId"
+                                  params={{ playerId: teammate.id }}
+                                  className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                  onClick={() => scrollToTop()}
+                                >
+                                  {teammate.name}
+                                </Link>
+                              )
                             ) : (
                               'Unknown'
                             )}
@@ -177,14 +191,24 @@ export function PlayerRecentMatches({
                             {opponents.map((opponent, idx) => (
                               <span key={opponent?.id} className="text-xs">
                                 {opponent ? (
-                                  <Link
-                                    to="/players/$playerId"
-                                    params={{ playerId: opponent.id }}
-                                    className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
-                                    onClick={() => scrollToTop()}
-                                  >
-                                    {opponent.name}
-                                  </Link>
+                                  onPlayerClick ? (
+                                    <button
+                                      type="button"
+                                      className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                      onClick={() => onPlayerClick(opponent.id)}
+                                    >
+                                      {opponent.name}
+                                    </button>
+                                  ) : (
+                                    <Link
+                                      to="/players/$playerId"
+                                      params={{ playerId: opponent.id }}
+                                      className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
+                                      onClick={() => scrollToTop()}
+                                    >
+                                      {opponent.name}
+                                    </Link>
+                                  )
                                 ) : (
                                   <span className="text-gray-600">Unknown</span>
                                 )}

@@ -2,6 +2,7 @@ import type {
   AuthUser,
   FriendGroup,
   GroupMembership,
+  JoinRequest,
   Match,
   MatchType,
   Player,
@@ -13,6 +14,12 @@ import type {
 export const MOCK_USER_ID = 'mock-user-1'
 export const MOCK_GROUP_ID = 'mock-group-1'
 export const MOCK_SEASON_ID = 'mock-season-3'
+// Public read-only page for the main mock group: /public/<token>
+export const MOCK_PUBLIC_TOKEN = 'mock-public-token'
+// A group the mock user is NOT a member of, with join_policy 'approval',
+// so the request-to-join flow can be exercised via /invite?code=MOCK99
+export const MOCK_APPROVAL_GROUP_ID = 'mock-group-2'
+export const MOCK_APPROVAL_INVITE_CODE = 'mock99'
 
 export const MOCK_USER: AuthUser = {
   id: MOCK_USER_ID,
@@ -27,6 +34,7 @@ export interface MockSeed {
   players: Player[]
   seasons: Season[]
   matches: Match[]
+  joinRequests: JoinRequest[]
 }
 
 // Deterministic PRNG so mock data is identical on every reload
@@ -103,7 +111,55 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     sportType,
     supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
     targetScore: isChess ? 1 : 10,
+    joinPolicy: 'open',
+    isPublic: true,
+    publicToken: MOCK_PUBLIC_TOKEN,
   }
+
+  // A second group the mock user does not belong to; its invite link exercises
+  // the approval flow. Not returned by getUserGroups (no membership).
+  const approvalGroup: FriendGroup = {
+    id: MOCK_APPROVAL_GROUP_ID,
+    name: 'Rival Office',
+    description: 'Approval-gated mock group',
+    inviteCode: MOCK_APPROVAL_INVITE_CODE,
+    ownerId: 'mock-user-20',
+    createdBy: 'mock-user-20',
+    isActive: true,
+    maxMembers: 50,
+    createdAt: daysAgo(60).toISOString(),
+    updatedAt: daysAgo(60).toISOString(),
+    sportType,
+    supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
+    targetScore: isChess ? 1 : 10,
+    joinPolicy: 'approval',
+    isPublic: false,
+    publicToken: null,
+  }
+
+  const approvalGroupOwnerMembership: GroupMembership = {
+    id: 'mock-membership-20',
+    groupId: MOCK_APPROVAL_GROUP_ID,
+    userId: 'mock-user-20',
+    role: 'owner',
+    isActive: true,
+    invitedBy: null,
+    joinedAt: approvalGroup.createdAt,
+    createdAt: approvalGroup.createdAt,
+  }
+
+  // A pending request into the main group so the notification bell has data
+  // (the mock user is that group's owner)
+  const joinRequests: JoinRequest[] = [
+    {
+      id: 'mock-join-request-1',
+      groupId: MOCK_GROUP_ID,
+      userId: 'mock-user-30',
+      email: 'newcomer@mock.local',
+      status: 'pending',
+      requestedAt: daysAgo(1).toISOString(),
+    },
+  ]
 
   const membership: GroupMembership = {
     id: 'mock-membership-1',
@@ -264,10 +320,11 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
   }
 
   return {
-    groups: [group],
-    memberships: [membership, ...extraMemberships],
+    groups: [group, approvalGroup],
+    memberships: [membership, ...extraMemberships, approvalGroupOwnerMembership],
     players,
     seasons,
     matches,
+    joinRequests,
   }
 }

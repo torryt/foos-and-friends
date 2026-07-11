@@ -31,6 +31,40 @@ interface SeasonProviderProps {
   children: ReactNode
 }
 
+// Provides SeasonContext from externally supplied data instead of fetching.
+// Used by the public read-only pages, where season data comes from the
+// token-gated public RPCs and there is no authenticated group context.
+interface StaticSeasonProviderProps {
+  seasons: Season[]
+  currentSeason: Season | null
+  onSwitchSeason?: (seasonId: string) => void
+  children: ReactNode
+}
+
+export const StaticSeasonProvider = ({
+  seasons,
+  currentSeason,
+  onSwitchSeason,
+  children,
+}: StaticSeasonProviderProps) => (
+  <SeasonContext.Provider
+    value={{
+      currentSeason,
+      seasons,
+      loading: false,
+      error: null,
+      switchSeason: (seasonId: string) => onSwitchSeason?.(seasonId),
+      refreshSeasons: async () => {},
+      endSeasonAndCreateNew: async () => ({
+        success: false,
+        error: 'Not available in read-only mode',
+      }),
+    }}
+  >
+    {children}
+  </SeasonContext.Provider>
+)
+
 // Helper functions for localStorage season persistence (per group)
 const getStorageKey = (groupId: string) => `selectedSeasonId_${groupId}`
 

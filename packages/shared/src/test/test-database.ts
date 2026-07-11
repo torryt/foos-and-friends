@@ -41,6 +41,9 @@ export function createStandardTestScenario() {
     sportType: 'foosball',
     supportedMatchTypes: ['2v2'],
     targetScore: 10,
+    joinPolicy: 'open',
+    isPublic: false,
+    publicToken: null,
   }
 
   const memberships = [

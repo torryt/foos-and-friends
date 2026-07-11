@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { AlertCircle, Loader, UserPlus, Users } from 'lucide-react'
+import { AlertCircle, Clock, Loader, UserPlus, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useGroupContext } from '@/contexts/GroupContext'
@@ -28,9 +28,11 @@ function InvitePageComponent() {
     id?: string
     name: string
     description?: string
+    requiresApproval?: boolean
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [joined, setJoined] = useState(false)
+  const [requestPending, setRequestPending] = useState(false)
   const [checkingMembership, setCheckingMembership] = useState(true)
 
   // No need to store invite code in localStorage - we'll use URL parameters
@@ -47,7 +49,13 @@ function InvitePageComponent() {
             id: result.data.id,
             name: result.data.name,
             description: result.data.description || undefined,
+            requiresApproval: result.data.joinPolicy === 'approval',
           })
+          // The user may already have a pending request for this group
+          const myRequests = await groupService.getMyPendingJoinRequests()
+          if (myRequests.data.some((r) => r.groupId === result.data?.id)) {
+            setRequestPending(true)
+          }
         } else if (result.error) {
           setError(result.error)
         }
@@ -85,6 +93,12 @@ function InvitePageComponent() {
 
     try {
       const result = await groupService.joinGroupByInvite(inviteCode)
+
+      if (result.success && result.status === 'pending') {
+        setRequestPending(true)
+        toast().success('Request sent — a group admin needs to approve it')
+        return
+      }
 
       if (result.success && result.groupId) {
         setJoined(true)
@@ -146,6 +160,30 @@ function InvitePageComponent() {
     )
   }
 
+  if (requestPending) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] p-4">
+        <div className="bg-card backdrop-blur-sm rounded-2xl p-8 max-w-md shadow-2xl border border-[var(--th-border-subtle)] text-center">
+          <div className="w-16 h-16 bg-card-hover rounded-full flex items-center justify-center mx-auto mb-4">
+            <Clock className="text-[var(--th-sport-primary)]" size={32} />
+          </div>
+          <h1 className="text-2xl font-bold text-primary mb-4">Request Pending</h1>
+          <p className="text-secondary mb-6">
+            Your request to join {groupInfo?.name ? `"${groupInfo.name}"` : 'this group'} has been
+            sent. A group admin needs to approve it before you're in.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate({ to: '/' })}
+            className="bg-sport-gradient text-white px-6 py-3 rounded-lg font-semibold hover:bg-sport-gradient-hover transition-colors"
+          >
+            Go to App
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (joined) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] p-4">
@@ -180,6 +218,12 @@ function InvitePageComponent() {
           {groupInfo?.description && (
             <p className="text-sm text-muted mt-2">{groupInfo.description}</p>
           )}
+          {groupInfo?.requiresApproval && (
+            <p className="text-xs text-muted mt-3 flex items-center justify-center gap-1.5">
+              <Clock size={12} aria-hidden="true" />
+              Joining requires approval from a group admin
+            </p>
+          )}
         </div>
 
         {error && (
@@ -201,7 +245,12 @@ function InvitePageComponent() {
             {loading ? (
               <>
                 <Loader className="animate-spin" size={20} />
-                Joining...
+                {groupInfo?.requiresApproval ? 'Sending request…' : 'Joining...'}
+              </>
+            ) : groupInfo?.requiresApproval ? (
+              <>
+                <UserPlus size={20} />
+                Request to Join
               </>
             ) : (
               <>

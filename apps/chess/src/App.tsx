@@ -97,6 +97,18 @@ function App() {
     await signOut()
   }
 
+  // Public read-only pages are token-gated and need no auth at all —
+  // rendered outside ProtectedRoute so logged-out visitors (and office TVs)
+  // never see the sign-in form. No GroupProvider/SeasonProvider either; the
+  // public subtree brings its own data context.
+  if (window.location.pathname.startsWith('/public')) {
+    return (
+      <ThemeProvider>
+        <RouterProvider router={router} context={{ user: null, onSignOut: () => {} }} />
+      </ThemeProvider>
+    )
+  }
+
   // Password recovery links from Supabase land here. Rendered outside
   // ProtectedRoute so an expired link shows the reset page's error state
   // instead of the sign-in form.

@@ -5,6 +5,7 @@ import { useRef, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { ConnectionStatus } from './ConnectionStatus'
 import { CreateGroupModal } from './CreateGroupModal'
+import { JoinRequestsBell } from './JoinRequestsBell'
 import { DeleteGroupConfirmationModal } from './DeleteGroupConfirmationModal'
 import { GroupSelector } from './GroupSelector'
 import { GroupSettingsModal } from './GroupSettingsModal'
@@ -73,6 +74,9 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
                 {user && (
                   <>
+                    {/* Pending join requests (owners/admins only see a badge) */}
+                    <JoinRequestsBell />
+
                     {/* Desktop Group Selector */}
                     <div className="hidden sm:block">
                       <GroupSelector

@@ -10,7 +10,8 @@ interface MatchHistoryProps {
   matches: Match[]
   allMatches?: Match[]
   players: Player[]
-  onAddMatch: () => void
+  // Absent in read-only contexts (public pages) — hides the record button
+  onAddMatch?: () => void
   initialSelectedPlayer?: string
   onPlayerClick?: (playerId: string) => void
 }
@@ -267,7 +268,7 @@ const MatchHistory = ({
             >
               <Filter size={16} />
             </button>
-            {!isArchived && (
+            {!isArchived && onAddMatch && (
               <button
                 type="button"
                 onClick={onAddMatch}

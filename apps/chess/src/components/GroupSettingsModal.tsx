@@ -8,8 +8,6 @@ import { groupService } from '@/lib/init'
 import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 import { NewSeasonWizard } from './NewSeasonWizard'
 
-const TARGET_SCORE_PRESETS = [5, 8, 10, 15]
-
 interface GroupSettingsModalProps {
   isOpen: boolean
   onClose: () => void
@@ -19,15 +17,11 @@ interface GroupSettingsModalProps {
 export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModalProps) => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [targetScore, setTargetScore] = useState(10)
-  const [customScore, setCustomScore] = useState('')
-  const [useCustomScore, setUseCustomScore] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showSeasonWizard, setShowSeasonWizard] = useState(false)
   const nameId = useId()
   const descriptionId = useId()
-  const customScoreId = useId()
 
   // Sharing settings (owner + admins)
   const [isPublic, setIsPublic] = useState(false)
@@ -53,10 +47,6 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
     if (isOpen && group) {
       setName(group.name)
       setDescription(group.description || '')
-      setTargetScore(group.targetScore)
-      const isPreset = TARGET_SCORE_PRESETS.includes(group.targetScore)
-      setUseCustomScore(!isPreset)
-      setCustomScore(isPreset ? '' : String(group.targetScore))
       setIsPublic(group.isPublic)
       setPublicToken(group.publicToken)
       setJoinPolicy(group.joinPolicy)
@@ -134,12 +124,6 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
     }
   }
 
-  const effectiveTargetScore = useCustomScore ? Number.parseInt(customScore, 10) : targetScore
-  const isTargetScoreValid =
-    Number.isInteger(effectiveTargetScore) &&
-    effectiveTargetScore >= 1 &&
-    effectiveTargetScore <= 100
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -154,11 +138,6 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
       return
     }
 
-    if (!isTargetScoreValid) {
-      setError('Target score must be between 1 and 100')
-      return
-    }
-
     setIsLoading(true)
     setError(null)
 
@@ -166,7 +145,6 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
       const result = await updateGroup(group.id, {
         name: name.trim(),
         description: description.trim() || null,
-        targetScore: effectiveTargetScore,
       })
 
       if (result.success) {
@@ -237,68 +215,6 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
               disabled={isLoading || !isOwner}
               maxLength={200}
             />
-          </div>
-
-          <div>
-            <span className="block text-sm font-medium text-primary mb-1">Points to win</span>
-            <p className="text-xs text-secondary mb-2">
-              Used to pre-fill the winner's score when registering matches
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {TARGET_SCORE_PRESETS.map((preset) => {
-                const isSelected = !useCustomScore && targetScore === preset
-                return (
-                  <button
-                    key={preset}
-                    type="button"
-                    disabled={isLoading || !isOwner}
-                    onClick={() => {
-                      setTargetScore(preset)
-                      setUseCustomScore(false)
-                    }}
-                    className={`min-w-12 min-h-11 px-4 py-2 rounded-[var(--th-radius-md)] border font-semibold transition-colors disabled:opacity-50 ${
-                      isSelected
-                        ? 'bg-[var(--th-sport-primary)] text-white border-transparent'
-                        : 'bg-card border-[var(--th-border)] text-primary hover:bg-card-hover'
-                    }`}
-                  >
-                    {preset}
-                  </button>
-                )
-              })}
-              <button
-                type="button"
-                disabled={isLoading || !isOwner}
-                onClick={() => setUseCustomScore(true)}
-                className={`min-h-11 px-4 py-2 rounded-[var(--th-radius-md)] border font-semibold transition-colors disabled:opacity-50 ${
-                  useCustomScore
-                    ? 'bg-[var(--th-sport-primary)] text-white border-transparent'
-                    : 'bg-card border-[var(--th-border)] text-primary hover:bg-card-hover'
-                }`}
-              >
-                Custom
-              </button>
-            </div>
-            {useCustomScore && (
-              <div className="mt-2">
-                <label htmlFor={customScoreId} className="sr-only">
-                  Custom points to win
-                </label>
-                <input
-                  type="number"
-                  id={customScoreId}
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  min="1"
-                  max="100"
-                  value={customScore}
-                  onChange={(e) => setCustomScore(e.target.value)}
-                  placeholder="e.g. 12"
-                  className="w-24 px-3 py-2 border border-[var(--th-border)] rounded-[var(--th-radius-md)] text-center font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent disabled:opacity-60"
-                  disabled={isLoading || !isOwner}
-                />
-              </div>
-            )}
           </div>
 
           {canManageSharing && (
@@ -448,7 +364,7 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
             {isOwner && (
               <button
                 type="submit"
-                disabled={isLoading || !name.trim() || !isTargetScoreValid}
+                disabled={isLoading || !name.trim()}
                 className="flex-1 px-4 py-2 bg-[var(--th-sport-primary)] text-white rounded-[var(--th-radius-md)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 {isLoading ? (

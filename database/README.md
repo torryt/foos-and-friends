@@ -63,6 +63,8 @@ All schema changes after initial setup are handled through migration files in `/
 | 015 | Add generate_unique_invite_code function |
 | **016** | **Add match type support** — `match_type` on matches, `supported_match_types` on groups, separate 1v1/2v2 computed views |
 | **017** | **Add chess sport type** — adds `chess` as valid sport_type |
+| **023** | **Join approval** — `friend_groups.join_policy`, `group_join_requests` table, approval RPCs, `join_group_by_invite_code` branches on policy |
+| **024** | **Public sharing** — `friend_groups.is_public`/`public_token`, anon-callable token-gated read RPCs for the public read-only pages |
 
 See `migrations/README.md` for naming conventions and how to create new migrations.
 

@@ -109,6 +109,9 @@ export interface DbMatch {
   team2_player2_post_ranking?: number | null
 }
 
+// How new users get into a group via the invite link
+export type JoinPolicy = 'open' | 'approval'
+
 // New types for group functionality
 export interface FriendGroup {
   id: string
@@ -127,6 +130,9 @@ export interface FriendGroup {
   sportType?: SportType // Added for multi-sport support
   supportedMatchTypes: MatchType[] // Which match types this group supports
   targetScore: number // Points needed to win a game in this group
+  joinPolicy: JoinPolicy // open = invite link joins immediately; approval = admin approves
+  isPublic: boolean // Whether the read-only public page is enabled
+  publicToken: string | null // Token for the public page URL (null until first enabled)
 }
 
 export type GroupRole = 'owner' | 'admin' | 'member'
@@ -249,9 +255,62 @@ export interface GroupCreationResult {
 
 export interface GroupJoinResult {
   success: boolean
+  status?: 'joined' | 'pending' // pending when the group requires admin approval
   groupId?: string
   groupName?: string
   error?: string
+}
+
+// A pending request to join a group (admin view, includes requester email)
+export interface JoinRequest {
+  id: string
+  groupId: string
+  userId: string
+  email: string | null
+  status: 'pending' | 'approved' | 'denied'
+  requestedAt: string
+}
+
+// Pending-request count per group, for the notification bell
+export interface PendingJoinRequestCount {
+  groupId: string
+  groupName: string
+  count: number
+}
+
+// The current user's own join requests (e.g. to show "request pending" on the invite page)
+export interface MyPendingJoinRequest {
+  id: string
+  groupId: string
+  status: 'pending' | 'approved' | 'denied'
+  requestedAt: string
+}
+
+// ===== Public read-only sharing =====
+
+// The subset of group info exposed on the public page
+export interface PublicGroupInfo {
+  id: string
+  name: string
+  description: string | null
+  inviteCode: string
+  sportType: SportType
+  supportedMatchTypes: MatchType[]
+  targetScore: number
+  joinPolicy: JoinPolicy
+}
+
+export interface PublicGroupData {
+  group: PublicGroupInfo
+  seasons: Season[]
+  players: Player[]
+  trophies: SeasonTrophy[]
+}
+
+export interface PublicSeasonStats {
+  overall: PlayerSeasonStats[]
+  oneVOne: PlayerSeasonStats[]
+  twoVTwo: PlayerSeasonStats[]
 }
 
 export interface GroupLeaveResult {

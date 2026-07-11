@@ -12,15 +12,18 @@ interface PlayerRelationshipStatsProps {
   playerId: string
   players: Player[]
   matches: Match[]
+  // Override for player links; public pages navigate within their own subtree
+  onPlayerClick?: (playerId: string) => void
 }
 
 interface RelationshipCardProps {
   relationship: RelationshipStats
   badge?: 'best' | 'worst' | 'rival' | 'easy' | null
   rank?: number
+  onPlayerClick?: (playerId: string) => void
 }
 
-function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) {
+function RelationshipCard({ relationship, badge, rank, onPlayerClick }: RelationshipCardProps) {
   const getBadgeInfo = (badge: string | null) => {
     switch (badge) {
       case 'best':
@@ -59,15 +62,26 @@ function RelationshipCard({ relationship, badge, rank }: RelationshipCardProps) 
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <Link
-                  to="/players/$playerId"
-                  params={{ playerId: relationship.playerId }}
-                  onClick={scrollToTop}
-                  className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
-                  aria-label={`View profile for ${relationship.playerName}`}
-                >
-                  {relationship.playerName}
-                </Link>
+                {onPlayerClick ? (
+                  <button
+                    type="button"
+                    onClick={() => onPlayerClick(relationship.playerId)}
+                    className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
+                    aria-label={`View profile for ${relationship.playerName}`}
+                  >
+                    {relationship.playerName}
+                  </button>
+                ) : (
+                  <Link
+                    to="/players/$playerId"
+                    params={{ playerId: relationship.playerId }}
+                    onClick={scrollToTop}
+                    className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
+                    aria-label={`View profile for ${relationship.playerName}`}
+                  >
+                    {relationship.playerName}
+                  </Link>
+                )}
                 {badgeInfo && (
                   <div
                     className={cn(
@@ -126,6 +140,7 @@ export function PlayerRelationshipStats({
   playerId,
   players,
   matches,
+  onPlayerClick,
 }: PlayerRelationshipStatsProps) {
   const [activeTab, setActiveTab] = useState<'teammates' | 'opponents'>('teammates')
   const [showAllTeammates, setShowAllTeammates] = useState(false)
@@ -212,6 +227,7 @@ export function PlayerRelationshipStats({
               <RelationshipCard
                 key={teammate.playerId}
                 relationship={teammate}
+                onPlayerClick={onPlayerClick}
                 badge={badge}
                 rank={index + 1}
               />
@@ -262,6 +278,7 @@ export function PlayerRelationshipStats({
               <RelationshipCard
                 key={opponent.playerId}
                 relationship={opponent}
+                onPlayerClick={onPlayerClick}
                 badge={badge}
                 rank={index + 1}
               />

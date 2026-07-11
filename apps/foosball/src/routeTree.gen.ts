@@ -14,8 +14,13 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MatchesRouteImport } from './routes/matches'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PublicTokenRouteImport } from './routes/public.$token'
 import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
+import { Route as PublicTokenIndexRouteImport } from './routes/public.$token.index'
+import { Route as PublicTokenTvRouteImport } from './routes/public.$token.tv'
+import { Route as PublicTokenMatchesRouteImport } from './routes/public.$token.matches'
 import { Route as GroupsGroupIdMembersRouteImport } from './routes/groups.$groupId.members'
+import { Route as PublicTokenPlayersPlayerIdRouteImport } from './routes/public.$token.players.$playerId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -42,16 +47,42 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicTokenRoute = PublicTokenRouteImport.update({
+  id: '/public/$token',
+  path: '/public/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlayersPlayerIdRoute = PlayersPlayerIdRouteImport.update({
   id: '/players/$playerId',
   path: '/players/$playerId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PublicTokenIndexRoute = PublicTokenIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicTokenRoute,
+} as any)
+const PublicTokenTvRoute = PublicTokenTvRouteImport.update({
+  id: '/tv',
+  path: '/tv',
+  getParentRoute: () => PublicTokenRoute,
+} as any)
+const PublicTokenMatchesRoute = PublicTokenMatchesRouteImport.update({
+  id: '/matches',
+  path: '/matches',
+  getParentRoute: () => PublicTokenRoute,
 } as any)
 const GroupsGroupIdMembersRoute = GroupsGroupIdMembersRouteImport.update({
   id: '/groups/$groupId/members',
   path: '/groups/$groupId/members',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicTokenPlayersPlayerIdRoute =
+  PublicTokenPlayersPlayerIdRouteImport.update({
+    id: '/players/$playerId',
+    path: '/players/$playerId',
+    getParentRoute: () => PublicTokenRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,7 +91,12 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
+  '/public/$token': typeof PublicTokenRouteWithChildren
   '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
+  '/public/$token/matches': typeof PublicTokenMatchesRoute
+  '/public/$token/tv': typeof PublicTokenTvRoute
+  '/public/$token/': typeof PublicTokenIndexRoute
+  '/public/$token/players/$playerId': typeof PublicTokenPlayersPlayerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +106,10 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
   '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
+  '/public/$token/matches': typeof PublicTokenMatchesRoute
+  '/public/$token/tv': typeof PublicTokenTvRoute
+  '/public/$token': typeof PublicTokenIndexRoute
+  '/public/$token/players/$playerId': typeof PublicTokenPlayersPlayerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +119,12 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
+  '/public/$token': typeof PublicTokenRouteWithChildren
   '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
+  '/public/$token/matches': typeof PublicTokenMatchesRoute
+  '/public/$token/tv': typeof PublicTokenTvRoute
+  '/public/$token/': typeof PublicTokenIndexRoute
+  '/public/$token/players/$playerId': typeof PublicTokenPlayersPlayerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,7 +135,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/players/$playerId'
+    | '/public/$token'
     | '/groups/$groupId/members'
+    | '/public/$token/matches'
+    | '/public/$token/tv'
+    | '/public/$token/'
+    | '/public/$token/players/$playerId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +150,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/players/$playerId'
     | '/groups/$groupId/members'
+    | '/public/$token/matches'
+    | '/public/$token/tv'
+    | '/public/$token'
+    | '/public/$token/players/$playerId'
   id:
     | '__root__'
     | '/'
@@ -108,7 +162,12 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/settings'
     | '/players/$playerId'
+    | '/public/$token'
     | '/groups/$groupId/members'
+    | '/public/$token/matches'
+    | '/public/$token/tv'
+    | '/public/$token/'
+    | '/public/$token/players/$playerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,6 +177,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   PlayersPlayerIdRoute: typeof PlayersPlayerIdRoute
+  PublicTokenRoute: typeof PublicTokenRouteWithChildren
   GroupsGroupIdMembersRoute: typeof GroupsGroupIdMembersRoute
 }
 
@@ -158,12 +218,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/public/$token': {
+      id: '/public/$token'
+      path: '/public/$token'
+      fullPath: '/public/$token'
+      preLoaderRoute: typeof PublicTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/players/$playerId': {
       id: '/players/$playerId'
       path: '/players/$playerId'
       fullPath: '/players/$playerId'
       preLoaderRoute: typeof PlayersPlayerIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/public/$token/': {
+      id: '/public/$token/'
+      path: '/'
+      fullPath: '/public/$token/'
+      preLoaderRoute: typeof PublicTokenIndexRouteImport
+      parentRoute: typeof PublicTokenRoute
+    }
+    '/public/$token/tv': {
+      id: '/public/$token/tv'
+      path: '/tv'
+      fullPath: '/public/$token/tv'
+      preLoaderRoute: typeof PublicTokenTvRouteImport
+      parentRoute: typeof PublicTokenRoute
+    }
+    '/public/$token/matches': {
+      id: '/public/$token/matches'
+      path: '/matches'
+      fullPath: '/public/$token/matches'
+      preLoaderRoute: typeof PublicTokenMatchesRouteImport
+      parentRoute: typeof PublicTokenRoute
     }
     '/groups/$groupId/members': {
       id: '/groups/$groupId/members'
@@ -172,8 +260,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroupsGroupIdMembersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/public/$token/players/$playerId': {
+      id: '/public/$token/players/$playerId'
+      path: '/players/$playerId'
+      fullPath: '/public/$token/players/$playerId'
+      preLoaderRoute: typeof PublicTokenPlayersPlayerIdRouteImport
+      parentRoute: typeof PublicTokenRoute
+    }
   }
 }
+
+interface PublicTokenRouteChildren {
+  PublicTokenMatchesRoute: typeof PublicTokenMatchesRoute
+  PublicTokenTvRoute: typeof PublicTokenTvRoute
+  PublicTokenIndexRoute: typeof PublicTokenIndexRoute
+  PublicTokenPlayersPlayerIdRoute: typeof PublicTokenPlayersPlayerIdRoute
+}
+
+const PublicTokenRouteChildren: PublicTokenRouteChildren = {
+  PublicTokenMatchesRoute: PublicTokenMatchesRoute,
+  PublicTokenTvRoute: PublicTokenTvRoute,
+  PublicTokenIndexRoute: PublicTokenIndexRoute,
+  PublicTokenPlayersPlayerIdRoute: PublicTokenPlayersPlayerIdRoute,
+}
+
+const PublicTokenRouteWithChildren = PublicTokenRoute._addFileChildren(
+  PublicTokenRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -182,6 +295,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
   PlayersPlayerIdRoute: PlayersPlayerIdRoute,
+  PublicTokenRoute: PublicTokenRouteWithChildren,
   GroupsGroupIdMembersRoute: GroupsGroupIdMembersRoute,
 }
 export const routeTree = rootRouteImport

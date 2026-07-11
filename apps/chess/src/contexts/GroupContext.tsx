@@ -1,4 +1,4 @@
-import type { FriendGroup, GroupMember, SportType } from '@foos/shared'
+import type { FriendGroup, GroupMember, GroupSettingsUpdate, SportType } from '@foos/shared'
 import type { ReactNode } from 'react'
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
@@ -16,13 +16,19 @@ interface GroupContextType {
   switchGroup: (groupId: string) => void
   refreshGroups: () => Promise<void>
   createGroup: (name: string, description?: string) => Promise<{ success: boolean; error?: string }>
-  joinGroup: (inviteCode: string) => Promise<{ success: boolean; error?: string }>
+  joinGroup: (
+    inviteCode: string,
+  ) => Promise<{ success: boolean; status?: 'joined' | 'pending'; error?: string }>
   deleteGroup: (groupId: string) => Promise<{
     success: boolean
     error?: string
     deletedCounts?: { players: number; matches: number; members: number }
   }>
   leaveGroup: (groupId: string) => Promise<{ success: boolean; error?: string }>
+  updateGroup: (
+    groupId: string,
+    updates: GroupSettingsUpdate,
+  ) => Promise<{ success: boolean; error?: string }>
   getGroupMembers: (groupId: string) => Promise<{ data: GroupMember[]; error: string | null }>
   promoteMember: (
     groupId: string,
@@ -89,6 +95,8 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   // Guard async state updates: getUserGroups can resolve after unmount
   // (e.g. test teardown), where setState would hit a dead environment.
   const mountedRef = useRef(true)
+  // Whether groups have been fetched at least once for the current user
+  const hasLoadedOnceRef = useRef(false)
   useEffect(() => {
     mountedRef.current = true
     return () => {
@@ -100,7 +108,11 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   const refreshGroups = useCallback(async () => {
     if (!isAuthenticated || !user) return
 
-    setLoading(true)
+    // Only block the UI on the first load. Background refreshes (after
+    // settings changes, join approvals, …) must not flip `loading`, because
+    // AppContent swaps the whole router for a loading screen while it's true —
+    // unmounting any open modal or dropdown.
+    if (!hasLoadedOnceRef.current) setLoading(true)
     setError(null)
 
     try {
@@ -140,7 +152,10 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
       setUserGroups([])
       setCurrentGroup(null)
     } finally {
-      if (mountedRef.current) setLoading(false)
+      if (mountedRef.current) {
+        hasLoadedOnceRef.current = true
+        setLoading(false)
+      }
     }
   }, [isAuthenticated, user])
 
@@ -186,6 +201,9 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['1v1'],
           targetScore: 10,
+          joinPolicy: 'open',
+          isPublic: false,
+          publicToken: null,
         }
 
         // Set the new group as current immediately
@@ -218,6 +236,11 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     try {
       const result = await groupService.joinGroupByInvite(inviteCode, user.id)
 
+      // Approval-gated group: a request was filed, nothing to switch to yet
+      if (result.success && result.status === 'pending') {
+        return { success: true, status: 'pending' as const }
+      }
+
       if (result.success && result.groupId) {
         // Immediately set the joined group as current to avoid UI issues
         // This ensures smooth transition from FirstTimeUserScreen to the main app
@@ -236,6 +259,9 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['1v1'],
           targetScore: 10,
+          joinPolicy: 'open',
+          isPublic: false,
+          publicToken: null,
         }
 
         // Set the joined group as current immediately
@@ -344,6 +370,35 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     }
   }
 
+  // Update group settings (owner only)
+  const updateGroup = async (groupId: string, updates: GroupSettingsUpdate) => {
+    if (!isAuthenticated || !user) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    setError(null)
+
+    try {
+      const result = await groupService.updateGroup(groupId, updates)
+
+      if (result.error || !result.data) {
+        setError(result.error || 'Failed to update group')
+        return { success: false, error: result.error || 'Failed to update group' }
+      }
+
+      const updated = result.data
+      // Merge into local state, preserving client-side fields like playerCount/isOwner
+      setUserGroups((groups) => groups.map((g) => (g.id === groupId ? { ...g, ...updated } : g)))
+      setCurrentGroup((current) => (current?.id === groupId ? { ...current, ...updated } : current))
+
+      return { success: true }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update group'
+      setError(errorMessage)
+      return { success: false, error: errorMessage }
+    }
+  }
+
   // List members of a group (owner/admin only, enforced server-side)
   const getGroupMembers = useCallback(async (groupId: string) => {
     return await groupService.getGroupMembers(groupId)
@@ -390,6 +445,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         joinGroup,
         deleteGroup,
         leaveGroup,
+        updateGroup,
         getGroupMembers,
         promoteMember,
         demoteMember,

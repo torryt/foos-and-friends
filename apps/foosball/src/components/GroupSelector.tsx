@@ -49,6 +49,18 @@ export const GroupSelector = ({
     }
   }
 
+  // Public groups share the public page instead — it shows the group
+  // read-only and carries its own Join button.
+  const copyPublicLink = async (publicToken: string, groupName: string) => {
+    try {
+      const publicLink = `${window.location.origin}/public/${publicToken}`
+      await navigator.clipboard.writeText(publicLink)
+      toast().success(`Public link for "${groupName}" copied to clipboard!`)
+    } catch (_err) {
+      toast().error('Failed to copy public link')
+    }
+  }
+
   const toggleGroupExpansion = (groupId: string) => {
     const newExpanded = new Set(expandedGroups)
     if (newExpanded.has(groupId)) {
@@ -155,8 +167,8 @@ export const GroupSelector = ({
                         </button>
                       )}
 
-                      {/* Group Settings - owners only */}
-                      {group.isOwner && (
+                      {/* Group Settings - owners and admins (admins manage sharing) */}
+                      {(group.isOwner || group.currentUserRole === 'admin') && (
                         <button
                           type="button"
                           onClick={() => {
@@ -188,15 +200,27 @@ export const GroupSelector = ({
                         </button>
                       )}
 
-                      {/* Copy Invite Link */}
-                      <button
-                        type="button"
-                        onClick={() => copyInviteLink(group.inviteCode, group.name)}
-                        className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-primary"
-                      >
-                        <Clipboard size={14} className="text-muted" />
-                        Copy Invite Link
-                      </button>
+                      {/* Invite players: public groups share the public page
+                          (view + join); private groups share the invite link */}
+                      {group.isPublic && group.publicToken ? (
+                        <button
+                          type="button"
+                          onClick={() => copyPublicLink(group.publicToken as string, group.name)}
+                          className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-primary"
+                        >
+                          <Clipboard size={14} className="text-muted" />
+                          Invite Players
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => copyInviteLink(group.inviteCode, group.name)}
+                          className="w-full text-left px-6 py-2 rounded-md bg-card-hover hover:bg-card-hover transition-colors flex items-center gap-3 text-sm font-medium text-primary"
+                        >
+                          <Clipboard size={14} className="text-muted" />
+                          Copy Invite Link
+                        </button>
+                      )}
 
                       {/* Delete Group - Only show for groups with more than 1 total group and if group owner */}
                       {group.isOwner && (

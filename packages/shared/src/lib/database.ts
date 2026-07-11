@@ -1,10 +1,15 @@
 import type {
   FriendGroup,
   GroupMember,
+  JoinRequest,
   Match,
   MatchType,
+  MyPendingJoinRequest,
+  PendingJoinRequestCount,
   Player,
   PlayerSeasonStats,
+  PublicGroupData,
+  PublicSeasonStats,
   Season,
   SeasonTrophy,
   SportType,
@@ -38,8 +43,16 @@ export interface GroupCreationRpcResult {
 
 export interface GroupJoinRpcResult {
   success: boolean
+  status?: 'joined' | 'pending'
   group_id?: string
   group_name?: string
+  error?: string
+}
+
+export interface GroupSharingRpcResult {
+  success: boolean
+  is_public?: boolean
+  public_token?: string | null
   error?: string
 }
 
@@ -106,6 +119,29 @@ export interface Database {
   deleteGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupDeletionRpcResult>>
   leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>>
   updateGroup(groupId: string, updates: GroupSettingsUpdate): Promise<DatabaseResult<FriendGroup>>
+
+  // Sharing operations (owner/admin via RPC role checks)
+  setGroupSharing(
+    groupId: string,
+    isPublic: boolean,
+  ): Promise<DatabaseResult<{ isPublic: boolean; publicToken: string | null }>>
+  regeneratePublicToken(groupId: string): Promise<DatabaseResult<{ publicToken: string }>>
+  setGroupJoinPolicy(
+    groupId: string,
+    joinPolicy: 'open' | 'approval',
+  ): Promise<DatabaseResult<MemberActionRpcResult>>
+
+  // Public read-only access (token-gated, works unauthenticated)
+  getPublicGroupData(token: string): Promise<DatabaseResult<PublicGroupData>>
+  getPublicMatches(token: string, seasonId?: string): Promise<DatabaseListResult<Match>>
+  getPublicSeasonStats(token: string, seasonId: string): Promise<DatabaseResult<PublicSeasonStats>>
+
+  // Join request operations
+  getPendingJoinRequests(groupId: string): Promise<DatabaseListResult<JoinRequest>>
+  getPendingJoinRequestCounts(): Promise<DatabaseListResult<PendingJoinRequestCount>>
+  approveJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>>
+  denyJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>>
+  getMyPendingJoinRequests(): Promise<DatabaseListResult<MyPendingJoinRequest>>
 
   // Group membership operations
   getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMember>>

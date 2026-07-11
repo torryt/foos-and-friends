@@ -7,11 +7,18 @@ import type {
   FriendGroup,
   GroupMember,
   GroupRole,
+  JoinPolicy,
+  JoinRequest,
   Match,
   MatchType,
+  MyPendingJoinRequest,
+  PendingJoinRequestCount,
   Player,
   PlayerMatchStats,
   PlayerSeasonStats,
+  PublicGroupData,
+  PublicGroupInfo,
+  PublicSeasonStats,
   Season,
   SeasonTrophy,
   SportType,
@@ -27,6 +34,7 @@ import type {
   GroupLeaveRpcResult,
   GroupMembersRpcResult,
   GroupSettingsUpdate,
+  GroupSharingRpcResult,
   MemberActionRpcResult,
   SeasonCreationRpcResult,
 } from './database.ts'
@@ -202,6 +210,15 @@ const dbSeasonTrophyToSeasonTrophy = (dbTrophy: DbSeasonTrophy): SeasonTrophy =>
   createdAt: dbTrophy.created_at,
 })
 
+// Sharing-related fields shared by every friend_groups row mapping
+const groupSharingFields = (
+  row: Record<string, unknown>,
+): Pick<FriendGroup, 'joinPolicy' | 'isPublic' | 'publicToken'> => ({
+  joinPolicy: (row.join_policy as JoinPolicy) ?? 'open',
+  isPublic: (row.is_public as boolean) ?? false,
+  publicToken: (row.public_token as string | null) ?? null,
+})
+
 export class SupabaseDatabase implements Database {
   async getUserGroups(
     userId: string,
@@ -248,6 +265,7 @@ export class SupabaseDatabase implements Database {
         sportType: group.sport_type as SportType,
         supportedMatchTypes: (group.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (group.target_score as number) ?? 10,
+        ...groupSharingFields(group),
       }))
 
       return { data: groups, error: null }
@@ -284,6 +302,7 @@ export class SupabaseDatabase implements Database {
         sportType: data.sport_type as SportType,
         supportedMatchTypes: (data.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (data.target_score as number) ?? 10,
+        ...groupSharingFields(data),
       }
 
       return { data: group, error: null }
@@ -323,6 +342,7 @@ export class SupabaseDatabase implements Database {
         sportType: groupData.sport_type as SportType,
         supportedMatchTypes: (groupData.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (groupData.target_score as number) ?? 10,
+        ...groupSharingFields(groupData),
       }
 
       return { data: group, error: null }
@@ -438,6 +458,7 @@ export class SupabaseDatabase implements Database {
         sportType: data.sport_type as SportType,
         supportedMatchTypes: (data.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (data.target_score as number) ?? 10,
+        ...groupSharingFields(data),
       }
 
       return { data: group, error: null }
@@ -1128,6 +1149,351 @@ export class SupabaseDatabase implements Database {
       return {
         data: [],
         error: err instanceof Error ? err.message : 'Failed to fetch season leaderboard',
+      }
+    }
+  }
+
+  // ===== SHARING OPERATIONS =====
+
+  async setGroupSharing(
+    groupId: string,
+    isPublic: boolean,
+  ): Promise<DatabaseResult<{ isPublic: boolean; publicToken: string | null }>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('set_group_sharing', {
+        p_group_id: groupId,
+        p_is_public: isPublic,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      const result = data as GroupSharingRpcResult
+      if (!result.success) {
+        return { data: null, error: result.error || 'Failed to update sharing' }
+      }
+
+      return {
+        data: { isPublic: result.is_public ?? isPublic, publicToken: result.public_token ?? null },
+        error: null,
+      }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to update sharing' }
+    }
+  }
+
+  async regeneratePublicToken(
+    groupId: string,
+  ): Promise<DatabaseResult<{ publicToken: string }>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('regenerate_public_token', {
+        p_group_id: groupId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      const result = data as GroupSharingRpcResult
+      if (!result.success || !result.public_token) {
+        return { data: null, error: result.error || 'Failed to regenerate token' }
+      }
+
+      return { data: { publicToken: result.public_token }, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to regenerate token',
+      }
+    }
+  }
+
+  async setGroupJoinPolicy(
+    groupId: string,
+    joinPolicy: JoinPolicy,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('set_group_join_policy', {
+        p_group_id: groupId,
+        p_join_policy: joinPolicy,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as MemberActionRpcResult, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to update join policy',
+      }
+    }
+  }
+
+  // ===== PUBLIC READ-ONLY ACCESS =====
+
+  async getPublicGroupData(token: string): Promise<DatabaseResult<PublicGroupData>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('get_public_group_data', { p_token: token })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      if (!data.success) {
+        return { data: null, error: data.error || 'not_found' }
+      }
+
+      const group: PublicGroupInfo = {
+        id: data.group.id,
+        name: data.group.name,
+        description: data.group.description,
+        inviteCode: data.group.invite_code,
+        sportType: data.group.sport_type as SportType,
+        supportedMatchTypes: (data.group.supported_match_types as MatchType[]) || ['2v2'],
+        targetScore: (data.group.target_score as number) ?? 10,
+        joinPolicy: (data.group.join_policy as JoinPolicy) ?? 'open',
+      }
+
+      return {
+        data: {
+          group,
+          seasons: ((data.seasons || []) as DbSeason[]).map(dbSeasonToSeason),
+          players: ((data.players || []) as DbPlayer[]).map(dbPlayerToPlayer),
+          trophies: ((data.trophies || []) as DbSeasonTrophy[]).map(dbSeasonTrophyToSeasonTrophy),
+        },
+        error: null,
+      }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch public group data',
+      }
+    }
+  }
+
+  async getPublicMatches(token: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('get_public_matches', {
+        p_token: token,
+        p_season_id: seasonId ?? null,
+      })
+
+      if (error) {
+        return { data: [], error: error.message }
+      }
+
+      if (!data.success) {
+        return { data: [], error: data.error || 'not_found' }
+      }
+
+      const playersById = new Map<string, Player>()
+      for (const dbPlayer of (data.players || []) as DbPlayer[]) {
+        playersById.set(dbPlayer.id, dbPlayerToPlayer(dbPlayer))
+      }
+
+      const matches: Match[] = []
+      for (const dbMatch of (data.matches || []) as DbMatch[]) {
+        try {
+          matches.push(await dbMatchToMatch(dbMatch, playersById))
+        } catch {
+          // Skip matches with missing players (mirrors getMatchesByGroup)
+        }
+      }
+
+      return { data: matches, error: null }
+    } catch (err) {
+      return {
+        data: [],
+        error: err instanceof Error ? err.message : 'Failed to fetch public matches',
+      }
+    }
+  }
+
+  async getPublicSeasonStats(
+    token: string,
+    seasonId: string,
+  ): Promise<DatabaseResult<PublicSeasonStats>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('get_public_season_stats', {
+        p_token: token,
+        p_season_id: seasonId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      if (!data.success) {
+        return { data: null, error: data.error || 'not_found' }
+      }
+
+      const mapStats = (rows: unknown): PlayerSeasonStats[] =>
+        ((rows || []) as DbPlayerSeasonStats[]).map(dbPlayerSeasonStatsToPlayerSeasonStats)
+
+      return {
+        data: {
+          overall: mapStats(data.overall),
+          oneVOne: mapStats(data.one_v_one),
+          twoVTwo: mapStats(data.two_v_two),
+        },
+        error: null,
+      }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch public season stats',
+      }
+    }
+  }
+
+  // ===== JOIN REQUEST OPERATIONS =====
+
+  async getPendingJoinRequests(groupId: string): Promise<DatabaseListResult<JoinRequest>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('get_pending_join_requests', {
+        p_group_id: groupId,
+      })
+
+      if (error) {
+        return { data: [], error: error.message }
+      }
+
+      if (!data.success) {
+        return { data: [], error: data.error || 'Failed to fetch join requests' }
+      }
+
+      const requests: JoinRequest[] = (data.requests || []).map(
+        (r: {
+          id: string
+          group_id: string
+          user_id: string
+          email: string | null
+          status: JoinRequest['status']
+          requested_at: string
+        }) => ({
+          id: r.id,
+          groupId: r.group_id,
+          userId: r.user_id,
+          email: r.email,
+          status: r.status,
+          requestedAt: r.requested_at,
+        }),
+      )
+
+      return { data: requests, error: null }
+    } catch (err) {
+      return {
+        data: [],
+        error: err instanceof Error ? err.message : 'Failed to fetch join requests',
+      }
+    }
+  }
+
+  async getPendingJoinRequestCounts(): Promise<DatabaseListResult<PendingJoinRequestCount>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('get_pending_join_request_counts')
+
+      if (error) {
+        return { data: [], error: error.message }
+      }
+
+      if (!data.success) {
+        return { data: [], error: data.error || 'Failed to fetch join request counts' }
+      }
+
+      const counts: PendingJoinRequestCount[] = (data.counts || []).map(
+        (c: { group_id: string; group_name: string; count: number }) => ({
+          groupId: c.group_id,
+          groupName: c.group_name,
+          count: c.count,
+        }),
+      )
+
+      return { data: counts, error: null }
+    } catch (err) {
+      return {
+        data: [],
+        error: err instanceof Error ? err.message : 'Failed to fetch join request counts',
+      }
+    }
+  }
+
+  async approveJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('approve_join_request', {
+        p_request_id: requestId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as MemberActionRpcResult, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to approve join request',
+      }
+    }
+  }
+
+  async denyJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('deny_join_request', {
+        p_request_id: requestId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as MemberActionRpcResult, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to deny join request',
+      }
+    }
+  }
+
+  async getMyPendingJoinRequests(): Promise<DatabaseListResult<MyPendingJoinRequest>> {
+    try {
+      const supabase = getSupabase()
+      // Own rows are directly readable via RLS; no RPC needed
+      const { data, error } = await supabase
+        .from('group_join_requests')
+        .select('id, group_id, status, requested_at')
+        .eq('status', 'pending')
+
+      if (error) {
+        return { data: [], error: error.message }
+      }
+
+      const requests: MyPendingJoinRequest[] = (data || []).map((r) => ({
+        id: r.id,
+        groupId: r.group_id,
+        status: r.status,
+        requestedAt: r.requested_at,
+      }))
+
+      return { data: requests, error: null }
+    } catch (err) {
+      return {
+        data: [],
+        error: err instanceof Error ? err.message : 'Failed to fetch own join requests',
       }
     }
   }

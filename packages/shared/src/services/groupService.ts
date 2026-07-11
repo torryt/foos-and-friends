@@ -6,6 +6,13 @@ import type {
   GroupLeaveResult,
   GroupMember,
   GroupMemberActionResult,
+  JoinPolicy,
+  JoinRequest,
+  Match,
+  MyPendingJoinRequest,
+  PendingJoinRequestCount,
+  PublicGroupData,
+  PublicSeasonStats,
   SportType,
 } from '../types/index.ts'
 
@@ -52,6 +59,7 @@ export class GroupService {
 
     return {
       success: result.data?.success ?? false,
+      status: result.data?.status,
       groupId: result.data?.group_id ?? '',
       groupName: result.data?.group_name ?? '',
       error: result.data?.error ?? undefined,
@@ -137,6 +145,107 @@ export class GroupService {
     updates: GroupSettingsUpdate,
   ): Promise<{ data: FriendGroup | null; error: string | null }> {
     return await this.db.updateGroup(groupId, updates)
+  }
+
+  // ===== Sharing =====
+
+  async setGroupSharing(
+    groupId: string,
+    isPublic: boolean,
+  ): Promise<{ data: { isPublic: boolean; publicToken: string | null } | null; error: string | null }> {
+    return await this.db.setGroupSharing(groupId, isPublic)
+  }
+
+  async regeneratePublicToken(
+    groupId: string,
+  ): Promise<{ data: { publicToken: string } | null; error: string | null }> {
+    return await this.db.regeneratePublicToken(groupId)
+  }
+
+  async setGroupJoinPolicy(
+    groupId: string,
+    joinPolicy: JoinPolicy,
+  ): Promise<GroupMemberActionResult> {
+    const result = await this.db.setGroupJoinPolicy(groupId, joinPolicy)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+    }
+  }
+
+  // ===== Public read-only access =====
+
+  async getPublicGroupData(
+    token: string,
+  ): Promise<{ data: PublicGroupData | null; error: string | null }> {
+    return await this.db.getPublicGroupData(token)
+  }
+
+  async getPublicMatches(
+    token: string,
+    seasonId?: string,
+  ): Promise<{ data: Match[]; error: string | null }> {
+    return await this.db.getPublicMatches(token, seasonId)
+  }
+
+  async getPublicSeasonStats(
+    token: string,
+    seasonId: string,
+  ): Promise<{ data: PublicSeasonStats | null; error: string | null }> {
+    return await this.db.getPublicSeasonStats(token, seasonId)
+  }
+
+  // ===== Join requests =====
+
+  async getPendingJoinRequests(
+    groupId: string,
+  ): Promise<{ data: JoinRequest[]; error: string | null }> {
+    return await this.db.getPendingJoinRequests(groupId)
+  }
+
+  async getPendingJoinRequestCounts(): Promise<{
+    data: PendingJoinRequestCount[]
+    error: string | null
+  }> {
+    return await this.db.getPendingJoinRequestCounts()
+  }
+
+  async approveJoinRequest(requestId: string): Promise<GroupMemberActionResult> {
+    const result = await this.db.approveJoinRequest(requestId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+    }
+  }
+
+  async denyJoinRequest(requestId: string): Promise<GroupMemberActionResult> {
+    const result = await this.db.denyJoinRequest(requestId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+    }
+  }
+
+  async getMyPendingJoinRequests(): Promise<{
+    data: MyPendingJoinRequest[]
+    error: string | null
+  }> {
+    return await this.db.getMyPendingJoinRequests()
   }
 
   async leaveGroup(groupId: string, userId: string): Promise<GroupLeaveResult> {

@@ -14,10 +14,16 @@ import type {
   FriendGroup,
   GroupMember,
   GroupMembership,
+  JoinPolicy,
+  JoinRequest,
   Match,
   MatchType,
+  MyPendingJoinRequest,
+  PendingJoinRequestCount,
   Player,
   PlayerSeasonStats,
+  PublicGroupData,
+  PublicSeasonStats,
   Season,
   SeasonTrophy,
   SportType,
@@ -109,6 +115,9 @@ export class FakeDatabase implements Database {
       sportType,
       supportedMatchTypes: ['2v2'],
       targetScore: 10,
+      joinPolicy: 'open',
+      isPublic: false,
+      publicToken: null,
     }
 
     this.groups.push(group)
@@ -176,6 +185,27 @@ export class FakeDatabase implements Database {
       }
     }
 
+    // Approval-gated groups get a pending request instead of a membership
+    if (group.joinPolicy === 'approval') {
+      const pending = this.joinRequests.find(
+        (r) => r.groupId === group.id && r.userId === userId && r.status === 'pending',
+      )
+      if (!pending) {
+        this.joinRequests.push({
+          id: this.generateId(),
+          groupId: group.id,
+          userId,
+          email: `${userId}@fake.local`,
+          status: 'pending',
+          requestedAt: new Date().toISOString(),
+        })
+      }
+      return {
+        data: { success: true, status: 'pending', group_id: group.id, group_name: group.name },
+        error: null,
+      }
+    }
+
     // Check capacity
     const currentMembers = this.memberships.filter(
       (m) => m.groupId === group.id && m.isActive,
@@ -202,6 +232,7 @@ export class FakeDatabase implements Database {
     return {
       data: {
         success: true,
+        status: 'joined',
         group_id: group.id,
         group_name: group.name,
       },
@@ -418,6 +449,214 @@ export class FakeDatabase implements Database {
 
     this.memberships = this.memberships.filter((m) => m.id !== target.id)
     return { data: { success: true }, error: null }
+  }
+
+  // Sharing operations
+  joinRequests: JoinRequest[] = []
+
+  async setGroupSharing(
+    groupId: string,
+    isPublic: boolean,
+  ): Promise<DatabaseResult<{ isPublic: boolean; publicToken: string | null }>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return { data: null, error: 'Only group owners and admins can change sharing settings' }
+    }
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: null, error: 'Group not found' }
+    }
+    if (isPublic && !group.publicToken) {
+      group.publicToken = `fake-token-${this.nextId++}`
+    }
+    group.isPublic = isPublic
+    return { data: { isPublic: group.isPublic, publicToken: group.publicToken }, error: null }
+  }
+
+  async regeneratePublicToken(groupId: string): Promise<DatabaseResult<{ publicToken: string }>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return { data: null, error: 'Only group owners and admins can change sharing settings' }
+    }
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: null, error: 'Group not found' }
+    }
+    group.publicToken = `fake-token-${this.nextId++}`
+    return { data: { publicToken: group.publicToken }, error: null }
+  }
+
+  async setGroupJoinPolicy(
+    groupId: string,
+    joinPolicy: JoinPolicy,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return {
+        data: { success: false, error: 'Only group owners and admins can change the join policy' },
+        error: null,
+      }
+    }
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: { success: false, error: 'Group not found' }, error: null }
+    }
+    group.joinPolicy = joinPolicy
+    return { data: { success: true }, error: null }
+  }
+
+  // Public read-only access
+  async getPublicGroupData(token: string): Promise<DatabaseResult<PublicGroupData>> {
+    const group = this.groups.find((g) => g.publicToken === token && g.isPublic && g.isActive)
+    if (!group) {
+      return { data: null, error: 'not_found' }
+    }
+    return {
+      data: {
+        group: {
+          id: group.id,
+          name: group.name,
+          description: group.description,
+          inviteCode: group.inviteCode,
+          sportType: group.sportType ?? 'foosball',
+          supportedMatchTypes: group.supportedMatchTypes,
+          targetScore: group.targetScore,
+          joinPolicy: group.joinPolicy,
+        },
+        seasons: this.seasons.filter((s) => s.groupId === group.id),
+        players: this.players.filter((p) => p.groupId === group.id),
+        trophies: this.trophies.filter((t) => t.groupId === group.id),
+      },
+      error: null,
+    }
+  }
+
+  async getPublicMatches(token: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
+    const group = this.groups.find((g) => g.publicToken === token && g.isPublic && g.isActive)
+    if (!group) {
+      return { data: [], error: 'not_found' }
+    }
+    let matches = this.matches.filter((m) => m.groupId === group.id)
+    if (seasonId) {
+      matches = matches.filter((m) => m.seasonId === seasonId)
+    }
+    return { data: matches, error: null }
+  }
+
+  async getPublicSeasonStats(
+    _token: string,
+    _seasonId: string,
+  ): Promise<DatabaseResult<PublicSeasonStats>> {
+    return { data: null, error: 'Not implemented in fake' }
+  }
+
+  // Join request operations
+  async getPendingJoinRequests(groupId: string): Promise<DatabaseListResult<JoinRequest>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return { data: [], error: 'Only group owners and admins can list join requests' }
+    }
+    return {
+      data: this.joinRequests.filter((r) => r.groupId === groupId && r.status === 'pending'),
+      error: null,
+    }
+  }
+
+  async getPendingJoinRequestCounts(): Promise<DatabaseListResult<PendingJoinRequestCount>> {
+    const adminGroupIds = this.memberships
+      .filter(
+        (m) =>
+          m.userId === this.currentUserId &&
+          m.isActive &&
+          (m.role === 'owner' || m.role === 'admin'),
+      )
+      .map((m) => m.groupId)
+
+    const counts: PendingJoinRequestCount[] = []
+    for (const groupId of adminGroupIds) {
+      const group = this.groups.find((g) => g.id === groupId && g.isActive)
+      if (!group) continue
+      const count = this.joinRequests.filter(
+        (r) => r.groupId === groupId && r.status === 'pending',
+      ).length
+      if (count > 0) {
+        counts.push({ groupId, groupName: group.name, count })
+      }
+    }
+    return { data: counts, error: null }
+  }
+
+  async approveJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>> {
+    const request = this.joinRequests.find((r) => r.id === requestId)
+    if (!request || request.status !== 'pending') {
+      return {
+        data: { success: false, error: 'Join request not found or already resolved' },
+        error: null,
+      }
+    }
+    const callerRole = this.getCallerRole(request.groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return {
+        data: { success: false, error: 'Only group owners and admins can approve join requests' },
+        error: null,
+      }
+    }
+    const group = this.groups.find((g) => g.id === request.groupId && g.isActive)
+    if (!group) {
+      return { data: { success: false, error: 'Group no longer exists' }, error: null }
+    }
+    const memberCount = this.memberships.filter(
+      (m) => m.groupId === group.id && m.isActive,
+    ).length
+    if (memberCount >= group.maxMembers) {
+      return { data: { success: false, error: 'Group is at maximum capacity' }, error: null }
+    }
+
+    this.memberships.push({
+      id: this.generateId(),
+      groupId: group.id,
+      userId: request.userId,
+      role: 'member',
+      isActive: true,
+      invitedBy: this.currentUserId,
+      joinedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    })
+    request.status = 'approved'
+    return { data: { success: true }, error: null }
+  }
+
+  async denyJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>> {
+    const request = this.joinRequests.find((r) => r.id === requestId)
+    if (!request || request.status !== 'pending') {
+      return {
+        data: { success: false, error: 'Join request not found or already resolved' },
+        error: null,
+      }
+    }
+    const callerRole = this.getCallerRole(request.groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return {
+        data: { success: false, error: 'Only group owners and admins can deny join requests' },
+        error: null,
+      }
+    }
+    request.status = 'denied'
+    return { data: { success: true }, error: null }
+  }
+
+  async getMyPendingJoinRequests(): Promise<DatabaseListResult<MyPendingJoinRequest>> {
+    return {
+      data: this.joinRequests
+        .filter((r) => r.userId === this.currentUserId && r.status === 'pending')
+        .map((r) => ({
+          id: r.id,
+          groupId: r.groupId,
+          status: r.status,
+          requestedAt: r.requestedAt,
+        })),
+      error: null,
+    }
   }
 
   // Player operations

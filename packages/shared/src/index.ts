@@ -43,7 +43,10 @@ export { createTrophiesService, TrophiesService } from './services/trophiesServi
 // Mock mode (local development without Supabase)
 export {
   buildMockSeed,
+  MOCK_APPROVAL_GROUP_ID,
+  MOCK_APPROVAL_INVITE_CODE,
   MOCK_GROUP_ID,
+  MOCK_PUBLIC_TOKEN,
   MOCK_SEASON_ID,
   MOCK_USER,
   MOCK_USER_ID,

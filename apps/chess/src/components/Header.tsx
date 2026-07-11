@@ -7,7 +7,9 @@ import { ConnectionStatus } from './ConnectionStatus'
 import { CreateGroupModal } from './CreateGroupModal'
 import { DeleteGroupConfirmationModal } from './DeleteGroupConfirmationModal'
 import { GroupSelector } from './GroupSelector'
+import { GroupSettingsModal } from './GroupSettingsModal'
 import { JoinGroupModal } from './JoinGroupModal'
+import { JoinRequestsBell } from './JoinRequestsBell'
 import { LeaveGroupConfirmationModal } from './LeaveGroupConfirmationModal'
 
 interface HeaderProps {
@@ -23,6 +25,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
   const [showLeaveGroup, setShowLeaveGroup] = useState(false)
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null)
   const [groupToLeave, setGroupToLeave] = useState<string | null>(null)
+  const [groupToEdit, setGroupToEdit] = useState<string | null>(null)
   const { currentGroup, userGroups, deleteGroup, leaveGroup } = useGroupContext()
   const profileDropdownRef = useRef<HTMLDivElement>(null)
   useClickOutside(profileDropdownRef, () => setShowProfileDropdown(false), showProfileDropdown)
@@ -71,6 +74,9 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
                 {user && (
                   <>
+                    {/* Pending join requests (owners/admins only see a badge) */}
+                    <JoinRequestsBell />
+
                     {/* Desktop Group Selector */}
                     <div className="hidden sm:block">
                       <GroupSelector
@@ -78,6 +84,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                         onJoinGroup={() => setShowJoinGroup(true)}
                         onDeleteGroup={handleDeleteGroup}
                         onLeaveGroup={handleLeaveGroup}
+                        onGroupSettings={setGroupToEdit}
                       />
                     </div>
 
@@ -89,6 +96,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                           onJoinGroup={() => setShowJoinGroup(true)}
                           onDeleteGroup={handleDeleteGroup}
                           onLeaveGroup={handleLeaveGroup}
+                          onGroupSettings={setGroupToEdit}
                         />
                       ) : (
                         <div className="bg-card px-2 py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)]">
@@ -163,6 +171,12 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
 
       {/* Modals */}
       <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
+
+      <GroupSettingsModal
+        isOpen={groupToEdit !== null}
+        onClose={() => setGroupToEdit(null)}
+        group={groupToEdit ? userGroups.find((g) => g.id === groupToEdit) || null : null}
+      />
 
       <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
 

@@ -1,0 +1,224 @@
+import type { Match, Player, PlayerSeasonStats, SeasonTrophy } from '@foos/shared'
+import { calculateStreaks, scrollToTop } from '@foos/shared'
+import { Calendar } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
+import { PlayerHeader } from '@/components/player-profile/PlayerHeader'
+import { PlayerPositionStats } from '@/components/player-profile/PlayerPositionStats'
+import { PlayerRankingVisualization } from '@/components/player-profile/PlayerRankingVisualization'
+import { PlayerRecentMatches } from '@/components/player-profile/PlayerRecentMatches'
+import { PlayerRelationshipStats } from '@/components/player-profile/PlayerRelationshipStats'
+import { PlayerStatsCards } from '@/components/player-profile/PlayerStatsCards'
+import { Card } from '@/components/ui/Card'
+import { usePositionStats } from '@/hooks/usePositionStats'
+import { useContinuousRankingHistory, useRankingHistory } from '@/hooks/useRankingHistory'
+
+interface PlayerProfileContentProps {
+  playerId: string
+  players: Player[]
+  seasonStats: PlayerSeasonStats[]
+  allMatches: Match[]
+  trophies: SeasonTrophy[]
+  seasonName?: string
+  loading: boolean
+  // False on the public read-only pages: hides profile editing
+  canEdit: boolean
+  onUpdatePlayer?: (playerId: string, updates: Partial<Player>) => Promise<void>
+  // Override for links to other players; public pages navigate within
+  // their own route subtree instead of /players/$playerId
+  onPlayerClick?: (playerId: string) => void
+}
+
+// The full player profile page body, prop-driven so both the authenticated
+// route and the public read-only route can render it.
+export function PlayerProfileContent({
+  playerId,
+  players,
+  seasonStats,
+  allMatches,
+  trophies,
+  seasonName,
+  loading,
+  canEdit,
+  onUpdatePlayer,
+  onPlayerClick,
+}: PlayerProfileContentProps) {
+  const playerTrophies = trophies.filter((t) => t.playerId === playerId)
+
+  const player = players.find((p) => p.id === playerId)
+  // Players without matches in the selected season fall back to the 1200 baseline
+  const seasonRanking = seasonStats.find((s) => s.playerId === playerId)?.ranking ?? 1200
+  // Everything below the header ELO pill is career (all-time) data
+  const positionStats = usePositionStats(playerId, allMatches)
+
+  // Get ranking history for main player and all potential comparison players.
+  // Uses all-time matches so the chart spans seasons (with reset points).
+  const allPlayerIds = [
+    playerId,
+    ...players.filter((p) => p.id !== playerId && p.matchesPlayed > 0).map((p) => p.id),
+  ]
+  const allPlayerHistories = useRankingHistory(allPlayerIds, allMatches, players)
+  const mainPlayerHistory = allPlayerHistories.filter((h) => h.playerId === playerId)
+  // Continuous all-time chains (no season resets), matching the header's all-time ELO
+  const continuousHistories = useContinuousRankingHistory(allPlayerIds, allMatches, players)
+  const continuousMainHistory = continuousHistories.filter((h) => h.playerId === playerId)
+
+  // Scroll to top when navigating to a different player
+  useEffect(() => {
+    // Explicitly using playerId to track navigation between different players
+    if (playerId) {
+      scrollToTop()
+    }
+  }, [playerId])
+
+  // Calculate player statistics
+  const playerStats = useMemo(() => {
+    if (!player) return null
+
+    const playerMatches = allMatches
+      .filter((match) => {
+        return (
+          match.team1[0].id === playerId ||
+          match.team1[1]?.id === playerId ||
+          match.team2[0].id === playerId ||
+          match.team2[1]?.id === playerId
+        )
+      })
+      .toSorted((a, b) => {
+        // Sort by createdAt in ascending order (oldest first)
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return timeA - timeB
+      })
+
+    // Recent form (last 5 matches)
+    const recentMatches = playerMatches.slice(-5)
+    const recentForm = recentMatches.map((match) => {
+      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+      const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
+      return won ? 'W' : 'L'
+    })
+
+    // Calculate win/loss streaks using utility function
+    const { currentStreak, streakType, bestStreak, worstStreak } = calculateStreaks(
+      playerId,
+      playerMatches,
+    )
+
+    // Get ranking history from player stats
+    const rankingHistory: number[] = []
+    for (const match of playerMatches) {
+      if (match.playerStats) {
+        const playerStat = match.playerStats.find((ps) => ps.playerId === playerId)
+        if (playerStat) {
+          rankingHistory.push(playerStat.postGameRanking)
+        }
+      }
+    }
+
+    const highestRanking =
+      rankingHistory.length > 0 ? Math.max(player.ranking, ...rankingHistory) : player.ranking
+    const lowestRanking =
+      rankingHistory.length > 0 ? Math.min(player.ranking, ...rankingHistory) : player.ranking
+
+    return {
+      totalMatches: playerMatches.length,
+      recentForm,
+      currentStreak,
+      streakType,
+      bestStreak,
+      worstStreak,
+      highestRanking,
+      lowestRanking,
+      playerMatches,
+    }
+  }, [player, allMatches, playerId])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-gray-500">Loading player data...</div>
+      </div>
+    )
+  }
+
+  if (!player || !playerStats) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-gray-500">Player not found</div>
+      </div>
+    )
+  }
+
+  const winRate =
+    player.matchesPlayed > 0 ? Math.round((player.wins / player.matchesPlayed) * 100) : 0
+
+  const handleUpdatePlayer = async (playerId: string, updates: Partial<typeof player>) => {
+    await onUpdatePlayer?.(playerId, updates)
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Player Header */}
+      <PlayerHeader
+        player={player}
+        seasonRanking={seasonRanking}
+        seasonName={seasonName}
+        trophies={playerTrophies}
+        isCurrentUser={canEdit}
+        onUpdatePlayer={handleUpdatePlayer}
+      />
+
+      {/* Position Statistics */}
+      <PlayerPositionStats positionStats={positionStats} />
+
+      {/* Ranking Visualization */}
+      <PlayerRankingVisualization
+        mainPlayerHistory={mainPlayerHistory}
+        comparisonHistories={allPlayerHistories}
+        continuousMainHistory={continuousMainHistory}
+        continuousComparisonHistories={continuousHistories}
+        players={players}
+        playerId={playerId}
+      />
+
+      {/* Statistics Cards */}
+      <PlayerStatsCards
+        winRate={winRate}
+        wins={player.wins}
+        losses={player.losses}
+        currentStreak={playerStats.currentStreak}
+        streakType={playerStats.streakType}
+        bestStreak={playerStats.bestStreak}
+        worstStreak={playerStats.worstStreak}
+      />
+
+      {/* Additional Stats */}
+      <Card className="p-4 bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center space-x-3">
+          <Calendar className="w-5 h-5 text-gray-400" />
+          <div>
+            <p className="text-sm text-gray-500">Total Matches</p>
+            <p className="text-lg font-semibold text-gray-900">{player.matchesPlayed}</p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Relationship Statistics */}
+      <PlayerRelationshipStats
+        playerId={playerId}
+        players={players}
+        matches={allMatches}
+        onPlayerClick={onPlayerClick}
+      />
+
+      {/* Match History */}
+      <PlayerRecentMatches
+        playerId={playerId}
+        players={players}
+        matches={allMatches}
+        recentForm={playerStats.recentForm}
+        onPlayerClick={onPlayerClick}
+      />
+    </div>
+  )
+}

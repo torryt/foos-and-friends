@@ -16,7 +16,9 @@ interface GroupContextType {
   switchGroup: (groupId: string) => void
   refreshGroups: () => Promise<void>
   createGroup: (name: string, description?: string) => Promise<{ success: boolean; error?: string }>
-  joinGroup: (inviteCode: string) => Promise<{ success: boolean; error?: string }>
+  joinGroup: (
+    inviteCode: string,
+  ) => Promise<{ success: boolean; status?: 'joined' | 'pending'; error?: string }>
   deleteGroup: (groupId: string) => Promise<{
     success: boolean
     error?: string
@@ -93,6 +95,8 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   // Guard async state updates: getUserGroups can resolve after unmount
   // (e.g. test teardown), where setState would hit a dead environment.
   const mountedRef = useRef(true)
+  // Whether groups have been fetched at least once for the current user
+  const hasLoadedOnceRef = useRef(false)
   useEffect(() => {
     mountedRef.current = true
     return () => {
@@ -104,7 +108,11 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
   const refreshGroups = useCallback(async () => {
     if (!isAuthenticated || !user) return
 
-    setLoading(true)
+    // Only block the UI on the first load. Background refreshes (after
+    // settings changes, join approvals, …) must not flip `loading`, because
+    // AppContent swaps the whole router for a loading screen while it's true —
+    // unmounting any open modal or dropdown.
+    if (!hasLoadedOnceRef.current) setLoading(true)
     setError(null)
 
     try {
@@ -144,7 +152,10 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
       setUserGroups([])
       setCurrentGroup(null)
     } finally {
-      if (mountedRef.current) setLoading(false)
+      if (mountedRef.current) {
+        hasLoadedOnceRef.current = true
+        setLoading(false)
+      }
     }
   }, [isAuthenticated, user])
 
@@ -190,6 +201,9 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['2v2'],
           targetScore: 10,
+          joinPolicy: 'open',
+          isPublic: false,
+          publicToken: null,
         }
 
         // Set the new group as current immediately
@@ -222,6 +236,11 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     try {
       const result = await groupService.joinGroupByInvite(inviteCode, user.id)
 
+      // Approval-gated group: a request was filed, nothing to switch to yet
+      if (result.success && result.status === 'pending') {
+        return { success: true, status: 'pending' as const }
+      }
+
       if (result.success && result.groupId) {
         // Immediately set the joined group as current to avoid UI issues
         // This ensures smooth transition from FirstTimeUserScreen to the main app
@@ -240,6 +259,9 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['2v2'],
           targetScore: 10,
+          joinPolicy: 'open',
+          isPublic: false,
+          publicToken: null,
         }
 
         // Set the joined group as current immediately

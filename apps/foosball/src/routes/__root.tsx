@@ -1,5 +1,5 @@
 import type { AuthUser } from '@foos/shared'
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import { createRootRouteWithContext, Outlet, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import Header from '@/components/Header'
 import TabNavigation from '@/components/TabNavigation'
@@ -22,6 +22,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
   const { user, onSignOut } = Route.useRouteContext()
+  const location = useLocation()
+
+  // The public read-only subtree brings its own chrome (no auth-dependent
+  // header or tab navigation)
+  if (location.pathname.startsWith('/public')) {
+    return <Outlet />
+  }
 
   return (
     <>
