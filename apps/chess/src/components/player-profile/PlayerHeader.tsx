@@ -1,7 +1,8 @@
-import type { Player } from '@foos/shared'
+import type { Player, SeasonTrophy } from '@foos/shared'
 import { AVAILABLE_AVATARS } from '@foos/shared'
 import { Edit2, Save, X } from 'lucide-react'
 import React, { useState } from 'react'
+import { TrophyChips } from '@/components/player-profile/TrophyChips'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
@@ -11,6 +12,7 @@ interface PlayerHeaderProps {
   player: Player
   seasonRanking: number
   seasonName?: string
+  trophies: SeasonTrophy[]
   isCurrentUser: boolean
   onUpdatePlayer: (playerId: string, updates: Partial<Player>) => Promise<void>
 }
@@ -19,6 +21,7 @@ export function PlayerHeader({
   player,
   seasonRanking,
   seasonName,
+  trophies,
   isCurrentUser,
   onUpdatePlayer,
 }: PlayerHeaderProps) {
@@ -108,6 +111,7 @@ export function PlayerHeader({
                 <span className="px-3 py-1 bg-white text-gray-500 rounded-full text-sm">
                   {player.ranking} all-time
                 </span>
+                <TrophyChips trophies={trophies} />
               </div>
             </>
           )}

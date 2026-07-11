@@ -8,7 +8,6 @@ import { PlayerRankingVisualization } from '@/components/player-profile/PlayerRa
 import { PlayerRecentMatches } from '@/components/player-profile/PlayerRecentMatches'
 import { PlayerRelationshipStats } from '@/components/player-profile/PlayerRelationshipStats'
 import { PlayerStatsCards } from '@/components/player-profile/PlayerStatsCards'
-import { PlayerTrophies } from '@/components/player-profile/PlayerTrophies'
 import { Card } from '@/components/ui/Card'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 import { useGameLogic } from '@/hooks/useGameLogic'
@@ -167,12 +166,10 @@ function PlayerProfile() {
         player={player}
         seasonRanking={seasonRanking}
         seasonName={currentSeason?.name}
+        trophies={playerTrophies}
         isCurrentUser={true} // For now, assume current user can edit
         onUpdatePlayer={handleUpdatePlayer}
       />
-
-      {/* Season trophies + games-played milestones */}
-      <PlayerTrophies trophies={playerTrophies} matchesPlayed={player.matchesPlayed} />
 
       {/* Position Statistics */}
       <PlayerPositionStats positionStats={positionStats} />
