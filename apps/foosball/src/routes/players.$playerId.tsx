@@ -171,8 +171,8 @@ function PlayerProfile() {
         onUpdatePlayer={handleUpdatePlayer}
       />
 
-      {/* Season trophies + games-played milestones */}
-      <PlayerTrophies trophies={playerTrophies} matchesPlayed={player.matchesPlayed} />
+      {/* Season trophies */}
+      <PlayerTrophies trophies={playerTrophies} />
 
       {/* Position Statistics */}
       <PlayerPositionStats positionStats={positionStats} />
