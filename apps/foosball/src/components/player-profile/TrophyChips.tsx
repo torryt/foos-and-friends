@@ -1,6 +1,7 @@
 import type { SeasonTrophy, TrophyRank } from '@foos/shared'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { ChevronRight, X } from 'lucide-react'
+import { useState } from 'react'
+import { ModalOrBottomDrawer } from '@/components/ModalOrBottomDrawer'
 import { type TrophyMetal, TrophyIcon } from '@/components/TrophyIcon'
 
 const METAL_BY_RANK: Record<TrophyRank, { metal: TrophyMetal; label: string }> = {
@@ -17,8 +18,10 @@ interface TrophyChipsProps {
 }
 
 // Compact trophy pill for the profile header — only metals actually won, no
-// placeholder slots. Tapping it opens a bottom sheet listing every trophy.
+// placeholder slots. Tapping it opens a drawer listing every trophy.
 export function TrophyChips({ trophies }: TrophyChipsProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
   if (trophies.length === 0) {
     return null
   }
@@ -26,9 +29,14 @@ export function TrophyChips({ trophies }: TrophyChipsProps) {
   const wonRanks = RANKS.filter((rank) => trophies.some((t) => t.rank === rank))
 
   return (
-    <DialogPrimitive.Root>
+    <>
       {/* Taller than the pill it contains so the touch target clears 44px */}
-      <DialogPrimitive.Trigger className="flex min-h-11 items-center" aria-label="View trophies">
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-label="View trophies"
+        className="flex min-h-11 items-center"
+      >
         <span className="flex items-center gap-2 rounded-full bg-card px-3 py-1 text-sm transition-colors hover:bg-card-hover">
           {wonRanks.map((rank) => {
             const count = trophies.filter((t) => t.rank === rank).length
@@ -43,24 +51,28 @@ export function TrophyChips({ trophies }: TrophyChipsProps) {
           })}
           <ChevronRight size={14} className="text-muted" />
         </span>
-      </DialogPrimitive.Trigger>
+      </button>
 
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[var(--th-bg-overlay)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        {/* Bottom sheet; inset-x-0 + max-w keeps it centered on wide screens without transforms */}
-        <DialogPrimitive.Content className="fixed inset-x-0 bottom-0 z-50 max-h-[80dvh] overflow-y-auto rounded-t-2xl border-t border-[var(--th-border)] bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-theme-card data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom sm:mx-auto sm:mb-6 sm:max-w-md sm:rounded-2xl sm:border">
-          <DialogPrimitive.Title className="text-lg font-semibold text-primary">
-            Trophy Case
-          </DialogPrimitive.Title>
-          <DialogPrimitive.Description className="text-sm text-muted">
-            {trophies.length} season {trophies.length === 1 ? 'trophy' : 'trophies'}
-          </DialogPrimitive.Description>
-          <DialogPrimitive.Close className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-card-hover hover:text-primary">
-            <X size={18} />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
+      <ModalOrBottomDrawer isOpen={isOpen} onClose={() => setIsOpen(false)} className="sm:max-w-md">
+        <div className="w-full max-h-[80dvh] overflow-y-auto bg-card shadow-xl pb-[env(safe-area-inset-bottom)]">
+          <div className="flex items-center justify-between p-4 border-b border-[var(--th-border)]">
+            <div>
+              <h2 className="text-lg font-semibold text-primary">Trophy Case</h2>
+              <p className="text-sm text-muted">
+                {trophies.length} season {trophies.length === 1 ? 'trophy' : 'trophies'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              aria-label="Close"
+              className="flex h-11 w-11 -my-2 -mr-2 items-center justify-center rounded-full text-muted transition-colors hover:bg-card-hover hover:text-primary"
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-          <ul className="mt-4 space-y-2">
+          <ul className="p-4 space-y-2">
             {trophies.map((trophy) => {
               const { metal, label } = METAL_BY_RANK[trophy.rank]
               return (
@@ -86,8 +98,8 @@ export function TrophyChips({ trophies }: TrophyChipsProps) {
               )
             })}
           </ul>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </div>
+      </ModalOrBottomDrawer>
+    </>
   )
 }
