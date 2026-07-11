@@ -153,7 +153,8 @@ export const NewSeasonWizard = ({ onClose, onDone }: NewSeasonWizardProps) => {
                       {leaderName ? `${leaderName} is crowned champion` : 'The leader is crowned'}
                     </p>
                     <p className="text-secondary">
-                      Final standings stay browsable from the rankings page.
+                      The top 3 earn gold, silver and bronze trophies on their profiles. Final
+                      standings stay browsable from the rankings page.
                     </p>
                   </div>
                 </div>

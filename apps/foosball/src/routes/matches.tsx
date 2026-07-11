@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { z } from 'zod'
 import { ArchivedSeasonBanner } from '@/components/ArchivedSeasonBanner'
 import { MatchEntryModal } from '@/components/MatchEntryModal'
+import { MilestoneCelebration } from '@/components/MilestoneCelebration'
 import MatchHistory from '@/components/MatchHistory'
 import { useGameLogic } from '@/hooks/useGameLogic'
 
@@ -19,7 +20,15 @@ function Matches() {
   const { playerId } = Route.useSearch()
   const navigate = useNavigate()
   const [showRecordMatch, setShowRecordMatch] = useState(false)
-  const { players, matches, allMatches, supportedMatchTypes, addMatch } = useGameLogic()
+  const {
+    players,
+    matches,
+    allMatches,
+    supportedMatchTypes,
+    addMatch,
+    currentMilestone,
+    dismissMilestone,
+  } = useGameLogic()
 
   const handlePlayerClick = (playerId: string) => {
     navigate({
@@ -49,6 +58,8 @@ function Matches() {
           onClose={() => setShowRecordMatch(false)}
         />
       )}
+
+      <MilestoneCelebration reached={currentMilestone} onDismiss={dismissMilestone} />
     </div>
   )
 }

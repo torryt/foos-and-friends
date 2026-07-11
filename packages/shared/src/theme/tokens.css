@@ -17,4 +17,5 @@
  * Typography:    --th-font-body, --th-font-heading, --th-font-data
  * Geometry:      --th-radius-sm, --th-radius-md, --th-radius-lg
  * Effects:       --th-shadow-card, --th-shadow-card-hover, --th-shadow-glow
+ * Trophies:      --th-trophy-{gold,silver,bronze}-1/-2/-text/-glow (podium metals + milestone badges)
  */

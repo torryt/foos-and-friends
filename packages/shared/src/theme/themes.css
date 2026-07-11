@@ -53,6 +53,20 @@
   --th-tier-5-bg: linear-gradient(to right, #ffe4e6, #fbcfe8);
   --th-tier-5-text: #9f1239;
 
+  /* Season trophies + milestone badges (podium metals) */
+  --th-trophy-gold-1: #fbd75e;
+  --th-trophy-gold-2: #d4930b;
+  --th-trophy-gold-text: #7c5203;
+  --th-trophy-silver-1: #e6ebf2;
+  --th-trophy-silver-2: #97a3b4;
+  --th-trophy-silver-text: #4c5766;
+  --th-trophy-bronze-1: #e8a06b;
+  --th-trophy-bronze-2: #a05a2c;
+  --th-trophy-bronze-text: #6e3a17;
+  --th-trophy-gold-glow: none;
+  --th-trophy-silver-glow: none;
+  --th-trophy-bronze-glow: none;
+
   /* Toasts — inverted surface so they stand out from the page */
   --th-toast-bg: #1e293b;
   --th-toast-text: #f8fafc;
@@ -121,6 +135,20 @@
   --th-tier-4-text: #ffc45c;
   --th-tier-5-bg: rgba(255, 92, 138, 0.12);
   --th-tier-5-text: #ff5c8a;
+
+  /* Season trophies + milestone badges — neon-tinted metals, allowed a soft glow */
+  --th-trophy-gold-1: #ffe38a;
+  --th-trophy-gold-2: #e8a013;
+  --th-trophy-gold-text: #ffd75e;
+  --th-trophy-silver-1: #e9f1fb;
+  --th-trophy-silver-2: #93a7c4;
+  --th-trophy-silver-text: #bcd0e8;
+  --th-trophy-bronze-1: #ffb27e;
+  --th-trophy-bronze-2: #c26a33;
+  --th-trophy-bronze-text: #ff9e64;
+  --th-trophy-gold-glow: drop-shadow(0 0 8px rgba(255, 215, 94, 0.5));
+  --th-trophy-silver-glow: drop-shadow(0 0 8px rgba(188, 208, 232, 0.4));
+  --th-trophy-bronze-glow: drop-shadow(0 0 8px rgba(255, 158, 100, 0.4));
 
   /* Toasts — brighter surface + neon border so they stand out from the page */
   --th-toast-bg: #1c1836;

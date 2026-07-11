@@ -3,6 +3,7 @@ import type {
   DbPlayer,
   DbPlayerSeasonStats,
   DbSeason,
+  DbSeasonTrophy,
   FriendGroup,
   GroupMember,
   GroupRole,
@@ -12,7 +13,9 @@ import type {
   PlayerMatchStats,
   PlayerSeasonStats,
   Season,
+  SeasonTrophy,
   SportType,
+  TrophyRank,
 } from '../types/index.ts'
 import type {
   Database,
@@ -185,6 +188,18 @@ const dbPlayerSeasonStatsToPlayerSeasonStats = (
   goalsAgainst: dbStats.goals_against,
   createdAt: dbStats.created_at,
   updatedAt: dbStats.updated_at,
+})
+
+// Transform database season trophy (with joined season) to app format
+const dbSeasonTrophyToSeasonTrophy = (dbTrophy: DbSeasonTrophy): SeasonTrophy => ({
+  id: dbTrophy.id,
+  groupId: dbTrophy.group_id,
+  seasonId: dbTrophy.season_id,
+  playerId: dbTrophy.player_id,
+  rank: dbTrophy.rank as TrophyRank,
+  seasonName: dbTrophy.seasons?.name ?? '',
+  seasonNumber: dbTrophy.seasons?.season_number ?? 0,
+  createdAt: dbTrophy.created_at,
 })
 
 export class SupabaseDatabase implements Database {
@@ -1092,6 +1107,31 @@ export class SupabaseDatabase implements Database {
       return {
         data: [],
         error: err instanceof Error ? err.message : 'Failed to fetch season leaderboard',
+      }
+    }
+  }
+
+  // ===== SEASON TROPHY OPERATIONS =====
+
+  async getTrophiesByGroup(groupId: string): Promise<DatabaseListResult<SeasonTrophy>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase
+        .from('season_trophies')
+        .select('*, seasons(name, season_number)')
+        .eq('group_id', groupId)
+        .order('created_at', { ascending: false })
+        .order('rank', { ascending: true })
+
+      if (error) {
+        return { data: [], error: error.message }
+      }
+
+      return { data: (data || []).map(dbSeasonTrophyToSeasonTrophy), error: null }
+    } catch (err) {
+      return {
+        data: [],
+        error: err instanceof Error ? err.message : 'Failed to fetch season trophies',
       }
     }
   }

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import AddPlayerModal from '@/components/AddPlayerModal'
 import { ArchivedSeasonBanner } from '@/components/ArchivedSeasonBanner'
 import { MatchEntryModal } from '@/components/MatchEntryModal'
+import { MilestoneCelebration } from '@/components/MilestoneCelebration'
 import PlayerRankings from '@/components/PlayerRankings'
 import QuickActions from '@/components/QuickActions'
 import { type RankingScope, SeasonScopePicker } from '@/components/SeasonScopePicker'
@@ -19,8 +20,17 @@ function Index() {
   const [showRecordMatch, setShowRecordMatch] = useState(false)
   const [scope, setScope] = useState<RankingScope>('season')
 
-  const { players, seasonStats, matches, allMatches, supportedMatchTypes, addPlayer, addMatch } =
-    useGameLogic()
+  const {
+    players,
+    seasonStats,
+    matches,
+    allMatches,
+    supportedMatchTypes,
+    addPlayer,
+    addMatch,
+    currentMilestone,
+    dismissMilestone,
+  } = useGameLogic()
   const { currentSeason, seasons } = useSeasonContext()
 
   const isArchived = !!currentSeason && !currentSeason.isActive
@@ -78,6 +88,8 @@ function Index() {
           onClose={() => setShowRecordMatch(false)}
         />
       )}
+
+      <MilestoneCelebration reached={currentMilestone} onDismiss={dismissMilestone} />
     </div>
   )
 }

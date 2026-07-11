@@ -19,6 +19,7 @@ import type {
   Player,
   PlayerSeasonStats,
   Season,
+  SeasonTrophy,
   SportType,
 } from '../types/index.ts'
 
@@ -535,6 +536,13 @@ export class FakeDatabase implements Database {
 
   async getSeasonLeaderboard(_seasonId: string): Promise<DatabaseListResult<PlayerSeasonStats>> {
     return { data: [], error: 'Not implemented in fake' }
+  }
+
+  // Seedable from tests
+  trophies: SeasonTrophy[] = []
+
+  async getTrophiesByGroup(groupId: string): Promise<DatabaseListResult<SeasonTrophy>> {
+    return { data: this.trophies.filter((t) => t.groupId === groupId), error: null }
   }
 
   async initializePlayerForSeason(
