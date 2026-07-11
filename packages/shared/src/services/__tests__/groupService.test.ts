@@ -102,6 +102,75 @@ describe('GroupService member management', () => {
     })
   })
 
+  describe('demoteMember', () => {
+    it('lets the owner demote an admin to member', async () => {
+      await service.promoteMember(groupId, MEMBER_B)
+
+      const result = await service.demoteMember(groupId, MEMBER_B)
+
+      expect(result.success).toBe(true)
+      const members = await service.getGroupMembers(groupId)
+      expect(members.data.find((m) => m.userId === MEMBER_B)?.role).toBe('member')
+    })
+
+    it('lets an admin demote another admin', async () => {
+      await service.promoteMember(groupId, MEMBER_B)
+      await service.promoteMember(groupId, MEMBER_C)
+      db.currentUserId = MEMBER_B
+
+      const result = await service.demoteMember(groupId, MEMBER_C)
+
+      expect(result.success).toBe(true)
+      db.currentUserId = OWNER_ID
+      const members = await service.getGroupMembers(groupId)
+      expect(members.data.find((m) => m.userId === MEMBER_C)?.role).toBe('member')
+    })
+
+    it('rejects demotion by a regular member', async () => {
+      await service.promoteMember(groupId, MEMBER_B)
+      db.currentUserId = MEMBER_C
+
+      const result = await service.demoteMember(groupId, MEMBER_B)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Only group owners and admins can demote admins')
+    })
+
+    it('does not let admins demote themselves', async () => {
+      await service.promoteMember(groupId, MEMBER_B)
+      db.currentUserId = MEMBER_B
+
+      const result = await service.demoteMember(groupId, MEMBER_B)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('You cannot demote yourself')
+    })
+
+    it('never demotes the owner', async () => {
+      await service.promoteMember(groupId, MEMBER_B)
+      db.currentUserId = MEMBER_B
+
+      const result = await service.demoteMember(groupId, OWNER_ID)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('The group owner cannot be demoted')
+    })
+
+    it('rejects demoting a regular member', async () => {
+      const result = await service.demoteMember(groupId, MEMBER_B)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('User is not an admin')
+    })
+
+    it('rejects demoting a non-member', async () => {
+      const result = await service.demoteMember(groupId, 'stranger')
+
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('User is not a member of this group')
+    })
+  })
+
   describe('removeMember', () => {
     it('lets the owner remove a member', async () => {
       const result = await service.removeMember(groupId, MEMBER_B)

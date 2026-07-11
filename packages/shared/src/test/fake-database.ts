@@ -350,6 +350,38 @@ export class FakeDatabase implements Database {
     return { data: { success: true }, error: null }
   }
 
+  async demoteGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    const callerRole = this.getCallerRole(groupId)
+    if (callerRole !== 'owner' && callerRole !== 'admin') {
+      return {
+        data: { success: false, error: 'Only group owners and admins can demote admins' },
+        error: null,
+      }
+    }
+    if (targetUserId === this.currentUserId) {
+      return { data: { success: false, error: 'You cannot demote yourself' }, error: null }
+    }
+
+    const target = this.memberships.find(
+      (m) => m.groupId === groupId && m.userId === targetUserId && m.isActive,
+    )
+    if (!target) {
+      return { data: { success: false, error: 'User is not a member of this group' }, error: null }
+    }
+    if (target.role === 'owner') {
+      return { data: { success: false, error: 'The group owner cannot be demoted' }, error: null }
+    }
+    if (target.role !== 'admin') {
+      return { data: { success: false, error: 'User is not an admin' }, error: null }
+    }
+
+    target.role = 'member'
+    return { data: { success: true }, error: null }
+  }
+
   async removeGroupMember(
     groupId: string,
     targetUserId: string,

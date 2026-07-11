@@ -1,6 +1,6 @@
 import type { GroupMember } from '@foos/shared'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowLeft, Loader, ShieldPlus, UserMinus, Users } from 'lucide-react'
+import { ArrowLeft, Loader, ShieldMinus, ShieldPlus, UserMinus, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useAuth } from '@/hooks/useAuth'
@@ -32,6 +32,7 @@ function GroupMembersPage() {
     loading: groupsLoading,
     getGroupMembers,
     promoteMember,
+    demoteMember,
     removeMember,
   } = useGroupContext()
   const { toast } = useToast()
@@ -94,6 +95,20 @@ function GroupMembersPage() {
     setActioningUserId(null)
   }
 
+  const handleDemote = async (member: GroupMember) => {
+    setActioningUserId(member.userId)
+    setError(null)
+
+    const result = await demoteMember(group.id, member.userId)
+    if (result.success) {
+      toast().success(`${member.email || 'Member'} is no longer an admin`)
+      await loadMembers()
+    } else {
+      setError(result.error || 'Failed to demote admin')
+    }
+    setActioningUserId(null)
+  }
+
   const handleRemove = async (member: GroupMember) => {
     setActioningUserId(member.userId)
     setError(null)
@@ -114,6 +129,9 @@ function GroupMembersPage() {
   const canRemove = (member: GroupMember) =>
     member.role !== 'owner' && member.userId !== user?.id && (member.role !== 'admin' || isOwner)
 
+  // Owners and admins can demote any admin except themselves.
+  const canDemote = (member: GroupMember) => member.role === 'admin' && member.userId !== user?.id
+
   return (
     <div className="max-w-md mx-auto space-y-4">
       <div className="flex items-center gap-3">
@@ -129,7 +147,7 @@ function GroupMembersPage() {
             <Users size={20} className="text-[var(--th-sport-primary)] flex-shrink-0" />
             <span className="break-words">Members of {group.name}</span>
           </h2>
-          <p className="text-sm text-secondary">Promote members to admin or remove them</p>
+          <p className="text-sm text-secondary">Manage member roles or remove members</p>
         </div>
       </div>
 
@@ -177,36 +195,52 @@ function GroupMembersPage() {
                   </div>
                 </div>
 
-                {(canPromote(member) || canRemove(member)) && !isConfirmingRemove && (
-                  <div className="flex gap-2 mt-3">
-                    {canPromote(member) && (
-                      <button
-                        type="button"
-                        onClick={() => handlePromote(member)}
-                        disabled={actioningUserId !== null}
-                        className="flex-1 min-h-11 px-3 py-2 border border-[var(--th-border)] text-primary rounded-[var(--th-radius-md)] hover:bg-card-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
-                      >
-                        {isActioning ? (
-                          <Loader size={14} className="animate-spin" />
-                        ) : (
-                          <ShieldPlus size={14} className="text-[var(--th-sport-primary)]" />
-                        )}
-                        Make Admin
-                      </button>
-                    )}
-                    {canRemove(member) && (
-                      <button
-                        type="button"
-                        onClick={() => setConfirmRemoveUserId(member.userId)}
-                        disabled={actioningUserId !== null}
-                        className="flex-1 min-h-11 px-3 py-2 border border-[var(--th-border)] text-[var(--th-loss)] rounded-[var(--th-radius-md)] hover:bg-card-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
-                      >
-                        <UserMinus size={14} />
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                )}
+                {(canPromote(member) || canDemote(member) || canRemove(member)) &&
+                  !isConfirmingRemove && (
+                    <div className="flex gap-2 mt-3">
+                      {canPromote(member) && (
+                        <button
+                          type="button"
+                          onClick={() => handlePromote(member)}
+                          disabled={actioningUserId !== null}
+                          className="flex-1 min-h-11 px-3 py-2 border border-[var(--th-border)] text-primary rounded-[var(--th-radius-md)] hover:bg-card-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                          {isActioning ? (
+                            <Loader size={14} className="animate-spin" />
+                          ) : (
+                            <ShieldPlus size={14} className="text-[var(--th-sport-primary)]" />
+                          )}
+                          Make Admin
+                        </button>
+                      )}
+                      {canDemote(member) && (
+                        <button
+                          type="button"
+                          onClick={() => handleDemote(member)}
+                          disabled={actioningUserId !== null}
+                          className="flex-1 min-h-11 px-3 py-2 border border-[var(--th-border)] text-primary rounded-[var(--th-radius-md)] hover:bg-card-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                          {isActioning ? (
+                            <Loader size={14} className="animate-spin" />
+                          ) : (
+                            <ShieldMinus size={14} className="text-[var(--th-sport-primary)]" />
+                          )}
+                          Remove Admin
+                        </button>
+                      )}
+                      {canRemove(member) && (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmRemoveUserId(member.userId)}
+                          disabled={actioningUserId !== null}
+                          className="flex-1 min-h-11 px-3 py-2 border border-[var(--th-border)] text-[var(--th-loss)] rounded-[var(--th-radius-md)] hover:bg-card-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
+                        >
+                          <UserMinus size={14} />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                 {isConfirmingRemove && (
                   <div className="mt-3">

@@ -85,6 +85,19 @@ export class GroupService {
     }
   }
 
+  async demoteMember(groupId: string, targetUserId: string): Promise<GroupMemberActionResult> {
+    const result = await this.db.demoteGroupMember(groupId, targetUserId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      error: result.data?.error,
+    }
+  }
+
   async removeMember(groupId: string, targetUserId: string): Promise<GroupMemberActionResult> {
     const result = await this.db.removeGroupMember(groupId, targetUserId)
 

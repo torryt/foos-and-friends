@@ -113,6 +113,10 @@ export interface Database {
     groupId: string,
     targetUserId: string,
   ): Promise<DatabaseResult<MemberActionRpcResult>>
+  demoteGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>>
   removeGroupMember(
     groupId: string,
     targetUserId: string,

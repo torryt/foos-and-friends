@@ -519,6 +519,27 @@ export class SupabaseDatabase implements Database {
     }
   }
 
+  async demoteGroupMember(
+    groupId: string,
+    targetUserId: string,
+  ): Promise<DatabaseResult<MemberActionRpcResult>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('demote_group_member', {
+        p_group_id: groupId,
+        p_target_user_id: targetUserId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as MemberActionRpcResult, error: null }
+    } catch (err) {
+      return { data: null, error: err instanceof Error ? err.message : 'Failed to demote admin' }
+    }
+  }
+
   async removeGroupMember(
     groupId: string,
     targetUserId: string,

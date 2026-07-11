@@ -32,6 +32,10 @@ interface GroupContextType {
     groupId: string,
     targetUserId: string,
   ) => Promise<{ success: boolean; error?: string }>
+  demoteMember: (
+    groupId: string,
+    targetUserId: string,
+  ) => Promise<{ success: boolean; error?: string }>
   removeMember: (
     groupId: string,
     targetUserId: string,
@@ -383,6 +387,11 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     return await groupService.promoteMember(groupId, targetUserId)
   }, [])
 
+  // Demote an admin back to member (owner/admin only, enforced server-side)
+  const demoteMember = useCallback(async (groupId: string, targetUserId: string) => {
+    return await groupService.demoteMember(groupId, targetUserId)
+  }, [])
+
   // Remove a member from a group (owner/admin only, enforced server-side)
   const removeMember = useCallback(async (groupId: string, targetUserId: string) => {
     return await groupService.removeMember(groupId, targetUserId)
@@ -417,6 +426,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
         updateGroup,
         getGroupMembers,
         promoteMember,
+        demoteMember,
         removeMember,
       }}
     >
