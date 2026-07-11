@@ -1,10 +1,12 @@
+import { PillSelect } from '@foos/shared'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { ArrowUpDown } from 'lucide-react'
 import { useState } from 'react'
 import AddPlayerModal from '@/components/AddPlayerModal'
 import { ArchivedSeasonBanner } from '@/components/ArchivedSeasonBanner'
 import { MatchEntryModal } from '@/components/MatchEntryModal'
 import { MilestoneCelebration } from '@/components/MilestoneCelebration'
-import PlayerRankings from '@/components/PlayerRankings'
+import PlayerRankings, { SORT_OPTIONS, useRankingSort } from '@/components/PlayerRankings'
 import QuickActions from '@/components/QuickActions'
 import { type RankingScope, SeasonScopePicker } from '@/components/SeasonScopePicker'
 import { useSeasonContext } from '@/contexts/SeasonContext'
@@ -19,6 +21,7 @@ function Index() {
   const [showAddPlayer, setShowAddPlayer] = useState(false)
   const [showRecordMatch, setShowRecordMatch] = useState(false)
   const [scope, setScope] = useState<RankingScope>('season')
+  const [sortBy, setSortBy] = useRankingSort()
 
   const {
     players,
@@ -56,13 +59,26 @@ function Index() {
         />
       )}
 
-      {showScopeToggle && <SeasonScopePicker scope={scope} onScopeChange={setScope} />}
+      <div className="flex items-center gap-2">
+        {showScopeToggle && <SeasonScopePicker scope={scope} onScopeChange={setScope} />}
+        <div className="ml-auto">
+          <PillSelect
+            value={sortBy}
+            options={SORT_OPTIONS}
+            onChange={setSortBy}
+            ariaLabel="Sort by"
+            icon={<ArrowUpDown size={14} aria-hidden="true" />}
+            align="right"
+          />
+        </div>
+      </div>
 
       <PlayerRankings
         players={players}
         seasonStats={allTime ? undefined : seasonStats}
         matches={allTime ? allMatches : matches}
         onPlayerClick={handlePlayerCardClick}
+        sortBy={sortBy}
         title={allTime ? 'All-Time Rankings' : isArchived ? 'Final Standings' : 'Friend Rankings'}
         subtitle={
           allTime

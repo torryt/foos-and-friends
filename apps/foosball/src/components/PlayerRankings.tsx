@@ -1,8 +1,13 @@
-import type { Match, Player, PlayerSeasonStats } from '@foos/shared'
-import { ArrowUpDown, ChevronDown, Medal, Trophy } from 'lucide-react'
+import type { Match, Player, PlayerSeasonStats, PillSelectOption } from '@foos/shared'
+import { Medal, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
-type SortOption = 'elo' | 'goalDifference' | 'winRate' | 'longestWinStreak' | 'longestLoseStreak'
+export type SortOption =
+  | 'elo'
+  | 'goalDifference'
+  | 'winRate'
+  | 'longestWinStreak'
+  | 'longestLoseStreak'
 
 interface PlayerRankingsProps {
   players: Player[]
@@ -11,6 +16,7 @@ interface PlayerRankingsProps {
   onPlayerClick?: (playerId: string) => void
   title?: string
   subtitle?: string
+  sortBy?: SortOption
 }
 
 interface PlayerWithStats extends Player {
@@ -176,13 +182,28 @@ const PlayerCard = ({ player, index, sortBy }: PlayerCardProps) => {
   )
 }
 
-const SORT_OPTIONS = [
-  { value: 'elo' as const, label: 'ELO Ranking' },
-  { value: 'goalDifference' as const, label: 'Goal Difference' },
-  { value: 'winRate' as const, label: 'Win Rate' },
-  { value: 'longestWinStreak' as const, label: 'Longest Win Streak' },
-  { value: 'longestLoseStreak' as const, label: 'Longest Lose Streak' },
+export const SORT_OPTIONS: PillSelectOption<SortOption>[] = [
+  { value: 'elo', label: 'ELO Ranking' },
+  { value: 'goalDifference', label: 'Goal Difference' },
+  { value: 'winRate', label: 'Win Rate' },
+  { value: 'longestWinStreak', label: 'Longest Win Streak' },
+  { value: 'longestLoseStreak', label: 'Longest Lose Streak' },
 ]
+
+// Ranking sort selection persisted to localStorage, for the picker that
+// sits next to the SeasonScopePicker on the rankings page.
+export const useRankingSort = () => {
+  const [sortBy, setSortBy] = useState<SortOption>(() => {
+    const saved = localStorage.getItem('rankingSortPreference') as SortOption | null
+    return saved && SORT_OPTIONS.some((opt) => opt.value === saved) ? saved : 'elo'
+  })
+
+  useEffect(() => {
+    localStorage.setItem('rankingSortPreference', sortBy)
+  }, [sortBy])
+
+  return [sortBy, setSortBy] as const
+}
 
 const PlayerRankings = ({
   players,
@@ -191,23 +212,9 @@ const PlayerRankings = ({
   onPlayerClick,
   title = 'Friend Rankings',
   subtitle = 'See how you stack up against your friends!',
+  sortBy = 'elo',
 }: PlayerRankingsProps) => {
-  const [sortBy, setSortBy] = useState<SortOption>('elo')
-  const [dropdownOpen, setDropdownOpen] = useState(false)
   const [showInactive, setShowInactive] = useState(false)
-
-  // Load saved preference from localStorage
-  useEffect(() => {
-    const savedSort = localStorage.getItem('rankingSortPreference') as SortOption
-    if (savedSort && SORT_OPTIONS.some((opt) => opt.value === savedSort)) {
-      setSortBy(savedSort)
-    }
-  }, [])
-
-  // Save preference to localStorage
-  useEffect(() => {
-    localStorage.setItem('rankingSortPreference', sortBy)
-  }, [sortBy])
 
   // Calculate additional stats for each player.
   // When seasonStats is provided we are in season scope: players without a
@@ -320,48 +327,11 @@ const PlayerRankings = ({
   return (
     <div className="-mx-4 sm:mx-0 sm:bg-card sm:backdrop-blur-sm sm:rounded-[var(--th-radius-lg)] sm:shadow-theme-card sm:border sm:border-[var(--th-border-subtle)]">
       <div className="p-4 border-b border-[var(--th-border)]">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-primary flex items-center gap-2">
-              <Trophy className="text-[var(--th-sport-primary)]" />
-              {title}
-            </h2>
-            <p className="text-sm text-secondary">{subtitle}</p>
-          </div>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="px-3 py-1.5 bg-card border border-[var(--th-border)] rounded-lg text-sm font-medium text-primary hover:bg-card-hover flex items-center gap-1.5"
-              aria-label={`Sort by ${SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label}`}
-            >
-              <span className="hidden sm:inline">
-                {SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label}
-              </span>
-              <ArrowUpDown className="w-4 h-4 sm:hidden" />
-              <ChevronDown className="w-4 h-4 hidden sm:inline-block" />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-1 w-44 bg-card rounded-lg shadow-theme-card border border-[var(--th-border)] z-10">
-                {SORT_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => {
-                      setSortBy(option.value)
-                      setDropdownOpen(false)
-                    }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-card-hover first:rounded-t-lg last:rounded-b-lg ${
-                      sortBy === option.value ? 'bg-card-hover font-medium' : ''
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <h2 className="text-lg font-bold text-primary flex items-center gap-2">
+          <Trophy className="text-[var(--th-sport-primary)]" />
+          {title}
+        </h2>
+        <p className="text-sm text-secondary">{subtitle}</p>
       </div>
 
       <div className="sm:p-4">
