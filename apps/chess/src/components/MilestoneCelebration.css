@@ -1,0 +1,169 @@
+/* Milestone celebration overlay — fires once when a match pushes a player
+ * across a career games milestone. Hand-rolled CSS, no animation deps. */
+
+.milestone-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--th-bg-overlay);
+  backdrop-filter: blur(3px);
+  animation: milestone-fade-in 0.25s ease-out;
+}
+
+.milestone-celebration {
+  position: relative;
+  text-align: center;
+  max-width: 340px;
+}
+
+.milestone-medal {
+  width: 132px;
+  height: 132px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 30% 25%, var(--th-trophy-gold-1), var(--th-trophy-gold-2));
+  box-shadow:
+    inset 0 0 0 7px rgba(255, 255, 255, 0.32),
+    0 8px 40px rgba(0, 0, 0, 0.35);
+  animation: milestone-stamp 0.55s cubic-bezier(0.2, 2.2, 0.4, 1) both;
+}
+
+.milestone-medal-number {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #3a2703;
+  font-variant-numeric: tabular-nums;
+}
+
+.milestone-medal-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6b4a06;
+}
+
+.milestone-ring {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 3px solid var(--th-trophy-gold-1);
+  pointer-events: none;
+  animation: milestone-ripple 0.9s ease-out 0.28s both;
+}
+
+.milestone-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 22px;
+  text-wrap: balance;
+  animation: milestone-rise 0.4s ease-out 0.35s both;
+}
+
+.milestone-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4px;
+  animation: milestone-rise 0.4s ease-out 0.45s both;
+}
+
+.milestone-dismiss {
+  margin-top: 22px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  animation: milestone-rise 0.4s ease-out 0.55s both;
+}
+
+.milestone-particle {
+  position: absolute;
+  left: 50%;
+  top: 66px;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--particle-color);
+  pointer-events: none;
+  animation: milestone-fly 0.95s cubic-bezier(0.1, 0.7, 0.4, 1) var(--particle-delay) both;
+}
+
+@keyframes milestone-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes milestone-stamp {
+  0% {
+    transform: scale(2.4) rotate(-14deg);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes milestone-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes milestone-rise {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+}
+
+@keyframes milestone-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--particle-dx)), calc(-50% + var(--particle-dy)))
+      scale(0.4) rotate(300deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone-overlay,
+  .milestone-medal,
+  .milestone-title,
+  .milestone-subtitle,
+  .milestone-dismiss {
+    animation: none;
+  }
+
+  .milestone-ring,
+  .milestone-particle {
+    display: none;
+  }
+}

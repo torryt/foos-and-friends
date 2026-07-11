@@ -206,6 +206,30 @@ export interface DbPlayerSeasonStats {
   updated_at: string
 }
 
+// Season podium trophies, snapshotted when a season ends (1 = gold, 2 = silver, 3 = bronze)
+export type TrophyRank = 1 | 2 | 3
+
+export interface SeasonTrophy {
+  id: string
+  groupId: string
+  seasonId: string
+  playerId: string
+  rank: TrophyRank
+  seasonName: string
+  seasonNumber: number
+  createdAt: string
+}
+
+export interface DbSeasonTrophy {
+  id: string
+  group_id: string
+  season_id: string
+  player_id: string
+  rank: number
+  created_at: string
+  seasons: { name: string; season_number: number } | null
+}
+
 // Auth types
 export interface AuthUser {
   id: string

@@ -6,6 +6,7 @@ import type {
   Player,
   PlayerSeasonStats,
   Season,
+  SeasonTrophy,
   SportType,
 } from '../types/index.ts'
 
@@ -176,4 +177,7 @@ export interface Database {
     seasonId: string,
     matchType?: MatchType,
   ): Promise<DatabaseListResult<PlayerSeasonStats>>
+
+  // Season trophy operations (read-only, awarded server-side when a season ends)
+  getTrophiesByGroup(groupId: string): Promise<DatabaseListResult<SeasonTrophy>>
 }

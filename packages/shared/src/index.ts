@@ -36,6 +36,7 @@ export {
   savedMatchupsService,
 } from './services/savedMatchupsService.ts'
 export { createSeasonsService, SeasonsService } from './services/seasonsService.ts'
+export { createTrophiesService, TrophiesService } from './services/trophiesService.ts'
 // Mock mode (local development without Supabase)
 export {
   buildMockSeed,
@@ -62,6 +63,7 @@ export { AppearanceSelector } from './theme/AppearanceSelector.tsx'
 export { useChartTheme } from './theme/useChartTheme.ts'
 export * from './types/index.ts'
 // Utils
+export * from './utils/badges.ts'
 export * from './utils/elo.ts'
 export * from './utils/matchmaking.ts'
 export * from './utils/streakCalculations.ts'

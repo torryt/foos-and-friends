@@ -20,7 +20,9 @@ import type {
   PlayerMatchStats,
   PlayerSeasonStats,
   Season,
+  SeasonTrophy,
   SportType,
+  TrophyRank,
 } from '../types/index.ts'
 import { replayContinuousElo } from '../utils/elo.ts'
 import { buildMockSeed, MOCK_USER_ID, type MockSeed, type MockSeedOptions } from './mock-data.ts'
@@ -34,6 +36,7 @@ export class MockDatabase implements Database {
   private players: Player[]
   private matches: Match[]
   private seasons: Season[]
+  private trophies: SeasonTrophy[] = []
   private nextId = 1
 
   constructor(seed: MockSeed) {
@@ -42,6 +45,10 @@ export class MockDatabase implements Database {
     this.players = [...seed.players]
     this.matches = [...seed.matches]
     this.seasons = [...seed.seasons]
+    // Backfill podiums for seeded ended seasons, mirroring migration 021
+    for (const season of this.seasons.filter((s) => !s.isActive)) {
+      this.awardSeasonTrophies(season)
+    }
   }
 
   private generateId(prefix: string): string {
@@ -346,12 +353,38 @@ export class MockDatabase implements Database {
   // ===== PLAYER OPERATIONS =====
 
   async getPlayersByGroup(groupId: string): Promise<DatabaseListResult<Player>> {
+    const groupMatches = this.matches.filter((m) => m.groupId === groupId)
     // All-time ranking is the continuous unresetting chain, mirroring
     // compute_player_global_ranking in the real database (migration 020)
-    const series = replayContinuousElo(this.matches.filter((m) => m.groupId === groupId))
+    const series = replayContinuousElo(groupMatches)
     const players = this.players
       .filter((p) => p.groupId === groupId)
-      .map((p) => ({ ...p, ranking: series.get(p.id)?.at(-1)?.ranking ?? 1200 }))
+      .map((p) => {
+        // Career stats come from match history, mirroring player_stats_computed
+        let matchesPlayed = 0
+        let wins = 0
+        let losses = 0
+        for (const match of groupMatches) {
+          const inTeam1 = match.team1.some((t) => t?.id === p.id)
+          const inTeam2 = match.team2.some((t) => t?.id === p.id)
+          if (!inTeam1 && !inTeam2) continue
+          matchesPlayed++
+          if (match.score1 === match.score2) continue
+          const won = inTeam1 === match.score1 > match.score2
+          if (won) {
+            wins++
+          } else {
+            losses++
+          }
+        }
+        return {
+          ...p,
+          ranking: series.get(p.id)?.at(-1)?.ranking ?? 1200,
+          matchesPlayed,
+          wins,
+          losses,
+        }
+      })
       .sort((a, b) => b.ranking - a.ranking)
     return { data: players, error: null }
   }
@@ -557,6 +590,7 @@ export class MockDatabase implements Database {
     }
 
     const now = new Date().toISOString()
+    this.awardSeasonTrophies(activeSeason)
     activeSeason.isActive = false
     activeSeason.endDate = now.split('T')[0]
     activeSeason.updatedAt = now
@@ -656,6 +690,46 @@ export class MockDatabase implements Database {
     matchType?: MatchType,
   ): Promise<DatabaseListResult<PlayerSeasonStats>> {
     return { data: this.computeSeasonStats(seasonId, matchType), error: null }
+  }
+
+  // ===== SEASON TROPHIES =====
+
+  // Snapshot the top 3 of the combined season leaderboard, mirroring
+  // award_season_trophies in migration 021 (idempotent, same tie-breaks)
+  private awardSeasonTrophies(season: Season): void {
+    if (this.trophies.some((t) => t.seasonId === season.id)) {
+      return
+    }
+
+    const podium = this.computeSeasonStats(season.id)
+      .toSorted(
+        (a, b) =>
+          b.ranking - a.ranking ||
+          b.wins - a.wins ||
+          b.matchesPlayed - a.matchesPlayed ||
+          a.playerId.localeCompare(b.playerId),
+      )
+      .slice(0, 3)
+
+    podium.forEach((stats, index) => {
+      this.trophies.push({
+        id: this.generateId('trophy'),
+        groupId: season.groupId,
+        seasonId: season.id,
+        playerId: stats.playerId,
+        rank: (index + 1) as TrophyRank,
+        seasonName: season.name,
+        seasonNumber: season.seasonNumber,
+        createdAt: new Date().toISOString(),
+      })
+    })
+  }
+
+  async getTrophiesByGroup(groupId: string): Promise<DatabaseListResult<SeasonTrophy>> {
+    const trophies = this.trophies
+      .filter((t) => t.groupId === groupId)
+      .toSorted((a, b) => b.seasonNumber - a.seasonNumber || a.rank - b.rank)
+    return { data: trophies, error: null }
   }
 }
 

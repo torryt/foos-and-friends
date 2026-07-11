@@ -1,6 +1,7 @@
 import type { Match, MatchType, Player, PlayerSeasonStats } from '@foos/shared'
-import { getRandomAvatar } from '@foos/shared'
-import { useEffect, useState } from 'react'
+import { getCrossedMilestone, getRandomAvatar } from '@foos/shared'
+import { useCallback, useEffect, useState } from 'react'
+import type { ReachedMilestone } from '@/components/MilestoneCelebration'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 import { matchesService, playerSeasonStatsService, playersService } from '@/lib/init'
@@ -13,6 +14,8 @@ export const useGameLogic = () => {
   const [allMatches, setAllMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Queue of games-played milestones reached by the latest match (usually 0–1 entries)
+  const [reachedMilestones, setReachedMilestones] = useState<ReachedMilestone[]>([])
 
   const { currentGroup } = useGroupContext()
   const { currentSeason } = useSeasonContext()
@@ -185,6 +188,27 @@ export const useGameLogic = () => {
         ])
 
         if (playersResult.data) {
+          // Celebrate any participant whose career games count crossed a badge milestone
+          const participantIds = [
+            team1Player1Id,
+            team1Player2Id,
+            team2Player1Id,
+            team2Player2Id,
+          ].filter((id): id is string => id !== null)
+
+          const reached: ReachedMilestone[] = []
+          for (const participantId of participantIds) {
+            const before = players.find((p) => p.id === participantId)?.matchesPlayed ?? 0
+            const updated = playersResult.data.find((p) => p.id === participantId)
+            const milestone = updated ? getCrossedMilestone(before, updated.matchesPlayed) : null
+            if (updated && milestone) {
+              reached.push({ player: updated, milestone })
+            }
+          }
+          if (reached.length > 0) {
+            setReachedMilestones((prev) => [...prev, ...reached])
+          }
+
           setPlayers(playersResult.data)
         }
 
@@ -257,6 +281,12 @@ export const useGameLogic = () => {
     }
   }
 
+  // Show one celebration at a time; dismissing advances the queue
+  const currentMilestone = reachedMilestones[0] ?? null
+  const dismissMilestone = useCallback(() => {
+    setReachedMilestones((prev) => prev.slice(1))
+  }, [])
+
   return {
     players,
     seasonStats,
@@ -269,5 +299,7 @@ export const useGameLogic = () => {
     addMatch,
     updatePlayer,
     deletePlayer,
+    currentMilestone,
+    dismissMilestone,
   }
 }
