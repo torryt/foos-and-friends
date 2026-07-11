@@ -11,6 +11,9 @@ export { ResetPasswordPage } from './auth/ResetPasswordPage.tsx'
 export { useAuth } from './auth/useAuth.ts'
 export { UserSettingsPage } from './auth/UserSettingsPage.tsx'
 
+// Components
+export { PillSelect, type PillSelectOption } from './components/PillSelect.tsx'
+
 // Constants
 export { AVAILABLE_AVATARS, getRandomAvatar } from './constants/avatars.ts'
 

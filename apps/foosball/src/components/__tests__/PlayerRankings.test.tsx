@@ -233,10 +233,9 @@ describe('PlayerRankings', () => {
     ]
 
     test('sorts players by longest win streak', () => {
-      const { container } = render(<PlayerRankings players={mockPlayers} matches={streakMatches} />)
-
-      fireEvent.click(screen.getByRole('button', { name: /Sort by/i }))
-      fireEvent.click(screen.getByText('Longest Win Streak'))
+      const { container } = render(
+        <PlayerRankings players={mockPlayers} matches={streakMatches} sortBy="longestWinStreak" />,
+      )
 
       const playerNames = screen.getAllByText(/Alice Johnson|Bob Smith|Charlie Brown/)
       expect(playerNames[0]).toHaveTextContent('Alice Johnson')
@@ -250,10 +249,9 @@ describe('PlayerRankings', () => {
     })
 
     test('sorts players by longest lose streak', () => {
-      const { container } = render(<PlayerRankings players={mockPlayers} matches={streakMatches} />)
-
-      fireEvent.click(screen.getByRole('button', { name: /Sort by/i }))
-      fireEvent.click(screen.getByText('Longest Lose Streak'))
+      const { container } = render(
+        <PlayerRankings players={mockPlayers} matches={streakMatches} sortBy="longestLoseStreak" />,
+      )
 
       const playerNames = screen.getAllByText(/Alice Johnson|Bob Smith|Charlie Brown/)
       expect(playerNames[0]).toHaveTextContent('Bob Smith')
