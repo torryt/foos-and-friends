@@ -78,7 +78,7 @@ export const JoinRequestsBell = () => {
         onClick={() => setOpen(!open)}
         aria-label={totalCount > 0 ? `${totalCount} pending join requests` : 'Join requests'}
         aria-expanded={open}
-        className="relative bg-card px-2 py-2 min-h-11 min-w-11 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center justify-center"
+        className="relative bg-card px-2 py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center justify-center"
       >
         <Bell size={16} className="text-secondary" />
         {totalCount > 0 && (
