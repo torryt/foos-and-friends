@@ -95,7 +95,7 @@ export const GroupSelector = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white/80 px-3 py-2 rounded-lg border border-white/50 hover:bg-white transition-colors flex items-center gap-2"
+        className="bg-white/80 px-3 py-2 min-h-11 rounded-lg border border-white/50 hover:bg-white transition-colors flex items-center gap-2"
         title={currentGroup ? `Current group: ${currentGroup.name}` : 'Select a group'}
       >
         <Users size={16} className="text-gray-600" />

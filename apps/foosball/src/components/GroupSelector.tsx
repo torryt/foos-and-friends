@@ -92,7 +92,7 @@ export const GroupSelector = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-card px-3 py-2 rounded-lg border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center gap-2"
+        className="bg-card px-3 py-2 min-h-11 rounded-lg border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center gap-2"
         title={currentGroup ? `Current group: ${currentGroup.name}` : 'Select a group'}
       >
         <Users size={16} className="text-secondary" />

@@ -99,7 +99,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                           onGroupSettings={setGroupToEdit}
                         />
                       ) : (
-                        <div className="bg-card px-2 py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)]">
+                        <div className="bg-card px-2 py-2 min-h-11 min-w-11 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] flex items-center justify-center">
                           <Users size={16} className="text-secondary" />
                         </div>
                       )}
@@ -110,7 +110,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                       <button
                         type="button"
                         onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                        className="bg-card px-2 py-2 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center gap-2"
+                        className="bg-card px-2 py-2 min-h-11 min-w-11 rounded-[var(--th-radius-md)] border border-[var(--th-border-subtle)] hover:bg-card-hover transition-colors flex items-center justify-center gap-2"
                         title={user.email.split('@')[0]}
                       >
                         <User size={16} className="text-secondary" />
