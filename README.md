@@ -226,7 +226,7 @@ Setting `VITE_MOCK_DATA=true` (the `dev:*:mock` scripts) replaces the Supabase c
 ### All-Time ELO
 - Separate from seasonal rankings: the group's entire match history is replayed as one continuous chain, as if seasons never reset
 - Symmetric K=32, no rating clamp
-- Implemented in both `packages/shared/src/utils/elo.ts` (`replayContinuousElo`) and the database (migration 020) — the two must stay in sync
+- Implemented in both `packages/shared/src/utils/elo.ts` (`replayContinuousElo`) and the database (`compute_group_global_rankings` in `database/migrations/001_initial_schema.sql`) — the two must stay in sync
 - Player ranking graphs can toggle between season and all-time views
 
 ### Rating Tiers
