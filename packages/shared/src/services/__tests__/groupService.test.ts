@@ -21,8 +21,11 @@ describe('GroupService member management', () => {
     expect(created.success).toBe(true)
     groupId = created.groupId ?? ''
 
-    await service.joinGroupByInvite(created.inviteCode ?? '', MEMBER_B)
-    await service.joinGroupByInvite(created.inviteCode ?? '', MEMBER_C)
+    db.currentUserId = MEMBER_B
+    await service.joinGroupByInvite(created.inviteCode ?? '')
+    db.currentUserId = MEMBER_C
+    await service.joinGroupByInvite(created.inviteCode ?? '')
+    db.currentUserId = OWNER_ID
   })
 
   describe('getGroupMembers', () => {

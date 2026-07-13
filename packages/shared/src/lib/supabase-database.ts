@@ -379,15 +379,11 @@ export class SupabaseDatabase implements Database {
     }
   }
 
-  async joinGroupByInvite(
-    inviteCode: string,
-    userId?: string,
-  ): Promise<DatabaseResult<GroupJoinRpcResult>> {
+  async joinGroupByInvite(inviteCode: string): Promise<DatabaseResult<GroupJoinRpcResult>> {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase.rpc('join_group_by_invite_code', {
         p_invite_code: inviteCode,
-        p_user_id: userId,
       })
 
       if (error) {
@@ -400,15 +396,11 @@ export class SupabaseDatabase implements Database {
     }
   }
 
-  async deleteGroup(
-    groupId: string,
-    userId: string,
-  ): Promise<DatabaseResult<GroupDeletionRpcResult>> {
+  async deleteGroup(groupId: string): Promise<DatabaseResult<GroupDeletionRpcResult>> {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase.rpc('delete_group_with_cascade', {
         p_group_id: groupId,
-        p_user_id: userId,
       })
 
       if (error) {
@@ -467,12 +459,11 @@ export class SupabaseDatabase implements Database {
     }
   }
 
-  async leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
+  async leaveGroup(groupId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase.rpc('leave_group', {
         p_group_id: groupId,
-        p_user_id: userId,
       })
 
       if (error) {

@@ -51,8 +51,8 @@ export class GroupService {
     }
   }
 
-  async joinGroupByInvite(inviteCode: string, userId?: string): Promise<GroupJoinResult> {
-    const result = await this.db.joinGroupByInvite(inviteCode, userId)
+  async joinGroupByInvite(inviteCode: string): Promise<GroupJoinResult> {
+    const result = await this.db.joinGroupByInvite(inviteCode)
 
     if (result.error) {
       return { success: false, error: result.error }
@@ -120,15 +120,12 @@ export class GroupService {
     }
   }
 
-  async deleteGroup(
-    groupId: string,
-    userId: string,
-  ): Promise<{
+  async deleteGroup(groupId: string): Promise<{
     success: boolean
     error?: string
     deletedCounts?: { players: number; matches: number; members: number }
   }> {
-    const result = await this.db.deleteGroup(groupId, userId)
+    const result = await this.db.deleteGroup(groupId)
 
     if (result.error) {
       return { success: false, error: result.error }
@@ -265,8 +262,8 @@ export class GroupService {
     return await this.db.getMyPendingJoinRequests()
   }
 
-  async leaveGroup(groupId: string, userId: string): Promise<GroupLeaveResult> {
-    const result = await this.db.leaveGroup(groupId, userId)
+  async leaveGroup(groupId: string): Promise<GroupLeaveResult> {
+    const result = await this.db.leaveGroup(groupId)
 
     if (result.error) {
       return { success: false, error: result.error }

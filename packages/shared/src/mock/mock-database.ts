@@ -181,10 +181,8 @@ export class MockDatabase implements Database {
     }
   }
 
-  async joinGroupByInvite(
-    inviteCode: string,
-    userId = MOCK_USER_ID,
-  ): Promise<DatabaseResult<GroupJoinRpcResult>> {
+  async joinGroupByInvite(inviteCode: string): Promise<DatabaseResult<GroupJoinRpcResult>> {
+    const userId = MOCK_USER_ID
     const group = this.groups.find((g) => g.inviteCode === inviteCode && g.isActive)
     if (!group) {
       return { data: { success: false, error: 'Invalid invite code' }, error: null }
@@ -236,10 +234,8 @@ export class MockDatabase implements Database {
     }
   }
 
-  async deleteGroup(
-    groupId: string,
-    userId: string,
-  ): Promise<DatabaseResult<GroupDeletionRpcResult>> {
+  async deleteGroup(groupId: string): Promise<DatabaseResult<GroupDeletionRpcResult>> {
+    const userId = MOCK_USER_ID
     const group = this.groups.find((g) => g.id === groupId && g.isActive)
     if (!group) {
       return { data: { success: false, error: 'Group not found' }, error: null }
@@ -266,7 +262,8 @@ export class MockDatabase implements Database {
     return { data: { success: true, deleted_counts: counts }, error: null }
   }
 
-  async leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
+  async leaveGroup(groupId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
+    const userId = MOCK_USER_ID
     const group = this.groups.find((g) => g.id === groupId && g.isActive)
     if (!group) {
       return { data: { success: false, error: 'Group not found' }, error: null }

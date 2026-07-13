@@ -112,12 +112,10 @@ export interface Database {
     sportType?: SportType,
     supportedMatchTypes?: MatchType[],
   ): Promise<DatabaseResult<GroupCreationRpcResult>>
-  joinGroupByInvite(
-    inviteCode: string,
-    userId?: string,
-  ): Promise<DatabaseResult<GroupJoinRpcResult>>
-  deleteGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupDeletionRpcResult>>
-  leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>>
+  // The acting user is the authenticated caller (auth.uid() server-side)
+  joinGroupByInvite(inviteCode: string): Promise<DatabaseResult<GroupJoinRpcResult>>
+  deleteGroup(groupId: string): Promise<DatabaseResult<GroupDeletionRpcResult>>
+  leaveGroup(groupId: string): Promise<DatabaseResult<GroupLeaveRpcResult>>
   updateGroup(groupId: string, updates: GroupSettingsUpdate): Promise<DatabaseResult<FriendGroup>>
 
   // Sharing operations (owner/admin via RPC role checks)

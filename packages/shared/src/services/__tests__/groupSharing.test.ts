@@ -23,8 +23,18 @@ describe('GroupService sharing & join approval', () => {
     groupId = created.groupId ?? ''
     inviteCode = created.inviteCode ?? ''
 
-    await service.joinGroupByInvite(inviteCode, MEMBER_B)
+    await joinAs(MEMBER_B, inviteCode)
   })
+
+  // Simulates another user joining: the acting user is now the authenticated
+  // caller, so switch db.currentUserId around the call
+  async function joinAs(userId: string, code: string) {
+    const previous = db.currentUserId
+    db.currentUserId = userId
+    const result = await service.joinGroupByInvite(code)
+    db.currentUserId = previous
+    return result
+  }
 
   describe('public sharing', () => {
     it('lets the owner enable sharing', async () => {
@@ -158,7 +168,7 @@ describe('GroupService sharing & join approval', () => {
       const policy = await service.setGroupJoinPolicy(groupId, 'approval')
       expect(policy.success).toBe(true)
 
-      const join = await service.joinGroupByInvite(inviteCode, OUTSIDER)
+      const join = await joinAs(OUTSIDER, inviteCode)
 
       expect(join.success).toBe(true)
       expect(join.status).toBe('pending')
@@ -181,15 +191,15 @@ describe('GroupService sharing & join approval', () => {
 
     it('joining twice while pending does not duplicate the request', async () => {
       await service.setGroupJoinPolicy(groupId, 'approval')
-      await service.joinGroupByInvite(inviteCode, OUTSIDER)
-      await service.joinGroupByInvite(inviteCode, OUTSIDER)
+      await joinAs(OUTSIDER, inviteCode)
+      await joinAs(OUTSIDER, inviteCode)
 
       const requests = await service.getPendingJoinRequests(groupId)
       expect(requests.data).toHaveLength(1)
     })
 
     it('open groups still join immediately with status joined', async () => {
-      const join = await service.joinGroupByInvite(inviteCode, OUTSIDER)
+      const join = await joinAs(OUTSIDER, inviteCode)
 
       expect(join.success).toBe(true)
       expect(join.status).toBe('joined')
@@ -201,7 +211,7 @@ describe('GroupService sharing & join approval', () => {
 
     beforeEach(async () => {
       await service.setGroupJoinPolicy(groupId, 'approval')
-      await service.joinGroupByInvite(inviteCode, OUTSIDER)
+      await joinAs(OUTSIDER, inviteCode)
       const requests = await service.getPendingJoinRequests(groupId)
       requestId = requests.data[0].id
     })
