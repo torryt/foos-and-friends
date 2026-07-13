@@ -1,4 +1,4 @@
-import { type AuthUser, useClickOutside } from '@foos/shared'
+import { type AuthUser, CommunityLinks, useClickOutside } from '@foos/shared'
 import { Link } from '@tanstack/react-router'
 import { Crown, LogOut, Settings, User, Users } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -138,11 +138,16 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                               <Link
                                 to="/settings"
                                 onClick={() => setShowProfileDropdown(false)}
-                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-card-hover transition-colors flex items-center gap-2 text-sm font-medium text-primary"
+                                className="w-full min-h-11 text-left px-3 py-2 rounded-lg hover:bg-card-hover transition-colors flex items-center gap-2 text-sm font-medium text-primary"
                               >
                                 <Settings size={16} className="text-secondary" />
                                 Settings
                               </Link>
+
+                              <div className="mt-2 pt-2 border-t border-[var(--th-border)]">
+                                <CommunityLinks onNavigate={() => setShowProfileDropdown(false)} />
+                              </div>
+
                               {onSignOut && (
                                 <button
                                   type="button"
@@ -150,7 +155,7 @@ const Header = ({ user, onSignOut }: HeaderProps) => {
                                     onSignOut()
                                     setShowProfileDropdown(false)
                                   }}
-                                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-loss/10 transition-colors flex items-center gap-2 text-sm font-medium text-[var(--th-loss)]"
+                                  className="w-full min-h-11 text-left px-3 py-2 rounded-lg hover:bg-loss/10 transition-colors flex items-center gap-2 text-sm font-medium text-[var(--th-loss)]"
                                 >
                                   <LogOut size={16} className="text-[var(--th-loss)]" />
                                   Sign Out
