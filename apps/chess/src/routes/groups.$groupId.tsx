@@ -1,4 +1,4 @@
-import type { GroupPreview } from '@foos/shared'
+import type { AuthUser, GroupPreview } from '@foos/shared'
 import { createFileRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
 import { AlertCircle, Crown, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -24,8 +24,9 @@ const SPORT_TYPE = 'chess'
 // name-plus-request-to-join landing page).
 function GroupLayout() {
   const { groupId } = Route.useParams()
-  const { user, onSignOut } = Route.useRouteContext()
-  const { loading: authLoading, isAuthenticated } = useAuth()
+  // user comes from the reactive auth hook, not router context — route context
+  // is frozen at match time, so on a hard refresh it would still hold null
+  const { user, loading: authLoading, isAuthenticated, signOut } = useAuth()
   const { userGroups, currentGroup, switchGroup, loading: groupsLoading } = useGroupContext()
 
   const isMember = userGroups.some((g) => g.id === groupId)
@@ -49,7 +50,7 @@ function GroupLayout() {
   if (isMember) {
     return (
       <GroupPageProvider value="member">
-        <MemberLayout user={user} onSignOut={onSignOut} />
+        <MemberLayout user={user} onSignOut={signOut} />
       </GroupPageProvider>
     )
   }
@@ -64,7 +65,7 @@ function GroupLayout() {
 }
 
 interface MemberLayoutProps {
-  user: ReturnType<typeof Route.useRouteContext>['user']
+  user: AuthUser | null
   onSignOut: () => void
 }
 

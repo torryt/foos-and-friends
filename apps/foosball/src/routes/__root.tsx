@@ -1,17 +1,12 @@
-import type { AuthUser } from '@foos/shared'
-import { createRootRouteWithContext, Outlet, useLocation } from '@tanstack/react-router'
+import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import Header from '@/components/Header'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import TabNavigation from '@/components/TabNavigation'
 import { ToastContainer } from '@/components/Toast'
+import { useAuth } from '@/hooks/useAuth'
 
-interface MyRouterContext {
-  user: AuthUser | null
-  onSignOut: () => void
-}
-
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+export const Route = createRootRoute({
   component: () => (
     <div className="min-h-screen bg-page">
       <RootComponent />
@@ -22,7 +17,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootComponent() {
-  const { user, onSignOut } = Route.useRouteContext()
+  // user comes from the reactive auth hook, not router context — route context
+  // is frozen at match time, so on a hard refresh it would still hold null
+  const { user, signOut } = useAuth()
   const location = useLocation()
 
   // Group pages handle auth themselves (they're viewable logged-out) and
@@ -43,7 +40,7 @@ function RootComponent() {
   // Everything else (settings, invite, join) is authed with the app chrome
   return (
     <ProtectedRoute>
-      <Header user={user} onSignOut={onSignOut} />
+      <Header user={user} onSignOut={signOut} />
       <TabNavigation />
 
       <div className="container mx-auto max-w-6xl p-4">
