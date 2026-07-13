@@ -10,6 +10,7 @@ import type {
   Season,
   SportType,
 } from '../types/index.ts'
+import { calculateNewRanking } from '../utils/elo.ts'
 
 export const MOCK_USER_ID = 'mock-user-1'
 export const MOCK_GROUP_ID = 'mock-group-1'
@@ -49,19 +50,6 @@ const mulberry32 = (seed: number) => {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
-}
-
-// Same ELO parameters as MatchesService so seeded history looks authentic
-const calculateNewRanking = (
-  playerRanking: number,
-  opponentRanking: number,
-  won: boolean,
-): number => {
-  const K = won ? 35 : 29
-  const expectedScore = 1 / (1 + 10 ** ((opponentRanking - playerRanking) / 400))
-  const actualScore = won ? 1 : 0
-  const newRanking = playerRanking + K * (actualScore - expectedScore)
-  return Math.max(800, Math.min(2400, Math.round(newRanking)))
 }
 
 const PLAYER_SEEDS: Array<{ name: string; avatar: string; department: string }> = [
@@ -292,13 +280,13 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
       const playerStats: PlayerMatchStats[] = []
       for (const p of team1) {
         const pre = rankings.get(p.id) ?? 1200
-        const post = calculateNewRanking(pre, team2Avg, team1Won)
+        const post = calculateNewRanking(pre, team2Avg, team1Won ? 'win' : 'loss')
         rankings.set(p.id, post)
         playerStats.push({ playerId: p.id, preGameRanking: pre, postGameRanking: post })
       }
       for (const p of team2) {
         const pre = rankings.get(p.id) ?? 1200
-        const post = calculateNewRanking(pre, team1Avg, !team1Won)
+        const post = calculateNewRanking(pre, team1Avg, team1Won ? 'loss' : 'win')
         rankings.set(p.id, post)
         playerStats.push({ playerId: p.id, preGameRanking: pre, postGameRanking: post })
       }
@@ -378,8 +366,8 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
   }))
 
   const [magnus, judit] = rivalPlayers
-  const magnusPost = calculateNewRanking(1200, 1200, true)
-  const juditPost = calculateNewRanking(1200, 1200, false)
+  const magnusPost = calculateNewRanking(1200, 1200, 'win')
+  const juditPost = calculateNewRanking(1200, 1200, 'loss')
   magnus.ranking = magnusPost
   magnus.matchesPlayed = 1
   magnus.wins = 1
