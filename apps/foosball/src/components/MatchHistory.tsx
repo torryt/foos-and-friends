@@ -9,14 +9,24 @@ import { useSeasonContext } from '@/contexts/SeasonContext'
 interface MatchHistoryProps {
   matches: Match[]
   allMatches?: Match[]
+  // True while the lazily-fetched full history is still loading
+  allMatchesLoading?: boolean
   players: Player[]
   // Absent in read-only contexts (public pages) — hides the record button
   onAddMatch?: () => void
   initialSelectedPlayer?: string
   onPlayerClick?: (playerId: string) => void
+  // Controlled scope: lets the route fetch the full history only when the
+  // all-time tab is selected. Uncontrolled (internal state) when absent.
+  scope?: MatchScope
+  onScopeChange?: (scope: MatchScope) => void
 }
 
-type MatchScope = 'season' | 'allTime'
+export type MatchScope = 'season' | 'allTime'
+
+// Matches are rendered in pages of this size with a "Show more" control —
+// rendering a merged group's full history at once is a real mobile jank source
+const MATCHES_PAGE_SIZE = 25
 
 interface PlayerWithStatsProps {
   player: Player
@@ -192,15 +202,21 @@ const MobileMatchRow = ({ match, seasonTag, onPlayerClick }: MobileMatchRowProps
 const MatchHistory = ({
   matches,
   allMatches,
+  allMatchesLoading = false,
   players,
   onAddMatch,
   initialSelectedPlayer,
   onPlayerClick,
+  scope: scopeProp,
+  onScopeChange,
 }: MatchHistoryProps) => {
   const { currentSeason, seasons } = useSeasonContext()
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(initialSelectedPlayer || null)
   const [showPlayerFilter, setShowPlayerFilter] = useState(false)
-  const [scope, setScope] = useState<MatchScope>('season')
+  const [internalScope, setInternalScope] = useState<MatchScope>('season')
+  const scope = scopeProp ?? internalScope
+  const setScope = onScopeChange ?? setInternalScope
+  const [visibleCount, setVisibleCount] = useState(MATCHES_PAGE_SIZE)
 
   useEffect(() => {
     if (initialSelectedPlayer) {
@@ -230,6 +246,11 @@ const MatchHistory = ({
   const allTime = scope === 'allTime' && !!allMatches
   const sourceMatches = allTime && allMatches ? allMatches : matches
 
+  // Start from one page again when the visible set changes shape
+  useEffect(() => {
+    setVisibleCount(MATCHES_PAGE_SIZE)
+  }, [allTime, selectedPlayer])
+
   // Look up a season name for the all-time view's per-match tags
   const seasonNameById = new Map(seasons.map((s) => [s.id, s.name]))
 
@@ -237,6 +258,8 @@ const MatchHistory = ({
   const filteredMatches = selectedPlayer
     ? sourceMatches.filter((match) => playerInMatch(match, selectedPlayer))
     : sourceMatches
+  const visibleMatches = filteredMatches.slice(0, visibleCount)
+  const hiddenCount = filteredMatches.length - visibleMatches.length
 
   const selectedPlayerData = selectedPlayer ? players.find((p) => p.id === selectedPlayer) : null
   const isArchived = !!currentSeason && !currentSeason.isActive
@@ -365,7 +388,9 @@ const MatchHistory = ({
       </div>
 
       <div className={filteredMatches.length === 0 ? 'p-4' : 'sm:p-4'}>
-        {filteredMatches.length === 0 ? (
+        {allTime && allMatchesLoading ? (
+          <div className="py-8 text-center text-sm text-secondary">Loading full history…</div>
+        ) : filteredMatches.length === 0 ? (
           <Alert className="bg-accent-subtle classic:bg-gradient-to-r classic:from-orange-50 classic:to-red-50 border-[var(--th-border)] classic:border-orange-200/50">
             <Target className="h-4 w-4 text-[var(--th-sport-primary)]" />
             <AlertDescription className="text-secondary font-medium text-sm">
@@ -374,7 +399,7 @@ const MatchHistory = ({
           </Alert>
         ) : (
           <div className="grid grid-cols-1 sm:gap-3 max-w-2xl mx-auto">
-            {filteredMatches.map((match) => (
+            {visibleMatches.map((match) => (
               <div
                 key={match.id}
                 className="border-b border-[var(--th-border-subtle)] sm:bg-card sm:classic:bg-gradient-to-br sm:classic:from-white sm:classic:to-slate-50 sm:border sm:rounded-[var(--th-radius-lg)] sm:p-3 sm:shadow-sm"
@@ -525,6 +550,15 @@ const MatchHistory = ({
                 </div>
               </div>
             ))}
+            {hiddenCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setVisibleCount((count) => count + MATCHES_PAGE_SIZE)}
+                className="w-full min-h-12 mt-2 rounded-[var(--th-radius-md)] border border-[var(--th-border)] bg-card/60 text-sm font-medium text-secondary hover:bg-card-hover"
+              >
+                Show more ({hiddenCount} older {hiddenCount === 1 ? 'match' : 'matches'})
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { ArchivedSeasonBanner } from '@/components/ArchivedSeasonBanner'
 import { MatchEntryModal } from '@/components/MatchEntryModal'
 import { MilestoneCelebration } from '@/components/MilestoneCelebration'
-import MatchHistory from '@/components/MatchHistory'
+import MatchHistory, { type MatchScope } from '@/components/MatchHistory'
 import { useGroupPageMode } from '@/contexts/GroupPageContext'
 import { usePublicGroup } from '@/contexts/PublicGroupContext'
 import { useGameLogic } from '@/hooks/useGameLogic'
@@ -28,15 +28,18 @@ function MemberMatches() {
   const { playerId } = Route.useSearch()
   const navigate = useNavigate()
   const [showRecordMatch, setShowRecordMatch] = useState(false)
+  const [scope, setScope] = useState<MatchScope>('season')
   const {
     players,
     matches,
     allMatches,
+    allMatchesLoading,
     supportedMatchTypes,
     addMatch,
     currentMilestone,
     dismissMilestone,
-  } = useGameLogic()
+    // Full history is only fetched (once, then cached) on the all-time tab
+  } = useGameLogic({ includeAllMatches: scope === 'allTime' })
 
   const handlePlayerClick = (playerId: string) => {
     navigate({
@@ -51,10 +54,13 @@ function MemberMatches() {
       <MatchHistory
         matches={matches}
         allMatches={allMatches}
+        allMatchesLoading={allMatchesLoading}
         players={players}
         onAddMatch={() => setShowRecordMatch(true)}
         initialSelectedPlayer={playerId}
         onPlayerClick={handlePlayerClick}
+        scope={scope}
+        onScopeChange={setScope}
       />
 
       {showRecordMatch && (

@@ -30,6 +30,7 @@ function MemberRankings() {
   const [showRecordMatch, setShowRecordMatch] = useState(false)
   const [scope, setScope] = useState<RankingScope>('season')
   const [sortBy, setSortBy] = useRankingSort()
+  const allTime = scope === 'allTime'
 
   const {
     players,
@@ -41,12 +42,12 @@ function MemberRankings() {
     addMatch,
     currentMilestone,
     dismissMilestone,
-  } = useGameLogic()
+    // Full history is only fetched (once, then cached) when all-time is selected
+  } = useGameLogic({ includeAllMatches: allTime })
   const { currentSeason, seasons } = useSeasonContext()
 
   const isArchived = !!currentSeason && !currentSeason.isActive
   const showScopeToggle = seasons.length > 1
-  const allTime = scope === 'allTime'
 
   const handlePlayerCardClick = (playerId: string) => {
     navigate({

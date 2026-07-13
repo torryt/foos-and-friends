@@ -22,6 +22,33 @@ export interface PlayerRankingHistory {
   lowestRanking: number
 }
 
+// One pass over the match list, bucketing each match under every player who
+// played in it, preserving the source array's order. Building this once and
+// looking each player up in it is O(matches) total, instead of the O(players
+// * matches) cost of filtering the full match list per player.
+function buildPlayerMatchBuckets(matches: Match[]): Map<string, Match[]> {
+  const buckets = new Map<string, Match[]>()
+
+  for (const match of matches) {
+    const playerIds = new Set<string>()
+    if (match.team1[0]) playerIds.add(match.team1[0].id)
+    if (match.team1[1]) playerIds.add(match.team1[1].id)
+    if (match.team2[0]) playerIds.add(match.team2[0].id)
+    if (match.team2[1]) playerIds.add(match.team2[1].id)
+
+    for (const id of playerIds) {
+      const bucket = buckets.get(id)
+      if (bucket) {
+        bucket.push(match)
+      } else {
+        buckets.set(id, [match])
+      }
+    }
+  }
+
+  return buckets
+}
+
 export function useRankingHistory(
   playerId: string | string[],
   matches: Match[],
@@ -29,6 +56,7 @@ export function useRankingHistory(
 ): PlayerRankingHistory[] {
   return useMemo(() => {
     const playerIds = Array.isArray(playerId) ? playerId : [playerId]
+    const matchesByPlayer = buildPlayerMatchBuckets(matches)
 
     return playerIds
       .map((id) => {
@@ -36,15 +64,7 @@ export function useRankingHistory(
         if (!player) return null
 
         // Get all matches for this player, sorted by date (newest first in the source)
-        const playerMatches = matches
-          .filter(
-            (match) =>
-              match.team1[0].id === id ||
-              match.team1[1]?.id === id ||
-              match.team2[0].id === id ||
-              match.team2[1]?.id === id,
-          )
-          .toReversed() // Reverse to get oldest first for chronological order
+        const playerMatches = (matchesByPlayer.get(id) ?? []).toReversed() // Reverse to get oldest first for chronological order
 
         const dataPoints: RankingDataPoint[] = []
         let currentRanking = 1200 // Default starting ranking

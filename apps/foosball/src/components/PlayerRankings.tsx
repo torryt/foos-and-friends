@@ -63,48 +63,69 @@ const getTier = (sortBy: SortOption, player: PlayerWithStats): number => {
   return 5
 }
 
-// Computes the longest run of consecutive wins/losses from a player's match
-// history. Draws (chess only) break both streaks without counting toward either.
-const computeStreaks = (
-  playerId: string,
-  matches: Match[],
-): { longestWinStreak: number; longestLoseStreak: number } => {
-  const playerMatches = matches
-    .filter(
-      (match) =>
-        match.team1[0].id === playerId ||
-        match.team1[1]?.id === playerId ||
-        match.team2[0].id === playerId ||
-        match.team2[1]?.id === playerId,
-    )
-    .toReversed() // oldest first
+export interface PlayerMatchStats {
+  longestWinStreak: number
+  longestLoseStreak: number
+  goalDifference: number
+}
 
-  let longestWinStreak = 0
-  let longestLoseStreak = 0
-  let currentWinStreak = 0
-  let currentLoseStreak = 0
+// Single pass over the whole match list building per-player streak and
+// goal-difference stats, keyed by player id. Equivalent to running the old
+// per-player filter+reverse+loop (computeStreaks) once for every player, but
+// O(matches) total instead of O(players * matches). Draws (chess only) break
+// both streaks without counting toward either.
+// Exported for testing against the old per-player computation.
+export const computeAllPlayerMatchStats = (matches: Match[]): Map<string, PlayerMatchStats> => {
+  const statsById = new Map<
+    string,
+    PlayerMatchStats & { currentWinStreak: number; currentLoseStreak: number }
+  >()
 
-  for (const match of playerMatches) {
-    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
-    const playerScore = wasInTeam1 ? match.score1 : match.score2
-    const opponentScore = wasInTeam1 ? match.score2 : match.score1
-
-    if (playerScore > opponentScore) {
-      currentWinStreak += 1
-      currentLoseStreak = 0
-    } else if (playerScore < opponentScore) {
-      currentLoseStreak += 1
-      currentWinStreak = 0
-    } else {
-      currentWinStreak = 0
-      currentLoseStreak = 0
+  const getOrInit = (playerId: string) => {
+    let entry = statsById.get(playerId)
+    if (!entry) {
+      entry = {
+        longestWinStreak: 0,
+        longestLoseStreak: 0,
+        goalDifference: 0,
+        currentWinStreak: 0,
+        currentLoseStreak: 0,
+      }
+      statsById.set(playerId, entry)
     }
-
-    longestWinStreak = Math.max(longestWinStreak, currentWinStreak)
-    longestLoseStreak = Math.max(longestLoseStreak, currentLoseStreak)
+    return entry
   }
 
-  return { longestWinStreak, longestLoseStreak }
+  const applyResult = (playerId: string, playerScore: number, opponentScore: number) => {
+    const entry = getOrInit(playerId)
+    entry.goalDifference += playerScore - opponentScore
+
+    if (playerScore > opponentScore) {
+      entry.currentWinStreak += 1
+      entry.currentLoseStreak = 0
+    } else if (playerScore < opponentScore) {
+      entry.currentLoseStreak += 1
+      entry.currentWinStreak = 0
+    } else {
+      entry.currentWinStreak = 0
+      entry.currentLoseStreak = 0
+    }
+
+    entry.longestWinStreak = Math.max(entry.longestWinStreak, entry.currentWinStreak)
+    entry.longestLoseStreak = Math.max(entry.longestLoseStreak, entry.currentLoseStreak)
+  }
+
+  // Oldest first, matching the iteration order computeStreaks used to use per player.
+  for (const match of matches.toReversed()) {
+    for (const player of match.team1) {
+      if (player) applyResult(player.id, match.score1, match.score2)
+    }
+    for (const player of match.team2) {
+      if (player) applyResult(player.id, match.score2, match.score1)
+    }
+  }
+
+  return statsById
 }
 
 const TierBadge = ({ tier, children }: { tier: number; children: React.ReactNode }) => (
@@ -223,6 +244,10 @@ const PlayerRankings = ({
   // scope) global player stats are used.
   const playersWithStats = useMemo(() => {
     const seasonScope = seasonStats !== undefined
+    // One O(matches) pass for every player's streaks (and all-time goal
+    // difference), instead of the old per-player filter+reverse+loop.
+    const matchStatsById = computeAllPlayerMatchStats(matches)
+
     return players.map((player) => {
       // Find season-specific stats for this player
       const seasonStat = seasonStats?.find((stat) => stat.playerId === player.id)
@@ -235,29 +260,14 @@ const PlayerRankings = ({
       const goalsAgainst = seasonStat?.goalsAgainst ?? 0
 
       // Calculate goal difference (use season stats if available, otherwise calculate from matches)
-      let goalDifference: number
-      if (seasonScope) {
-        goalDifference = seasonStat ? goalsFor - goalsAgainst : 0
-      } else {
-        // Fallback: calculate from matches
-        const playerMatches = matches.filter(
-          (match) =>
-            match.team1[0].id === player.id ||
-            match.team1[1]?.id === player.id ||
-            match.team2[0].id === player.id ||
-            match.team2[1]?.id === player.id,
-        )
-
-        goalDifference = playerMatches.reduce((diff, match) => {
-          const wasInTeam1 = match.team1[0].id === player.id || match.team1[1]?.id === player.id
-          const goalsForMatch = wasInTeam1 ? match.score1 : match.score2
-          const goalsAgainstMatch = wasInTeam1 ? match.score2 : match.score1
-          return diff + (goalsForMatch - goalsAgainstMatch)
-        }, 0)
-      }
+      const goalDifference = seasonScope
+        ? seasonStat
+          ? goalsFor - goalsAgainst
+          : 0
+        : (matchStatsById.get(player.id)?.goalDifference ?? 0)
 
       const winRate = matchesPlayed > 0 ? Math.round((wins / matchesPlayed) * 100) : 0
-      const { longestWinStreak, longestLoseStreak } = computeStreaks(player.id, matches)
+      const { longestWinStreak = 0, longestLoseStreak = 0 } = matchStatsById.get(player.id) ?? {}
 
       return {
         ...player,
