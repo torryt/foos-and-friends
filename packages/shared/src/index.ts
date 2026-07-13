@@ -12,10 +12,12 @@ export { useAuth } from './auth/useAuth.ts'
 export { UserSettingsPage } from './auth/UserSettingsPage.tsx'
 
 // Components
+export { CommunityLinks } from './components/CommunityLinks.tsx'
 export { PillSelect, type PillSelectOption } from './components/PillSelect.tsx'
 
 // Constants
 export { AVAILABLE_AVATARS, getRandomAvatar } from './constants/avatars.ts'
+export { COMMUNITY_LINKS } from './constants/links.ts'
 
 // Database interfaces and implementations
 export * from './lib/database.ts'
