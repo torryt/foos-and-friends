@@ -27,8 +27,8 @@ export const calculateNewRanking = (
 
 // All-time ELO uses the symmetric standard K (the seasonal 35/29 split would
 // compound inflation forever on a never-resetting rating) and no 800-2400 clamp.
-// Must stay in sync with compute_player_global_ranking in
-// database/migrations/020_continuous_alltime_elo.sql.
+// Must stay in sync with compute_group_global_rankings in
+// database/migrations/028_group_level_alltime_elo.sql.
 const K_FACTOR_ALL_TIME = 32
 
 export interface ContinuousRankingPoint {

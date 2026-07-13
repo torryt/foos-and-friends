@@ -17,7 +17,10 @@ function PlayerProfile() {
 
 function MemberPlayerProfile() {
   const { playerId } = Route.useParams()
-  const { players, seasonStats, allMatches, updatePlayer, loading } = useGameLogic()
+  // The profile's all-time charts and position stats replay the full history
+  const { players, seasonStats, allMatches, updatePlayer, loading } = useGameLogic({
+    includeAllMatches: true,
+  })
   const { currentSeason } = useSeasonContext()
   const trophies = useTrophies()
 

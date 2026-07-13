@@ -1,6 +1,11 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook } from '@testing-library/react'
+import { createElement, type ReactNode } from 'react'
 import { vi } from 'vitest'
 import { useGameLogic } from '../useGameLogic'
+
+const wrapper = ({ children }: { children: ReactNode }) =>
+  createElement(QueryClientProvider, { client: new QueryClient() }, children)
 
 // Mock everything to return empty data and prevent API calls
 vi.mock('@/services/playersService', () => ({
@@ -65,7 +70,7 @@ vi.mock('@/contexts/SeasonContext', async (importOriginal) => {
 
 describe('useGameLogic', () => {
   test('initializes with empty state when no group/user', () => {
-    const { result } = renderHook(() => useGameLogic())
+    const { result } = renderHook(() => useGameLogic(), { wrapper })
 
     expect(result.current.players).toEqual([])
     expect(result.current.matches).toEqual([])
@@ -76,7 +81,7 @@ describe('useGameLogic', () => {
   })
 
   test('addPlayer returns error when no group selected', async () => {
-    const { result } = renderHook(() => useGameLogic())
+    const { result } = renderHook(() => useGameLogic(), { wrapper })
 
     const response = await result.current.addPlayer('Test Player')
 
@@ -85,7 +90,7 @@ describe('useGameLogic', () => {
   })
 
   test('addMatch returns error when no group selected', async () => {
-    const { result } = renderHook(() => useGameLogic())
+    const { result } = renderHook(() => useGameLogic(), { wrapper })
 
     const response = await result.current.addMatch('1', '2', '3', '4', '10', '5')
 

@@ -585,11 +585,10 @@ export class SupabaseDatabase implements Database {
   async getPlayersByGroup(groupId: string): Promise<DatabaseListResult<Player>> {
     try {
       const supabase = getSupabase()
-      // Read from computed view for stats derived from match history
+      // Same shape as player_stats_computed, but one ELO replay for the whole
+      // group instead of one per player row (migration 028)
       const { data, error } = await supabase
-        .from('player_stats_computed')
-        .select('*')
-        .eq('group_id', groupId)
+        .rpc('get_group_player_stats', { p_group_id: groupId })
         .order('ranking', { ascending: false })
 
       if (error) {

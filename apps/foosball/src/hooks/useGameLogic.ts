@@ -1,116 +1,119 @@
 import type { Match, MatchType, Player, PlayerSeasonStats } from '@foos/shared'
 import { getCrossedMilestone, getRandomAvatar } from '@foos/shared'
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useState } from 'react'
 import type { ReachedMilestone } from '@/components/MilestoneCelebration'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useSeasonContext } from '@/contexts/SeasonContext'
 import { matchesService, playerSeasonStatsService, playersService } from '@/lib/init'
 import { useAuth } from './useAuth'
 
-export const useGameLogic = () => {
-  const [players, setPlayers] = useState<Player[]>([])
-  const [seasonStats, setSeasonStats] = useState<PlayerSeasonStats[]>([])
-  const [matches, setMatches] = useState<Match[]>([])
-  const [allMatches, setAllMatches] = useState<Match[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+// Query keys for the group-scoped data. Shared with mutations below so cache
+// updates and invalidations always hit the same entries.
+export const gameLogicKeys = {
+  players: (groupId: string) => ['players', groupId] as const,
+  seasonLeaderboard: (seasonId: string) => ['seasonLeaderboard', seasonId] as const,
+  seasonMatches: (seasonId: string) => ['seasonMatches', seasonId] as const,
+  allMatches: (groupId: string) => ['allMatches', groupId] as const,
+}
+
+interface UseGameLogicOptions {
+  // The full cross-season match history is only fetched where a view actually
+  // needs it (all-time rankings/history). Everything else runs on season data.
+  includeAllMatches?: boolean
+}
+
+export const useGameLogic = (options: UseGameLogicOptions = {}) => {
+  const { includeAllMatches = false } = options
+  const queryClient = useQueryClient()
   // Queue of games-played milestones reached by the latest match (usually 0–1 entries)
   const [reachedMilestones, setReachedMilestones] = useState<ReachedMilestone[]>([])
-  // Bumped by refresh() to force a reload (e.g. the auto-refreshing TV page)
-  const [refreshKey, setRefreshKey] = useState(0)
-  const refresh = useCallback(() => setRefreshKey((k) => k + 1), [])
 
   const { currentGroup } = useGroupContext()
   const { currentSeason } = useSeasonContext()
   const { user } = useAuth()
 
+  const groupId = currentGroup?.id
+  const seasonId = currentSeason?.id
+  const groupReady = !!groupId && !!user
+  const seasonReady = groupReady && !!seasonId
+
   // Determine which match types the current group supports
   const supportedMatchTypes: MatchType[] = currentGroup?.supportedMatchTypes || ['2v2']
 
-  // Load data when group or season changes
-  useEffect(() => {
-    if (!currentGroup || !currentSeason || !user) {
-      setPlayers([])
-      setSeasonStats([])
-      setMatches([])
-      setAllMatches([])
-      return
+  const playersQuery = useQuery({
+    queryKey: gameLogicKeys.players(groupId ?? ''),
+    queryFn: async () => {
+      const result = await playersService.getPlayersByGroup(groupId as string)
+      if (result.error) throw new Error(result.error)
+      return result.data
+    },
+    enabled: groupReady,
+    staleTime: 60_000,
+  })
+
+  const seasonStatsQuery = useQuery({
+    queryKey: gameLogicKeys.seasonLeaderboard(seasonId ?? ''),
+    queryFn: async () => {
+      const result = await playerSeasonStatsService.getSeasonLeaderboard(seasonId as string)
+      if (result.error) throw new Error(result.error)
+      return result.data
+    },
+    enabled: seasonReady,
+    staleTime: 60_000,
+  })
+
+  const matchesQuery = useQuery({
+    queryKey: gameLogicKeys.seasonMatches(seasonId ?? ''),
+    queryFn: async () => {
+      const result = await matchesService.getMatchesBySeason(seasonId as string)
+      if (result.error) throw new Error(result.error)
+      return result.data
+    },
+    enabled: seasonReady,
+    staleTime: 60_000,
+  })
+
+  const allMatchesQuery = useQuery({
+    queryKey: gameLogicKeys.allMatches(groupId ?? ''),
+    queryFn: async () => {
+      const result = await matchesService.getMatchesByGroup(groupId as string)
+      if (result.error) throw new Error(result.error)
+      return result.data
+    },
+    enabled: groupReady && includeAllMatches,
+    staleTime: 60_000,
+  })
+
+  const players: Player[] = playersQuery.data ?? []
+  const seasonStats: PlayerSeasonStats[] = seasonStatsQuery.data ?? []
+  const matches: Match[] = matchesQuery.data ?? []
+  const allMatches: Match[] = allMatchesQuery.data ?? []
+
+  const loading =
+    playersQuery.isLoading ||
+    seasonStatsQuery.isLoading ||
+    matchesQuery.isLoading ||
+    allMatchesQuery.isLoading
+
+  const error =
+    (playersQuery.error && `Failed to load players: ${playersQuery.error.message}`) ||
+    (seasonStatsQuery.error && `Failed to load season stats: ${seasonStatsQuery.error.message}`) ||
+    (matchesQuery.error && `Failed to load matches: ${matchesQuery.error.message}`) ||
+    (allMatchesQuery.error && `Failed to load match history: ${allMatchesQuery.error.message}`) ||
+    null
+
+  // Force a reload of everything for the current group (e.g. the auto-refreshing TV page)
+  const refresh = useCallback(() => {
+    if (groupId) {
+      queryClient.invalidateQueries({ queryKey: gameLogicKeys.players(groupId) })
+      queryClient.invalidateQueries({ queryKey: gameLogicKeys.allMatches(groupId) })
     }
-
-    // Track whether this effect has been superseded by a newer one.
-    // If the group/season changes while we're fetching, the cleanup
-    // function sets stale=true so we discard the response.
-    let stale = false
-
-    const loadGroupData = async () => {
-      setLoading(true)
-      setError(null)
-      // Immediately clear previous group's data to prevent stale display
-      setPlayers([])
-      setSeasonStats([])
-      setMatches([])
-      setAllMatches([])
-
-      try {
-        // Load players, season stats, and matches for the current group and season
-        const [playersResult, seasonStatsResult, matchesResult, allMatchesResult] =
-          await Promise.all([
-            playersService.getPlayersByGroup(currentGroup.id),
-            playerSeasonStatsService.getSeasonLeaderboard(currentSeason.id),
-            matchesService.getMatchesBySeason(currentSeason.id),
-            matchesService.getMatchesByGroup(currentGroup.id),
-          ])
-
-        // Discard results if group/season changed during fetch
-        if (stale) return
-
-        if (playersResult.error) {
-          setError(`Failed to load players: ${playersResult.error}`)
-          setPlayers([])
-        } else {
-          setPlayers(playersResult.data)
-        }
-
-        if (seasonStatsResult.error) {
-          setError(`Failed to load season stats: ${seasonStatsResult.error}`)
-          setSeasonStats([])
-        } else {
-          setSeasonStats(seasonStatsResult.data)
-        }
-
-        if (matchesResult.error) {
-          setError(`Failed to load matches: ${matchesResult.error}`)
-          setMatches([])
-        } else {
-          setMatches(matchesResult.data)
-        }
-
-        if (allMatchesResult.error) {
-          setError(`Failed to load match history: ${allMatchesResult.error}`)
-          setAllMatches([])
-        } else {
-          setAllMatches(allMatchesResult.data)
-        }
-      } catch (err) {
-        if (stale) return
-        setError(err instanceof Error ? err.message : 'Failed to load group data')
-        setPlayers([])
-        setSeasonStats([])
-        setMatches([])
-        setAllMatches([])
-      } finally {
-        if (!stale) {
-          setLoading(false)
-        }
-      }
+    if (seasonId) {
+      queryClient.invalidateQueries({ queryKey: gameLogicKeys.seasonLeaderboard(seasonId) })
+      queryClient.invalidateQueries({ queryKey: gameLogicKeys.seasonMatches(seasonId) })
     }
-
-    loadGroupData()
-
-    return () => {
-      stale = true
-    }
-  }, [currentGroup, currentSeason, user, refreshKey])
+  }, [queryClient, groupId, seasonId])
 
   const addPlayer = async (
     name: string,
@@ -136,9 +139,10 @@ export const useGameLogic = () => {
       }
 
       if (result.data) {
-        // Update local state
         const newPlayer = result.data
-        setPlayers((prev) => [...prev, newPlayer])
+        queryClient.setQueryData<Player[]>(gameLogicKeys.players(currentGroup.id), (prev) =>
+          prev ? [...prev, newPlayer] : prev,
+        )
       }
 
       return { success: true }
@@ -179,10 +183,15 @@ export const useGameLogic = () => {
       }
 
       if (result.data) {
-        // Update local state - add new match and refresh players and season stats
+        // Prepend the new match to whatever match caches exist; untouched
+        // caches stay unset and load fresh when their query is next enabled
         const newMatch = result.data
-        setMatches((prev) => [newMatch, ...prev])
-        setAllMatches((prev) => [newMatch, ...prev])
+        queryClient.setQueryData<Match[]>(gameLogicKeys.seasonMatches(currentSeason.id), (prev) =>
+          prev ? [newMatch, ...prev] : prev,
+        )
+        queryClient.setQueryData<Match[]>(gameLogicKeys.allMatches(currentGroup.id), (prev) =>
+          prev ? [newMatch, ...prev] : prev,
+        )
 
         // Refresh players and season stats to get updated data
         const [playersResult, seasonStatsResult] = await Promise.all([
@@ -212,11 +221,14 @@ export const useGameLogic = () => {
             setReachedMilestones((prev) => [...prev, ...reached])
           }
 
-          setPlayers(playersResult.data)
+          queryClient.setQueryData(gameLogicKeys.players(currentGroup.id), playersResult.data)
         }
 
         if (seasonStatsResult.data) {
-          setSeasonStats(seasonStatsResult.data)
+          queryClient.setQueryData(
+            gameLogicKeys.seasonLeaderboard(currentSeason.id),
+            seasonStatsResult.data,
+          )
         }
       }
 
@@ -245,9 +257,8 @@ export const useGameLogic = () => {
       }
 
       if (result.data) {
-        // Update local state
-        setPlayers((prev) =>
-          prev.map((player) => (player.id === playerId && result.data ? result.data : player)),
+        queryClient.setQueryData<Player[]>(gameLogicKeys.players(currentGroup.id), (prev) =>
+          prev?.map((player) => (player.id === playerId && result.data ? result.data : player)),
         )
       }
 
@@ -272,8 +283,9 @@ export const useGameLogic = () => {
         return { success: false, error: result.error }
       }
 
-      // Update local state
-      setPlayers((prev) => prev.filter((player) => player.id !== playerId))
+      queryClient.setQueryData<Player[]>(gameLogicKeys.players(currentGroup.id), (prev) =>
+        prev?.filter((player) => player.id !== playerId),
+      )
 
       return { success: true }
     } catch (err) {
@@ -295,6 +307,7 @@ export const useGameLogic = () => {
     seasonStats,
     matches,
     allMatches,
+    allMatchesLoading: allMatchesQuery.isLoading,
     supportedMatchTypes,
     loading,
     error,
