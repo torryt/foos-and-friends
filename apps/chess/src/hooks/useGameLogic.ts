@@ -16,6 +16,9 @@ export const useGameLogic = () => {
   const [error, setError] = useState<string | null>(null)
   // Queue of games-played milestones reached by the latest match (usually 0–1 entries)
   const [reachedMilestones, setReachedMilestones] = useState<ReachedMilestone[]>([])
+  // Bumped by refresh() to force a reload (e.g. the auto-refreshing TV page)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), [])
 
   const { currentGroup } = useGroupContext()
   const { currentSeason } = useSeasonContext()
@@ -107,7 +110,7 @@ export const useGameLogic = () => {
     return () => {
       stale = true
     }
-  }, [currentGroup, currentSeason, user])
+  }, [currentGroup, currentSeason, user, refreshKey])
 
   const addPlayer = async (
     name: string,
@@ -295,6 +298,7 @@ export const useGameLogic = () => {
     supportedMatchTypes,
     loading,
     error,
+    refresh,
     addPlayer,
     addMatch,
     updatePlayer,

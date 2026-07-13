@@ -14,12 +14,14 @@ import type {
 export const MOCK_USER_ID = 'mock-user-1'
 export const MOCK_GROUP_ID = 'mock-group-1'
 export const MOCK_SEASON_ID = 'mock-season-3'
-// Public read-only page for the main mock group: /public/<token>
-export const MOCK_PUBLIC_TOKEN = 'mock-public-token'
-// A group the mock user is NOT a member of, with join_policy 'approval',
-// so the request-to-join flow can be exercised via /invite?code=MOCK99
+// A public group the mock user is NOT a member of, with join_policy
+// 'approval': exercises the non-member read-only view at /groups/<id> and the
+// request-to-join flow (also reachable via /invite?code=MOCK99)
 export const MOCK_APPROVAL_GROUP_ID = 'mock-group-2'
 export const MOCK_APPROVAL_INVITE_CODE = 'mock99'
+// A private group the mock user is NOT a member of: exercises the minimal
+// name-plus-request-to-join landing page at /groups/<id>
+export const MOCK_PRIVATE_GROUP_ID = 'mock-group-3'
 
 export const MOCK_USER: AuthUser = {
   id: MOCK_USER_ID,
@@ -113,11 +115,11 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     targetScore: isChess ? 1 : 10,
     joinPolicy: 'open',
     isPublic: true,
-    publicToken: MOCK_PUBLIC_TOKEN,
   }
 
-  // A second group the mock user does not belong to; its invite link exercises
-  // the approval flow. Not returned by getUserGroups (no membership).
+  // A second group the mock user does not belong to; public with approval
+  // policy, so it exercises the non-member read-only group page and the
+  // request-to-join flow. Not returned by getUserGroups (no membership).
   const approvalGroup: FriendGroup = {
     id: MOCK_APPROVAL_GROUP_ID,
     name: 'Rival Office',
@@ -133,20 +135,42 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
     targetScore: isChess ? 1 : 10,
     joinPolicy: 'approval',
-    isPublic: false,
-    publicToken: null,
+    isPublic: true,
   }
 
-  const approvalGroupOwnerMembership: GroupMembership = {
-    id: 'mock-membership-20',
-    groupId: MOCK_APPROVAL_GROUP_ID,
+  // A third group, private, that the mock user does not belong to: its group
+  // page shows only the name and a request-to-join button.
+  const privateGroup: FriendGroup = {
+    id: MOCK_PRIVATE_GROUP_ID,
+    name: 'Secret Society',
+    description: 'Private mock group',
+    inviteCode: 'MOCK77',
+    ownerId: 'mock-user-20',
+    createdBy: 'mock-user-20',
+    isActive: true,
+    maxMembers: 50,
+    createdAt: daysAgo(50).toISOString(),
+    updatedAt: daysAgo(50).toISOString(),
+    sportType,
+    supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
+    targetScore: isChess ? 1 : 10,
+    joinPolicy: 'approval',
+    isPublic: false,
+  }
+
+  const rivalOwnerMemberships: GroupMembership[] = [
+    MOCK_APPROVAL_GROUP_ID,
+    MOCK_PRIVATE_GROUP_ID,
+  ].map((groupId, i) => ({
+    id: `mock-membership-2${i}`,
+    groupId,
     userId: 'mock-user-20',
     role: 'owner',
     isActive: true,
     invitedBy: null,
-    joinedAt: approvalGroup.createdAt,
-    createdAt: approvalGroup.createdAt,
-  }
+    joinedAt: daysAgo(60).toISOString(),
+    createdAt: daysAgo(60).toISOString(),
+  }))
 
   // A pending request into the main group so the notification bell has data
   // (the mock user is that group's owner)
@@ -319,12 +343,75 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     p.ranking = rankings.get(p.id) ?? 1200
   }
 
+  // A small seed for the public Rival Office group so its non-member
+  // read-only page has content: two players, one active season, one match.
+  const rivalSeason: Season = {
+    id: 'mock-rival-season-1',
+    groupId: MOCK_APPROVAL_GROUP_ID,
+    name: 'Season 1',
+    description: 'Rival mock season',
+    seasonNumber: 1,
+    startDate: daysAgo(30).toISOString().split('T')[0],
+    endDate: null,
+    isActive: true,
+    createdBy: 'mock-user-20',
+    createdAt: daysAgo(30).toISOString(),
+    updatedAt: daysAgo(30).toISOString(),
+  }
+
+  const rivalPlayers: Player[] = [
+    { name: 'Magnus', avatar: '♟️', department: 'Engineering' },
+    { name: 'Judit', avatar: '👑', department: 'Design' },
+  ].map((p, i) => ({
+    id: `mock-rival-player-${i + 1}`,
+    name: p.name,
+    ranking: 1200,
+    matchesPlayed: 0,
+    wins: 0,
+    losses: 0,
+    avatar: p.avatar,
+    department: p.department,
+    groupId: MOCK_APPROVAL_GROUP_ID,
+    createdBy: 'mock-user-20',
+    createdAt: daysAgo(30).toISOString(),
+    updatedAt: daysAgo(30).toISOString(),
+  }))
+
+  const [magnus, judit] = rivalPlayers
+  const magnusPost = calculateNewRanking(1200, 1200, true)
+  const juditPost = calculateNewRanking(1200, 1200, false)
+  magnus.ranking = magnusPost
+  magnus.matchesPlayed = 1
+  magnus.wins = 1
+  judit.ranking = juditPost
+  judit.matchesPlayed = 1
+  judit.losses = 1
+
+  const rivalMatch: Match = {
+    id: `mock-match-${matchId++}`,
+    matchType: '1v1',
+    team1: [magnus, null],
+    team2: [judit, null],
+    score1: approvalGroup.targetScore,
+    score2: 0,
+    date: daysAgo(2).toISOString().split('T')[0],
+    time: '12:00:00',
+    groupId: MOCK_APPROVAL_GROUP_ID,
+    seasonId: rivalSeason.id,
+    recordedBy: 'mock-user-20',
+    createdAt: daysAgo(2).toISOString(),
+    playerStats: [
+      { playerId: magnus.id, preGameRanking: 1200, postGameRanking: magnusPost },
+      { playerId: judit.id, preGameRanking: 1200, postGameRanking: juditPost },
+    ],
+  }
+
   return {
-    groups: [group, approvalGroup],
-    memberships: [membership, ...extraMemberships, approvalGroupOwnerMembership],
-    players,
-    seasons,
-    matches,
+    groups: [group, approvalGroup, privateGroup],
+    memberships: [membership, ...extraMemberships, ...rivalOwnerMemberships],
+    players: [...players, ...rivalPlayers],
+    seasons: [...seasons, rivalSeason],
+    matches: [...matches, rivalMatch],
     joinRequests,
   }
 }

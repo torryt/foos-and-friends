@@ -201,9 +201,8 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['1v1'],
           targetScore: 10,
-          joinPolicy: 'open',
+          joinPolicy: 'approval',
           isPublic: false,
-          publicToken: null,
         }
 
         // Set the new group as current immediately
@@ -259,9 +258,8 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['1v1'],
           targetScore: 10,
-          joinPolicy: 'open',
+          joinPolicy: 'approval',
           isPublic: false,
-          publicToken: null,
         }
 
         // Set the joined group as current immediately

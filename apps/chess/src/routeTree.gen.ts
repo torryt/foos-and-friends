@@ -11,16 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as MatchesRouteImport } from './routes/matches'
+import { Route as JoinRouteImport } from './routes/join'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PublicTokenRouteImport } from './routes/public.$token'
-import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
-import { Route as PublicTokenIndexRouteImport } from './routes/public.$token.index'
-import { Route as PublicTokenTvRouteImport } from './routes/public.$token.tv'
-import { Route as PublicTokenMatchesRouteImport } from './routes/public.$token.matches'
+import { Route as GroupsGroupIdRouteImport } from './routes/groups.$groupId'
+import { Route as GroupsGroupIdIndexRouteImport } from './routes/groups.$groupId.index'
+import { Route as GroupsGroupIdTvRouteImport } from './routes/groups.$groupId.tv'
 import { Route as GroupsGroupIdMembersRouteImport } from './routes/groups.$groupId.members'
-import { Route as PublicTokenPlayersPlayerIdRouteImport } from './routes/public.$token.players.$playerId'
+import { Route as GroupsGroupIdMatchesRouteImport } from './routes/groups.$groupId.matches'
+import { Route as GroupsGroupIdPlayersPlayerIdRouteImport } from './routes/groups.$groupId.players.$playerId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -32,9 +31,9 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MatchesRoute = MatchesRouteImport.update({
-  id: '/matches',
-  path: '/matches',
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InviteRoute = InviteRouteImport.update({
@@ -47,138 +46,125 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PublicTokenRoute = PublicTokenRouteImport.update({
-  id: '/public/$token',
-  path: '/public/$token',
+const GroupsGroupIdRoute = GroupsGroupIdRouteImport.update({
+  id: '/groups/$groupId',
+  path: '/groups/$groupId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlayersPlayerIdRoute = PlayersPlayerIdRouteImport.update({
-  id: '/players/$playerId',
-  path: '/players/$playerId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PublicTokenIndexRoute = PublicTokenIndexRouteImport.update({
+const GroupsGroupIdIndexRoute = GroupsGroupIdIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => PublicTokenRoute,
+  getParentRoute: () => GroupsGroupIdRoute,
 } as any)
-const PublicTokenTvRoute = PublicTokenTvRouteImport.update({
+const GroupsGroupIdTvRoute = GroupsGroupIdTvRouteImport.update({
   id: '/tv',
   path: '/tv',
-  getParentRoute: () => PublicTokenRoute,
-} as any)
-const PublicTokenMatchesRoute = PublicTokenMatchesRouteImport.update({
-  id: '/matches',
-  path: '/matches',
-  getParentRoute: () => PublicTokenRoute,
+  getParentRoute: () => GroupsGroupIdRoute,
 } as any)
 const GroupsGroupIdMembersRoute = GroupsGroupIdMembersRouteImport.update({
-  id: '/groups/$groupId/members',
-  path: '/groups/$groupId/members',
-  getParentRoute: () => rootRouteImport,
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => GroupsGroupIdRoute,
 } as any)
-const PublicTokenPlayersPlayerIdRoute =
-  PublicTokenPlayersPlayerIdRouteImport.update({
+const GroupsGroupIdMatchesRoute = GroupsGroupIdMatchesRouteImport.update({
+  id: '/matches',
+  path: '/matches',
+  getParentRoute: () => GroupsGroupIdRoute,
+} as any)
+const GroupsGroupIdPlayersPlayerIdRoute =
+  GroupsGroupIdPlayersPlayerIdRouteImport.update({
     id: '/players/$playerId',
     path: '/players/$playerId',
-    getParentRoute: () => PublicTokenRoute,
+    getParentRoute: () => GroupsGroupIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/invite': typeof InviteRoute
-  '/matches': typeof MatchesRoute
+  '/join': typeof JoinRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
-  '/players/$playerId': typeof PlayersPlayerIdRoute
-  '/public/$token': typeof PublicTokenRouteWithChildren
+  '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
+  '/groups/$groupId/matches': typeof GroupsGroupIdMatchesRoute
   '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
-  '/public/$token/matches': typeof PublicTokenMatchesRoute
-  '/public/$token/tv': typeof PublicTokenTvRoute
-  '/public/$token/': typeof PublicTokenIndexRoute
-  '/public/$token/players/$playerId': typeof PublicTokenPlayersPlayerIdRoute
+  '/groups/$groupId/tv': typeof GroupsGroupIdTvRoute
+  '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
+  '/groups/$groupId/players/$playerId': typeof GroupsGroupIdPlayersPlayerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/invite': typeof InviteRoute
-  '/matches': typeof MatchesRoute
+  '/join': typeof JoinRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
-  '/players/$playerId': typeof PlayersPlayerIdRoute
+  '/groups/$groupId/matches': typeof GroupsGroupIdMatchesRoute
   '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
-  '/public/$token/matches': typeof PublicTokenMatchesRoute
-  '/public/$token/tv': typeof PublicTokenTvRoute
-  '/public/$token': typeof PublicTokenIndexRoute
-  '/public/$token/players/$playerId': typeof PublicTokenPlayersPlayerIdRoute
+  '/groups/$groupId/tv': typeof GroupsGroupIdTvRoute
+  '/groups/$groupId': typeof GroupsGroupIdIndexRoute
+  '/groups/$groupId/players/$playerId': typeof GroupsGroupIdPlayersPlayerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/invite': typeof InviteRoute
-  '/matches': typeof MatchesRoute
+  '/join': typeof JoinRoute
   '/reset-password': typeof ResetPasswordRoute
   '/settings': typeof SettingsRoute
-  '/players/$playerId': typeof PlayersPlayerIdRoute
-  '/public/$token': typeof PublicTokenRouteWithChildren
+  '/groups/$groupId': typeof GroupsGroupIdRouteWithChildren
+  '/groups/$groupId/matches': typeof GroupsGroupIdMatchesRoute
   '/groups/$groupId/members': typeof GroupsGroupIdMembersRoute
-  '/public/$token/matches': typeof PublicTokenMatchesRoute
-  '/public/$token/tv': typeof PublicTokenTvRoute
-  '/public/$token/': typeof PublicTokenIndexRoute
-  '/public/$token/players/$playerId': typeof PublicTokenPlayersPlayerIdRoute
+  '/groups/$groupId/tv': typeof GroupsGroupIdTvRoute
+  '/groups/$groupId/': typeof GroupsGroupIdIndexRoute
+  '/groups/$groupId/players/$playerId': typeof GroupsGroupIdPlayersPlayerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/invite'
-    | '/matches'
+    | '/join'
     | '/reset-password'
     | '/settings'
-    | '/players/$playerId'
-    | '/public/$token'
+    | '/groups/$groupId'
+    | '/groups/$groupId/matches'
     | '/groups/$groupId/members'
-    | '/public/$token/matches'
-    | '/public/$token/tv'
-    | '/public/$token/'
-    | '/public/$token/players/$playerId'
+    | '/groups/$groupId/tv'
+    | '/groups/$groupId/'
+    | '/groups/$groupId/players/$playerId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/invite'
-    | '/matches'
+    | '/join'
     | '/reset-password'
     | '/settings'
-    | '/players/$playerId'
+    | '/groups/$groupId/matches'
     | '/groups/$groupId/members'
-    | '/public/$token/matches'
-    | '/public/$token/tv'
-    | '/public/$token'
-    | '/public/$token/players/$playerId'
+    | '/groups/$groupId/tv'
+    | '/groups/$groupId'
+    | '/groups/$groupId/players/$playerId'
   id:
     | '__root__'
     | '/'
     | '/invite'
-    | '/matches'
+    | '/join'
     | '/reset-password'
     | '/settings'
-    | '/players/$playerId'
-    | '/public/$token'
+    | '/groups/$groupId'
+    | '/groups/$groupId/matches'
     | '/groups/$groupId/members'
-    | '/public/$token/matches'
-    | '/public/$token/tv'
-    | '/public/$token/'
-    | '/public/$token/players/$playerId'
+    | '/groups/$groupId/tv'
+    | '/groups/$groupId/'
+    | '/groups/$groupId/players/$playerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InviteRoute: typeof InviteRoute
-  MatchesRoute: typeof MatchesRoute
+  JoinRoute: typeof JoinRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SettingsRoute: typeof SettingsRoute
-  PlayersPlayerIdRoute: typeof PlayersPlayerIdRoute
-  PublicTokenRoute: typeof PublicTokenRouteWithChildren
-  GroupsGroupIdMembersRoute: typeof GroupsGroupIdMembersRoute
+  GroupsGroupIdRoute: typeof GroupsGroupIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -197,11 +183,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/matches': {
-      id: '/matches'
-      path: '/matches'
-      fullPath: '/matches'
-      preLoaderRoute: typeof MatchesRouteImport
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invite': {
@@ -218,85 +204,78 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/public/$token': {
-      id: '/public/$token'
-      path: '/public/$token'
-      fullPath: '/public/$token'
-      preLoaderRoute: typeof PublicTokenRouteImport
+    '/groups/$groupId': {
+      id: '/groups/$groupId'
+      path: '/groups/$groupId'
+      fullPath: '/groups/$groupId'
+      preLoaderRoute: typeof GroupsGroupIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/players/$playerId': {
-      id: '/players/$playerId'
-      path: '/players/$playerId'
-      fullPath: '/players/$playerId'
-      preLoaderRoute: typeof PlayersPlayerIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/public/$token/': {
-      id: '/public/$token/'
+    '/groups/$groupId/': {
+      id: '/groups/$groupId/'
       path: '/'
-      fullPath: '/public/$token/'
-      preLoaderRoute: typeof PublicTokenIndexRouteImport
-      parentRoute: typeof PublicTokenRoute
+      fullPath: '/groups/$groupId/'
+      preLoaderRoute: typeof GroupsGroupIdIndexRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
     }
-    '/public/$token/tv': {
-      id: '/public/$token/tv'
+    '/groups/$groupId/tv': {
+      id: '/groups/$groupId/tv'
       path: '/tv'
-      fullPath: '/public/$token/tv'
-      preLoaderRoute: typeof PublicTokenTvRouteImport
-      parentRoute: typeof PublicTokenRoute
-    }
-    '/public/$token/matches': {
-      id: '/public/$token/matches'
-      path: '/matches'
-      fullPath: '/public/$token/matches'
-      preLoaderRoute: typeof PublicTokenMatchesRouteImport
-      parentRoute: typeof PublicTokenRoute
+      fullPath: '/groups/$groupId/tv'
+      preLoaderRoute: typeof GroupsGroupIdTvRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
     }
     '/groups/$groupId/members': {
       id: '/groups/$groupId/members'
-      path: '/groups/$groupId/members'
+      path: '/members'
       fullPath: '/groups/$groupId/members'
       preLoaderRoute: typeof GroupsGroupIdMembersRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
     }
-    '/public/$token/players/$playerId': {
-      id: '/public/$token/players/$playerId'
+    '/groups/$groupId/matches': {
+      id: '/groups/$groupId/matches'
+      path: '/matches'
+      fullPath: '/groups/$groupId/matches'
+      preLoaderRoute: typeof GroupsGroupIdMatchesRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
+    }
+    '/groups/$groupId/players/$playerId': {
+      id: '/groups/$groupId/players/$playerId'
       path: '/players/$playerId'
-      fullPath: '/public/$token/players/$playerId'
-      preLoaderRoute: typeof PublicTokenPlayersPlayerIdRouteImport
-      parentRoute: typeof PublicTokenRoute
+      fullPath: '/groups/$groupId/players/$playerId'
+      preLoaderRoute: typeof GroupsGroupIdPlayersPlayerIdRouteImport
+      parentRoute: typeof GroupsGroupIdRoute
     }
   }
 }
 
-interface PublicTokenRouteChildren {
-  PublicTokenMatchesRoute: typeof PublicTokenMatchesRoute
-  PublicTokenTvRoute: typeof PublicTokenTvRoute
-  PublicTokenIndexRoute: typeof PublicTokenIndexRoute
-  PublicTokenPlayersPlayerIdRoute: typeof PublicTokenPlayersPlayerIdRoute
+interface GroupsGroupIdRouteChildren {
+  GroupsGroupIdMatchesRoute: typeof GroupsGroupIdMatchesRoute
+  GroupsGroupIdMembersRoute: typeof GroupsGroupIdMembersRoute
+  GroupsGroupIdTvRoute: typeof GroupsGroupIdTvRoute
+  GroupsGroupIdIndexRoute: typeof GroupsGroupIdIndexRoute
+  GroupsGroupIdPlayersPlayerIdRoute: typeof GroupsGroupIdPlayersPlayerIdRoute
 }
 
-const PublicTokenRouteChildren: PublicTokenRouteChildren = {
-  PublicTokenMatchesRoute: PublicTokenMatchesRoute,
-  PublicTokenTvRoute: PublicTokenTvRoute,
-  PublicTokenIndexRoute: PublicTokenIndexRoute,
-  PublicTokenPlayersPlayerIdRoute: PublicTokenPlayersPlayerIdRoute,
+const GroupsGroupIdRouteChildren: GroupsGroupIdRouteChildren = {
+  GroupsGroupIdMatchesRoute: GroupsGroupIdMatchesRoute,
+  GroupsGroupIdMembersRoute: GroupsGroupIdMembersRoute,
+  GroupsGroupIdTvRoute: GroupsGroupIdTvRoute,
+  GroupsGroupIdIndexRoute: GroupsGroupIdIndexRoute,
+  GroupsGroupIdPlayersPlayerIdRoute: GroupsGroupIdPlayersPlayerIdRoute,
 }
 
-const PublicTokenRouteWithChildren = PublicTokenRoute._addFileChildren(
-  PublicTokenRouteChildren,
+const GroupsGroupIdRouteWithChildren = GroupsGroupIdRoute._addFileChildren(
+  GroupsGroupIdRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InviteRoute: InviteRoute,
-  MatchesRoute: MatchesRoute,
+  JoinRoute: JoinRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SettingsRoute: SettingsRoute,
-  PlayersPlayerIdRoute: PlayersPlayerIdRoute,
-  PublicTokenRoute: PublicTokenRouteWithChildren,
-  GroupsGroupIdMembersRoute: GroupsGroupIdMembersRoute,
+  GroupsGroupIdRoute: GroupsGroupIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

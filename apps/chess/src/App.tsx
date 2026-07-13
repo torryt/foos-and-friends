@@ -1,11 +1,6 @@
 import { type AuthUser, ResetPasswordPage, ThemeProvider } from '@foos/shared'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { useState } from 'react'
-import { CreateGroupModal } from '@/components/CreateGroupModal'
-import { FirstTimeUserScreen } from '@/components/FirstTimeUserScreen'
-import { JoinGroupModal } from '@/components/JoinGroupModal'
-import { ProtectedRoute } from '@/components/ProtectedRoute'
-import { GroupProvider, useGroupContext } from '@/contexts/GroupContext'
+import { GroupProvider } from '@/contexts/GroupContext'
 import { SeasonProvider } from '@/contexts/SeasonContext'
 import { useAuth } from '@/hooks/useAuth'
 import { routeTree } from '@/routeTree.gen'
@@ -26,70 +21,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AppContentProps {
-  user: AuthUser | null
-  onSignOut: () => void
-}
-
-const AppContent = ({ user, onSignOut }: AppContentProps) => {
-  const [showCreateGroup, setShowCreateGroup] = useState(false)
-  const [showJoinGroup, setShowJoinGroup] = useState(false)
-
-  const { currentGroup, userGroups, loading } = useGroupContext()
-
-  // If on invite page, always use router regardless of group status
-  if (window.location.pathname === '/invite') {
-    return (
-      <RouterProvider
-        router={router}
-        context={{
-          user,
-          onSignOut,
-        }}
-      />
-    )
-  }
-
-  // Show loading state while groups are being fetched
-  if (loading) {
-    return (
-      <FirstTimeUserScreen
-        onCreateGroup={() => setShowCreateGroup(true)}
-        onJoinGroup={() => setShowJoinGroup(true)}
-        loading={true}
-      />
-    )
-  }
-
-  // Show group selection only when we're certain user has no groups
-  if (!currentGroup && userGroups.length === 0) {
-    return (
-      <>
-        <FirstTimeUserScreen
-          onCreateGroup={() => setShowCreateGroup(true)}
-          onJoinGroup={() => setShowJoinGroup(true)}
-          loading={false}
-        />
-
-        {/* Group management modals - available from selection screen */}
-        <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
-        <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
-      </>
-    )
-  }
-
-  // Normal app functionality when group is selected - use router
-  return (
-    <RouterProvider
-      router={router}
-      context={{
-        user,
-        onSignOut,
-      }}
-    />
-  )
-}
-
 function App() {
   const { user, signOut } = useAuth()
 
@@ -97,21 +28,9 @@ function App() {
     await signOut()
   }
 
-  // Public read-only pages are token-gated and need no auth at all —
-  // rendered outside ProtectedRoute so logged-out visitors (and office TVs)
-  // never see the sign-in form. No GroupProvider/SeasonProvider either; the
-  // public subtree brings its own data context.
-  if (window.location.pathname.startsWith('/public')) {
-    return (
-      <ThemeProvider>
-        <RouterProvider router={router} context={{ user: null, onSignOut: () => {} }} />
-      </ThemeProvider>
-    )
-  }
-
-  // Password recovery links from Supabase land here. Rendered outside
-  // ProtectedRoute so an expired link shows the reset page's error state
-  // instead of the sign-in form.
+  // Password recovery links from Supabase land here. Rendered outside the
+  // router so an expired link shows the reset page's error state instead of
+  // the sign-in form.
   if (window.location.pathname === '/reset-password') {
     return (
       <ThemeProvider>
@@ -120,15 +39,16 @@ function App() {
     )
   }
 
+  // Auth gating happens per-route (see __root.tsx): group pages are viewable
+  // logged out, everything else sits behind the sign-in form. The providers
+  // tolerate an unauthenticated session (they just hold no groups).
   return (
     <ThemeProvider>
-      <ProtectedRoute>
-        <GroupProvider>
-          <SeasonProvider>
-            <AppContent user={user} onSignOut={handleSignOut} />
-          </SeasonProvider>
-        </GroupProvider>
-      </ProtectedRoute>
+      <GroupProvider>
+        <SeasonProvider>
+          <RouterProvider router={router} context={{ user, onSignOut: handleSignOut }} />
+        </SeasonProvider>
+      </GroupProvider>
     </ThemeProvider>
   )
 }

@@ -1,6 +1,7 @@
 import type {
   FriendGroup,
   GroupMember,
+  GroupPreview,
   JoinRequest,
   Match,
   MatchType,
@@ -52,7 +53,6 @@ export interface GroupJoinRpcResult {
 export interface GroupSharingRpcResult {
   success: boolean
   is_public?: boolean
-  public_token?: string | null
   error?: string
 }
 
@@ -124,17 +124,23 @@ export interface Database {
   setGroupSharing(
     groupId: string,
     isPublic: boolean,
-  ): Promise<DatabaseResult<{ isPublic: boolean; publicToken: string | null }>>
-  regeneratePublicToken(groupId: string): Promise<DatabaseResult<{ publicToken: string }>>
+  ): Promise<DatabaseResult<{ isPublic: boolean }>>
   setGroupJoinPolicy(
     groupId: string,
     joinPolicy: 'open' | 'approval',
   ): Promise<DatabaseResult<MemberActionRpcResult>>
 
-  // Public read-only access (token-gated, works unauthenticated)
-  getPublicGroupData(token: string): Promise<DatabaseResult<PublicGroupData>>
-  getPublicMatches(token: string, seasonId?: string): Promise<DatabaseListResult<Match>>
-  getPublicSeasonStats(token: string, seasonId: string): Promise<DatabaseResult<PublicSeasonStats>>
+  // Public read-only access (group-id-gated on is_public, works unauthenticated)
+  getPublicGroupData(groupId: string): Promise<DatabaseResult<PublicGroupData>>
+  getPublicMatches(groupId: string, seasonId?: string): Promise<DatabaseListResult<Match>>
+  getPublicSeasonStats(
+    groupId: string,
+    seasonId: string,
+  ): Promise<DatabaseResult<PublicSeasonStats>>
+  // Minimal group info for a non-member landing page (works for private groups)
+  getGroupPreview(groupId: string): Promise<DatabaseResult<GroupPreview>>
+  // Join (open policy) or file a join request (approval policy) by group id
+  requestToJoinGroup(groupId: string): Promise<DatabaseResult<GroupJoinRpcResult>>
 
   // Join request operations
   getPendingJoinRequests(groupId: string): Promise<DatabaseListResult<JoinRequest>>

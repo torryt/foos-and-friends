@@ -132,7 +132,6 @@ export interface FriendGroup {
   targetScore: number // Points needed to win a game in this group
   joinPolicy: JoinPolicy // open = invite link joins immediately; approval = admin approves
   isPublic: boolean // Whether the read-only public page is enabled
-  publicToken: string | null // Token for the public page URL (null until first enabled)
 }
 
 export type GroupRole = 'owner' | 'admin' | 'member'
@@ -288,16 +287,28 @@ export interface MyPendingJoinRequest {
 
 // ===== Public read-only sharing =====
 
-// The subset of group info exposed on the public page
+// The subset of group info exposed on the public page. Note: no inviteCode —
+// joining from a group page goes through requestToJoinGroup, keeping invite
+// links a separate, revocable channel.
 export interface PublicGroupInfo {
   id: string
   name: string
   description: string | null
-  inviteCode: string
   sportType: SportType
   supportedMatchTypes: MatchType[]
   targetScore: number
   joinPolicy: JoinPolicy
+}
+
+// Minimal landing payload for a non-member visiting a group URL (works for
+// private groups too): enough to render "<name> — request to join", nothing more.
+export interface GroupPreview {
+  id: string
+  name: string
+  description: string | null
+  sportType: SportType
+  joinPolicy: JoinPolicy
+  isPublic: boolean
 }
 
 export interface PublicGroupData {

@@ -6,6 +6,7 @@ import type {
   GroupLeaveResult,
   GroupMember,
   GroupMemberActionResult,
+  GroupPreview,
   JoinPolicy,
   JoinRequest,
   Match,
@@ -152,14 +153,8 @@ export class GroupService {
   async setGroupSharing(
     groupId: string,
     isPublic: boolean,
-  ): Promise<{ data: { isPublic: boolean; publicToken: string | null } | null; error: string | null }> {
+  ): Promise<{ data: { isPublic: boolean } | null; error: string | null }> {
     return await this.db.setGroupSharing(groupId, isPublic)
-  }
-
-  async regeneratePublicToken(
-    groupId: string,
-  ): Promise<{ data: { publicToken: string } | null; error: string | null }> {
-    return await this.db.regeneratePublicToken(groupId)
   }
 
   async setGroupJoinPolicy(
@@ -181,23 +176,45 @@ export class GroupService {
   // ===== Public read-only access =====
 
   async getPublicGroupData(
-    token: string,
+    groupId: string,
   ): Promise<{ data: PublicGroupData | null; error: string | null }> {
-    return await this.db.getPublicGroupData(token)
+    return await this.db.getPublicGroupData(groupId)
   }
 
   async getPublicMatches(
-    token: string,
+    groupId: string,
     seasonId?: string,
   ): Promise<{ data: Match[]; error: string | null }> {
-    return await this.db.getPublicMatches(token, seasonId)
+    return await this.db.getPublicMatches(groupId, seasonId)
   }
 
   async getPublicSeasonStats(
-    token: string,
+    groupId: string,
     seasonId: string,
   ): Promise<{ data: PublicSeasonStats | null; error: string | null }> {
-    return await this.db.getPublicSeasonStats(token, seasonId)
+    return await this.db.getPublicSeasonStats(groupId, seasonId)
+  }
+
+  async getGroupPreview(
+    groupId: string,
+  ): Promise<{ data: GroupPreview | null; error: string | null }> {
+    return await this.db.getGroupPreview(groupId)
+  }
+
+  async requestToJoinGroup(groupId: string): Promise<GroupJoinResult> {
+    const result = await this.db.requestToJoinGroup(groupId)
+
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+
+    return {
+      success: result.data?.success ?? false,
+      status: result.data?.status,
+      groupId: result.data?.group_id ?? '',
+      groupName: result.data?.group_name ?? '',
+      error: result.data?.error ?? undefined,
+    }
   }
 
   // ===== Join requests =====

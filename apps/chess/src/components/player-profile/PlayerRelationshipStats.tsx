@@ -1,6 +1,6 @@
 import type { Match, Player } from '@foos/shared'
 import { cn, scrollToTop } from '@foos/shared'
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { ChevronDown, Crown, Shield, TrendingDown, TrendingUp, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -24,6 +24,7 @@ interface RelationshipCardProps {
 }
 
 function RelationshipCard({ relationship, badge, rank, onPlayerClick }: RelationshipCardProps) {
+  const { groupId } = useParams({ from: '/groups/$groupId' })
   const getBadgeInfo = (badge: string | null) => {
     switch (badge) {
       case 'best':
@@ -73,8 +74,8 @@ function RelationshipCard({ relationship, badge, rank, onPlayerClick }: Relation
                   </button>
                 ) : (
                   <Link
-                    to="/players/$playerId"
-                    params={{ playerId: relationship.playerId }}
+                    to="/groups/$groupId/players/$playerId"
+                    params={{ groupId, playerId: relationship.playerId }}
                     onClick={scrollToTop}
                     className="font-medium text-gray-900 truncate hover:text-orange-600 transition-colors underline decoration-dotted decoration-gray-400 hover:decoration-orange-600 hover:decoration-solid decoration-1 underline-offset-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 rounded-sm"
                     aria-label={`View profile for ${relationship.playerName}`}

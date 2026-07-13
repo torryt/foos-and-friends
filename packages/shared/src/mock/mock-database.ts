@@ -14,6 +14,7 @@ import type {
   FriendGroup,
   GroupMember,
   GroupMembership,
+  GroupPreview,
   JoinPolicy,
   JoinRequest,
   Match,
@@ -145,9 +146,8 @@ export class MockDatabase implements Database {
       sportType,
       supportedMatchTypes,
       targetScore: 10,
-      joinPolicy: 'open',
+      joinPolicy: 'approval',
       isPublic: false,
-      publicToken: null,
     })
 
     this.memberships.push({
@@ -419,7 +419,7 @@ export class MockDatabase implements Database {
   async setGroupSharing(
     groupId: string,
     isPublic: boolean,
-  ): Promise<DatabaseResult<{ isPublic: boolean; publicToken: string | null }>> {
+  ): Promise<DatabaseResult<{ isPublic: boolean }>> {
     const callerRole = this.getCallerRole(groupId)
     if (callerRole !== 'owner' && callerRole !== 'admin') {
       return { data: null, error: 'Only group owners and admins can change sharing settings' }
@@ -427,27 +427,10 @@ export class MockDatabase implements Database {
     const group = this.groups.find((g) => g.id === groupId && g.isActive)
     if (!group) {
       return { data: null, error: 'Group not found' }
-    }
-    if (isPublic && !group.publicToken) {
-      group.publicToken = this.generateId('public-token')
     }
     group.isPublic = isPublic
     group.updatedAt = new Date().toISOString()
-    return { data: { isPublic: group.isPublic, publicToken: group.publicToken }, error: null }
-  }
-
-  async regeneratePublicToken(groupId: string): Promise<DatabaseResult<{ publicToken: string }>> {
-    const callerRole = this.getCallerRole(groupId)
-    if (callerRole !== 'owner' && callerRole !== 'admin') {
-      return { data: null, error: 'Only group owners and admins can change sharing settings' }
-    }
-    const group = this.groups.find((g) => g.id === groupId && g.isActive)
-    if (!group) {
-      return { data: null, error: 'Group not found' }
-    }
-    group.publicToken = this.generateId('public-token')
-    group.updatedAt = new Date().toISOString()
-    return { data: { publicToken: group.publicToken }, error: null }
+    return { data: { isPublic: group.isPublic }, error: null }
   }
 
   async setGroupJoinPolicy(
@@ -472,14 +455,12 @@ export class MockDatabase implements Database {
 
   // ===== PUBLIC READ-ONLY ACCESS =====
 
-  private resolvePublicToken(token: string): FriendGroup | null {
-    return (
-      this.groups.find((g) => g.publicToken === token && g.isPublic && g.isActive) ?? null
-    )
+  private resolvePublicGroup(groupId: string): FriendGroup | null {
+    return this.groups.find((g) => g.id === groupId && g.isPublic && g.isActive) ?? null
   }
 
-  async getPublicGroupData(token: string): Promise<DatabaseResult<PublicGroupData>> {
-    const group = this.resolvePublicToken(token)
+  async getPublicGroupData(groupId: string): Promise<DatabaseResult<PublicGroupData>> {
+    const group = this.resolvePublicGroup(groupId)
     if (!group) {
       return { data: null, error: 'not_found' }
     }
@@ -491,7 +472,6 @@ export class MockDatabase implements Database {
           id: group.id,
           name: group.name,
           description: group.description,
-          inviteCode: group.inviteCode,
           sportType: group.sportType ?? 'foosball',
           supportedMatchTypes: group.supportedMatchTypes,
           targetScore: group.targetScore,
@@ -507,8 +487,8 @@ export class MockDatabase implements Database {
     }
   }
 
-  async getPublicMatches(token: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
-    const group = this.resolvePublicToken(token)
+  async getPublicMatches(groupId: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
+    const group = this.resolvePublicGroup(groupId)
     if (!group) {
       return { data: [], error: 'not_found' }
     }
@@ -520,10 +500,10 @@ export class MockDatabase implements Database {
   }
 
   async getPublicSeasonStats(
-    token: string,
+    groupId: string,
     seasonId: string,
   ): Promise<DatabaseResult<PublicSeasonStats>> {
-    const group = this.resolvePublicToken(token)
+    const group = this.resolvePublicGroup(groupId)
     if (!group) {
       return { data: null, error: 'not_found' }
     }
@@ -537,6 +517,76 @@ export class MockDatabase implements Database {
         oneVOne: this.computeSeasonStats(seasonId, '1v1'),
         twoVTwo: this.computeSeasonStats(seasonId, '2v2'),
       },
+      error: null,
+    }
+  }
+
+  async getGroupPreview(groupId: string): Promise<DatabaseResult<GroupPreview>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: null, error: 'not_found' }
+    }
+    return {
+      data: {
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        sportType: group.sportType ?? 'foosball',
+        joinPolicy: group.joinPolicy,
+        isPublic: group.isPublic,
+      },
+      error: null,
+    }
+  }
+
+  async requestToJoinGroup(groupId: string): Promise<DatabaseResult<GroupJoinRpcResult>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: { success: false, error: 'Group not found' }, error: null }
+    }
+
+    const existing = this.memberships.find(
+      (m) => m.groupId === group.id && m.userId === MOCK_USER_ID && m.isActive,
+    )
+    if (existing) {
+      return { data: { success: false, error: 'Already a member of this group' }, error: null }
+    }
+
+    const now = new Date().toISOString()
+
+    if (group.joinPolicy === 'approval') {
+      const pending = this.joinRequests.find(
+        (r) => r.groupId === group.id && r.userId === MOCK_USER_ID && r.status === 'pending',
+      )
+      if (!pending) {
+        this.joinRequests.push({
+          id: this.generateId('join-request'),
+          groupId: group.id,
+          userId: MOCK_USER_ID,
+          email: 'dev@mock.local',
+          status: 'pending',
+          requestedAt: now,
+        })
+      }
+      return {
+        data: { success: true, status: 'pending', group_id: group.id, group_name: group.name },
+        error: null,
+      }
+    }
+
+    this.memberships.push({
+      id: this.generateId('membership'),
+      groupId: group.id,
+      userId: MOCK_USER_ID,
+      role: 'member',
+      isActive: true,
+      invitedBy: null,
+      joinedAt: now,
+      createdAt: now,
+    })
+
+    return {
+      data: { success: true, status: 'joined', group_id: group.id, group_name: group.name },
       error: null,
     }
   }

@@ -6,6 +6,7 @@ import type {
   DbSeasonTrophy,
   FriendGroup,
   GroupMember,
+  GroupPreview,
   GroupRole,
   JoinPolicy,
   JoinRequest,
@@ -213,10 +214,9 @@ const dbSeasonTrophyToSeasonTrophy = (dbTrophy: DbSeasonTrophy): SeasonTrophy =>
 // Sharing-related fields shared by every friend_groups row mapping
 const groupSharingFields = (
   row: Record<string, unknown>,
-): Pick<FriendGroup, 'joinPolicy' | 'isPublic' | 'publicToken'> => ({
+): Pick<FriendGroup, 'joinPolicy' | 'isPublic'> => ({
   joinPolicy: (row.join_policy as JoinPolicy) ?? 'open',
   isPublic: (row.is_public as boolean) ?? false,
-  publicToken: (row.public_token as string | null) ?? null,
 })
 
 export class SupabaseDatabase implements Database {
@@ -1158,7 +1158,7 @@ export class SupabaseDatabase implements Database {
   async setGroupSharing(
     groupId: string,
     isPublic: boolean,
-  ): Promise<DatabaseResult<{ isPublic: boolean; publicToken: string | null }>> {
+  ): Promise<DatabaseResult<{ isPublic: boolean }>> {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase.rpc('set_group_sharing', {
@@ -1175,39 +1175,9 @@ export class SupabaseDatabase implements Database {
         return { data: null, error: result.error || 'Failed to update sharing' }
       }
 
-      return {
-        data: { isPublic: result.is_public ?? isPublic, publicToken: result.public_token ?? null },
-        error: null,
-      }
+      return { data: { isPublic: result.is_public ?? isPublic }, error: null }
     } catch (err) {
       return { data: null, error: err instanceof Error ? err.message : 'Failed to update sharing' }
-    }
-  }
-
-  async regeneratePublicToken(
-    groupId: string,
-  ): Promise<DatabaseResult<{ publicToken: string }>> {
-    try {
-      const supabase = getSupabase()
-      const { data, error } = await supabase.rpc('regenerate_public_token', {
-        p_group_id: groupId,
-      })
-
-      if (error) {
-        return { data: null, error: error.message }
-      }
-
-      const result = data as GroupSharingRpcResult
-      if (!result.success || !result.public_token) {
-        return { data: null, error: result.error || 'Failed to regenerate token' }
-      }
-
-      return { data: { publicToken: result.public_token }, error: null }
-    } catch (err) {
-      return {
-        data: null,
-        error: err instanceof Error ? err.message : 'Failed to regenerate token',
-      }
     }
   }
 
@@ -1237,10 +1207,10 @@ export class SupabaseDatabase implements Database {
 
   // ===== PUBLIC READ-ONLY ACCESS =====
 
-  async getPublicGroupData(token: string): Promise<DatabaseResult<PublicGroupData>> {
+  async getPublicGroupData(groupId: string): Promise<DatabaseResult<PublicGroupData>> {
     try {
       const supabase = getSupabase()
-      const { data, error } = await supabase.rpc('get_public_group_data', { p_token: token })
+      const { data, error } = await supabase.rpc('get_public_group_data', { p_group_id: groupId })
 
       if (error) {
         return { data: null, error: error.message }
@@ -1254,7 +1224,6 @@ export class SupabaseDatabase implements Database {
         id: data.group.id,
         name: data.group.name,
         description: data.group.description,
-        inviteCode: data.group.invite_code,
         sportType: data.group.sport_type as SportType,
         supportedMatchTypes: (data.group.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (data.group.target_score as number) ?? 10,
@@ -1278,11 +1247,11 @@ export class SupabaseDatabase implements Database {
     }
   }
 
-  async getPublicMatches(token: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
+  async getPublicMatches(groupId: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase.rpc('get_public_matches', {
-        p_token: token,
+        p_group_id: groupId,
         p_season_id: seasonId ?? null,
       })
 
@@ -1318,13 +1287,13 @@ export class SupabaseDatabase implements Database {
   }
 
   async getPublicSeasonStats(
-    token: string,
+    groupId: string,
     seasonId: string,
   ): Promise<DatabaseResult<PublicSeasonStats>> {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase.rpc('get_public_season_stats', {
-        p_token: token,
+        p_group_id: groupId,
         p_season_id: seasonId,
       })
 
@@ -1351,6 +1320,58 @@ export class SupabaseDatabase implements Database {
       return {
         data: null,
         error: err instanceof Error ? err.message : 'Failed to fetch public season stats',
+      }
+    }
+  }
+
+  async getGroupPreview(groupId: string): Promise<DatabaseResult<GroupPreview>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('get_group_preview', { p_group_id: groupId })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      if (!data.success) {
+        return { data: null, error: data.error || 'not_found' }
+      }
+
+      return {
+        data: {
+          id: data.group.id,
+          name: data.group.name,
+          description: data.group.description,
+          sportType: data.group.sport_type as SportType,
+          joinPolicy: (data.group.join_policy as JoinPolicy) ?? 'approval',
+          isPublic: (data.group.is_public as boolean) ?? false,
+        },
+        error: null,
+      }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch group preview',
+      }
+    }
+  }
+
+  async requestToJoinGroup(groupId: string): Promise<DatabaseResult<GroupJoinRpcResult>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.rpc('request_to_join_group', {
+        p_group_id: groupId,
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: data as GroupJoinRpcResult, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to request to join group',
       }
     }
   }

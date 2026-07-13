@@ -43,7 +43,6 @@ export function createStandardTestScenario() {
     targetScore: 10,
     joinPolicy: 'open',
     isPublic: false,
-    publicToken: null,
   }
 
   const memberships = [

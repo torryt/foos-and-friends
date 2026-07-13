@@ -52,11 +52,11 @@ export const GroupSelector = ({
     }
   }
 
-  // Public groups share the public page instead — it shows the group
-  // read-only and carries its own Join button.
-  const copyPublicLink = async (publicToken: string, groupName: string) => {
+  // Public groups share the group page itself — non-members see it read-only
+  // with its own Join button.
+  const copyPublicLink = async (groupId: string, groupName: string) => {
     try {
-      const publicLink = `${window.location.origin}/public/${publicToken}`
+      const publicLink = `${window.location.origin}/groups/${groupId}`
       await navigator.clipboard.writeText(publicLink)
       toast().success(`Public link for "${groupName}" copied to clipboard!`)
     } catch (_err) {
@@ -77,8 +77,8 @@ export const GroupSelector = ({
   const handleSwitchToGroup = (groupId: string) => {
     switchGroup(groupId)
     setIsOpen(false)
-    // Navigate to rankings page when switching groups
-    navigate({ to: '/' })
+    // Navigate to the group's rankings page
+    navigate({ to: '/groups/$groupId', params: { groupId } })
   }
 
   if (loading) {
@@ -219,12 +219,12 @@ export const GroupSelector = ({
                         </button>
                       )}
 
-                      {/* Invite players: public groups share the public page
+                      {/* Invite players: public groups share the group page
                           (view + join); private groups share the invite link */}
-                      {group.isPublic && group.publicToken ? (
+                      {group.isPublic ? (
                         <button
                           type="button"
-                          onClick={() => copyPublicLink(group.publicToken as string, group.name)}
+                          onClick={() => copyPublicLink(group.id, group.name)}
                           className="w-full text-left px-6 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors flex items-center gap-3 text-sm font-medium text-gray-700"
                         >
                           <Clipboard size={14} className="text-gray-500" />

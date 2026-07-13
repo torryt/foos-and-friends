@@ -1,5 +1,5 @@
 import type { FriendGroup, JoinPolicy } from '@foos/shared'
-import { Flame, Link2, Loader, Monitor, Plus, RefreshCw, Settings, X } from 'lucide-react'
+import { Flame, Link2, Loader, Monitor, Plus, Settings, X } from 'lucide-react'
 import { useEffect, useId, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
 import { useSeasonContext } from '@/contexts/SeasonContext'
@@ -31,8 +31,7 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
 
   // Sharing settings (owner + admins)
   const [isPublic, setIsPublic] = useState(false)
-  const [publicToken, setPublicToken] = useState<string | null>(null)
-  const [joinPolicy, setJoinPolicy] = useState<JoinPolicy>('open')
+  const [joinPolicy, setJoinPolicy] = useState<JoinPolicy>('approval')
   const [sharingBusy, setSharingBusy] = useState(false)
 
   const { updateGroup, currentGroup, refreshGroups } = useGroupContext()
@@ -58,7 +57,6 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
       setUseCustomScore(!isPreset)
       setCustomScore(isPreset ? '' : String(group.targetScore))
       setIsPublic(group.isPublic)
-      setPublicToken(group.publicToken)
       setJoinPolicy(group.joinPolicy)
       setError(null)
     }
@@ -66,7 +64,8 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
 
   if (!group) return null
 
-  const publicUrl = publicToken ? `${window.location.origin}/public/${publicToken}` : null
+  // The group page itself is the shareable URL — no separate token
+  const publicUrl = `${window.location.origin}/groups/${group.id}`
 
   const handleTogglePublic = async () => {
     setSharingBusy(true)
@@ -74,32 +73,10 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
       const result = await groupService.setGroupSharing(group.id, !isPublic)
       if (result.data) {
         setIsPublic(result.data.isPublic)
-        setPublicToken(result.data.publicToken)
         toast().success(result.data.isPublic ? 'Public page enabled' : 'Public page disabled')
         await refreshGroups()
       } else {
         toast().error(result.error || 'Failed to update sharing')
-      }
-    } finally {
-      setSharingBusy(false)
-    }
-  }
-
-  const handleRegenerateToken = async () => {
-    if (
-      !window.confirm('Generate a new public link? The old link will stop working immediately.')
-    ) {
-      return
-    }
-    setSharingBusy(true)
-    try {
-      const result = await groupService.regeneratePublicToken(group.id)
-      if (result.data) {
-        setPublicToken(result.data.publicToken)
-        toast().success('New public link generated')
-        await refreshGroups()
-      } else {
-        toast().error(result.error || 'Failed to regenerate link')
       }
     } finally {
       setSharingBusy(false)
@@ -334,7 +311,7 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
                 </button>
               </div>
 
-              {isPublic && publicUrl && (
+              {isPublic && (
                 <div className="space-y-2">
                   <button
                     type="button"
@@ -354,21 +331,12 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
                     <Monitor size={16} />
                     Copy TV leaderboard link
                   </button>
-                  <button
-                    type="button"
-                    disabled={sharingBusy}
-                    onClick={handleRegenerateToken}
-                    className="w-full min-h-11 px-4 py-2 text-secondary rounded-[var(--th-radius-md)] text-sm hover:bg-card-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    <RefreshCw size={14} />
-                    Generate new link
-                  </button>
                 </div>
               )}
 
               {/* Join policy */}
               <div>
-                <p className="text-sm text-primary mb-1">Joining via invite link</p>
+                <p className="text-sm text-primary mb-1">Joining</p>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -399,8 +367,8 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
                 </div>
                 {isPublic && joinPolicy === 'open' && (
                   <p className="text-xs text-muted mt-2">
-                    Heads up: the public page shows a Join button, so anyone with the public link
-                    can also join.
+                    Heads up: this group is public and open — anyone with the link can view it and
+                    join instantly.
                   </p>
                 )}
               </div>
