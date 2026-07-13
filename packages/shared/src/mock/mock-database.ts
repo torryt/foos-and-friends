@@ -54,7 +54,7 @@ export class MockDatabase implements Database {
     this.matches = [...seed.matches]
     this.seasons = [...seed.seasons]
     this.joinRequests = [...seed.joinRequests]
-    // Backfill podiums for seeded ended seasons, mirroring migration 021
+    // Backfill podiums for seeded ended seasons, mirroring award_season_trophies in the real database
     for (const season of this.seasons.filter((s) => !s.isActive)) {
       this.awardSeasonTrophies(season)
     }
@@ -705,7 +705,7 @@ export class MockDatabase implements Database {
   async getPlayersByGroup(groupId: string): Promise<DatabaseListResult<Player>> {
     const groupMatches = this.matches.filter((m) => m.groupId === groupId)
     // All-time ranking is the continuous unresetting chain, mirroring
-    // compute_player_global_ranking in the real database (migration 020)
+    // compute_player_global_ranking in the real database
     const series = replayContinuousElo(groupMatches)
     const players = this.players
       .filter((p) => p.groupId === groupId)
@@ -1045,7 +1045,7 @@ export class MockDatabase implements Database {
   // ===== SEASON TROPHIES =====
 
   // Snapshot the top 3 of the combined season leaderboard, mirroring
-  // award_season_trophies in migration 021 (idempotent, same tie-breaks)
+  // award_season_trophies in the real database (idempotent, same tie-breaks)
   private awardSeasonTrophies(season: Season): void {
     if (this.trophies.some((t) => t.seasonId === season.id)) {
       return

@@ -577,7 +577,7 @@ export class SupabaseDatabase implements Database {
     try {
       const supabase = getSupabase()
       // Same shape as player_stats_computed, but one ELO replay for the whole
-      // group instead of one per player row (migration 028)
+      // group instead of one per player row
       const { data, error } = await supabase
         .rpc('get_group_player_stats', { p_group_id: groupId })
         .order('ranking', { ascending: false })

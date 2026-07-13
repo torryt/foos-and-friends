@@ -4,23 +4,28 @@ This folder contains SQL scripts for setting up and managing the Supabase databa
 
 ## Quick Setup (Development)
 
-For a fresh development environment, run the complete reset script:
+For a fresh development environment:
 
 1. Open your Supabase Dashboard
 2. Navigate to **SQL Editor**
-3. Execute `00_drop_and_create.sql` — this drops and recreates all tables, functions, indexes, RLS policies, and computed views
+3. Execute `00_drop_and_create.sql` — drops and recreates an empty `public` schema
+4. Execute `migrations/001_initial_schema.sql` — creates all tables, views, functions, indexes, RLS policies, and grants
 
 ## Database Schema
+
+`migrations/001_initial_schema.sql` is the authoritative, complete schema definition — generated from a schema-only dump of production (2026-07-13) and verified identical against it. The former incremental migration chain (002–030) was squashed into it; the individual files remain available in git history.
 
 ### Core Tables
 
 | Table | Description |
 |-------|-------------|
-| **friend_groups** | Private groups with invite codes, ownership, `sport_type` (`foosball`/`padel`/`chess`; padel app is sunset but the value remains valid), and `supported_match_types` (`1v1`/`2v2`) |
-| **group_memberships** | User membership in groups with roles |
+| **friend_groups** | Private groups with invite codes, ownership, `sport_type` (`foosball`/`padel`/`chess`; padel app is sunset but the value remains valid), `supported_match_types` (`1v1`/`2v2`), `target_score`, `join_policy`, and `is_public` sharing flag |
+| **group_memberships** | User membership in groups with roles (`owner`/`admin`/`member`) |
+| **group_join_requests** | Pending join requests for approval-gated groups |
 | **players** | Group-scoped player profiles |
-| **matches** | Match records with team compositions, scores, season association, and `match_type` (`1v1` or `2v2`) |
+| **matches** | Match records with team compositions, scores, season association, ELO snapshots, and `match_type` (`1v1` or `2v2`) |
 | **seasons** | Competitive seasons with start/end dates (one active per group) |
+| **season_trophies** | Podium placements awarded when a season ends |
 
 ### Computed Views
 
@@ -28,50 +33,22 @@ For a fresh development environment, run the complete reset script:
 |------|-------------|
 | **player_season_stats_1v1_computed** | Per-season 1v1 rankings computed from match history |
 | **player_season_stats_2v2_computed** | Per-season 2v2 rankings computed from match history |
+| **player_season_stats_computed** / **player_stats_computed** | Legacy aggregate views |
 
 ### Functions (RPCs)
 
-| Function | Description |
-|----------|-------------|
-| **create_friend_group** | Creates a group and adds the creator as owner (with initial season) |
-| **join_group_by_invite_code** | Joins a group via invite code |
-| **get_group_by_invite_code** | Looks up group info by invite code |
-| **leave_group** | Removes a member from a group |
-| **delete_group** | Deletes a group and all associated data |
-| **generate_unique_invite_code** | Generates a unique 6-character invite code |
+Group lifecycle (`create_group_with_membership`, `delete_group_with_cascade`, `leave_group`), invites and joining (`join_group_by_invite_code`, `get_group_by_invite_code`, join-request approval RPCs), member management (`get_group_members`, `promote_group_member`, `demote_group_member`, `remove_group_member`), seasons and trophies (`end_season_and_create_new`, `award_season_trophies`), public sharing (`get_public_group_data`, `get_public_matches`, `get_public_season_stats`, `get_group_preview`), and ELO ranking computation (`compute_group_global_rankings`, `compute_player_season_ranking`). See the baseline migration for full definitions.
 
 ## Migrations
 
-All schema changes after initial setup are handled through migration files in `/database/migrations/`. Key migrations:
-
-| Migration | Description |
-|-----------|-------------|
-| 002 | Add match ranking fields (pre/post ELO) |
-| 003 | Make ranking fields mandatory |
-| 004 | Remove redundant ranking_change column |
-| 005 | Add get_group_by_invite_code RPC |
-| 006 | Add delete_group RPC |
-| 007 | Add leave_group RPC |
-| **008** | **Add seasons** — seasons table, player_season_stats, match.season_id, auto-migrate existing matches to "Season 1" |
-| 009 | Fix create_group to auto-create initial season |
-| **010** | **Add computed stats views** — player_season_stats computed from match history |
-| 010b | Fix computed views security (SECURITY DEFINER) |
-| 011 | Remove aggregated columns (use computed views instead) |
-| 012 | Remove player_season_stats physical table (fully computed now) |
-| 013 | Fix function search paths |
-| **014** | **Add sport_type** — `sport_type` column on friend_groups (`foosball`/`padel`) |
-| 015 | Add generate_unique_invite_code function |
-| **016** | **Add match type support** — `match_type` on matches, `supported_match_types` on groups, separate 1v1/2v2 computed views |
-| **017** | **Add chess sport type** — adds `chess` as valid sport_type |
-| **023** | **Join approval** — `friend_groups.join_policy`, `group_join_requests` table, approval RPCs, `join_group_by_invite_code` branches on policy |
-| **024** | **Public sharing** — `friend_groups.is_public`/`public_token`, anon-callable token-gated read RPCs for the public read-only pages |
-
-See `migrations/README.md` for naming conventions and how to create new migrations.
+- `migrations/001_initial_schema.sql` is the squashed baseline — already applied to production; never run it there.
+- All new schema changes go in new numbered files in `/database/migrations/` (next: 002). See `migrations/README.md` for conventions.
+- Function grants: Supabase's default privileges auto-grant EXECUTE to `anon`/`authenticated` on every new function. Revoke in the migration unless intended (the baseline's "Function ACL pinning" section shows the intended state — `anon` may only call the public-sharing RPCs).
 
 ## Production vs Development
 
-- **Development**: Use `00_drop_and_create.sql` for complete recreation
-- **Production**: Always use migrations in `/database/migrations/` to preserve data. Never run the drop-and-create script on production.
+- **Development**: `00_drop_and_create.sql` followed by `migrations/001_initial_schema.sql` for complete recreation
+- **Production**: Always use incremental migrations to preserve data. Never run the drop-and-create script or the baseline against production.
 
 ## Row Level Security (RLS)
 
@@ -85,7 +62,7 @@ All tables have RLS enabled with policies that ensure:
 
 After setup, verify:
 
-- [ ] All tables appear in **Database > Tables** (friend_groups, group_memberships, players, matches, seasons)
+- [ ] All tables appear in **Database > Tables** (friend_groups, group_memberships, group_join_requests, players, matches, seasons, season_trophies)
 - [ ] All tables show "RLS enabled" status
 - [ ] Functions appear in **Database > Functions**
 - [ ] Computed views appear and return data correctly
