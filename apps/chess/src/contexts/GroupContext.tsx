@@ -233,7 +233,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     setError(null)
 
     try {
-      const result = await groupService.joinGroupByInvite(inviteCode, user.id)
+      const result = await groupService.joinGroupByInvite(inviteCode)
 
       // Approval-gated group: a request was filed, nothing to switch to yet
       if (result.success && result.status === 'pending') {
@@ -290,7 +290,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     setError(null)
 
     try {
-      const result = await groupService.deleteGroup(groupId, user.id)
+      const result = await groupService.deleteGroup(groupId)
 
       if (result.success) {
         // Handle current group cleanup
@@ -335,7 +335,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
     setError(null)
 
     try {
-      const result = await groupService.leaveGroup(groupId, user.id)
+      const result = await groupService.leaveGroup(groupId)
 
       if (result.success) {
         // Handle current group cleanup

@@ -163,10 +163,8 @@ export class FakeDatabase implements Database {
     return { data: result, error: null }
   }
 
-  async joinGroupByInvite(
-    inviteCode: string,
-    userId = 'fake-user-id',
-  ): Promise<DatabaseResult<GroupJoinRpcResult>> {
+  async joinGroupByInvite(inviteCode: string): Promise<DatabaseResult<GroupJoinRpcResult>> {
+    const userId = this.currentUserId
     const group = this.groups.find((g) => g.inviteCode === inviteCode && g.isActive)
     if (!group) {
       return {
@@ -241,10 +239,8 @@ export class FakeDatabase implements Database {
     }
   }
 
-  async deleteGroup(
-    groupId: string,
-    userId: string,
-  ): Promise<DatabaseResult<GroupDeletionRpcResult>> {
+  async deleteGroup(groupId: string): Promise<DatabaseResult<GroupDeletionRpcResult>> {
+    const userId = this.currentUserId
     const group = this.groups.find((g) => g.id === groupId && g.isActive)
     if (!group) {
       return { data: { success: false, error: 'Group not found' }, error: null }
@@ -297,7 +293,8 @@ export class FakeDatabase implements Database {
     return { data: { ...group }, error: null }
   }
 
-  async leaveGroup(groupId: string, userId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
+  async leaveGroup(groupId: string): Promise<DatabaseResult<GroupLeaveRpcResult>> {
+    const userId = this.currentUserId
     const group = this.groups.find((g) => g.id === groupId && g.isActive)
     if (!group) {
       return { data: { success: false, error: 'Group not found' }, error: null }
