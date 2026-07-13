@@ -27,20 +27,11 @@ describe('GroupService sharing & join approval', () => {
   })
 
   describe('public sharing', () => {
-    it('lets the owner enable sharing and generates a token', async () => {
+    it('lets the owner enable sharing', async () => {
       const result = await service.setGroupSharing(groupId, true)
 
       expect(result.error).toBeNull()
       expect(result.data?.isPublic).toBe(true)
-      expect(result.data?.publicToken).toBeTruthy()
-    })
-
-    it('keeps the same token when toggling off and on again', async () => {
-      const first = await service.setGroupSharing(groupId, true)
-      await service.setGroupSharing(groupId, false)
-      const second = await service.setGroupSharing(groupId, true)
-
-      expect(second.data?.publicToken).toBe(first.data?.publicToken)
     })
 
     it('rejects regular members', async () => {
@@ -62,30 +53,103 @@ describe('GroupService sharing & join approval', () => {
       expect(result.data?.isPublic).toBe(true)
     })
 
-    it('regenerates to a different token', async () => {
-      const enabled = await service.setGroupSharing(groupId, true)
-      const regenerated = await service.regeneratePublicToken(groupId)
-
-      expect(regenerated.error).toBeNull()
-      expect(regenerated.data?.publicToken).toBeTruthy()
-      expect(regenerated.data?.publicToken).not.toBe(enabled.data?.publicToken)
-    })
-
     it('serves public data only while sharing is enabled', async () => {
-      const enabled = await service.setGroupSharing(groupId, true)
-      const token = enabled.data?.publicToken ?? ''
+      await service.setGroupSharing(groupId, true)
 
-      const visible = await service.getPublicGroupData(token)
+      const visible = await service.getPublicGroupData(groupId)
       expect(visible.data?.group.id).toBe(groupId)
 
       await service.setGroupSharing(groupId, false)
-      const hidden = await service.getPublicGroupData(token)
+      const hidden = await service.getPublicGroupData(groupId)
       expect(hidden.data).toBeNull()
     })
 
-    it('returns nothing for an unknown token', async () => {
-      const result = await service.getPublicGroupData('bogus-token')
+    it('never exposes the invite code through public data', async () => {
+      await service.setGroupSharing(groupId, true)
+
+      const visible = await service.getPublicGroupData(groupId)
+
+      expect(JSON.stringify(visible.data)).not.toContain(inviteCode)
+    })
+
+    it('returns nothing for an unknown group id', async () => {
+      const result = await service.getPublicGroupData('bogus-group-id')
       expect(result.data).toBeNull()
+    })
+  })
+
+  describe('group preview', () => {
+    it('returns name and join policy even for private groups', async () => {
+      const result = await service.getGroupPreview(groupId)
+
+      expect(result.error).toBeNull()
+      expect(result.data?.name).toBe('Test Group')
+      expect(result.data?.isPublic).toBe(false)
+      expect(result.data?.joinPolicy).toBe('open')
+    })
+
+    it('returns nothing for an unknown group id', async () => {
+      const result = await service.getGroupPreview('bogus-group-id')
+      expect(result.data).toBeNull()
+    })
+  })
+
+  describe('request to join by group id', () => {
+    it('joins immediately when the policy is open', async () => {
+      db.currentUserId = OUTSIDER
+
+      const result = await service.requestToJoinGroup(groupId)
+
+      expect(result.success).toBe(true)
+      expect(result.status).toBe('joined')
+
+      db.currentUserId = OWNER_ID
+      const members = await service.getGroupMembers(groupId)
+      expect(members.data.some((m) => m.userId === OUTSIDER && m.role === 'member')).toBe(true)
+    })
+
+    it('files a pending request when the policy is approval', async () => {
+      await service.setGroupJoinPolicy(groupId, 'approval')
+      db.currentUserId = OUTSIDER
+
+      const result = await service.requestToJoinGroup(groupId)
+
+      expect(result.success).toBe(true)
+      expect(result.status).toBe('pending')
+
+      db.currentUserId = OWNER_ID
+      const members = await service.getGroupMembers(groupId)
+      expect(members.data.some((m) => m.userId === OUTSIDER)).toBe(false)
+      const requests = await service.getPendingJoinRequests(groupId)
+      expect(requests.data).toHaveLength(1)
+      expect(requests.data[0].userId).toBe(OUTSIDER)
+    })
+
+    it('does not duplicate a pending request', async () => {
+      await service.setGroupJoinPolicy(groupId, 'approval')
+      db.currentUserId = OUTSIDER
+
+      await service.requestToJoinGroup(groupId)
+      await service.requestToJoinGroup(groupId)
+
+      db.currentUserId = OWNER_ID
+      const requests = await service.getPendingJoinRequests(groupId)
+      expect(requests.data).toHaveLength(1)
+    })
+
+    it('rejects existing members', async () => {
+      db.currentUserId = MEMBER_B
+
+      const result = await service.requestToJoinGroup(groupId)
+
+      expect(result.success).toBe(false)
+      expect(result.error).toMatch(/already a member/i)
+    })
+
+    it('rejects unknown groups', async () => {
+      const result = await service.requestToJoinGroup('bogus-group-id')
+
+      expect(result.success).toBe(false)
     })
   })
 

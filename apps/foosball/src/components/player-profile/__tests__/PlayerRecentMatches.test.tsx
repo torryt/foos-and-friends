@@ -15,6 +15,7 @@ vi.mock('@tanstack/react-router', () => ({
     to: string
     params?: Record<string, string>
   }) => <a href={`${to}/${params?.playerId || ''}`}>{children}</a>,
+  useParams: () => ({ groupId: 'group1' }),
 }))
 
 describe('PlayerRecentMatches', () => {

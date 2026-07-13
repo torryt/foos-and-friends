@@ -34,6 +34,7 @@ vi.mock('@tanstack/react-router', () => ({
       {children}
     </a>
   ),
+  useParams: () => ({ groupId: 'group1' }),
 }))
 
 const mockPlayers: Player[] = [

@@ -23,7 +23,8 @@ vi.mock('@/hooks/useAuth', () => ({
   }),
 }))
 
-// Mock the router components to focus on the flicker issue
+// Mock the router components: App should always render the router — the
+// entry redirect / first-time screen lives at the index route, behind it
 vi.mock('@tanstack/react-router', () => ({
   createRouter: vi.fn(() => ({})),
   RouterProvider: ({ children }: { children: React.ReactNode }) => (
@@ -31,20 +32,11 @@ vi.mock('@tanstack/react-router', () => ({
   ),
 }))
 
-// Mock the modals since they're not the focus of this test
-vi.mock('@/components/CreateGroupModal', () => ({
-  CreateGroupModal: () => <div data-testid="create-group-modal" />,
-}))
-
-vi.mock('@/components/JoinGroupModal', () => ({
-  JoinGroupModal: () => <div data-testid="join-group-modal" />,
-}))
-
 vi.mock('@/routeTree.gen', () => ({
   routeTree: {},
 }))
 
-describe('App Integration - FirstTimeUserScreen Flickering', () => {
+describe('App Integration - unified group routes architecture', () => {
   let mockGetUserGroups: MockedFunction<
     (userId: string) => Promise<{ data: FriendGroup[]; error: string | null }>
   >
@@ -65,7 +57,7 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
     })
   })
 
-  test('should not show FirstTimeUserScreen when user has groups (prevents flickering)', async () => {
+  test('renders the router immediately while groups load (no top-level first-time screen)', async () => {
     const mockGroups: FriendGroup[] = [
       {
         id: 'group-1',
@@ -93,105 +85,44 @@ describe('App Integration - FirstTimeUserScreen Flickering', () => {
 
     render(<App />)
 
-    // Initially should show loading state (via FirstTimeUserScreen with loading=true)
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
-
-    // Should NOT show the "Get Started" section during loading
+    // The router is rendered from the start — auth gating and the
+    // first-time screen happen per-route, so App itself never flickers
+    expect(screen.getByTestId('router')).toBeInTheDocument()
     expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
     expect(screen.queryByText('Create Your First Group')).not.toBeInTheDocument()
 
-    // After groups load, should show the router (normal app) instead of FirstTimeUserScreen
+    // Still rendered once groups have loaded
     await waitFor(
       () => {
         expect(screen.getByTestId('router')).toBeInTheDocument()
       },
       { timeout: 1000 },
     )
-
-    // Wait for the loading state to completely clear
-    await waitFor(
-      () => {
-        expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
-      },
-      { timeout: 500 },
-    )
-
-    // FirstTimeUserScreen content should not be visible anymore
     expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
-    expect(screen.queryByText('Create Your First Group')).not.toBeInTheDocument()
   })
 
-  test('should show FirstTimeUserScreen when user has no groups', async () => {
-    // Mock empty groups response
+  test('renders the router when the user has no groups (index route handles the first-time screen)', async () => {
     mockGetUserGroups.mockResolvedValue({ data: [], error: null })
 
     render(<App />)
 
-    // Initially should show loading state
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
-
-    // After loading completes with no groups, should show FirstTimeUserScreen content
-    await waitFor(() => {
-      expect(screen.getByText('Get Started')).toBeInTheDocument()
-    })
-
-    expect(screen.getByText('Create Your First Group')).toBeInTheDocument()
-    expect(screen.getByText('Join Existing Group')).toBeInTheDocument()
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('router')).not.toBeInTheDocument()
-  })
-
-  test('should handle group loading error gracefully', async () => {
-    // Mock error response
-    mockGetUserGroups.mockResolvedValue({ data: [], error: 'Failed to load groups' })
-
-    render(<App />)
-
-    // Initially should show loading state
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
-
-    // After error, should show FirstTimeUserScreen (treating as no groups)
-    await waitFor(() => {
-      expect(screen.getByText('Get Started')).toBeInTheDocument()
-    })
-
-    expect(screen.getByText('Create Your First Group')).toBeInTheDocument()
-    expect(screen.getByText('Join Existing Group')).toBeInTheDocument()
-  })
-
-  test('should handle invite page correctly regardless of group status', async () => {
-    const mockGroups: FriendGroup[] = [
-      {
-        id: 'group-1',
-        name: 'Test Group',
-        description: 'A test group',
-        inviteCode: 'TEST123',
-        ownerId: 'mock-user-id',
-        createdBy: 'mock-user-id',
-        isActive: true,
-        maxMembers: 10,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01',
-      },
-    ]
-
-    mockGetUserGroups.mockResolvedValue({ data: mockGroups, error: null })
-
-    // Mock window.location.pathname to simulate invite page
-    Object.defineProperty(window, 'location', {
-      value: { pathname: '/invite' },
-      writable: true,
-    })
-
-    render(<App />)
-
-    // Should show router immediately for invite page, regardless of loading state
     await waitFor(() => {
       expect(screen.getByTestId('router')).toBeInTheDocument()
     })
 
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
+    // The first-time screen is a route concern now, not App's
     expect(screen.queryByText('Get Started')).not.toBeInTheDocument()
+    expect(screen.queryByText('Create Your First Group')).not.toBeInTheDocument()
+  })
+
+  test('handles group loading errors gracefully (router still renders)', async () => {
+    mockGetUserGroups.mockResolvedValue({ data: [], error: 'Failed to load groups' })
+
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('router')).toBeInTheDocument()
+    })
   })
 
   test('renders without crashing', async () => {

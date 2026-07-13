@@ -1,14 +1,26 @@
 import type { GroupMember } from '@foos/shared'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 import { ArrowLeft, Loader, ShieldMinus, ShieldPlus, UserMinus, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useGroupContext } from '@/contexts/GroupContext'
+import { useGroupPageMode } from '@/contexts/GroupPageContext'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/useToast'
 
 export const Route = createFileRoute('/groups/$groupId/members')({
-  component: GroupMembersPage,
+  component: MembersRoute,
 })
+
+// Member management is members-only; non-members land on the group's
+// read-only page instead
+function MembersRoute() {
+  const mode = useGroupPageMode()
+  const { groupId } = Route.useParams()
+  if (mode !== 'member') {
+    return <Navigate to="/groups/$groupId" params={{ groupId }} replace />
+  }
+  return <GroupMembersPage />
+}
 
 const ROLE_LABELS: Record<GroupMember['role'], string> = {
   owner: 'Owner',

@@ -14,6 +14,7 @@ import type {
   FriendGroup,
   GroupMember,
   GroupMembership,
+  GroupPreview,
   JoinPolicy,
   JoinRequest,
   Match,
@@ -115,9 +116,9 @@ export class FakeDatabase implements Database {
       sportType,
       supportedMatchTypes: ['2v2'],
       targetScore: 10,
+      // Tests opt into 'approval' explicitly; 'open' keeps join-based setup terse
       joinPolicy: 'open',
       isPublic: false,
-      publicToken: null,
     }
 
     this.groups.push(group)
@@ -457,7 +458,7 @@ export class FakeDatabase implements Database {
   async setGroupSharing(
     groupId: string,
     isPublic: boolean,
-  ): Promise<DatabaseResult<{ isPublic: boolean; publicToken: string | null }>> {
+  ): Promise<DatabaseResult<{ isPublic: boolean }>> {
     const callerRole = this.getCallerRole(groupId)
     if (callerRole !== 'owner' && callerRole !== 'admin') {
       return { data: null, error: 'Only group owners and admins can change sharing settings' }
@@ -465,25 +466,9 @@ export class FakeDatabase implements Database {
     const group = this.groups.find((g) => g.id === groupId && g.isActive)
     if (!group) {
       return { data: null, error: 'Group not found' }
-    }
-    if (isPublic && !group.publicToken) {
-      group.publicToken = `fake-token-${this.nextId++}`
     }
     group.isPublic = isPublic
-    return { data: { isPublic: group.isPublic, publicToken: group.publicToken }, error: null }
-  }
-
-  async regeneratePublicToken(groupId: string): Promise<DatabaseResult<{ publicToken: string }>> {
-    const callerRole = this.getCallerRole(groupId)
-    if (callerRole !== 'owner' && callerRole !== 'admin') {
-      return { data: null, error: 'Only group owners and admins can change sharing settings' }
-    }
-    const group = this.groups.find((g) => g.id === groupId && g.isActive)
-    if (!group) {
-      return { data: null, error: 'Group not found' }
-    }
-    group.publicToken = `fake-token-${this.nextId++}`
-    return { data: { publicToken: group.publicToken }, error: null }
+    return { data: { isPublic: group.isPublic }, error: null }
   }
 
   async setGroupJoinPolicy(
@@ -506,8 +491,8 @@ export class FakeDatabase implements Database {
   }
 
   // Public read-only access
-  async getPublicGroupData(token: string): Promise<DatabaseResult<PublicGroupData>> {
-    const group = this.groups.find((g) => g.publicToken === token && g.isPublic && g.isActive)
+  async getPublicGroupData(groupId: string): Promise<DatabaseResult<PublicGroupData>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isPublic && g.isActive)
     if (!group) {
       return { data: null, error: 'not_found' }
     }
@@ -517,7 +502,6 @@ export class FakeDatabase implements Database {
           id: group.id,
           name: group.name,
           description: group.description,
-          inviteCode: group.inviteCode,
           sportType: group.sportType ?? 'foosball',
           supportedMatchTypes: group.supportedMatchTypes,
           targetScore: group.targetScore,
@@ -531,8 +515,8 @@ export class FakeDatabase implements Database {
     }
   }
 
-  async getPublicMatches(token: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
-    const group = this.groups.find((g) => g.publicToken === token && g.isPublic && g.isActive)
+  async getPublicMatches(groupId: string, seasonId?: string): Promise<DatabaseListResult<Match>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isPublic && g.isActive)
     if (!group) {
       return { data: [], error: 'not_found' }
     }
@@ -544,10 +528,78 @@ export class FakeDatabase implements Database {
   }
 
   async getPublicSeasonStats(
-    _token: string,
+    _groupId: string,
     _seasonId: string,
   ): Promise<DatabaseResult<PublicSeasonStats>> {
     return { data: null, error: 'Not implemented in fake' }
+  }
+
+  async getGroupPreview(groupId: string): Promise<DatabaseResult<GroupPreview>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: null, error: 'not_found' }
+    }
+    return {
+      data: {
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        sportType: group.sportType ?? 'foosball',
+        joinPolicy: group.joinPolicy,
+        isPublic: group.isPublic,
+      },
+      error: null,
+    }
+  }
+
+  async requestToJoinGroup(groupId: string): Promise<DatabaseResult<GroupJoinRpcResult>> {
+    const group = this.groups.find((g) => g.id === groupId && g.isActive)
+    if (!group) {
+      return { data: { success: false, error: 'Group not found' }, error: null }
+    }
+
+    const existing = this.memberships.find(
+      (m) => m.groupId === group.id && m.userId === this.currentUserId && m.isActive,
+    )
+    if (existing) {
+      return { data: { success: false, error: 'Already a member of this group' }, error: null }
+    }
+
+    if (group.joinPolicy === 'approval') {
+      const pending = this.joinRequests.find(
+        (r) => r.groupId === group.id && r.userId === this.currentUserId && r.status === 'pending',
+      )
+      if (!pending) {
+        this.joinRequests.push({
+          id: this.generateId(),
+          groupId: group.id,
+          userId: this.currentUserId,
+          email: `${this.currentUserId}@fake.local`,
+          status: 'pending',
+          requestedAt: new Date().toISOString(),
+        })
+      }
+      return {
+        data: { success: true, status: 'pending', group_id: group.id, group_name: group.name },
+        error: null,
+      }
+    }
+
+    this.memberships.push({
+      id: this.generateId(),
+      groupId: group.id,
+      userId: this.currentUserId,
+      role: 'member',
+      isActive: true,
+      invitedBy: null,
+      joinedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    })
+
+    return {
+      data: { success: true, status: 'joined', group_id: group.id, group_name: group.name },
+      error: null,
+    }
   }
 
   // Join request operations

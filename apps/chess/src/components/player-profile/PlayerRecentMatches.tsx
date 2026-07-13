@@ -1,6 +1,6 @@
 import type { Match, Player } from '@foos/shared'
 import { cn, scrollToTop } from '@foos/shared'
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { ArrowUpDown, Calendar } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -24,6 +24,7 @@ export function PlayerRecentMatches({
   recentForm,
   onPlayerClick,
 }: PlayerRecentMatchesProps) {
+  const { groupId } = useParams({ from: '/groups/$groupId' })
   const [sortNewestFirst, setSortNewestFirst] = useState(true)
 
   // Get recent matches for the player
@@ -172,8 +173,8 @@ export function PlayerRecentMatches({
                                 </button>
                               ) : (
                                 <Link
-                                  to="/players/$playerId"
-                                  params={{ playerId: teammate.id }}
+                                  to="/groups/$groupId/players/$playerId"
+                                  params={{ groupId, playerId: teammate.id }}
                                   className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
                                   onClick={() => scrollToTop()}
                                 >
@@ -201,8 +202,8 @@ export function PlayerRecentMatches({
                                     </button>
                                   ) : (
                                     <Link
-                                      to="/players/$playerId"
-                                      params={{ playerId: opponent.id }}
+                                      to="/groups/$groupId/players/$playerId"
+                                      params={{ groupId, playerId: opponent.id }}
                                       className="text-orange-600 hover:text-orange-700 hover:underline transition-colors"
                                       onClick={() => scrollToTop()}
                                     >

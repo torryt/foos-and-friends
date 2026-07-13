@@ -11,7 +11,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { groupService } from '@/lib/init'
 
 interface PublicGroupContextType {
-  token: string
+  groupId: string
   group: PublicGroupInfo | null
   seasons: Season[]
   players: Player[]
@@ -37,13 +37,15 @@ export const usePublicGroup = () => {
 }
 
 interface PublicGroupProviderProps {
-  token: string
+  groupId: string
   children: ReactNode
 }
 
-// Data provider for the unauthenticated public pages. Everything comes from
-// the token-gated public RPCs — no auth, GroupContext, or SeasonContext here.
-export const PublicGroupProvider = ({ token, children }: PublicGroupProviderProps) => {
+// Data provider for the read-only group pages shown to non-members (and
+// logged-out visitors). Everything comes from the is_public-gated RPCs — no
+// auth, GroupContext, or SeasonContext here. notFound means the group is not
+// publicly readable (private or nonexistent).
+export const PublicGroupProvider = ({ groupId, children }: PublicGroupProviderProps) => {
   const [group, setGroup] = useState<PublicGroupInfo | null>(null)
   const [seasons, setSeasons] = useState<Season[]>([])
   const [players, setPlayers] = useState<Player[]>([])
@@ -56,8 +58,8 @@ export const PublicGroupProvider = ({ token, children }: PublicGroupProviderProp
 
   const refresh = useCallback(async () => {
     const [dataResult, matchesResult] = await Promise.all([
-      groupService.getPublicGroupData(token),
-      groupService.getPublicMatches(token),
+      groupService.getPublicGroupData(groupId),
+      groupService.getPublicMatches(groupId),
     ])
 
     if (!dataResult.data) {
@@ -82,7 +84,7 @@ export const PublicGroupProvider = ({ token, children }: PublicGroupProviderProp
     })
 
     setLoading(false)
-  }, [token])
+  }, [groupId])
 
   useEffect(() => {
     setLoading(true)
@@ -97,7 +99,7 @@ export const PublicGroupProvider = ({ token, children }: PublicGroupProviderProp
       return
     }
     let stale = false
-    groupService.getPublicSeasonStats(token, currentSeason.id).then((result) => {
+    groupService.getPublicSeasonStats(groupId, currentSeason.id).then((result) => {
       if (!stale) {
         setSeasonStats(result.data?.overall ?? [])
       }
@@ -105,7 +107,7 @@ export const PublicGroupProvider = ({ token, children }: PublicGroupProviderProp
     return () => {
       stale = true
     }
-  }, [token, currentSeason])
+  }, [groupId, currentSeason])
 
   const selectSeason = useCallback(
     (seasonId: string) => {
@@ -121,7 +123,7 @@ export const PublicGroupProvider = ({ token, children }: PublicGroupProviderProp
   return (
     <PublicGroupContext.Provider
       value={{
-        token,
+        groupId,
         group,
         seasons,
         players,

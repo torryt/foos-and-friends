@@ -1,111 +1,65 @@
-import { PillSelect } from '@foos/shared'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArrowUpDown } from 'lucide-react'
-import { useState } from 'react'
-import AddPlayerModal from '@/components/AddPlayerModal'
-import { ArchivedSeasonBanner } from '@/components/ArchivedSeasonBanner'
-import { MatchEntryModal } from '@/components/MatchEntryModal'
-import { MilestoneCelebration } from '@/components/MilestoneCelebration'
-import PlayerRankings, { SORT_OPTIONS, useRankingSort } from '@/components/PlayerRankings'
-import QuickActions from '@/components/QuickActions'
-import { type RankingScope, SeasonScopePicker } from '@/components/SeasonScopePicker'
-import { useSeasonContext } from '@/contexts/SeasonContext'
-import { useGameLogic } from '@/hooks/useGameLogic'
+import { useEffect, useState } from 'react'
+import { CreateGroupModal } from '@/components/CreateGroupModal'
+import { FirstTimeUserScreen } from '@/components/FirstTimeUserScreen'
+import { JoinGroupModal } from '@/components/JoinGroupModal'
+import { useGroupContext } from '@/contexts/GroupContext'
 
 export const Route = createFileRoute('/')({
   component: Index,
 })
 
+// The app's entry point: sends signed-in users to their default group (the
+// last group they visited, restored from localStorage by GroupContext), or
+// shows the first-time screen when they have none.
 function Index() {
+  const [showCreateGroup, setShowCreateGroup] = useState(false)
+  const [showJoinGroup, setShowJoinGroup] = useState(false)
+  const { currentGroup, hasAnyGroups, loading } = useGroupContext()
   const navigate = useNavigate()
-  const [showAddPlayer, setShowAddPlayer] = useState(false)
-  const [showRecordMatch, setShowRecordMatch] = useState(false)
-  const [scope, setScope] = useState<RankingScope>('season')
-  const [sortBy, setSortBy] = useRankingSort()
 
-  const {
-    players,
-    seasonStats,
-    matches,
-    allMatches,
-    supportedMatchTypes,
-    addPlayer,
-    addMatch,
-    currentMilestone,
-    dismissMilestone,
-  } = useGameLogic()
-  const { currentSeason, seasons } = useSeasonContext()
+  useEffect(() => {
+    if (!loading && currentGroup) {
+      navigate({
+        to: '/groups/$groupId',
+        params: { groupId: currentGroup.id },
+        replace: true,
+      })
+    }
+  }, [loading, currentGroup, navigate])
 
-  const isArchived = !!currentSeason && !currentSeason.isActive
-  const showScopeToggle = seasons.length > 1
-  const allTime = scope === 'allTime'
-
-  const handlePlayerCardClick = (playerId: string) => {
-    navigate({
-      to: '/players/$playerId',
-      params: { playerId },
-    })
+  if (loading || currentGroup) {
+    return (
+      <FirstTimeUserScreen
+        onCreateGroup={() => setShowCreateGroup(true)}
+        onJoinGroup={() => setShowJoinGroup(true)}
+        loading={true}
+      />
+    )
   }
 
+  if (!hasAnyGroups) {
+    return (
+      <>
+        <FirstTimeUserScreen
+          onCreateGroup={() => setShowCreateGroup(true)}
+          onJoinGroup={() => setShowJoinGroup(true)}
+          loading={false}
+        />
+
+        {/* Group management modals - available from selection screen */}
+        <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
+        <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
+      </>
+    )
+  }
+
+  // Groups exist but none selected yet — GroupContext is about to pick one
   return (
-    <div className="space-y-4">
-      <ArchivedSeasonBanner />
-
-      {/* Recording into an archived season is not allowed */}
-      {!isArchived && (
-        <QuickActions
-          onAddMatch={() => setShowRecordMatch(true)}
-          onAddPlayer={() => setShowAddPlayer(true)}
-        />
-      )}
-
-      <div className="flex items-center gap-2">
-        {showScopeToggle && <SeasonScopePicker scope={scope} onScopeChange={setScope} />}
-        <div className="ml-auto">
-          <PillSelect
-            value={sortBy}
-            options={SORT_OPTIONS}
-            onChange={setSortBy}
-            ariaLabel="Sort by"
-            icon={<ArrowUpDown size={14} aria-hidden="true" />}
-            align="right"
-          />
-        </div>
-      </div>
-
-      <PlayerRankings
-        players={players}
-        seasonStats={allTime ? undefined : seasonStats}
-        matches={allTime ? allMatches : matches}
-        onPlayerClick={handlePlayerCardClick}
-        sortBy={sortBy}
-        title={allTime ? 'All-Time Rankings' : isArchived ? 'Final Standings' : 'Friend Rankings'}
-        subtitle={
-          allTime
-            ? 'Latest ELO across all seasons'
-            : isArchived
-              ? `How ${currentSeason?.name} ended`
-              : 'See how you stack up against your friends!'
-        }
-      />
-
-      <AddPlayerModal
-        isOpen={showAddPlayer}
-        onClose={() => setShowAddPlayer(false)}
-        onAddPlayer={(name, avatar) => addPlayer(name, avatar)}
-      />
-
-      {showRecordMatch && (
-        <MatchEntryModal
-          players={players}
-          matches={matches}
-          supportedMatchTypes={supportedMatchTypes}
-          addMatch={addMatch}
-          onClose={() => setShowRecordMatch(false)}
-        />
-      )}
-
-      <MilestoneCelebration reached={currentMilestone} onDismiss={dismissMilestone} />
-    </div>
+    <FirstTimeUserScreen
+      onCreateGroup={() => setShowCreateGroup(true)}
+      onJoinGroup={() => setShowJoinGroup(true)}
+      loading={true}
+    />
   )
 }
