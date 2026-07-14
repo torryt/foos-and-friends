@@ -694,6 +694,18 @@ export class FakeDatabase implements Database {
     return { data: { success: true }, error: null }
   }
 
+  // Records every approval email the service asks for, so tests can assert on them.
+  joinApprovedEmails: string[] = []
+  joinApprovedEmailError: string | null = null
+
+  async sendJoinApprovedEmail(requestId: string): Promise<DatabaseResult<{ sent: boolean }>> {
+    if (this.joinApprovedEmailError) {
+      return { data: null, error: this.joinApprovedEmailError }
+    }
+    this.joinApprovedEmails.push(requestId)
+    return { data: { sent: true }, error: null }
+  }
+
   async getMyPendingJoinRequests(): Promise<DatabaseListResult<MyPendingJoinRequest>> {
     return {
       data: this.joinRequests

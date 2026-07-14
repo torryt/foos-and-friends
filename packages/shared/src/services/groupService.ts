@@ -236,8 +236,19 @@ export class GroupService {
       return { success: false, error: result.error }
     }
 
+    const success = result.data?.success ?? false
+
+    // The membership is already committed; a failed notification must never turn
+    // a successful approval into an error the admin has to retry.
+    if (success) {
+      const email = await this.db.sendJoinApprovedEmail(requestId)
+      if (email.error) {
+        console.warn('Join request approved, but the notification email failed:', email.error)
+      }
+    }
+
     return {
-      success: result.data?.success ?? false,
+      success,
       error: result.data?.error,
     }
   }

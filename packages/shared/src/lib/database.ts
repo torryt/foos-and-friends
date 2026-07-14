@@ -146,6 +146,9 @@ export interface Database {
   approveJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>>
   denyJoinRequest(requestId: string): Promise<DatabaseResult<MemberActionRpcResult>>
   getMyPendingJoinRequests(): Promise<DatabaseListResult<MyPendingJoinRequest>>
+  // Notifies the requester by email that they were let in. Best-effort: approval
+  // has already been committed by the time this runs.
+  sendJoinApprovedEmail(requestId: string): Promise<DatabaseResult<{ sent: boolean }>>
 
   // Group membership operations
   getGroupMembers(groupId: string): Promise<DatabaseListResult<GroupMember>>
