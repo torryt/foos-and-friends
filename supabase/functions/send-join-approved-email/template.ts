@@ -1,0 +1,138 @@
+// Mirrors the look of the Supabase Auth templates in /email-templates so the
+// transactional mails all feel like one product.
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+export function renderJoinApprovedEmail(params: { groupName: string; groupUrl: string }): string {
+  // Group names are user-supplied, so they must be escaped before they land in HTML.
+  const groupName = escapeHtml(params.groupName)
+  const groupUrl = escapeHtml(params.groupUrl)
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your join request was accepted</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .tagline {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin: 0;
+        }
+        .content {
+            padding: 32px 24px;
+        }
+        .greeting {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+        .message {
+            margin-bottom: 32px;
+            color: #6b7280;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .alternative-link {
+            background-color: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #6b7280;
+            word-break: break-all;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
+                </svg>
+                Game Tracker
+            </div>
+            <p class="tagline">Play. Compete. Connect.</p>
+        </div>
+
+        <div class="content">
+            <div class="greeting">You're in!</div>
+
+            <div class="message">
+                <p>Your request to join <strong>${groupName}</strong> was accepted. Jump in to log your first match and start climbing the rankings.</p>
+            </div>
+
+            <a href="${groupUrl}" class="cta-button">
+                Open ${groupName}
+            </a>
+
+            <div class="alternative-link">
+                <p><strong>Button not working?</strong> Copy and paste this link into your browser:</p>
+                <p>${groupUrl}</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>This email was sent because you requested to join a group on Game Tracker.</p>
+        </div>
+    </div>
+</body>
+</html>`
+}

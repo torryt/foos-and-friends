@@ -37,6 +37,7 @@ packages/shared/src/     lib/ (db abstraction + Supabase client), services/, typ
 apps/{foosball,chess}/src/   components/, routes/ (TanStack Router), hooks/, contexts/, lib/init.ts
 apps/landing/            static public landing page (vanilla TS + Tailwind, CTAs point at VITE_FOOS_APP_URL)
 database/                SQL migrations (shared across apps)
+supabase/functions/      Deno edge functions (send-join-approved-email → Brevo transactional API)
 e2e/                     Playwright specs per app + playwright.config.ts at root
 ```
 

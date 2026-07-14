@@ -250,6 +250,36 @@ describe('GroupService sharing & join approval', () => {
       expect(result.success).toBe(false)
     })
 
+    it('approving emails the requester', async () => {
+      await service.approveJoinRequest(requestId)
+
+      expect(db.joinApprovedEmails).toEqual([requestId])
+    })
+
+    it('denying does not email the requester', async () => {
+      await service.denyJoinRequest(requestId)
+
+      expect(db.joinApprovedEmails).toEqual([])
+    })
+
+    it('a rejected approval does not email anyone', async () => {
+      db.currentUserId = MEMBER_B
+
+      await service.approveJoinRequest(requestId)
+
+      expect(db.joinApprovedEmails).toEqual([])
+    })
+
+    it('a failed email still leaves the approval successful', async () => {
+      db.joinApprovedEmailError = 'Brevo is down'
+
+      const result = await service.approveJoinRequest(requestId)
+
+      expect(result.success).toBe(true)
+      const members = await service.getGroupMembers(groupId)
+      expect(members.data.some((m) => m.userId === OUTSIDER)).toBe(true)
+    })
+
     it('the requesting user sees their own pending request', async () => {
       db.currentUserId = OUTSIDER
 

@@ -693,6 +693,11 @@ export class MockDatabase implements Database {
     return { data: { success: true }, error: null }
   }
 
+  async sendJoinApprovedEmail(_requestId: string): Promise<DatabaseResult<{ sent: boolean }>> {
+    // No edge function in mock mode — pretend the mail went out.
+    return { data: { sent: true }, error: null }
+  }
+
   async getMyPendingJoinRequests(): Promise<DatabaseListResult<MyPendingJoinRequest>> {
     const requests = this.joinRequests
       .filter((r) => r.userId === MOCK_USER_ID && r.status === 'pending')

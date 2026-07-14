@@ -1480,6 +1480,26 @@ export class SupabaseDatabase implements Database {
     }
   }
 
+  async sendJoinApprovedEmail(requestId: string): Promise<DatabaseResult<{ sent: boolean }>> {
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase.functions.invoke('send-join-approved-email', {
+        body: { requestId },
+      })
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: { sent: data?.sent ?? false }, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to send join approved email',
+      }
+    }
+  }
+
   async getMyPendingJoinRequests(): Promise<DatabaseListResult<MyPendingJoinRequest>> {
     try {
       const supabase = getSupabase()
