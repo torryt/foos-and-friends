@@ -79,6 +79,13 @@ const TeamCard = ({
   </div>
 )
 
+// Only allow positive integers
+const handleScoreChange = (value: string, setter: (value: string) => void) => {
+  if (value === '' || (/^\d+$/.test(value) && Number.parseInt(value, 10) >= 0)) {
+    setter(value)
+  }
+}
+
 export const ScoreEntryStep = ({
   teams,
   onBack,
@@ -101,13 +108,6 @@ export const ScoreEntryStep = ({
   const { isOnline } = useOfflineStatus()
   const team1Id = useId()
   const team2Id = useId()
-
-  const handleScoreChange = (value: string, setter: (value: string) => void) => {
-    // Only allow positive integers
-    if (value === '' || (/^\d+$/.test(value) && Number.parseInt(value, 10) >= 0)) {
-      setter(value)
-    }
-  }
 
   const isFreeEntryValid = score1 !== '' && score2 !== '' && score1 !== score2
   const isValid = freeEntry ? isFreeEntryValid : winner !== null && loserScore !== null

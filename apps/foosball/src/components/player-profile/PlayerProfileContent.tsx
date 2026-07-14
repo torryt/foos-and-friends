@@ -173,8 +173,8 @@ export function PlayerProfileContent({
   const winRate =
     player.matchesPlayed > 0 ? Math.round((player.wins / player.matchesPlayed) * 100) : 0
 
-  const handleUpdatePlayer = async (playerId: string, updates: Partial<typeof player>) => {
-    await onUpdatePlayer?.(playerId, updates)
+  const handleUpdatePlayer = async (targetPlayerId: string, updates: Partial<typeof player>) => {
+    await onUpdatePlayer?.(targetPlayerId, updates)
   }
 
   return (

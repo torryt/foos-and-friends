@@ -143,6 +143,16 @@ const MobileMatchRow = ({ match, seasonTag, onPlayerClick }: MobileMatchRowProps
   )
 }
 
+// Helper function to check if a player participated in a match
+const playerInMatch = (match: Match, playerId: string): boolean => {
+  return (
+    match.team1[0].id === playerId ||
+    match.team1[1]?.id === playerId ||
+    match.team2[0].id === playerId ||
+    match.team2[1]?.id === playerId
+  )
+}
+
 const MatchHistory = ({
   matches,
   allMatches,
@@ -169,16 +179,6 @@ const MatchHistory = ({
       setSelectedPlayer(null)
     }
   }, [players, selectedPlayer])
-
-  // Helper function to check if a player participated in a match
-  const playerInMatch = (match: Match, playerId: string): boolean => {
-    return (
-      match.team1[0].id === playerId ||
-      match.team1[1]?.id === playerId ||
-      match.team2[0].id === playerId ||
-      match.team2[1]?.id === playerId
-    )
-  }
 
   const showScopeToggle = !!allMatches && seasons.length > 1
   const allTime = scope === 'allTime' && !!allMatches

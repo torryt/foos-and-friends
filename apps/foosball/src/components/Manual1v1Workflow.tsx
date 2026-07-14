@@ -21,6 +21,13 @@ interface Manual1v1WorkflowProps {
 
 type Step = 'selection' | 'score'
 
+// Only allow positive integers
+const handleScoreChange = (value: string, setter: (value: string) => void) => {
+  if (value === '' || (/^\d+$/.test(value) && Number.parseInt(value, 10) >= 0)) {
+    setter(value)
+  }
+}
+
 export const Manual1v1Workflow = ({
   players,
   addMatch,
@@ -52,12 +59,6 @@ export const Manual1v1Workflow = ({
       return
     }
     setStep('score')
-  }
-
-  const handleScoreChange = (value: string, setter: (value: string) => void) => {
-    if (value === '' || (/^\d+$/.test(value) && Number.parseInt(value, 10) >= 0)) {
-      setter(value)
-    }
   }
 
   const handleSubmit = async () => {

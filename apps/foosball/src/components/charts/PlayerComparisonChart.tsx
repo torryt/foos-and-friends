@@ -32,6 +32,24 @@ interface ChartDataPoint {
   [playerId: string]: number
 }
 
+// One rendered series — dataKey is the playerId the line was keyed by
+interface ComparisonSeriesEntry {
+  dataKey: string
+  color: string
+  value: number
+}
+
+interface ComparisonTooltipProps {
+  active?: boolean
+  // Recharts types the axis label loosely; ours is the match number
+  label?: string | number
+  payload?: readonly ComparisonSeriesEntry[]
+}
+
+interface ComparisonLegendProps {
+  payload?: Omit<ComparisonSeriesEntry, 'value'>[]
+}
+
 export function PlayerComparisonChart({
   histories,
   height = 300,
@@ -114,8 +132,7 @@ export function PlayerComparisonChart({
   }
 
   // Custom tooltip component
-  // biome-ignore lint/suspicious/noExplicitAny: Recharts requires any for custom components
-  const renderCustomTooltip = (props: any) => {
+  const renderCustomTooltip = (props: ComparisonTooltipProps) => {
     const { active, payload, label } = props
     if (active && payload && payload.length > 0) {
       return (
@@ -123,22 +140,20 @@ export function PlayerComparisonChart({
           <p className="text-xs font-medium text-primary mb-2">
             {label === 0 ? 'Starting Rankings' : `After Match #${label}`}
           </p>
-          {payload.map(
-            (entry: { dataKey: string; color: string; value: number }, _index: number) => {
-              const history = histories.find((h) => h.playerId === entry.dataKey)
-              if (!history) return null
+          {payload.map((entry) => {
+            const history = histories.find((h) => h.playerId === entry.dataKey)
+            if (!history) return null
 
-              return (
-                <div key={entry.dataKey} className="flex items-center gap-2 mb-1">
-                  <span className="text-sm">{history.playerAvatar}</span>
-                  <span className="text-xs text-secondary">{history.playerName}:</span>
-                  <span className="text-sm font-bold" style={{ color: entry.color }}>
-                    {entry.value} pts
-                  </span>
-                </div>
-              )
-            },
-          )}
+            return (
+              <div key={entry.dataKey} className="flex items-center gap-2 mb-1">
+                <span className="text-sm">{history.playerAvatar}</span>
+                <span className="text-xs text-secondary">{history.playerName}:</span>
+                <span className="text-sm font-bold" style={{ color: entry.color }}>
+                  {entry.value} pts
+                </span>
+              </div>
+            )
+          })}
         </div>
       )
     }
@@ -146,13 +161,12 @@ export function PlayerComparisonChart({
   }
 
   // Custom legend component
-  // biome-ignore lint/suspicious/noExplicitAny: Recharts requires any for custom components
-  const renderCustomLegend = (props: any) => {
+  const renderCustomLegend = (props: ComparisonLegendProps) => {
     const { payload } = props
     if (!payload) return null
     return (
       <div className="flex flex-wrap justify-center gap-3 mt-4">
-        {payload.map((entry: { dataKey: string; color: string }, _index: number) => {
+        {payload.map((entry) => {
           const history = histories.find((h) => h.playerId === entry.dataKey)
           if (!history) return null
 

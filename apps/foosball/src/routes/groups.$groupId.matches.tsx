@@ -41,10 +41,10 @@ function MemberMatches() {
     // Full history is only fetched (once, then cached) on the all-time tab
   } = useGameLogic({ includeAllMatches: scope === 'allTime' })
 
-  const handlePlayerClick = (playerId: string) => {
+  const handlePlayerClick = (targetPlayerId: string) => {
     navigate({
       to: '/groups/$groupId/players/$playerId',
-      params: { groupId, playerId },
+      params: { groupId, playerId: targetPlayerId },
     })
   }
 

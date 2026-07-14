@@ -139,8 +139,8 @@ export const useRelationshipStats = (
 
     // Convert maps to arrays with player info
     const teammates: RelationshipStats[] = Array.from(teammateStats.entries())
-      .map(([playerId, stats]) => {
-        const player = players.find((p) => p.id === playerId)
+      .map(([relatedId, stats]) => {
+        const player = players.find((p) => p.id === relatedId)
         if (!player) return null
 
         const recentForm = stats.recentGames
@@ -148,7 +148,7 @@ export const useRelationshipStats = (
           .map((game) => (game.won ? 'W' : 'L'))
 
         return {
-          playerId,
+          playerId: relatedId,
           playerName: player.name,
           playerAvatar: player.avatar,
           gamesPlayed: stats.gamesPlayed,
@@ -163,8 +163,8 @@ export const useRelationshipStats = (
       .toSorted((a, b) => b.gamesPlayed - a.gamesPlayed) // Sort by games played desc
 
     const opponents: RelationshipStats[] = Array.from(opponentStats.entries())
-      .map(([playerId, stats]) => {
-        const player = players.find((p) => p.id === playerId)
+      .map(([relatedId, stats]) => {
+        const player = players.find((p) => p.id === relatedId)
         if (!player) return null
 
         const recentForm = stats.recentGames
@@ -172,7 +172,7 @@ export const useRelationshipStats = (
           .map((game) => (game.won ? 'W' : 'L'))
 
         return {
-          playerId,
+          playerId: relatedId,
           playerName: player.name,
           playerAvatar: player.avatar,
           gamesPlayed: stats.gamesPlayed,

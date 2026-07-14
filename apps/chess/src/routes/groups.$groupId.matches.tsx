@@ -38,10 +38,10 @@ function MemberMatches() {
     dismissMilestone,
   } = useGameLogic()
 
-  const handlePlayerClick = (playerId: string) => {
+  const handlePlayerClick = (targetPlayerId: string) => {
     navigate({
       to: '/groups/$groupId/players/$playerId',
-      params: { groupId, playerId },
+      params: { groupId, playerId: targetPlayerId },
     })
   }
 

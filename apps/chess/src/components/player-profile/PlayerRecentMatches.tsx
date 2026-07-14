@@ -17,6 +17,47 @@ interface PlayerRecentMatchesProps {
   onPlayerClick?: (playerId: string) => void
 }
 
+// Team1[0] and Team2[0] are White, Team1[1] and Team2[1] are Black
+function getPlayerColor(match: Match, playerId: string) {
+  if (match.team1[0].id === playerId || match.team2[0].id === playerId) return 'white'
+  if (match.team1[1]?.id === playerId || match.team2[1]?.id === playerId) return 'black'
+  return 'white'
+}
+
+function getTeammate(match: Match, playerId: string, players: Player[]) {
+  if (match.team1[0].id === playerId) {
+    const teammateId = match.team1[1]?.id
+    return teammateId ? players.find((p) => p.id === teammateId) : null
+  }
+  if (match.team1[1]?.id === playerId) {
+    const teammateId = match.team1[0].id
+    return players.find((p) => p.id === teammateId)
+  }
+  if (match.team2[0].id === playerId) {
+    const teammateId = match.team2[1]?.id
+    return teammateId ? players.find((p) => p.id === teammateId) : null
+  }
+  if (match.team2[1]?.id === playerId) {
+    const teammateId = match.team2[0].id
+    return players.find((p) => p.id === teammateId)
+  }
+  return null
+}
+
+function getOpponents(match: Match, playerId: string, players: Player[]) {
+  const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+  const opponentTeam = wasInTeam1 ? match.team2 : match.team1
+  return opponentTeam
+    .filter((p): p is NonNullable<typeof p> => p !== null)
+    .map((p) => players.find((player) => player.id === p.id))
+    .filter(Boolean)
+}
+
+function didWin(match: Match, playerId: string) {
+  const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+  return wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
+}
+
 export function PlayerRecentMatches({
   playerId,
   players,
@@ -43,47 +84,6 @@ export function PlayerRecentMatches({
       const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
       return sortNewestFirst ? timeB - timeA : timeA - timeB
     })
-
-  const getPlayerColor = (match: Match, playerId: string) => {
-    // Team1[0] and Team2[0] are White, Team1[1] and Team2[1] are Black
-    if (match.team1[0].id === playerId || match.team2[0].id === playerId) return 'white'
-    if (match.team1[1]?.id === playerId || match.team2[1]?.id === playerId) return 'black'
-    return 'white'
-  }
-
-  const getTeammate = (match: Match, playerId: string) => {
-    if (match.team1[0].id === playerId) {
-      const teammateId = match.team1[1]?.id
-      return teammateId ? players.find((p) => p.id === teammateId) : null
-    }
-    if (match.team1[1]?.id === playerId) {
-      const teammateId = match.team1[0].id
-      return players.find((p) => p.id === teammateId)
-    }
-    if (match.team2[0].id === playerId) {
-      const teammateId = match.team2[1]?.id
-      return teammateId ? players.find((p) => p.id === teammateId) : null
-    }
-    if (match.team2[1]?.id === playerId) {
-      const teammateId = match.team2[0].id
-      return players.find((p) => p.id === teammateId)
-    }
-    return null
-  }
-
-  const getOpponents = (match: Match, playerId: string) => {
-    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
-    const opponentTeam = wasInTeam1 ? match.team2 : match.team1
-    return opponentTeam
-      .filter((p): p is NonNullable<typeof p> => p !== null)
-      .map((p) => players.find((player) => player.id === p.id))
-      .filter(Boolean)
-  }
-
-  const didWin = (match: Match, playerId: string) => {
-    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
-    return wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
-  }
 
   return (
     <Card className="p-4 bg-white/80 backdrop-blur-sm">
@@ -124,8 +124,8 @@ export function PlayerRecentMatches({
           playerMatches.map((match) => {
             const won = didWin(match, playerId)
             const color = getPlayerColor(match, playerId)
-            const teammate = getTeammate(match, playerId)
-            const opponents = getOpponents(match, playerId)
+            const teammate = getTeammate(match, playerId, players)
+            const opponents = getOpponents(match, playerId, players)
             // const wasInTeam1 = match.team1[0].id === playerId || match.team1[1].id === playerId
             const score = `${match.score1}-${match.score2}`
 

@@ -31,8 +31,8 @@ function MemberPlayerProfile() {
       seasonName={currentSeason?.name}
       loading={loading}
       canEdit={true} // For now, assume current user can edit
-      onUpdatePlayer={async (playerId, updates) => {
-        await updatePlayer(playerId, updates)
+      onUpdatePlayer={async (targetPlayerId, updates) => {
+        await updatePlayer(targetPlayerId, updates)
       }}
     />
   )
