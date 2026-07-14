@@ -266,54 +266,65 @@ describe('PlayerRankings', () => {
   })
 })
 
-describe('computeAllPlayerMatchStats', () => {
-  // Reference implementation matching the old per-player computeStreaks +
-  // per-player goal-difference reduction this helper replaces, so we can
-  // verify the single O(matches) pass produces identical results.
-  const referenceStreaksAndGoalDiff = (
-    playerId: string,
-    matches: Match[],
-  ): { longestWinStreak: number; longestLoseStreak: number; goalDifference: number } => {
-    const playerMatches = matches
-      .filter(
-        (match) =>
-          match.team1[0].id === playerId ||
-          match.team1[1]?.id === playerId ||
-          match.team2[0].id === playerId ||
-          match.team2[1]?.id === playerId,
-      )
-      .toReversed() // oldest first
+// Reference implementation matching the old per-player computeStreaks +
+// per-player goal-difference reduction this helper replaces, so we can
+// verify the single O(matches) pass produces identical results.
+const referenceStreaksAndGoalDiff = (
+  playerId: string,
+  matches: Match[],
+): { longestWinStreak: number; longestLoseStreak: number; goalDifference: number } => {
+  const playerMatches = matches
+    .filter(
+      (match) =>
+        match.team1[0].id === playerId ||
+        match.team1[1]?.id === playerId ||
+        match.team2[0].id === playerId ||
+        match.team2[1]?.id === playerId,
+    )
+    .toReversed() // oldest first
 
-    let longestWinStreak = 0
-    let longestLoseStreak = 0
-    let currentWinStreak = 0
-    let currentLoseStreak = 0
-    let goalDifference = 0
+  let longestWinStreak = 0
+  let longestLoseStreak = 0
+  let currentWinStreak = 0
+  let currentLoseStreak = 0
+  let goalDifference = 0
 
-    for (const match of playerMatches) {
-      const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
-      const playerScore = wasInTeam1 ? match.score1 : match.score2
-      const opponentScore = wasInTeam1 ? match.score2 : match.score1
-      goalDifference += playerScore - opponentScore
+  for (const match of playerMatches) {
+    const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
+    const playerScore = wasInTeam1 ? match.score1 : match.score2
+    const opponentScore = wasInTeam1 ? match.score2 : match.score1
+    goalDifference += playerScore - opponentScore
 
-      if (playerScore > opponentScore) {
-        currentWinStreak += 1
-        currentLoseStreak = 0
-      } else if (playerScore < opponentScore) {
-        currentLoseStreak += 1
-        currentWinStreak = 0
-      } else {
-        currentWinStreak = 0
-        currentLoseStreak = 0
-      }
-
-      longestWinStreak = Math.max(longestWinStreak, currentWinStreak)
-      longestLoseStreak = Math.max(longestLoseStreak, currentLoseStreak)
+    if (playerScore > opponentScore) {
+      currentWinStreak += 1
+      currentLoseStreak = 0
+    } else if (playerScore < opponentScore) {
+      currentLoseStreak += 1
+      currentWinStreak = 0
+    } else {
+      currentWinStreak = 0
+      currentLoseStreak = 0
     }
 
-    return { longestWinStreak, longestLoseStreak, goalDifference }
+    longestWinStreak = Math.max(longestWinStreak, currentWinStreak)
+    longestLoseStreak = Math.max(longestLoseStreak, currentLoseStreak)
   }
 
+  return { longestWinStreak, longestLoseStreak, goalDifference }
+}
+
+const asPlayer = (id: string): Player => ({
+  id,
+  name: id,
+  ranking: 1200,
+  matchesPlayed: 0,
+  wins: 0,
+  losses: 0,
+  avatar: '🙂',
+  department: '',
+})
+
+describe('computeAllPlayerMatchStats', () => {
   const playerIds = ['p1', 'p2', 'p3', 'p4', 'p5']
 
   // 30 synthetic matches across a mix of 1v1 and 2v2, with varied scores
@@ -326,17 +337,6 @@ describe('computeAllPlayerMatchStats', () => {
     const d = playerIds[(i + 3) % playerIds.length]
     const score1 = (i * 7) % 11
     const score2 = (i * 3 + 2) % 11
-
-    const asPlayer = (id: string): Player => ({
-      id,
-      name: id,
-      ranking: 1200,
-      matchesPlayed: 0,
-      wins: 0,
-      losses: 0,
-      avatar: '🙂',
-      department: '',
-    })
 
     return {
       id: `synthetic-${i}`,

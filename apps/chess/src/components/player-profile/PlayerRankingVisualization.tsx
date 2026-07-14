@@ -107,15 +107,15 @@ export function PlayerRankingVisualization({
     setShowComparison(!showComparison)
   }
 
-  const handleAddComparePlayer = (playerId: string) => {
-    if (!comparePlayerIds.includes(playerId) && comparePlayerIds.length < 5) {
-      setComparePlayerIds([...comparePlayerIds, playerId])
+  const handleAddComparePlayer = (compareId: string) => {
+    if (!comparePlayerIds.includes(compareId) && comparePlayerIds.length < 5) {
+      setComparePlayerIds([...comparePlayerIds, compareId])
     }
     setShowPlayerSelector(false)
   }
 
-  const handleRemoveComparePlayer = (playerId: string) => {
-    setComparePlayerIds(comparePlayerIds.filter((id) => id !== playerId))
+  const handleRemoveComparePlayer = (compareId: string) => {
+    setComparePlayerIds(comparePlayerIds.filter((id) => id !== compareId))
   }
 
   if (!mainPlayerHistory[0]) return null

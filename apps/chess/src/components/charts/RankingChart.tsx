@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { PlayerRankingHistory } from '@/hooks/useRankingHistory'
+import type { PlayerRankingHistory, RankingDataPoint } from '@/hooks/useRankingHistory'
 
 export interface SeasonMarker {
   /** matchNumber of the first match played in this season */
@@ -26,9 +26,20 @@ interface RankingChartProps {
   seasonMarkers?: SeasonMarker[]
 }
 
+type ChartTheme = ReturnType<typeof useChartTheme>
+
+// The series also carries a synthetic match #0 point for the starting ranking,
+// which has no result or score
+type ChartPoint = Partial<RankingDataPoint> & { matchNumber: number; ranking: number }
+
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: { payload: ChartPoint }[]
+  chartTheme: ChartTheme
+}
+
 // Custom tooltip component moved outside to avoid recreation
-// biome-ignore lint/suspicious/noExplicitAny: Recharts requires any for custom components
-const CustomTooltip = ({ active, payload, chartTheme }: any) => {
+const CustomTooltip = ({ active, payload, chartTheme }: CustomTooltipProps) => {
   if (active && payload && payload[0]) {
     const data = payload[0].payload
     if (data.matchNumber === 0) {
@@ -62,6 +73,13 @@ const CustomTooltip = ({ active, payload, chartTheme }: any) => {
     )
   }
   return null
+}
+
+interface RankingDotProps {
+  cx?: number
+  cy?: number
+  index?: number
+  payload?: ChartPoint
 }
 
 export function RankingChart({
@@ -207,8 +225,7 @@ export function RankingChart({
               fillOpacity={1}
               fill={`url(#colorRanking-${chartId})`}
               animationDuration={500}
-              // biome-ignore lint/suspicious/noExplicitAny: Recharts requires any for custom components
-              dot={(props: any) => {
+              dot={(props: RankingDotProps) => {
                 const { cx, cy, payload, index } = props
                 if (!cx || !cy || !payload || payload.matchNumber === 0) {
                   return <circle key={`dot-${index}`} cx={0} cy={0} r={0} fill="transparent" />
