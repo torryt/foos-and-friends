@@ -25,8 +25,8 @@ interface RelationshipCardProps {
 
 function RelationshipCard({ relationship, badge, rank, onPlayerClick }: RelationshipCardProps) {
   const { groupId } = useParams({ from: '/groups/$groupId' })
-  const getBadgeInfo = (badge: string | null) => {
-    switch (badge) {
+  const getBadgeInfo = (badgeIn: string | null) => {
+    switch (badgeIn) {
       case 'best':
         return { icon: Crown, text: 'Best Partner', color: 'text-[var(--th-draw)] bg-card-hover' }
       case 'worst':
