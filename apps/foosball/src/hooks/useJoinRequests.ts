@@ -22,7 +22,9 @@ export function useJoinRequests() {
       return result.data
     },
     enabled: isAdminOfAnyGroup,
-    staleTime: POLL_INTERVAL_MS,
+    // Always stale, so focusing the window refetches immediately — the bell
+    // should never show a stale count when the admin comes back to the tab.
+    staleTime: 0,
     refetchInterval: POLL_INTERVAL_MS,
     refetchOnWindowFocus: true,
   })

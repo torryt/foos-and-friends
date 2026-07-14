@@ -1,4 +1,5 @@
 import { ResetPasswordPage, ThemeProvider } from '@foos/shared'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { GroupProvider } from '@/contexts/GroupContext'
 import { SeasonProvider } from '@/contexts/SeasonContext'
@@ -8,6 +9,8 @@ import { routeTree } from '@/routeTree.gen'
 const router = createRouter({
   routeTree,
 })
+
+const queryClient = new QueryClient()
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
@@ -33,11 +36,13 @@ function App() {
   // tolerate an unauthenticated session (they just hold no groups).
   return (
     <ThemeProvider>
-      <GroupProvider>
-        <SeasonProvider>
-          <RouterProvider router={router} />
-        </SeasonProvider>
-      </GroupProvider>
+      <QueryClientProvider client={queryClient}>
+        <GroupProvider>
+          <SeasonProvider>
+            <RouterProvider router={router} />
+          </SeasonProvider>
+        </GroupProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   )
 }
