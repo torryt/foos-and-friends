@@ -166,6 +166,31 @@ export const PickTeamsWorkflow = ({
     setStep('score')
   }
 
+  // Apply the current swap flags to produce the lineup the user actually sees/registers
+  const getEffectiveTeams = (): TeamAssignment | null => {
+    if (!matchmakingResult) return null
+    return {
+      team1: {
+        attacker: team1Swapped
+          ? matchmakingResult.team1.defender
+          : matchmakingResult.team1.attacker,
+        defender: team1Swapped
+          ? matchmakingResult.team1.attacker
+          : matchmakingResult.team1.defender,
+      },
+      team2: {
+        attacker: team2Swapped
+          ? matchmakingResult.team2.defender
+          : matchmakingResult.team2.attacker,
+        defender: team2Swapped
+          ? matchmakingResult.team2.attacker
+          : matchmakingResult.team2.defender,
+      },
+      rankingDifference: matchmakingResult.rankingDifference,
+      confidence: matchmakingResult.confidence,
+    }
+  }
+
   const handleSwapTeam = (teamNumber: 1 | 2) => {
     if (!matchmakingResult) return
 
@@ -229,27 +254,14 @@ export const PickTeamsWorkflow = ({
   }
 
   const handleAddMatch = async (score1: string, score2: string) => {
-    if (!matchmakingResult) return
-
-    // Get the actual positions after swapping
-    const team1Attacker = team1Swapped
-      ? matchmakingResult.team1.defender
-      : matchmakingResult.team1.attacker
-    const team1Defender = team1Swapped
-      ? matchmakingResult.team1.attacker
-      : matchmakingResult.team1.defender
-    const team2Attacker = team2Swapped
-      ? matchmakingResult.team2.defender
-      : matchmakingResult.team2.attacker
-    const team2Defender = team2Swapped
-      ? matchmakingResult.team2.attacker
-      : matchmakingResult.team2.defender
+    const teams = getEffectiveTeams()
+    if (!teams) return
 
     const result = await addMatch(
-      team1Attacker.id,
-      team1Defender.id,
-      team2Attacker.id,
-      team2Defender.id,
+      teams.team1.attacker.id,
+      teams.team1.defender.id,
+      teams.team2.attacker.id,
+      teams.team2.defender.id,
       score1,
       score2,
     )
@@ -263,12 +275,16 @@ export const PickTeamsWorkflow = ({
   }
 
   if (step === 'score' && matchmakingResult) {
+    const effectiveTeams = getEffectiveTeams()
+    if (!effectiveTeams) return null
     return (
       <ScoreEntryStep
-        teams={matchmakingResult}
+        teams={effectiveTeams}
         onBack={() => setStep('result')}
         onClose={onClose}
         onSubmit={handleAddMatch}
+        onSwapTeam1={() => handleSwapTeam(1)}
+        onSwapTeam2={() => handleSwapTeam(2)}
       />
     )
   }
