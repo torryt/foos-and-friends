@@ -84,7 +84,9 @@ test('registers a match via Pick Teams Smartly', async ({ page }) => {
   await sheet.getByRole('button', { name: 'Register Score' }).click()
 
   await expect(sheet.getByText('Who won?')).toBeVisible()
-  await sheet.getByRole('button', { name: /Team 2/ }).click()
+  // Anchor on ^Team 2 so we hit the winner card, not the sibling
+  // "Swap positions for Team 2" button that shares the /Team 2/ substring.
+  await sheet.getByRole('button', { name: /^Team 2/ }).click()
   await sheet.getByRole('button', { name: '3', exact: true }).click()
   await sheet.getByRole('button', { name: 'Register 3 – 10' }).click()
 
