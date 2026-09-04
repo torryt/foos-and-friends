@@ -104,6 +104,7 @@ export class MockDatabase implements Database {
     if (updates.name !== undefined) group.name = updates.name
     if (updates.description !== undefined) group.description = updates.description
     if (updates.targetScore !== undefined) group.targetScore = updates.targetScore
+    if (updates.placementMatches !== undefined) group.placementMatches = updates.placementMatches
     group.updatedAt = new Date().toISOString()
     return { data: { ...group }, error: null }
   }
@@ -146,6 +147,7 @@ export class MockDatabase implements Database {
       sportType,
       supportedMatchTypes,
       targetScore: 10,
+      placementMatches: 0,
       joinPolicy: 'approval',
       isPublic: false,
     })
@@ -473,6 +475,7 @@ export class MockDatabase implements Database {
           supportedMatchTypes: group.supportedMatchTypes,
           targetScore: group.targetScore,
           joinPolicy: group.joinPolicy,
+          placementMatches: group.placementMatches,
         },
         seasons: this.seasons
           .filter((s) => s.groupId === group.id)

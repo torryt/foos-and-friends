@@ -132,6 +132,9 @@ export interface FriendGroup {
   targetScore: number // Points needed to win a game in this group
   joinPolicy: JoinPolicy // open = invite link joins immediately; approval = admin approves
   isPublic: boolean // Whether the read-only public page is enabled
+  // Matches a player must play (per scope) before appearing on ranking
+  // tables; 0 disables the feature.
+  placementMatches: number
 }
 
 export type GroupRole = 'owner' | 'admin' | 'member'
@@ -298,6 +301,7 @@ export interface PublicGroupInfo {
   supportedMatchTypes: MatchType[]
   targetScore: number
   joinPolicy: JoinPolicy
+  placementMatches: number
 }
 
 // Minimal landing payload for a non-member visiting a group URL (works for

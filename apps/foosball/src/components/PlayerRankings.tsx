@@ -17,6 +17,9 @@ interface PlayerRankingsProps {
   title?: string
   subtitle?: string
   sortBy?: SortOption
+  // Matches a player must play (in the current scope) before showing up in
+  // the main list; 0 falls back to the old "at least 1 game" behavior.
+  placementMatches?: number
 }
 
 interface PlayerWithStats extends Player {
@@ -234,6 +237,7 @@ const PlayerRankings = ({
   title = 'Friend Rankings',
   subtitle = 'See how you stack up against your friends!',
   sortBy = 'elo',
+  placementMatches = 0,
 }: PlayerRankingsProps) => {
   const [showInactive, setShowInactive] = useState(false)
 
@@ -328,10 +332,14 @@ const PlayerRankings = ({
     }
   }, [playersWithStats, sortBy])
 
-  // Players with no games in the current scope are hidden by default; a
+  // Players who haven't cleared the group's placement-match threshold (or,
+  // with no threshold set, simply have no games) are hidden by default; a
   // footer button reveals them below the active list.
-  const activePlayers = sortedPlayers.filter((player) => player.matchesPlayed > 0)
-  const inactivePlayers = sortedPlayers.filter((player) => player.matchesPlayed === 0)
+  const placementThreshold = Math.max(placementMatches, 1)
+  const activePlayers = sortedPlayers.filter((player) => player.matchesPlayed >= placementThreshold)
+  const inactivePlayers = sortedPlayers.filter(
+    (player) => player.matchesPlayed < placementThreshold,
+  )
   const visiblePlayers = showInactive ? [...activePlayers, ...inactivePlayers] : activePlayers
 
   return (
@@ -373,8 +381,8 @@ const PlayerRankings = ({
               className="w-full py-3 text-sm text-secondary hover:bg-card-hover rounded-lg transition-colors"
             >
               {showInactive
-                ? 'Hide players without games'
-                : `Show ${inactivePlayers.length} ${inactivePlayers.length === 1 ? 'player' : 'players'} without games`}
+                ? 'Hide unranked players'
+                : `Show ${inactivePlayers.length} unranked ${inactivePlayers.length === 1 ? 'player' : 'players'}`}
             </button>
           )}
         </div>

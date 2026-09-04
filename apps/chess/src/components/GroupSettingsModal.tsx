@@ -8,6 +8,8 @@ import { groupService } from '@/lib/init'
 import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
 import { NewSeasonWizard } from './NewSeasonWizard'
 
+const PLACEMENT_MATCHES_PRESETS = [0, 3, 5, 10]
+
 interface GroupSettingsModalProps {
   isOpen: boolean
   onClose: () => void
@@ -17,11 +19,15 @@ interface GroupSettingsModalProps {
 export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModalProps) => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [placementMatches, setPlacementMatches] = useState(0)
+  const [customPlacementMatches, setCustomPlacementMatches] = useState('')
+  const [useCustomPlacementMatches, setUseCustomPlacementMatches] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showSeasonWizard, setShowSeasonWizard] = useState(false)
   const nameId = useId()
   const descriptionId = useId()
+  const customPlacementMatchesId = useId()
 
   // Sharing settings (owner + admins)
   const [isPublic, setIsPublic] = useState(false)
@@ -46,6 +52,10 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
     if (isOpen && group) {
       setName(group.name)
       setDescription(group.description || '')
+      setPlacementMatches(group.placementMatches)
+      const isPlacementPreset = PLACEMENT_MATCHES_PRESETS.includes(group.placementMatches)
+      setUseCustomPlacementMatches(!isPlacementPreset)
+      setCustomPlacementMatches(isPlacementPreset ? '' : String(group.placementMatches))
       setIsPublic(group.isPublic)
       setJoinPolicy(group.joinPolicy)
       setError(null)
@@ -101,6 +111,14 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
     }
   }
 
+  const effectivePlacementMatches = useCustomPlacementMatches
+    ? Number.parseInt(customPlacementMatches, 10)
+    : placementMatches
+  const isPlacementMatchesValid =
+    Number.isInteger(effectivePlacementMatches) &&
+    effectivePlacementMatches >= 0 &&
+    effectivePlacementMatches <= 50
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -115,6 +133,11 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
       return
     }
 
+    if (!isPlacementMatchesValid) {
+      setError('Placement matches must be between 0 and 50')
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -122,6 +145,7 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
       const result = await updateGroup(group.id, {
         name: name.trim(),
         description: description.trim() || null,
+        placementMatches: effectivePlacementMatches,
       })
 
       if (result.success) {
@@ -192,6 +216,69 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
               disabled={isLoading || !isOwner}
               maxLength={200}
             />
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-primary mb-1">Placement matches</span>
+            <p className="text-xs text-secondary mb-2">
+              New players are hidden from ranking tables until they've played this many matches. Set
+              to 0 to disable.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {PLACEMENT_MATCHES_PRESETS.map((preset) => {
+                const isSelected = !useCustomPlacementMatches && placementMatches === preset
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    disabled={isLoading || !isOwner}
+                    onClick={() => {
+                      setPlacementMatches(preset)
+                      setUseCustomPlacementMatches(false)
+                    }}
+                    className={`min-w-12 min-h-11 px-4 py-2 rounded-[var(--th-radius-md)] border font-semibold transition-colors disabled:opacity-50 ${
+                      isSelected
+                        ? 'bg-[var(--th-sport-primary)] text-white border-transparent'
+                        : 'bg-card border-[var(--th-border)] text-primary hover:bg-card-hover'
+                    }`}
+                  >
+                    {preset}
+                  </button>
+                )
+              })}
+              <button
+                type="button"
+                disabled={isLoading || !isOwner}
+                onClick={() => setUseCustomPlacementMatches(true)}
+                className={`min-h-11 px-4 py-2 rounded-[var(--th-radius-md)] border font-semibold transition-colors disabled:opacity-50 ${
+                  useCustomPlacementMatches
+                    ? 'bg-[var(--th-sport-primary)] text-white border-transparent'
+                    : 'bg-card border-[var(--th-border)] text-primary hover:bg-card-hover'
+                }`}
+              >
+                Custom
+              </button>
+            </div>
+            {useCustomPlacementMatches && (
+              <div className="mt-2">
+                <label htmlFor={customPlacementMatchesId} className="sr-only">
+                  Custom placement matches
+                </label>
+                <input
+                  type="number"
+                  id={customPlacementMatchesId}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  min="0"
+                  max="50"
+                  value={customPlacementMatches}
+                  onChange={(e) => setCustomPlacementMatches(e.target.value)}
+                  placeholder="e.g. 7"
+                  className="w-24 px-3 py-2 border border-[var(--th-border)] rounded-[var(--th-radius-md)] text-center font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent disabled:opacity-60"
+                  disabled={isLoading || !isOwner}
+                />
+              </div>
+            )}
           </div>
 
           {canManageSharing && (
@@ -332,7 +419,7 @@ export const GroupSettingsModal = ({ isOpen, onClose, group }: GroupSettingsModa
             {isOwner && (
               <button
                 type="submit"
-                disabled={isLoading || !name.trim()}
+                disabled={isLoading || !name.trim() || !isPlacementMatchesValid}
                 className="flex-1 px-4 py-2 bg-[var(--th-sport-primary)] text-white rounded-[var(--th-radius-md)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
                 {isLoading ? (

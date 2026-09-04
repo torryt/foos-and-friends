@@ -31,6 +31,7 @@ function PublicTv() {
       players={players}
       seasonStats={seasonStats}
       currentSeason={currentSeason}
+      placementMatches={group?.placementMatches ?? 0}
       loading={loading || !group}
     />
   )
@@ -47,6 +48,7 @@ function MemberTv() {
       players={players}
       seasonStats={seasonStats}
       currentSeason={currentSeason}
+      placementMatches={currentGroup?.placementMatches ?? 0}
       loading={loading || !currentGroup}
     />
   )
@@ -66,6 +68,7 @@ interface TvLeaderboardProps {
   players: Player[]
   seasonStats: PlayerSeasonStats[]
   currentSeason: Season | null
+  placementMatches: number
   loading: boolean
 }
 
@@ -76,6 +79,7 @@ function TvLeaderboard({
   players,
   seasonStats,
   currentSeason,
+  placementMatches,
   loading,
 }: TvLeaderboardProps) {
   if (loading) {
@@ -86,9 +90,11 @@ function TvLeaderboard({
     )
   }
 
-  // Season leaderboard; players without a match this season are left out
+  // Season leaderboard; players without a match this season, or who haven't
+  // cleared the group's placement-match threshold, are left out
   const playersById = new Map(players.map((p) => [p.id, p]))
   const rows = seasonStats
+    .filter((stats) => stats.matchesPlayed >= placementMatches)
     .toSorted((a, b) => b.ranking - a.ranking)
     .map((stats) => ({ stats, player: playersById.get(stats.playerId) }))
     .filter((row) => row.player)

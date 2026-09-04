@@ -118,23 +118,23 @@ describe('PlayerRankings', () => {
       render(<PlayerRankings players={playersWithInactive} />)
 
       expect(screen.queryByText('Dana White')).not.toBeInTheDocument()
-      expect(screen.getByText('Show 1 player without games')).toBeInTheDocument()
+      expect(screen.getByText('Show 1 unranked player')).toBeInTheDocument()
     })
 
     test('reveals players with no games when the footer button is clicked', () => {
       render(<PlayerRankings players={playersWithInactive} />)
 
-      fireEvent.click(screen.getByText('Show 1 player without games'))
+      fireEvent.click(screen.getByText('Show 1 unranked player'))
 
       expect(screen.getByText('Dana White')).toBeInTheDocument()
-      expect(screen.getByText('Hide players without games')).toBeInTheDocument()
+      expect(screen.getByText('Hide unranked players')).toBeInTheDocument()
     })
 
     test('hides them again when toggled back', () => {
       render(<PlayerRankings players={playersWithInactive} />)
 
-      fireEvent.click(screen.getByText('Show 1 player without games'))
-      fireEvent.click(screen.getByText('Hide players without games'))
+      fireEvent.click(screen.getByText('Show 1 unranked player'))
+      fireEvent.click(screen.getByText('Hide unranked players'))
 
       expect(screen.queryByText('Dana White')).not.toBeInTheDocument()
     })
@@ -165,13 +165,13 @@ describe('PlayerRankings', () => {
       expect(screen.getByText('Alice Johnson')).toBeInTheDocument()
       expect(screen.queryByText('Bob Smith')).not.toBeInTheDocument()
       expect(screen.queryByText('Charlie Brown')).not.toBeInTheDocument()
-      expect(screen.getByText('Show 3 players without games')).toBeInTheDocument()
+      expect(screen.getByText('Show 3 unranked players')).toBeInTheDocument()
     })
 
     test('shows no footer button when all players have games', () => {
       render(<PlayerRankings players={mockPlayers} />)
 
-      expect(screen.queryByText(/without games/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/unranked/)).not.toBeInTheDocument()
     })
   })
 
