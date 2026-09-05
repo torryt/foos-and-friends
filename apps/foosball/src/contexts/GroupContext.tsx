@@ -201,6 +201,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['2v2'],
           targetScore: 10,
+          placementMatches: 0,
           joinPolicy: 'approval',
           isPublic: false,
         }
@@ -258,6 +259,7 @@ export const GroupProvider = ({ children }: GroupProviderProps) => {
           playerCount: 0,
           supportedMatchTypes: ['2v2'],
           targetScore: 10,
+          placementMatches: 0,
           joinPolicy: 'approval',
           isPublic: false,
         }

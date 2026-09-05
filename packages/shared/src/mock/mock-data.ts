@@ -101,6 +101,7 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     sportType,
     supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
     targetScore: isChess ? 1 : 10,
+    placementMatches: 0,
     joinPolicy: 'open',
     isPublic: true,
   }
@@ -122,6 +123,7 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     sportType,
     supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
     targetScore: isChess ? 1 : 10,
+    placementMatches: 0,
     joinPolicy: 'approval',
     isPublic: true,
   }
@@ -142,6 +144,7 @@ export const buildMockSeed = (options?: MockSeedOptions): MockSeed => {
     sportType,
     supportedMatchTypes: isChess ? ['1v1'] : ['1v1', '2v2'],
     targetScore: isChess ? 1 : 10,
+    placementMatches: 0,
     joinPolicy: 'approval',
     isPublic: false,
   }

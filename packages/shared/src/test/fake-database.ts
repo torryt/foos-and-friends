@@ -116,6 +116,7 @@ export class FakeDatabase implements Database {
       sportType,
       supportedMatchTypes: ['2v2'],
       targetScore: 10,
+      placementMatches: 0,
       // Tests opt into 'approval' explicitly; 'open' keeps join-based setup terse
       joinPolicy: 'open',
       isPublic: false,
@@ -503,6 +504,7 @@ export class FakeDatabase implements Database {
           supportedMatchTypes: group.supportedMatchTypes,
           targetScore: group.targetScore,
           joinPolicy: group.joinPolicy,
+          placementMatches: group.placementMatches,
         },
         seasons: this.seasons.filter((s) => s.groupId === group.id),
         players: this.players.filter((p) => p.groupId === group.id),

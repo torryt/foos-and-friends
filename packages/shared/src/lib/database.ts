@@ -21,6 +21,7 @@ export interface GroupSettingsUpdate {
   name?: string
   description?: string | null
   targetScore?: number
+  placementMatches?: number
 }
 
 // Database operation results

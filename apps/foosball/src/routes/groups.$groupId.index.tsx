@@ -9,6 +9,7 @@ import { MilestoneCelebration } from '@/components/MilestoneCelebration'
 import PlayerRankings, { SORT_OPTIONS, useRankingSort } from '@/components/PlayerRankings'
 import QuickActions from '@/components/QuickActions'
 import { type RankingScope, SeasonScopePicker } from '@/components/SeasonScopePicker'
+import { useGroupContext } from '@/contexts/GroupContext'
 import { useGroupPageMode } from '@/contexts/GroupPageContext'
 import { usePublicGroup } from '@/contexts/PublicGroupContext'
 import { useSeasonContext } from '@/contexts/SeasonContext'
@@ -45,6 +46,7 @@ function MemberRankings() {
     // Full history is only fetched (once, then cached) when all-time is selected
   } = useGameLogic({ includeAllMatches: allTime })
   const { currentSeason, seasons } = useSeasonContext()
+  const { currentGroup } = useGroupContext()
 
   const isArchived = !!currentSeason && !currentSeason.isActive
   const showScopeToggle = seasons.length > 1
@@ -88,6 +90,7 @@ function MemberRankings() {
         matches={allTime ? allMatches : matches}
         onPlayerClick={handlePlayerCardClick}
         sortBy={sortBy}
+        placementMatches={currentGroup?.placementMatches}
         title={allTime ? 'All-Time Rankings' : isArchived ? 'Final Standings' : 'Friend Rankings'}
         subtitle={
           allTime
@@ -125,7 +128,7 @@ function PublicRankings() {
   const [scope, setScope] = useState<RankingScope>('season')
   const [sortBy, setSortBy] = useRankingSort()
 
-  const { players, seasonStats, seasonMatches, allMatches, seasons, currentSeason } =
+  const { group, players, seasonStats, seasonMatches, allMatches, seasons, currentSeason } =
     usePublicGroup()
 
   const isArchived = !!currentSeason && !currentSeason.isActive
@@ -161,6 +164,7 @@ function PublicRankings() {
         matches={allTime ? allMatches : seasonMatches}
         onPlayerClick={handlePlayerCardClick}
         sortBy={sortBy}
+        placementMatches={group?.placementMatches}
         title={allTime ? 'All-Time Rankings' : isArchived ? 'Final Standings' : 'Rankings'}
         subtitle={
           allTime

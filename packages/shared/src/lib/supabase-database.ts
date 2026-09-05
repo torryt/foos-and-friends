@@ -265,6 +265,7 @@ export class SupabaseDatabase implements Database {
         sportType: group.sport_type as SportType,
         supportedMatchTypes: (group.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (group.target_score as number) ?? 10,
+        placementMatches: (group.placement_matches as number) ?? 0,
         ...groupSharingFields(group),
       }))
 
@@ -302,6 +303,7 @@ export class SupabaseDatabase implements Database {
         sportType: data.sport_type as SportType,
         supportedMatchTypes: (data.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (data.target_score as number) ?? 10,
+        placementMatches: (data.placement_matches as number) ?? 0,
         ...groupSharingFields(data),
       }
 
@@ -342,6 +344,7 @@ export class SupabaseDatabase implements Database {
         sportType: groupData.sport_type as SportType,
         supportedMatchTypes: (groupData.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (groupData.target_score as number) ?? 10,
+        placementMatches: (groupData.placement_matches as number) ?? 0,
         ...groupSharingFields(groupData),
       }
 
@@ -424,6 +427,7 @@ export class SupabaseDatabase implements Database {
       if (updates.name !== undefined) row.name = updates.name
       if (updates.description !== undefined) row.description = updates.description
       if (updates.targetScore !== undefined) row.target_score = updates.targetScore
+      if (updates.placementMatches !== undefined) row.placement_matches = updates.placementMatches
 
       const { data, error } = await supabase
         .from('friend_groups')
@@ -450,6 +454,7 @@ export class SupabaseDatabase implements Database {
         sportType: data.sport_type as SportType,
         supportedMatchTypes: (data.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (data.target_score as number) ?? 10,
+        placementMatches: (data.placement_matches as number) ?? 0,
         ...groupSharingFields(data),
       }
 
@@ -1218,6 +1223,7 @@ export class SupabaseDatabase implements Database {
         supportedMatchTypes: (data.group.supported_match_types as MatchType[]) || ['2v2'],
         targetScore: (data.group.target_score as number) ?? 10,
         joinPolicy: (data.group.join_policy as JoinPolicy) ?? 'open',
+        placementMatches: (data.group.placement_matches as number) ?? 0,
       }
 
       return {
