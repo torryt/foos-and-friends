@@ -11,18 +11,39 @@ export const K_FACTOR_DRAW = 32 // Standard ELO K-factor for draws (remis)
 
 export type MatchResult = 'win' | 'loss' | 'draw'
 
+// Clamp a season ranking to the supported range.
+export const clampRanking = (ranking: number): number => Math.max(800, Math.min(2400, ranking))
+
+const kFor = (result: MatchResult): number =>
+  result === 'win' ? K_FACTOR_WINNER : result === 'loss' ? K_FACTOR_LOSER : K_FACTOR_DRAW
+
 // Calculate new season ranking using the inflationary ELO system.
-// Used when recording matches; stored per-match rankings come from this.
+// Used for 1v1 matches; stored per-match rankings come from this.
 export const calculateNewRanking = (
   playerRanking: number,
   opponentRanking: number,
   result: MatchResult,
 ): number => {
-  const K = result === 'win' ? K_FACTOR_WINNER : result === 'loss' ? K_FACTOR_LOSER : K_FACTOR_DRAW
+  const K = kFor(result)
   const expectedScore = 1 / (1 + 10 ** ((opponentRanking - playerRanking) / 400))
   const actualScore = result === 'win' ? 1 : result === 'draw' ? 0.5 : 0
-  const newRanking = playerRanking + K * (actualScore - expectedScore)
-  return Math.max(800, Math.min(2400, Math.round(newRanking)))
+  return clampRanking(Math.round(playerRanking + K * (actualScore - expectedScore)))
+}
+
+// Points a 2v2 team gains/loses in a match, shared equally by both teammates.
+// The expected score is computed from team average vs opponent-team average, so
+// both players move by the same amount regardless of their individual ratings
+// (issue #102). Callers add this delta to each teammate's own pre-rating and
+// clamp with clampRanking.
+export const calculateTeamRankingDelta = (
+  teamAvgRanking: number,
+  opponentAvgRanking: number,
+  result: MatchResult,
+): number => {
+  const K = kFor(result)
+  const expectedScore = 1 / (1 + 10 ** ((opponentAvgRanking - teamAvgRanking) / 400))
+  const actualScore = result === 'win' ? 1 : result === 'draw' ? 0.5 : 0
+  return Math.round(K * (actualScore - expectedScore))
 }
 
 // All-time ELO uses the symmetric standard K (the seasonal 35/29 split would
@@ -38,8 +59,9 @@ export interface ContinuousRankingPoint {
 
 // Replay a group's full match history as one continuous ELO chain, as if
 // seasons never reset. Returns each player's rating after every match they
-// played, oldest first. 1v1 rates player vs player; 2v2 rates each player
-// against the opposing team's average.
+// played, oldest first. 1v1 rates player vs player; 2v2 rates the team average
+// against the opposing team's average and splits the resulting delta equally
+// between teammates (issue #102).
 export function replayContinuousElo(matches: Match[]): Map<string, ContinuousRankingPoint[]> {
   // Insertion order (createdAt), same order the stored rankings were assigned in
   const ordered = matches.toSorted((a, b) => {
@@ -62,16 +84,19 @@ export function replayContinuousElo(matches: Match[]): Map<string, ContinuousRan
     const team1Avg = team1.reduce((sum, id) => sum + ratingOf(id), 0) / team1.length
     const team2Avg = team2.reduce((sum, id) => sum + ratingOf(id), 0) / team2.length
 
-    // Compute every new rating from pre-match values before committing any
+    // Compute every new rating from pre-match values before committing any.
+    // The delta is derived from team average vs opponent average and applied
+    // equally to each teammate (a 1-player team makes this identical to the
+    // old per-player 1v1 math).
     const updates: [string, number][] = []
-    for (const [ids, opponentAvg, actual] of [
-      [team1, team2Avg, team1Actual],
-      [team2, team1Avg, 1 - team1Actual],
-    ] as [string[], number, number][]) {
+    for (const [ids, teamAvg, opponentAvg, actual] of [
+      [team1, team1Avg, team2Avg, team1Actual],
+      [team2, team2Avg, team1Avg, 1 - team1Actual],
+    ] as [string[], number, number, number][]) {
+      const expected = 1 / (1 + 10 ** ((opponentAvg - teamAvg) / 400))
+      const delta = Math.round(K_FACTOR_ALL_TIME * (actual - expected))
       for (const id of ids) {
-        const current = ratingOf(id)
-        const expected = 1 / (1 + 10 ** ((opponentAvg - current) / 400))
-        updates.push([id, Math.round(current + K_FACTOR_ALL_TIME * (actual - expected))])
+        updates.push([id, ratingOf(id) + delta])
       }
     }
 

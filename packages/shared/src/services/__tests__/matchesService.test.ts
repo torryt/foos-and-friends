@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Database } from '../../lib/database.ts'
 import type { Match, MatchType, Player, PlayerSeasonStats } from '../../types/index.ts'
-import { calculateNewRanking, DEFAULT_RANKING } from '../../utils/elo.ts'
+import {
+  calculateNewRanking,
+  calculateTeamRankingDelta,
+  clampRanking,
+  DEFAULT_RANKING,
+} from '../../utils/elo.ts'
 import { createMatchesService, type MatchesService } from '../matchesService.ts'
 
 const GROUP_ID = 'group-1'
@@ -84,19 +89,31 @@ describe('MatchesService.addMatch', () => {
     )
 
   describe('2v2', () => {
-    it('rates every player against the opposing team average of pre-match rankings', async () => {
+    it('shares one team delta (team avg vs opponent avg) equally between teammates', async () => {
       await add2v2(10, 5)
+
+      // Both teammates move by the SAME delta despite different pre-rankings
+      // (issue #102): the delta is computed from team average vs opponent
+      // average, then added to each player's own pre-ranking.
+      const team1Delta = calculateTeamRankingDelta(TEAM1_AVG, TEAM2_AVG, 'win')
+      const team2Delta = calculateTeamRankingDelta(TEAM2_AVG, TEAM1_AVG, 'loss')
 
       expect(rankingDataOf()).toEqual({
         team1Player1PreRanking: 1300,
-        team1Player1PostRanking: calculateNewRanking(1300, TEAM2_AVG, 'win'),
+        team1Player1PostRanking: clampRanking(1300 + team1Delta),
         team1Player2PreRanking: 1200,
-        team1Player2PostRanking: calculateNewRanking(1200, TEAM2_AVG, 'win'),
+        team1Player2PostRanking: clampRanking(1200 + team1Delta),
         team2Player1PreRanking: 1000,
-        team2Player1PostRanking: calculateNewRanking(1000, TEAM1_AVG, 'loss'),
+        team2Player1PostRanking: clampRanking(1000 + team2Delta),
         team2Player2PreRanking: 1100,
-        team2Player2PostRanking: calculateNewRanking(1100, TEAM1_AVG, 'loss'),
+        team2Player2PostRanking: clampRanking(1100 + team2Delta),
       })
+
+      const data = rankingDataOf()
+      // The whole point of the fix: equal gain for the winners, equal loss for
+      // the losers, regardless of the rating gap within a team.
+      expect(data.team1Player1PostRanking - 1300).toBe(data.team1Player2PostRanking - 1200)
+      expect(data.team2Player1PostRanking - 1000).toBe(data.team2Player2PostRanking - 1100)
     })
 
     it('assigns each pre-ranking to the right player', async () => {

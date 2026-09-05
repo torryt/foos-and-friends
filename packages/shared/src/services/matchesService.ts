@@ -1,6 +1,12 @@
 import type { Database } from '../lib/database.ts'
 import type { Match, MatchType, Player, PlayerSeasonStats } from '../types/index.ts'
-import { calculateNewRanking, DEFAULT_RANKING, type MatchResult } from '../utils/elo.ts'
+import {
+  calculateNewRanking,
+  calculateTeamRankingDelta,
+  clampRanking,
+  DEFAULT_RANKING,
+  type MatchResult,
+} from '../utils/elo.ts'
 
 export class MatchesService {
   private db: Database
@@ -157,31 +163,20 @@ export class MatchesService {
       const team1AvgRanking = (team1Player1Ranking + team1Player2Ranking) / 2
       const team2AvgRanking = (team2Player1Ranking + team2Player2Ranking) / 2
 
+      // Both teammates share one delta (team avg vs opponent avg) so equal
+      // teammates gain/lose the same points regardless of rating gap (issue #102).
+      const team1Delta = calculateTeamRankingDelta(team1AvgRanking, team2AvgRanking, team1Result)
+      const team2Delta = calculateTeamRankingDelta(team2AvgRanking, team1AvgRanking, team2Result)
+
       rankingData = {
         team1Player1PreRanking: team1Player1Ranking,
-        team1Player1PostRanking: calculateNewRanking(
-          team1Player1Ranking,
-          team2AvgRanking,
-          team1Result,
-        ),
+        team1Player1PostRanking: clampRanking(team1Player1Ranking + team1Delta),
         team1Player2PreRanking: team1Player2Ranking,
-        team1Player2PostRanking: calculateNewRanking(
-          team1Player2Ranking,
-          team2AvgRanking,
-          team1Result,
-        ),
+        team1Player2PostRanking: clampRanking(team1Player2Ranking + team1Delta),
         team2Player1PreRanking: team2Player1Ranking,
-        team2Player1PostRanking: calculateNewRanking(
-          team2Player1Ranking,
-          team1AvgRanking,
-          team2Result,
-        ),
+        team2Player1PostRanking: clampRanking(team2Player1Ranking + team2Delta),
         team2Player2PreRanking: team2Player2Ranking,
-        team2Player2PostRanking: calculateNewRanking(
-          team2Player2Ranking,
-          team1AvgRanking,
-          team2Result,
-        ),
+        team2Player2PostRanking: clampRanking(team2Player2Ranking + team2Delta),
       }
     }
 

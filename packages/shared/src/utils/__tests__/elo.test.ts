@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Match, Player } from '../../types/index.ts'
-import { calculateNewRanking, replayContinuousElo } from '../elo.ts'
+import { calculateNewRanking, calculateTeamRankingDelta, replayContinuousElo } from '../elo.ts'
 
 const player = (id: string): Player =>
   ({
@@ -73,6 +73,22 @@ describe('calculateNewRanking (season ELO)', () => {
   })
 })
 
+describe('calculateTeamRankingDelta (2v2 shared points)', () => {
+  it('gives one delta for the team from team avg vs opponent avg', () => {
+    expect(calculateTeamRankingDelta(1200, 1200, 'win')).toBe(18) // round(35*0.5)
+    expect(calculateTeamRankingDelta(1200, 1200, 'loss')).toBe(-14) // round(29*-0.5), ties toward +∞
+    expect(calculateTeamRankingDelta(1200, 1200, 'draw')).toBe(0)
+  })
+
+  it('depends only on the team averages, not the individual gap (issue #102)', () => {
+    // A team averaging 1300 gets the same delta whether it is 1400+1200 or
+    // 1300+1300 — the delta is a function of the averages alone.
+    const delta = calculateTeamRankingDelta(1300, 1200, 'win')
+    expect(delta).toBe(calculateTeamRankingDelta((1400 + 1200) / 2, 1200, 'win'))
+    expect(delta).toBe(calculateTeamRankingDelta((1300 + 1300) / 2, 1200, 'win'))
+  })
+})
+
 describe('replayContinuousElo (all-time ELO)', () => {
   it('uses symmetric K=32: equal 1v1 opponents gain/lose 16', () => {
     const series = replayContinuousElo([match1v1('m1', 'a', 'b', 8, 5, '2026-01-01T10:00:00Z')])
@@ -86,7 +102,7 @@ describe('replayContinuousElo (all-time ELO)', () => {
     expect(series.get('b')).toEqual([{ matchId: 'm1', ranking: 1200 }])
   })
 
-  it('rates 2v2 players against the opposing team average, from pre-match values', () => {
+  it('shares the 2v2 delta equally between teammates, from pre-match values', () => {
     const series = replayContinuousElo([
       match2v2('m1', ['a', 'b'], ['c', 'd'], 8, 3, '2026-01-01T10:00:00Z'),
       match2v2('m2', ['a', 'c'], ['b', 'd'], 8, 3, '2026-01-02T10:00:00Z'),
@@ -94,12 +110,13 @@ describe('replayContinuousElo (all-time ELO)', () => {
     // m1: all at 1200, winners +16, losers -16
     expect(series.get('a')?.[0].ranking).toBe(1216)
     expect(series.get('d')?.[0].ranking).toBe(1184)
-    // m2: a(1216)+c(1184) beat b(1216)+d(1184); both teams average 1200,
-    // so a gains slightly less than 16 (expected > 0.5), c slightly more
-    expect(series.get('a')?.[1].ranking).toBe(1216 + 15)
-    expect(series.get('c')?.[1].ranking).toBe(1184 + 17)
-    expect(series.get('b')?.[1].ranking).toBe(1216 - 17)
-    expect(series.get('d')?.[1].ranking).toBe(1184 - 15)
+    // m2: a(1216)+c(1184) beat b(1216)+d(1184); both teams average 1200, so the
+    // team delta is +16/-16 and BOTH teammates move by it regardless of their
+    // own rating (issue #102) — a and c both gain 16, b and d both lose 16.
+    expect(series.get('a')?.[1].ranking).toBe(1216 + 16)
+    expect(series.get('c')?.[1].ranking).toBe(1184 + 16)
+    expect(series.get('b')?.[1].ranking).toBe(1216 - 16)
+    expect(series.get('d')?.[1].ranking).toBe(1184 - 16)
   })
 
   it('does not clamp: chains can drift past the season 800/2400 bounds', () => {
