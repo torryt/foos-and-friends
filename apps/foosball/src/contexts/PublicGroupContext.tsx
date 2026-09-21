@@ -10,6 +10,8 @@ import type { ReactNode } from 'react'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { groupService } from '@/lib/init'
 
+const TRANSIENT_RETRY_MS = 5_000
+
 interface PublicGroupContextType {
   groupId: string
   group: PublicGroupInfo | null
@@ -55,6 +57,10 @@ export const PublicGroupProvider = ({ groupId, children }: PublicGroupProviderPr
   const [seasonStats, setSeasonStats] = useState<PlayerSeasonStats[]>([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  // A transient fetch failure (network blip, 5xx) — as opposed to the group
+  // genuinely not being publicly readable. Drives a retry; never flips the UI
+  // to the private request-to-join card.
+  const [transientError, setTransientError] = useState(false)
 
   const refresh = useCallback(async () => {
     const [dataResult, matchesResult] = await Promise.all([
@@ -63,8 +69,16 @@ export const PublicGroupProvider = ({ groupId, children }: PublicGroupProviderPr
     ])
 
     if (!dataResult.data) {
-      setNotFound(true)
-      setLoading(false)
+      // Only a genuine 'not_found' means the group is private or nonexistent.
+      // Any other error is transient — don't knock a working public page (e.g. a
+      // TV on the 30s auto-refresh) over to the request-to-join card; keep the
+      // last-good data and let the retry recover.
+      if (dataResult.error === 'not_found') {
+        setNotFound(true)
+        setLoading(false)
+      } else {
+        setTransientError(true)
+      }
       return
     }
 
@@ -74,6 +88,7 @@ export const PublicGroupProvider = ({ groupId, children }: PublicGroupProviderPr
     setTrophies(dataResult.data.trophies)
     setAllMatches(matchesResult.data)
     setNotFound(false)
+    setTransientError(false)
 
     // Keep the selected season if it still exists; default to the active one
     setCurrentSeason((prev) => {
@@ -89,8 +104,21 @@ export const PublicGroupProvider = ({ groupId, children }: PublicGroupProviderPr
   useEffect(() => {
     setLoading(true)
     setNotFound(false)
+    setTransientError(false)
     refresh()
   }, [refresh])
+
+  // Recover from a transient failure. The child pages' auto-refresh only runs
+  // once content mounts, so on a first-load blip (still showing the spinner)
+  // recovery has to be driven from here.
+  useEffect(() => {
+    if (!transientError) return
+    const timer = setTimeout(() => {
+      setTransientError(false)
+      refresh()
+    }, TRANSIENT_RETRY_MS)
+    return () => clearTimeout(timer)
+  }, [transientError, refresh])
 
   // Load the leaderboard whenever the selected season changes
   useEffect(() => {
@@ -100,8 +128,11 @@ export const PublicGroupProvider = ({ groupId, children }: PublicGroupProviderPr
     }
     let stale = false
     groupService.getPublicSeasonStats(groupId, currentSeason.id).then((result) => {
-      if (!stale) {
-        setSeasonStats(result.data?.overall ?? [])
+      // Keep the last-good leaderboard on a transient failure (null data) rather
+      // than blanking the TV to "No matches yet this season"; a real empty
+      // season still comes back as data with an empty list.
+      if (!stale && result.data) {
+        setSeasonStats(result.data.overall)
       }
     })
     return () => {
