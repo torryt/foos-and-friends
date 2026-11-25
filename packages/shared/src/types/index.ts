@@ -347,3 +347,16 @@ export interface SeasonCreationResult {
   seasonNumber?: number
   error?: string
 }
+
+// Per-user preferences persisted in `user_preferences.preferences` (jsonb).
+export type PlayerPickerSort = 'name' | 'recent' | 'games' | 'rating'
+
+export interface PlayerPickerPreferences {
+  sort: PlayerPickerSort
+  // Only show players with at least one match in the last 30 days
+  activeOnly: boolean
+}
+
+export interface UserPreferences {
+  playerPicker?: Partial<PlayerPickerPreferences>
+}

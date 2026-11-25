@@ -1,7 +1,9 @@
 import type { Player } from '@foos/shared'
 import { ArrowLeft, Check, Search, X } from 'lucide-react'
 import { useState } from 'react'
+import { usePlayerPickerList } from '@/hooks/usePlayerPickerList'
 import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
+import { PlayerPickerControls } from './PlayerPickerControls'
 
 interface PlayerPickerSheetProps {
   players: Player[]
@@ -22,7 +24,11 @@ export const PlayerPickerSheet = ({
 }: PlayerPickerSheetProps) => {
   const [search, setSearch] = useState('')
 
-  const filteredPlayers = players.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
+  const { prefs, setPrefs, visiblePlayers, hiddenCount } = usePlayerPickerList(players)
+  const filteredPlayers = visiblePlayers.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase()),
+  )
+  const hiddenByActiveFilter = hiddenCount > 0
 
   return (
     <ModalOrBottomDrawer onClose={onClose} className="sm:max-w-md" fullHeight>
@@ -63,6 +69,8 @@ export const PlayerPickerSheet = ({
               className="w-full pl-9 pr-3 py-2 text-sm rounded-[var(--th-radius-md)] bg-card-hover border border-[var(--th-border)] text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent"
             />
           </div>
+
+          <PlayerPickerControls prefs={prefs} onChange={setPrefs} />
         </div>
 
         {/* Scrollable Player List */}
@@ -89,7 +97,23 @@ export const PlayerPickerSheet = ({
               </button>
             ))}
             {filteredPlayers.length === 0 && (
-              <p className="text-sm text-muted text-center py-8">No players found</p>
+              <div className="text-sm text-muted text-center py-8 space-y-3">
+                <p>{hiddenByActiveFilter ? 'No active players found' : 'No players found'}</p>
+                {hiddenByActiveFilter && (
+                  <button
+                    type="button"
+                    onClick={() => setPrefs({ activeOnly: false })}
+                    className="min-h-11 px-4 rounded-full border border-[var(--th-border)] text-secondary hover:bg-card-hover"
+                  >
+                    Show all players
+                  </button>
+                )}
+              </div>
+            )}
+            {hiddenByActiveFilter && filteredPlayers.length > 0 && (
+              <p className="text-xs text-muted text-center pt-2">
+                Hiding {hiddenCount} inactive players (no match in 30 days)
+              </p>
             )}
           </div>
         </div>

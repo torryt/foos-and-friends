@@ -8,6 +8,7 @@ import {
   createSeasonsService,
   createSupabaseDatabase,
   createTrophiesService,
+  createUserPreferencesService,
   initSupabase,
 } from '@foos/shared'
 
@@ -36,3 +37,4 @@ export const matchesService = createMatchesService(
   playerSeasonStatsService,
 )
 export const trophiesService = createTrophiesService(database)
+export const userPreferencesService = createUserPreferencesService(database)
