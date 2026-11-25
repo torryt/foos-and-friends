@@ -14,6 +14,7 @@ import type {
   Season,
   SeasonTrophy,
   SportType,
+  UserPreferences,
 } from '../types/index.ts'
 
 // Editable group settings (owner only)
@@ -228,4 +229,8 @@ export interface Database {
 
   // Season trophy operations (read-only, awarded server-side when a season ends)
   getTrophiesByGroup(groupId: string): Promise<DatabaseListResult<SeasonTrophy>>
+
+  // User preferences (the authenticated caller's own row; follows the user across devices)
+  getUserPreferences(): Promise<DatabaseResult<UserPreferences>>
+  saveUserPreferences(preferences: UserPreferences): Promise<DatabaseResult<UserPreferences>>
 }

@@ -24,6 +24,7 @@ import type {
   SeasonTrophy,
   SportType,
   TrophyRank,
+  UserPreferences,
 } from '../types/index.ts'
 import type {
   Database,
@@ -1556,6 +1557,60 @@ export class SupabaseDatabase implements Database {
       return {
         data: [],
         error: err instanceof Error ? err.message : 'Failed to fetch season trophies',
+      }
+    }
+  }
+
+  async getUserPreferences(): Promise<DatabaseResult<UserPreferences>> {
+    try {
+      const supabase = getSupabase()
+      // RLS limits this to the caller's own row
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('preferences')
+        .maybeSingle()
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: (data?.preferences as UserPreferences | undefined) ?? {}, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to fetch user preferences',
+      }
+    }
+  }
+
+  async saveUserPreferences(preferences: UserPreferences): Promise<DatabaseResult<UserPreferences>> {
+    try {
+      const supabase = getSupabase()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (!session) {
+        return { data: null, error: 'Not authenticated' }
+      }
+
+      const { error } = await supabase.from('user_preferences').upsert(
+        {
+          user_id: session.user.id,
+          preferences,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id' },
+      )
+
+      if (error) {
+        return { data: null, error: error.message }
+      }
+
+      return { data: preferences, error: null }
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to save user preferences',
       }
     }
   }

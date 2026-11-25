@@ -30,6 +30,7 @@ import type {
   SeasonTrophy,
   SportType,
   TrophyRank,
+  UserPreferences,
 } from '../types/index.ts'
 import { replayContinuousElo } from '../utils/elo.ts'
 import { buildMockSeed, MOCK_USER_ID, type MockSeed, type MockSeedOptions } from './mock-data.ts'
@@ -1088,6 +1089,17 @@ export class MockDatabase implements Database {
       .filter((t) => t.groupId === groupId)
       .toSorted((a, b) => b.seasonNumber - a.seasonNumber || a.rank - b.rank)
     return { data: trophies, error: null }
+  }
+
+  private userPreferences: UserPreferences = {}
+
+  async getUserPreferences(): Promise<DatabaseResult<UserPreferences>> {
+    return { data: structuredClone(this.userPreferences), error: null }
+  }
+
+  async saveUserPreferences(preferences: UserPreferences): Promise<DatabaseResult<UserPreferences>> {
+    this.userPreferences = structuredClone(preferences)
+    return { data: structuredClone(this.userPreferences), error: null }
   }
 }
 

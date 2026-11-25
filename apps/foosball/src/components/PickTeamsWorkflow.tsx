@@ -18,8 +18,10 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
+import { usePlayerPickerList } from '@/hooks/usePlayerPickerList'
 import { useToast } from '@/hooks/useToast'
 import { ModalOrBottomDrawer } from './ModalOrBottomDrawer'
+import { PlayerPickerControls } from './PlayerPickerControls'
 import { ScoreEntryStep } from './ScoreEntryStep'
 
 interface PickTeamsWorkflowProps {
@@ -60,6 +62,11 @@ export const PickTeamsWorkflow = ({
   const [team2Swapped, setTeam2Swapped] = useState(false)
   const [playerSearch, setPlayerSearch] = useState('')
   const { toast } = useToast()
+  const { prefs, setPrefs, visiblePlayers, hiddenCount } = usePlayerPickerList(players)
+
+  // Players hidden by the Active-only filter never count toward (or enter) the pool
+  const visibleIds = new Set(visiblePlayers.map((p) => p.id))
+  const poolIds = selectedPlayerPool.filter((id) => visibleIds.has(id))
 
   const handlePlayerPoolToggle = (playerId: string) => {
     setSelectedPlayerPool((prev) => {
@@ -68,7 +75,7 @@ export const PickTeamsWorkflow = ({
   }
 
   const selectAllPlayers = () => {
-    setSelectedPlayerPool(players.map((p) => p.id))
+    setSelectedPlayerPool(visiblePlayers.map((p) => p.id))
   }
 
   const clearAllPlayers = () => {
@@ -76,7 +83,7 @@ export const PickTeamsWorkflow = ({
   }
 
   const handleGenerateMatchup = async () => {
-    if (selectedPlayerPool.length < 4) {
+    if (poolIds.length < 4) {
       toast().error('Player pool must contain 4 or more players')
       return
     }
@@ -84,7 +91,7 @@ export const PickTeamsWorkflow = ({
     setIsGenerating(true)
 
     try {
-      const poolPlayers = players.filter((p) => selectedPlayerPool.includes(p.id))
+      const poolPlayers = players.filter((p) => poolIds.includes(p.id))
 
       // Generate position preferences for balanced matchmaking
       const positionPreferences = poolPlayers.map((player) => {
@@ -539,15 +546,13 @@ export const PickTeamsWorkflow = ({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Users className="text-muted" size={16} />
-              <span className="font-medium text-primary">
-                Player Pool ({selectedPlayerPool.length})
-              </span>
+              <span className="font-medium text-primary">Player Pool ({poolIds.length})</span>
             </div>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={selectAllPlayers}
-                disabled={selectedPlayerPool.length === players.length}
+                disabled={poolIds.length === visiblePlayers.length}
                 className="text-xs text-[var(--th-sport-primary)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Select All
@@ -555,7 +560,7 @@ export const PickTeamsWorkflow = ({
               <button
                 type="button"
                 onClick={clearAllPlayers}
-                disabled={selectedPlayerPool.length === 0}
+                disabled={poolIds.length === 0}
                 className="text-xs text-secondary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Clear All
@@ -576,14 +581,14 @@ export const PickTeamsWorkflow = ({
               className="w-full pl-9 pr-3 py-2 text-sm rounded-[var(--th-radius-md)] bg-card-hover border border-[var(--th-border)] text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-[var(--th-sport-primary)] focus:border-transparent"
             />
           </div>
+
+          <PlayerPickerControls prefs={prefs} onChange={setPrefs} />
         </div>
 
         {/* Scrollable Player List */}
         <div className="flex-1 overflow-y-auto min-h-0 px-6">
           <div className="space-y-2 pb-2">
-            {players
-              .slice()
-              .toSorted((a, b) => a.name.localeCompare(b.name))
+            {visiblePlayers
               .filter((p) => p.name.toLowerCase().includes(playerSearch.toLowerCase()))
               .map((player) => (
                 <label
@@ -592,7 +597,7 @@ export const PickTeamsWorkflow = ({
                 >
                   <input
                     type="checkbox"
-                    checked={selectedPlayerPool.includes(player.id)}
+                    checked={poolIds.includes(player.id)}
                     onChange={() => handlePlayerPoolToggle(player.id)}
                     disabled={false}
                     className="rounded border-[var(--th-border)] text-[var(--th-sport-primary)] focus:ring-[var(--th-sport-primary)] disabled:opacity-50"
@@ -604,6 +609,11 @@ export const PickTeamsWorkflow = ({
                   </div>
                 </label>
               ))}
+            {hiddenCount > 0 && (
+              <p className="text-xs text-muted text-center pt-2">
+                Hiding {hiddenCount} inactive players (no match in 30 days)
+              </p>
+            )}
           </div>
         </div>
 
@@ -612,7 +622,7 @@ export const PickTeamsWorkflow = ({
           className="flex-shrink-0 px-6 pt-4 border-t border-[var(--th-border)] bg-card"
           style={{ paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom))' }}
         >
-          {selectedPlayerPool.length < 4 && (
+          {poolIds.length < 4 && (
             <p className="text-sm text-[var(--th-loss)] text-center mb-3">
               Select 4 or more players to generate teams
             </p>
@@ -620,7 +630,7 @@ export const PickTeamsWorkflow = ({
           <button
             type="button"
             onClick={handleGenerateMatchup}
-            disabled={isGenerating || selectedPlayerPool.length < 4}
+            disabled={isGenerating || poolIds.length < 4}
             className="w-full bg-[var(--th-sport-primary)] hover:opacity-90 text-white py-3 px-4 rounded-[var(--th-radius-lg)] font-semibold shadow-theme-card transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isGenerating ? (

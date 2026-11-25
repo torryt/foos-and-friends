@@ -42,6 +42,10 @@ export {
 } from './services/savedMatchupsService.ts'
 export { createSeasonsService, SeasonsService } from './services/seasonsService.ts'
 export { createTrophiesService, TrophiesService } from './services/trophiesService.ts'
+export {
+  createUserPreferencesService,
+  UserPreferencesService,
+} from './services/userPreferencesService.ts'
 // Mock mode (local development without Supabase)
 export {
   buildMockSeed,
@@ -74,4 +78,5 @@ export * from './types/index.ts'
 export * from './utils/badges.ts'
 export * from './utils/elo.ts'
 export * from './utils/matchmaking.ts'
+export * from './utils/playerPicker.ts'
 export * from './utils/streakCalculations.ts'

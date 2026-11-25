@@ -28,6 +28,7 @@ import type {
   Season,
   SeasonTrophy,
   SportType,
+  UserPreferences,
 } from '../types/index.ts'
 
 export class FakeDatabase implements Database {
@@ -925,5 +926,16 @@ export class FakeDatabase implements Database {
     if (data.matches) this.matches = [...data.matches]
     if (data.seasons) this.seasons = [...data.seasons]
     if (data.playerSeasonStats) this._playerSeasonStats = [...data.playerSeasonStats]
+  }
+
+  private userPreferences: UserPreferences = {}
+
+  async getUserPreferences(): Promise<DatabaseResult<UserPreferences>> {
+    return { data: this.userPreferences, error: null }
+  }
+
+  async saveUserPreferences(preferences: UserPreferences): Promise<DatabaseResult<UserPreferences>> {
+    this.userPreferences = preferences
+    return { data: preferences, error: null }
   }
 }
