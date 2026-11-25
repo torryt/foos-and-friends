@@ -103,6 +103,7 @@ const createMockRelationshipData = () => ({
       recentForm: ['W', 'W', 'W'] as ('W' | 'L')[],
     },
   ],
+  headToHead: [],
   opponents: [
     {
       playerId: 'player2',
@@ -152,6 +153,7 @@ describe('PlayerRelationshipStats', () => {
     const { useRelationshipStats } = vi.mocked(await import('@/hooks/useRelationshipStats'))
     useRelationshipStats.mockReturnValue({
       teammates: [],
+      headToHead: [],
       opponents: [],
       topTeammate: null,
       worstTeammate: null,
@@ -285,6 +287,7 @@ describe('PlayerRelationshipStats', () => {
 
     useRelationshipStats.mockReturnValue({
       teammates: manyTeammates,
+      headToHead: [],
       opponents: [],
       topTeammate: null,
       worstTeammate: null,
@@ -316,6 +319,7 @@ describe('PlayerRelationshipStats', () => {
 
     useRelationshipStats.mockReturnValue({
       teammates: manyTeammates,
+      headToHead: [],
       opponents: [],
       topTeammate: null,
       worstTeammate: null,

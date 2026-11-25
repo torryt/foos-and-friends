@@ -16,6 +16,8 @@ export interface RelationshipStats {
 export interface RelationshipStatsData {
   teammates: RelationshipStats[]
   opponents: RelationshipStats[]
+  // Direct matchups: attack vs defence (team1[0] vs team2[1], team1[1] vs team2[0]); 1v1 is player vs player
+  headToHead: RelationshipStats[]
   topTeammate: RelationshipStats | null
   worstTeammate: RelationshipStats | null
   biggestRival: RelationshipStats | null
@@ -69,11 +71,40 @@ export const useRelationshipStats = (
       }
     >()
 
+    const h2hStats = new Map<
+      string,
+      {
+        gamesPlayed: number
+        wins: number
+        losses: number
+        goalDifference: number
+        recentGames: { won: boolean; match: Match }[]
+      }
+    >()
+
     // Process each match
     for (const match of playerMatches) {
       const wasInTeam1 = match.team1[0].id === playerId || match.team1[1]?.id === playerId
       const won = wasInTeam1 ? match.score1 > match.score2 : match.score2 > match.score1
       const goalDiff = wasInTeam1 ? match.score1 - match.score2 : match.score2 - match.score1
+
+      // Head-to-head: the direct opponent is the player in the opposite position
+      const myTeam = wasInTeam1 ? match.team1 : match.team2
+      const theirTeam = wasInTeam1 ? match.team2 : match.team1
+      const mySlot = myTeam[0].id === playerId ? 0 : 1
+      const directOpponent = theirTeam.length > 1 ? theirTeam[1 - mySlot] : theirTeam[0]
+      if (directOpponent) {
+        let h2h = h2hStats.get(directOpponent.id)
+        if (!h2h) {
+          h2h = { gamesPlayed: 0, wins: 0, losses: 0, goalDifference: 0, recentGames: [] }
+          h2hStats.set(directOpponent.id, h2h)
+        }
+        h2h.gamesPlayed++
+        h2h.goalDifference += goalDiff
+        h2h.recentGames.push({ won, match })
+        if (won) h2h.wins++
+        else h2h.losses++
+      }
 
       // Get teammate
       let teammateId: string | undefined
@@ -186,6 +217,25 @@ export const useRelationshipStats = (
       .filter((stat): stat is RelationshipStats => stat !== null)
       .toSorted((a, b) => b.gamesPlayed - a.gamesPlayed) // Sort by games played desc
 
+    const headToHead: RelationshipStats[] = Array.from(h2hStats.entries())
+      .map(([relatedId, stats]) => {
+        const player = players.find((p) => p.id === relatedId)
+        if (!player) return null
+        return {
+          playerId: relatedId,
+          playerName: player.name,
+          playerAvatar: player.avatar,
+          gamesPlayed: stats.gamesPlayed,
+          wins: stats.wins,
+          losses: stats.losses,
+          winRate: Math.round((stats.wins / stats.gamesPlayed) * 100),
+          goalDifference: stats.goalDifference,
+          recentForm: stats.recentGames.slice(-5).map((g): 'W' | 'L' => (g.won ? 'W' : 'L')),
+        }
+      })
+      .filter((stat): stat is RelationshipStats => stat !== null)
+      .toSorted((a, b) => b.gamesPlayed - a.gamesPlayed)
+
     // Find notable relationships (minimum 3 games for meaningful stats)
     const minGamesForStats = 3
     const qualifiedTeammates = teammates.filter((t) => t.gamesPlayed >= minGamesForStats)
@@ -226,6 +276,7 @@ export const useRelationshipStats = (
     return {
       teammates,
       opponents,
+      headToHead,
       topTeammate,
       worstTeammate,
       biggestRival,
