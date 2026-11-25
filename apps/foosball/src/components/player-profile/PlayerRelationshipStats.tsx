@@ -164,13 +164,18 @@ export function PlayerRelationshipStats({
   matches,
   onPlayerClick,
 }: PlayerRelationshipStatsProps) {
-  const [activeTab, setActiveTab] = useState<'teammates' | 'opponents'>('teammates')
+  const [activeTab, setActiveTab] = useState<'teammates' | 'opponents' | 'h2h'>('teammates')
   const [showAllTeammates, setShowAllTeammates] = useState(false)
   const [showAllOpponents, setShowAllOpponents] = useState(false)
+  const [showAllH2h, setShowAllH2h] = useState(false)
 
   const relationshipData = useRelationshipStats(playerId, matches, players)
 
-  if (relationshipData.teammates.length === 0 && relationshipData.opponents.length === 0) {
+  if (
+    relationshipData.teammates.length === 0 &&
+    relationshipData.opponents.length === 0 &&
+    relationshipData.headToHead.length === 0
+  ) {
     return (
       <Card className="p-4 bg-card backdrop-blur-sm">
         <div className="flex items-center justify-center py-8">
@@ -190,6 +195,10 @@ export function PlayerRelationshipStats({
   const displayedOpponents = showAllOpponents
     ? relationshipData.opponents
     : relationshipData.opponents.slice(0, 5)
+
+  const displayedH2h = showAllH2h
+    ? relationshipData.headToHead
+    : relationshipData.headToHead.slice(0, 5)
 
   return (
     <Card className="p-4 bg-card backdrop-blur-sm">
@@ -224,6 +233,18 @@ export function PlayerRelationshipStats({
             )}
           >
             Opponents
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('h2h')}
+            className={cn(
+              'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+              activeTab === 'h2h'
+                ? 'bg-card text-primary shadow-sm'
+                : 'text-muted hover:text-primary',
+            )}
+          >
+            H2H
           </button>
         </div>
       </div>
@@ -322,6 +343,42 @@ export function PlayerRelationshipStats({
               ) : (
                 <>
                   Show All {relationshipData.opponents.length} Opponents
+                  <ChevronDown className="w-4 h-4 ml-1" />
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Head-to-head Tab: direct matchups (attack vs defence) */}
+      {activeTab === 'h2h' && (
+        <div className="space-y-3">
+          <p className="text-xs text-muted">Direct matchups: attacker vs defender</p>
+          {displayedH2h.map((opponent, index) => (
+            <RelationshipCard
+              key={opponent.playerId}
+              relationship={opponent}
+              onPlayerClick={onPlayerClick}
+              rank={index + 1}
+            />
+          ))}
+
+          {relationshipData.headToHead.length > 5 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAllH2h(!showAllH2h)}
+              className="w-full"
+            >
+              {showAllH2h ? (
+                <>
+                  Show Less
+                  <ChevronDown className="w-4 h-4 ml-1 rotate-180" />
+                </>
+              ) : (
+                <>
+                  Show All {relationshipData.headToHead.length} Opponents
                   <ChevronDown className="w-4 h-4 ml-1" />
                 </>
               )}

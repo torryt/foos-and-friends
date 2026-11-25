@@ -758,4 +758,35 @@ describe('useRelationshipStats', () => {
     expect(result.current.opponents[2].playerId).toBe('player3') // Charlie
     expect(result.current.opponents[2].gamesPlayed).toBe(1)
   })
+
+  it('pairs attack vs defence for head-to-head', () => {
+    // Alice(att)+Bob(def) vs Charlie(att)+Diana(def): Alice faces Diana, Bob faces Charlie
+    const matches: Match[] = [
+      createMatch(
+        'm1',
+        [mockPlayers[0], mockPlayers[1]],
+        [mockPlayers[2], mockPlayers[3]],
+        5,
+        3,
+        0,
+      ),
+      // Alice now on team2 as defender; direct opponent is team1[0] = Charlie
+      createMatch(
+        'm2',
+        [mockPlayers[2], mockPlayers[1]],
+        [mockPlayers[3], mockPlayers[0]],
+        2,
+        5,
+        1,
+      ),
+    ]
+
+    const { result } = renderHook(() => useRelationshipStats('player1', matches, mockPlayers))
+    const h2h = result.current.headToHead
+    expect(h2h).toHaveLength(2)
+    const diana = h2h.find((r) => r.playerId === 'player4')
+    const charlie = h2h.find((r) => r.playerId === 'player3')
+    expect(diana).toMatchObject({ gamesPlayed: 1, wins: 1, goalDifference: 2 })
+    expect(charlie).toMatchObject({ gamesPlayed: 1, wins: 1, goalDifference: 3 })
+  })
 })
