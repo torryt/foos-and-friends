@@ -38,7 +38,7 @@ test('hides players without games until revealed', async ({ page }) => {
     ).toBeHidden()
   }
 
-  await page.getByRole('button', { name: 'Show 3 players without games' }).click()
+  await page.getByRole('button', { name: 'Show 3 unranked players' }).click()
 
   for (const name of HIDDEN_PLAYERS) {
     await expect(
